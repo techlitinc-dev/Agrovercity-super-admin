@@ -9,6 +9,7 @@ import { KycVaultModule } from './components/kyc-vault/KycVaultModule';
 import { MandiRatesModule } from './components/mandi-rates/MandiRatesModule';
 import { ProduceLotsModule } from './components/produce-lots/ProduceLotsModule';
 import { MarketplaceModule } from './components/marketplace/MarketplaceModule';
+import ContractsPage from './pages/ContractsPage';
 
 export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -21,6 +22,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '07':
+        return {
+          path: '/admin/contracts',
+          title: 'Buyer Contracts & Price Locks',
+          sop: 'SOP-07',
+          collections: 'buyer_contracts, contract_acceptances',
+          compliance: 'MPIN Digital Acceptance: Active • Escrow Dual Sign-off > ₹50,000: Enforced'
+        };
       case '06':
         return {
           path: '/admin/marketplace',
@@ -118,6 +127,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '07' && (
+                <ContractsPage key={`mod-07-${refreshKey}`} />
+              )}
               {activeModuleId === '06' && (
                 <MarketplaceModule key={`mod-06-${refreshKey}`} />
               )}

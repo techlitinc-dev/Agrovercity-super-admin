@@ -23,6 +23,7 @@ function filterContracts({ q = '', status = 'all', from = '', to = '' }) {
 async function mockRequest(method, path, body) {
   await new Promise((r) => setTimeout(r, 150))
   const contractMatch = path.match(/^\/admin\/contracts\/([^/]+)(\/acceptances)?$/)
+  const escrowMatch = path.match(/^\/admin\/contracts\/([^/]+)\/escrow$/)
 
   if (method === 'GET' && path === '/admin/contracts') {
     return paginate(filterContracts(body || {}), body?.page || 1, body?.pageSize || 20)
@@ -39,6 +40,15 @@ async function mockRequest(method, path, body) {
     const c = mockContracts.find((x) => x.id === body.contractId)
     if (!c) throw Object.assign(new Error('Not found'), { status: 404 })
     c.status = 'published'
+    c.updatedAt = new Date().toISOString()
+    return c
+  }
+  if (method === 'PUT' && escrowMatch) {
+    const c = mockContracts.find((x) => x.id === escrowMatch[1])
+    if (!c) throw Object.assign(new Error('Not found'), { status: 404 })
+    const amount = Math.min(Number(body.amount) || 0, (c.escrowAmount || 0) - (c.escrowReleased || 0))
+    if (amount <= 0) throw Object.assign(new Error('Nothing left to release'), { status: 422 })
+    c.escrowReleased = (c.escrowReleased || 0) + amount
     c.updatedAt = new Date().toISOString()
     return c
   }
@@ -85,6 +95,10 @@ export function publishContract(contractId) {
 
 export function updateContractStatus(contractId, status, reason) {
   return call('PUT', `/admin/contracts/${contractId}/status`, { status, reason })
+}
+
+export function releaseEscrow(contractId, amount) {
+  return call('PUT', `/admin/contracts/${contractId}/escrow`, { amount })
 }
 
 export function listAcceptances(contractId) {

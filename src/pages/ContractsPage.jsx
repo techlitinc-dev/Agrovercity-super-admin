@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { isMockMode, listContracts, listAcceptances, publishContract, updateContractStatus } from '../api/contractsApi'
+import { isMockMode, listContracts, listAcceptances, publishContract, updateContractStatus, releaseEscrow } from '../api/contractsApi'
 import ConfirmDialog from '../components/ConfirmDialog'
-import DetailDrawer from '../components/DetailDrawer'
+import ContractDetailDrawer from '../components/contracts/ContractDetailDrawer'
 import { MetricCard, FiltersBar, ContractsTable, Pagination } from './contractsWidgets'
 
 const PAGE_SIZE = 20
+
+const fmtINR = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`
 
 function toCsv(contracts) {
   const head = ['id', 'buyerName', 'farmerName', 'farmerPhone', 'crop', 'quantityQuintals', 'ratePerQuintal', 'status', 'escrowAmount', 'escrowReleased', 'createdAt']
@@ -80,12 +82,13 @@ export default function ContractsPage() {
   }, [contracts])
 
   const actionFor = (kind, payload) => {
-    const [title, message, confirmLabel, danger, dualSignOff, run] = {
+    const builders = {
       publish: () => [`Publish contract ${payload.contract.id}?`, 'The approved institutional contract will become visible to farmers for digital MPIN acceptance.', 'Publish', false, false, () => publishContract(payload.contract.id)],
       status: () => [`Set contract ${payload.contract.id} → ${payload.status}?`, 'This state change is written to the immutable audit log with your admin UID and reason.', 'Update Status', ['cancelled', 'breached'].includes(payload.status), false, (reason) => updateContractStatus(payload.contract.id, payload.status, reason)],
-    }[kind]
-    const [t, m, cl, d, dso, r] = title()
-    setDialog({ kind, contract: payload.contract, title: t, message: m, confirmLabel: cl, danger: d, dualSignOff: dso, run: r, status: payload.status, amount: payload.amount })
+      release: () => [`Release ${fmtINR(payload.amount)} from escrow on ${payload.contract.id}?`, 'Payment is released from the corporate buyer escrow account to the farmer ledger and recorded in the audit trail.', 'Release Funds', false, payload.amount > 50000, (reason) => releaseEscrow(payload.contract.id, payload.amount)],
+    }
+    const [title, message, confirmLabel, danger, dualSignOff, run] = builders[kind]()
+    setDialog({ kind, contract: payload.contract, title, message, confirmLabel, danger, dualSignOff, run, status: payload.status, amount: payload.amount })
   }
 
   async function handleConfirm(reason) {
@@ -93,7 +96,7 @@ export default function ContractsPage() {
     setDialog(null)
     try {
       const updated = await run(reason)
-      setSelected((s) => s && { ...s, ...(updated || {}), status: kind === 'publish' ? 'published' : newStatus, updatedAt: new Date().toISOString() })
+      setSelected((s) => s && { ...s, ...(updated || {}), status: kind === 'publish' ? 'published' : (newStatus || s.status), updatedAt: new Date().toISOString() })
       load()
     } catch (err) {
       setError(err.message || 'Action failed')
