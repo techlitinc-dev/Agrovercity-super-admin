@@ -8,6 +8,7 @@ import { UserManagementModule } from './components/user-management/UserManagemen
 import { KycVaultModule } from './components/kyc-vault/KycVaultModule';
 import { MandiRatesModule } from './components/mandi-rates/MandiRatesModule';
 import { ProduceLotsModule } from './components/produce-lots/ProduceLotsModule';
+import { MarketplaceModule } from './components/marketplace/MarketplaceModule';
 
 export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -20,6 +21,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '06':
+        return {
+          path: '/admin/marketplace',
+          title: 'Input Marketplace, Cart, Orders & Payments',
+          sop: 'SOP-06',
+          collections: 'products, orders, users/{uid}/cart, users/{uid}/addresses, products/{id}/reviews, payments',
+          compliance: 'Razorpay Refunds: Active • Agmark QR Verification: Enforced'
+        };
       case '05':
         return {
           path: '/admin/lots',
@@ -109,6 +118,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '06' && (
+                <MarketplaceModule key={`mod-06-${refreshKey}`} />
+              )}
               {activeModuleId === '05' && (
                 <ProduceLotsModule key={`mod-05-${refreshKey}`} />
               )}
