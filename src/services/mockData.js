@@ -3488,5 +3488,605 @@ export const INITIAL_REVIEWS = [
   }
 ];
 
+// ============================================================================
+// MODULE 08: TRANSPORT LOGISTICS & FLEET OPERATIONS (SOP-08)
+// Collections: vehicles, transport_bookings, transporter_settlements
+// ============================================================================
+
+export const INITIAL_VEHICLES = [
+  {
+    id: "VEH-801",
+    transporterId: "USR-2101",
+    transporterName: "Suresh Jadhav",
+    transporterMobile: "+91 98220 31445",
+    vehicleClass: "Mini Truck (Tata 407)",
+    registrationNumber: "MH-09-KD-4521",
+    district: "Kolhapur",
+    homeBase: "Gadhinglaj",
+    capacityTons: 2.5,
+    perKmRate: 18,
+    baseFare: 350,
+    rcBook: {
+      number: "MH09KD4521",
+      photoUrl: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=400&q=80",
+      verified: true
+    },
+    commercialInsurance: {
+      policyNumber: "ICICI-CV-881204",
+      validTill: "2027-03-14",
+      verified: true
+    },
+    fitnessCertificate: {
+      number: "FC-KOP-2211",
+      validTill: "2027-08-02",
+      verified: false
+    },
+    status: "pending_verification",
+    tripsCompleted: 47,
+    rating: 4.4,
+    createdAt: "2026-09-18T09:30:00.000Z"
+  },
+  {
+    id: "VEH-802",
+    transporterId: "USR-2102",
+    transporterName: "Mahadev Shinde",
+    transporterMobile: "+91 97300 88221",
+    vehicleClass: "Bolero Pickup",
+    registrationNumber: "MH-10-AB-7789",
+    district: "Sangli",
+    homeBase: "Miraj",
+    capacityTons: 1.5,
+    perKmRate: 15,
+    baseFare: 300,
+    rcBook: {
+      number: "MH10AB7789",
+      photoUrl: "https://images.unsplash.com/photo-1615906655593-ad0386982a0f?w=400&q=80",
+      verified: true
+    },
+    commercialInsurance: {
+      policyNumber: "BAJAJ-CV-554310",
+      validTill: "2026-11-30",
+      verified: true
+    },
+    fitnessCertificate: {
+      number: "FC-SNG-1187",
+      validTill: "2027-01-19",
+      verified: true
+    },
+    status: "verified",
+    tripsCompleted: 122,
+    rating: 4.8,
+    createdAt: "2026-08-12T14:00:00.000Z"
+  },
+  {
+    id: "VEH-803",
+    transporterId: "USR-2103",
+    transporterName: "Ganesh Pawar",
+    transporterMobile: "+91 91450 62330",
+    vehicleClass: "Tractor Trolley",
+    registrationNumber: "MH-11-TR-3345",
+    district: "Solapur",
+    homeBase: "Pandharpur",
+    capacityTons: 4.0,
+    perKmRate: 12,
+    baseFare: 250,
+    rcBook: {
+      number: "MH11TR3345",
+      photoUrl: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=400&q=80",
+      verified: true
+    },
+    commercialInsurance: {
+      policyNumber: "NEWIND-CV-712099",
+      validTill: "2026-12-20",
+      verified: true
+    },
+    fitnessCertificate: {
+      number: "FC-SLP-3390",
+      validTill: "2026-10-05",
+      verified: true
+    },
+    status: "verified",
+    tripsCompleted: 88,
+    rating: 4.1,
+    createdAt: "2026-07-22T10:45:00.000Z"
+  },
+  {
+    id: "VEH-804",
+    transporterId: "USR-2104",
+    transporterName: "Vitthal Kamble",
+    transporterMobile: "+91 99750 40112",
+    vehicleClass: "LCV Goods Carrier (Eicher)",
+    registrationNumber: "MH-12-GL-9910",
+    district: "Nashik",
+    homeBase: "Dindori",
+    capacityTons: 5.0,
+    perKmRate: 22,
+    baseFare: 400,
+    rcBook: {
+      number: "MH12GL9910",
+      photoUrl: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400&q=80",
+      verified: true
+    },
+    commercialInsurance: {
+      policyNumber: "HDFC-CV-109877",
+      validTill: "2027-06-11",
+      verified: false
+    },
+    fitnessCertificate: {
+      number: "FC-NSK-8801",
+      validTill: "2027-02-28",
+      verified: true
+    },
+    status: "pending_verification",
+    tripsCompleted: 9,
+    rating: 3.9,
+    createdAt: "2026-09-19T08:20:00.000Z"
+  },
+  {
+    id: "VEH-805",
+    transporterId: "USR-2105",
+    transporterName: "Dnyaneshwar More",
+    transporterMobile: "+91 95030 77123",
+    vehicleClass: "Tempo Goods (Ashok Leyland Dost)",
+    registrationNumber: "MH-13-DD-2260",
+    district: "Pune",
+    homeBase: "Baramati",
+    capacityTons: 1.25,
+    perKmRate: 14,
+    baseFare: 280,
+    rcBook: {
+      number: "MH13DD2260",
+      photoUrl: "https://images.unsplash.com/photo-1568607918870-9ddecf71275c?w=400&q=80",
+      verified: true
+    },
+    commercialInsurance: {
+      policyNumber: "TATA-CV-302488",
+      validTill: "2027-04-25",
+      verified: true
+    },
+    fitnessCertificate: {
+      number: "FC-PUN-5512",
+      validTill: "2027-09-30",
+      verified: true
+    },
+    status: "verified",
+    tripsCompleted: 210,
+    rating: 4.6,
+    createdAt: "2026-05-02T12:10:00.000Z"
+  },
+  {
+    id: "VEH-806",
+    transporterId: "USR-2106",
+    transporterName: "Ravindra Salunkhe",
+    transporterMobile: "+91 70200 11908",
+    vehicleClass: "Truck 6-Wheel (Eicher Pro 2000)",
+    registrationNumber: "MH-15-ZX-6634",
+    district: "Ahmednagar",
+    homeBase: "Shrirampur",
+    capacityTons: 7.5,
+    perKmRate: 28,
+    baseFare: 550,
+    rcBook: {
+      number: "MH15ZX6634",
+      photoUrl: "https://images.unsplash.com/photo-1586191582056-b7f0a16393bd?w=400&q=80",
+      verified: false
+    },
+    commercialInsurance: {
+      policyNumber: "REL-CV-665102",
+      validTill: "2026-09-30",
+      verified: true
+    },
+    fitnessCertificate: {
+      number: "FC-AHM-4410",
+      validTill: "2026-10-15",
+      verified: true
+    },
+    status: "pending_verification",
+    tripsCompleted: 0,
+    rating: 0,
+    createdAt: "2026-09-19T17:55:00.000Z"
+  },
+  {
+    id: "VEH-807",
+    transporterId: "USR-2107",
+    transporterName: "Bhausaheb Jadhav",
+    transporterMobile: "+91 88880 23561",
+    vehicleClass: "Mini Truck (Mahindra Loadking)",
+    registrationNumber: "MH-16-PL-1098",
+    district: "Satara",
+    homeBase: "Karad",
+    capacityTons: 3.0,
+    perKmRate: 19,
+    baseFare: 380,
+    rcBook: {
+      number: "MH16PL1098",
+      photoUrl: "https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=400&q=80",
+      verified: true
+    },
+    commercialInsurance: {
+      policyNumber: "ICICI-CV-901335",
+      validTill: "2027-01-08",
+      verified: true
+    },
+    fitnessCertificate: {
+      number: "FC-STR-7709",
+      validTill: "2025-11-01",
+      verified: false
+    },
+    status: "suspended",
+    tripsCompleted: 64,
+    rating: 3.2,
+    createdAt: "2026-04-18T09:00:00.000Z"
+  },
+  {
+    id: "VEH-808",
+    transporterId: "USR-2108",
+    transporterName: "Namdev Bhosale",
+    transporterMobile: "+91 94220 60845",
+    vehicleClass: "Tractor Trolley",
+    registrationNumber: "MH-17-TT-8842",
+    district: "Kolhapur",
+    homeBase: "Ichalkaranji",
+    capacityTons: 4.5,
+    perKmRate: 13,
+    baseFare: 260,
+    rcBook: {
+      number: "MH17TT8842",
+      photoUrl: "https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=400&q=80",
+      verified: true
+    },
+    commercialInsurance: {
+      policyNumber: "BAJAJ-CV-447210",
+      validTill: "2027-05-17",
+      verified: true
+    },
+    fitnessCertificate: {
+      number: "FC-KOP-9923",
+      validTill: "2027-07-22",
+      verified: true
+    },
+    status: "verified",
+    tripsCompleted: 156,
+    rating: 4.3,
+    createdAt: "2026-06-09T16:40:00.000Z"
+  }
+];
+
+export const INITIAL_TRANSPORT_BOOKINGS = [
+  {
+    id: "TRB-1001",
+    userId: "USR-1001",
+    customerName: "Ram Patil",
+    customerMobile: "+91 98220 14592",
+    customerPersona: "Farmer",
+    lotRef: "LOT-701",
+    vehicleClass: "Mini Truck (Tata 407)",
+    vehicleId: "VEH-802",
+    transporterName: "Mahadev Shinde",
+    pickupPoint: { village: "Shiroli", district: "Kolhapur" },
+    dropPoint: { mandi: "Kolhapur APMC Yard", district: "Kolhapur" },
+    distanceKm: 22,
+    fareBreakdown: { baseFare: 350, perKmCharge: 396, surcharge: 0 },
+    fareAmount: 746,
+    paymentStatus: "paid",
+    status: "in_transit",
+    createdAt: "2026-09-19T07:15:00.000Z",
+    pod: { submitted: false, documentUrl: null, audited: false }
+  },
+  {
+    id: "TRB-1002",
+    userId: "USR-1002",
+    customerName: "Sunita Deshmukh",
+    customerMobile: "+91 97650 33221",
+    customerPersona: "Farmer",
+    lotRef: "LOT-704",
+    vehicleClass: "Tractor Trolley",
+    vehicleId: "VEH-803",
+    transporterName: "Ganesh Pawar",
+    pickupPoint: { village: "Pandharpur", district: "Solapur" },
+    dropPoint: { mandi: "Solapur Market Yard", district: "Solapur" },
+    distanceKm: 14,
+    fareBreakdown: { baseFare: 250, perKmCharge: 168, surcharge: 50 },
+    fareAmount: 468,
+    paymentStatus: "paid",
+    status: "pod_submitted",
+    createdAt: "2026-09-18T16:40:00.000Z",
+    pod: {
+      submitted: true,
+      documentUrl: "https://images.unsplash.com/photo-1601581875039-e899893d520c?w=400&q=80",
+      submittedAt: "2026-09-18T19:05:00.000Z",
+      receiverName: "Yard Supervisor, Gate 3",
+      audited: false
+    }
+  },
+  {
+    id: "TRB-1003",
+    userId: "USR-1003",
+    customerName: "Ajinkya Raut",
+    customerMobile: "+91 95030 91223",
+    customerPersona: "Trader",
+    lotRef: null,
+    vehicleClass: "LCV Goods Carrier (Eicher)",
+    vehicleId: "VEH-805",
+    transporterName: "Dnyaneshwar More",
+    pickupPoint: { village: "Baramati", district: "Pune" },
+    dropPoint: { mandi: "Mumbai Vashi APMC", district: "Mumbai" },
+    distanceKm: 268,
+    fareBreakdown: { baseFare: 400, perKmCharge: 5896, surcharge: 300 },
+    fareAmount: 6596,
+    paymentStatus: "paid",
+    status: "delivered",
+    createdAt: "2026-09-17T05:50:00.000Z",
+    pod: {
+      submitted: true,
+      documentUrl: "https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=400&q=80",
+      submittedAt: "2026-09-17T18:30:00.000Z",
+      receiverName: "Shree Trading Co., Vashi",
+      audited: true
+    }
+  },
+  {
+    id: "TRB-1004",
+    userId: "USR-1004",
+    customerName: "Kailas Patil",
+    customerMobile: "+91 70200 45567",
+    customerPersona: "FPO",
+    lotRef: "LOT-707",
+    vehicleClass: "Truck 6-Wheel (Eicher Pro 2000)",
+    vehicleId: null,
+    transporterName: null,
+    pickupPoint: { village: "Shrirampur", district: "Ahmednagar" },
+    dropPoint: { mandi: "Pune Gultekdi APMC", district: "Pune" },
+    distanceKm: 128,
+    fareBreakdown: { baseFare: 550, perKmCharge: 3584, surcharge: 0 },
+    fareAmount: 4134,
+    paymentStatus: "pending",
+    status: "requested",
+    createdAt: "2026-09-20T06:30:00.000Z",
+    pod: { submitted: false, documentUrl: null, audited: false }
+  },
+  {
+    id: "TRB-1005",
+    userId: "USR-1005",
+    customerName: "Manisha Shinde",
+    customerMobile: "+91 99700 81145",
+    customerPersona: "Farmer",
+    lotRef: "LOT-703",
+    vehicleClass: "Bolero Pickup",
+    vehicleId: "VEH-808",
+    transporterName: "Namdev Bhosale",
+    pickupPoint: { village: "Ichalkaranji", district: "Kolhapur" },
+    dropPoint: { mandi: "Ichalkaranji Market", district: "Kolhapur" },
+    distanceKm: 8,
+    fareBreakdown: { baseFare: 260, perKmCharge: 104, surcharge: 0 },
+    fareAmount: 364,
+    paymentStatus: "paid",
+    status: "disputed",
+    disputeReason: "Vehicle arrived 4 hours late; produce wilted on arrival at mandi gate. Farmer claims ₹1,200 damages.",
+    disputeRaisedBy: "USR-1005",
+    createdAt: "2026-09-16T11:20:00.000Z",
+    pod: { submitted: false, documentUrl: null, audited: false }
+  },
+  {
+    id: "TRB-1006",
+    userId: "USR-1006",
+    customerName: "Pandurang Kadam",
+    customerMobile: "+91 91450 27789",
+    customerPersona: "Farmer",
+    lotRef: null,
+    vehicleClass: "Tractor Trolley",
+    vehicleId: "VEH-803",
+    transporterName: "Ganesh Pawar",
+    pickupPoint: { village: "Malshiras", district: "Solapur" },
+    dropPoint: { mandi: "Pandharpur Yard", district: "Solapur" },
+    distanceKm: 31,
+    fareBreakdown: { baseFare: 250, perKmCharge: 372, surcharge: 0 },
+    fareAmount: 622,
+    paymentStatus: "paid",
+    status: "no_show",
+    disputeReason: "Transporter failed to arrive at scheduled pickup slot; booking auto-flagged by system.",
+    disputeRaisedBy: "SYSTEM",
+    createdAt: "2026-09-15T09:00:00.000Z",
+    pod: { submitted: false, documentUrl: null, audited: false }
+  },
+  {
+    id: "TRB-1007",
+    userId: "USR-1002",
+    customerName: "Sunita Deshmukh",
+    customerMobile: "+91 97650 33221",
+    customerPersona: "Farmer",
+    lotRef: "LOT-702",
+    vehicleClass: "Mini Truck (Tata 407)",
+    vehicleId: "VEH-801",
+    transporterName: "Suresh Jadhav",
+    pickupPoint: { village: "Gadhinglaj", district: "Kolhapur" },
+    dropPoint: { mandi: "Belgaum APMC", district: "Belgaum" },
+    distanceKm: 76,
+    fareBreakdown: { baseFare: 350, perKmCharge: 1368, surcharge: 100 },
+    fareAmount: 1818,
+    paymentStatus: "paid",
+    status: "completed",
+    createdAt: "2026-09-14T08:10:00.000Z",
+    pod: {
+      submitted: true,
+      documentUrl: "https://images.unsplash.com/photo-1586191582056-b7f0a16393bd?w=400&q=80",
+      submittedAt: "2026-09-14T15:45:00.000Z",
+      receiverName: "Belgaum Commission Agent Assn.",
+      audited: true
+    }
+  },
+  {
+    id: "TRB-1008",
+    userId: "USR-1003",
+    customerName: "Ajinkya Raut",
+    customerMobile: "+91 95030 91223",
+    customerPersona: "Trader",
+    lotRef: null,
+    vehicleClass: "Tempo Goods (Ashok Leyland Dost)",
+    vehicleId: "VEH-805",
+    transporterName: "Dnyaneshwar More",
+    pickupPoint: { village: "Niphad", district: "Nashik" },
+    dropPoint: { mandi: "Nashik Peth Road Yard", district: "Nashik" },
+    distanceKm: 24,
+    fareBreakdown: { baseFare: 280, perKmCharge: 336, surcharge: 0 },
+    fareAmount: 616,
+    paymentStatus: "paid",
+    status: "requested",
+    createdAt: "2026-09-20T09:05:00.000Z",
+    pod: { submitted: false, documentUrl: null, audited: false }
+  },
+  {
+    id: "TRB-1009",
+    userId: "USR-1001",
+    customerName: "Ram Patil",
+    customerMobile: "+91 98220 14592",
+    customerPersona: "Farmer",
+    lotRef: "LOT-705",
+    vehicleClass: "Bolero Pickup",
+    vehicleId: "VEH-802",
+    transporterName: "Mahadev Shinde",
+    pickupPoint: { village: "Shiroli", district: "Kolhapur" },
+    dropPoint: { mandi: "Kolhapur APMC Yard", district: "Kolhapur" },
+    distanceKm: 22,
+    fareBreakdown: { baseFare: 300, perKmCharge: 330, surcharge: 0 },
+    fareAmount: 630,
+    paymentStatus: "paid",
+    status: "completed",
+    createdAt: "2026-09-13T07:35:00.000Z",
+    pod: {
+      submitted: true,
+      documentUrl: "https://images.unsplash.com/photo-1568607918870-9ddecf71275c?w=400&q=80",
+      submittedAt: "2026-09-13T13:20:00.000Z",
+      receiverName: "Gate Pass #5521",
+      audited: true
+    }
+  },
+  {
+    id: "TRB-1010",
+    userId: "USR-1004",
+    customerName: "Kailas Patil",
+    customerMobile: "+91 70200 45567",
+    customerPersona: "FPO",
+    lotRef: "LOT-706",
+    vehicleClass: "Truck 6-Wheel (Eicher Pro 2000)",
+    vehicleId: "VEH-807",
+    transporterName: "Bhausaheb Jadhav",
+    pickupPoint: { village: "Karad", district: "Satara" },
+    dropPoint: { mandi: "Kolhapur APMC Yard", district: "Kolhapur" },
+    distanceKm: 58,
+    fareBreakdown: { baseFare: 380, perKmCharge: 1102, surcharge: 0 },
+    fareAmount: 1482,
+    paymentStatus: "refunded",
+    status: "cancelled",
+    createdAt: "2026-09-12T10:00:00.000Z",
+    pod: { submitted: false, documentUrl: null, audited: false }
+  }
+];
+
+export const INITIAL_TRANSPORTER_SETTLEMENTS = [
+  {
+    id: "TST-501",
+    transporterId: "USR-2102",
+    transporterName: "Mahadev Shinde",
+    bookingId: "TRB-1009",
+    vehicleId: "VEH-802",
+    tripsCount: 1,
+    grossFare: 630,
+    platformFeePercent: 8,
+    netPayable: 580,
+    podAuditStatus: "released",
+    payoutMode: "UPI (HDFC XX4412)",
+    payoutAmount: 580,
+    signOffs: [{ adminUid: "root@agrovercity", signedAt: "2026-09-14T10:00:00.000Z" }],
+    status: "paid",
+    createdAt: "2026-09-13T14:00:00.000Z"
+  },
+  {
+    id: "TST-502",
+    transporterId: "USR-2103",
+    transporterName: "Ganesh Pawar",
+    bookingId: "TRB-1002",
+    vehicleId: "VEH-803",
+    tripsCount: 1,
+    grossFare: 468,
+    platformFeePercent: 8,
+    netPayable: 431,
+    podAuditStatus: "pending_audit",
+    payoutMode: "Bank (SBI XX8801)",
+    payoutAmount: 431,
+    signOffs: [],
+    status: "pending",
+    createdAt: "2026-09-18T19:30:00.000Z"
+  },
+  {
+    id: "TST-503",
+    transporterId: "USR-2105",
+    transporterName: "Dnyaneshwar More",
+    bookingId: "TRB-1003",
+    vehicleId: "VEH-805",
+    tripsCount: 1,
+    grossFare: 6596,
+    platformFeePercent: 8,
+    netPayable: 6068,
+    podAuditStatus: "approved",
+    payoutMode: "Bank (ICICI XX2277)",
+    payoutAmount: 6068,
+    signOffs: [{ adminUid: "ops.audit@agrovercity", signedAt: "2026-09-18T09:40:00.000Z" }],
+    status: "approved",
+    createdAt: "2026-09-17T19:00:00.000Z"
+  },
+  {
+    id: "TST-504",
+    transporterId: "USR-2102",
+    transporterName: "Mahadev Shinde",
+    bookingId: "TRB-1011",
+    vehicleId: "VEH-802",
+    tripsCount: 6,
+    grossFare: 58400,
+    platformFeePercent: 8,
+    netPayable: 53728,
+    podAuditStatus: "approved",
+    payoutMode: "Bank (HDFC XX4412)",
+    payoutAmount: 53728,
+    signOffs: [{ adminUid: "ops.audit@agrovercity", signedAt: "2026-09-19T11:15:00.000Z" }],
+    status: "approved",
+    createdAt: "2026-09-19T10:30:00.000Z"
+  },
+  {
+    id: "TST-505",
+    transporterId: "USR-2108",
+    transporterName: "Namdev Bhosale",
+    bookingId: "TRB-1012",
+    vehicleId: "VEH-808",
+    tripsCount: 4,
+    grossFare: 74200,
+    platformFeePercent: 8,
+    netPayable: 68264,
+    podAuditStatus: "pending_audit",
+    payoutMode: "Bank (SBI XX1092)",
+    payoutAmount: 68264,
+    signOffs: [],
+    status: "pending",
+    createdAt: "2026-09-19T18:00:00.000Z"
+  },
+  {
+    id: "TST-506",
+    transporterId: "USR-2107",
+    transporterName: "Bhausaheb Jadhav",
+    bookingId: "TRB-1010",
+    vehicleId: "VEH-807",
+    tripsCount: 1,
+    grossFare: 0,
+    platformFeePercent: 8,
+    netPayable: 0,
+    podAuditStatus: "rejected",
+    payoutMode: "UPI (BOI XX6630)",
+    payoutAmount: 0,
+    signOffs: [],
+    status: "cancelled",
+    createdAt: "2026-09-12T12:00:00.000Z"
+  }
+];
+
 
 

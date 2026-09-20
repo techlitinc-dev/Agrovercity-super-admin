@@ -10,6 +10,7 @@ import { MandiRatesModule } from './components/mandi-rates/MandiRatesModule';
 import { ProduceLotsModule } from './components/produce-lots/ProduceLotsModule';
 import { MarketplaceModule } from './components/marketplace/MarketplaceModule';
 import ContractsPage from './pages/ContractsPage';
+import { TransportModule } from './components/transport/TransportModule';
 
 export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -22,6 +23,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '08':
+        return {
+          path: '/admin/transport',
+          title: 'Transport Logistics & Fleet Operations',
+          sop: 'SOP-08',
+          collections: 'vehicles, transport_bookings, transporter_settlements',
+          compliance: 'Dual Sign-off > ₹50,000: Enforced • POD Audit Before Payout: Active'
+        };
       case '07':
         return {
           path: '/admin/contracts',
@@ -127,6 +136,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '08' && (
+                <TransportModule key={`mod-08-${refreshKey}`} />
+              )}
               {activeModuleId === '07' && (
                 <ContractsPage key={`mod-07-${refreshKey}`} />
               )}
