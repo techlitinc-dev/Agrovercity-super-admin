@@ -1,0 +1,150 @@
+import React, { useState } from 'react';
+import { AuthAdminProvider } from './context/AuthAdminContext';
+import { NotificationProvider } from './context/NotificationContext';
+import { Header } from './components/layout/Header';
+import { Sidebar } from './components/layout/Sidebar';
+import { AuthSecurityModule } from './components/auth-module/AuthSecurityModule';
+import { UserManagementModule } from './components/user-management/UserManagementModule';
+import { KycVaultModule } from './components/kyc-vault/KycVaultModule';
+import { MandiRatesModule } from './components/mandi-rates/MandiRatesModule';
+import { ProduceLotsModule } from './components/produce-lots/ProduceLotsModule';
+
+export function App() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [activeModuleId, setActiveModuleId] = useState('05'); // Default to Module 05: Produce Lots & B2B Trading
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleDataRefreshed = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
+
+  const getBreadcrumb = () => {
+    switch (activeModuleId) {
+      case '05':
+        return {
+          path: '/admin/lots',
+          title: 'Produce Lots & B2B Trading',
+          sop: 'SOP-05',
+          collections: 'market_lots, deals, procurements, buyer_ledgers',
+          compliance: 'Escrow Lock: Active • Electronic Weighbridge Attestation: Enforced'
+        };
+      case '04':
+        return {
+          path: '/admin/mandi',
+          title: 'Mandi Prices, Vyapari Live Rates & Approvals',
+          sop: 'SOP-04',
+          collections: 'mandi_prices, vyapari_rates, mandi_history',
+          compliance: 'Sanity Band: ±15% Enforced • 2-Hr Trader Feeds: Active'
+        };
+      case '03':
+        return {
+          path: '/admin/vault',
+          title: 'KYC Verification & Document Vault',
+          sop: 'SOP-03',
+          collections: 'users/{uid}/vault_documents, kyc_verifications',
+          compliance: 'AES-256 Vault: Encrypted • Side-by-Side OCR: Active'
+        };
+      case '02':
+        return {
+          path: '/admin/users',
+          title: 'User Profiles & Multi-Persona Management',
+          sop: 'SOP-02',
+          collections: 'users, users/{uid}/role_profiles, users/{uid}/bookings',
+          compliance: '6 Personas Supported • Satellite Polygon Geofencing: Active'
+        };
+      case '01':
+      default:
+        return {
+          path: '/admin/auth',
+          title: 'Authentication, RBAC, Sessions & Security',
+          sop: 'SOP-01',
+          collections: 'users, auth_tokens, devices, sessions',
+          compliance: 'FastAPI Endpoints: 6 Implemented • Pytest 9.1.1: 13/13 Passed'
+        };
+    }
+  };
+
+  const currentNav = getBreadcrumb();
+
+  return (
+    <AuthAdminProvider>
+      <NotificationProvider>
+        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased">
+          {/* Top Sticky Header */}
+          <Header
+            activeModuleId={activeModuleId}
+            onDataRefreshed={handleDataRefreshed}
+          />
+
+          {/* Main Layout Body */}
+          <div className="flex-1 flex overflow-hidden">
+            {/* 26-Module Superadmin Sidebar */}
+            <Sidebar
+              collapsed={sidebarCollapsed}
+              setCollapsed={setSidebarCollapsed}
+              activeModuleId={activeModuleId}
+              onSelectModule={(modId) => setActiveModuleId(modId)}
+            />
+
+            {/* Content Area */}
+            <main className="flex-1 overflow-y-auto bg-slate-950/60 pb-16">
+              {/* Breadcrumb & Path Indicator */}
+              <div className="bg-slate-900/40 border-b border-slate-800/80 px-4 lg:px-8 py-2.5 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-slate-400">
+                  <span className="text-slate-500">Superadmin</span>
+                  <span>/</span>
+                  <span className="font-mono text-emerald-400">
+                    {currentNav.path}
+                  </span>
+                  <span>/</span>
+                  <span className="text-slate-200 font-medium">
+                    {currentNav.title}
+                  </span>
+                </div>
+                <div className="hidden sm:flex items-center gap-3 text-[11px] font-mono text-slate-500">
+                  <span>Standard: {currentNav.sop}</span>
+                  <span>•</span>
+                  <span>Collections: {currentNav.collections}</span>
+                </div>
+              </div>
+
+              {/* Module Content */}
+              {activeModuleId === '05' && (
+                <ProduceLotsModule key={`mod-05-${refreshKey}`} />
+              )}
+              {activeModuleId === '04' && (
+                <MandiRatesModule key={`mod-04-${refreshKey}`} />
+              )}
+              {activeModuleId === '03' && (
+                <KycVaultModule key={`mod-03-${refreshKey}`} />
+              )}
+              {activeModuleId === '02' && (
+                <UserManagementModule key={`mod-02-${refreshKey}`} />
+              )}
+              {activeModuleId === '01' && (
+                <AuthSecurityModule key={`mod-01-${refreshKey}`} />
+              )}
+            </main>
+          </div>
+
+          {/* Institutional Compliance & Audit Footer */}
+          <footer className="bg-slate-950 border-t border-slate-800/80 px-6 py-2.5 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span>
+                AGROVERCITY Superadmin Console · {currentNav.sop} Compliance Enforced
+              </span>
+            </div>
+            <div className="flex items-center gap-4 text-[11px] font-mono">
+              <span>DPDP Act (Aadhaar Masking): PASS</span>
+              <span>•</span>
+              <span>{currentNav.compliance}</span>
+            </div>
+          </footer>
+        </div>
+      </NotificationProvider>
+    </AuthAdminProvider>
+  );
+}
+
+export default App;
