@@ -20,12 +20,13 @@ import LandRecordsPage from './pages/LandRecordsPage';
 import WaterPage from './pages/WaterPage';
 import FpoPage from './pages/FpoPage';
 import LivestockPage from './pages/LivestockPage';
+import ContentPage from './pages/ContentPage';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 
 export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeModuleId, setActiveModuleId] = useState('19'); // Default to Module 19: Livestock, Dairy & Veterinary Services
+  const [activeModuleId, setActiveModuleId] = useState('20'); // Default to Module 20: Knowledge Hub, Content CMS & Live Media
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleDataRefreshed = () => {
@@ -34,6 +35,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '20':
+        return {
+          path: '/admin/content',
+          title: 'Knowledge Hub, Content CMS & Live Media',
+          sop: 'SOP-20',
+          collections: 'agri_news, agri_channels, workshops, expert_talks, video_guides, blog_articles',
+          compliance: 'RTMP Stream Key Security: Verified • ICAR Certification: Enforced • Live Chat Moderation: Active • DPDP Masking: Enforced'
+        };
       case '19':
         return {
           path: '/admin/livestock',
@@ -235,6 +244,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '20' && (
+                <ContentPage key={`mod-20-${refreshKey}`} />
+              )}
               {activeModuleId === '19' && (
                 <LivestockPage key={`mod-19-${refreshKey}`} />
               )}
