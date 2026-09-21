@@ -18,12 +18,13 @@ import BankingPage from './pages/BankingPage';
 import InsurancePage from './pages/InsurancePage';
 import LandRecordsPage from './pages/LandRecordsPage';
 import WaterPage from './pages/WaterPage';
+import FpoPage from './pages/FpoPage';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 
 export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeModuleId, setActiveModuleId] = useState('17'); // Default to Module 17: Water Resources & Irrigation Management
+  const [activeModuleId, setActiveModuleId] = useState('18'); // Default to Module 18: FPO Engine & Bulk Procurement Pools
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleDataRefreshed = () => {
@@ -32,6 +33,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '18':
+        return {
+          path: '/admin/fpo',
+          title: 'FPO Engine & Bulk Procurement Pools',
+          sop: 'SOP-18',
+          collections: 'fpos, fpo_pools, fpo_pool_members',
+          compliance: 'ROC CIN & NABARD Empanelment: Verified • Escrow Dual Sign-off > ₹50,000 • DPDP Masking: Enforced'
+        };
       case '17':
         return {
           path: '/admin/water',
@@ -217,6 +226,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '18' && (
+                <FpoPage key={`mod-18-${refreshKey}`} />
+              )}
               {activeModuleId === '17' && (
                 <WaterPage key={`mod-17-${refreshKey}`} />
               )}
