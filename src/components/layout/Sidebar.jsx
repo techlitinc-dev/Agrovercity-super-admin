@@ -41,7 +41,7 @@ const MODULES = [
   { id: '08', title: 'Transport & Fleet', icon: Truck, path: '/admin/transport', badge: 'SOP-08' },
   { id: '09', title: 'Equipment & Rental', icon: Tractor, path: '/admin/equipment', badge: 'SOP-09' },
   { id: '10', title: 'Land Leasing & Disputes', icon: MapPin, path: '/admin/land', badge: 'SOP-10' },
-  { id: '11', title: 'AI Advisory Models', icon: Cpu, path: '/admin/ai-advisory' },
+  { id: '11', title: 'AI Advisory Models', icon: Cpu, path: '/admin/ai-advisory', badge: 'SOP-11' },
   { id: '12', title: 'Chatbot & Handoff', icon: MessageSquare, path: '/admin/chatbot' },
   { id: '13', title: 'Farm Diary & PnL', icon: BookOpen, path: '/admin/farm-diary' },
   { id: '14', title: 'Banking & Underwriting', icon: Landmark, path: '/admin/banking' },
@@ -87,7 +87,7 @@ export function Sidebar({ collapsed, setCollapsed, activeModuleId = '05', onSele
         {MODULES.map((item) => {
           const Icon = item.icon;
           const isActive = item.id === activeModuleId;
-          const isImplemented = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10'].includes(item.id);
+          const isImplemented = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11'].includes(item.id);
 
           return (
             <div

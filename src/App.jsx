@@ -11,6 +11,7 @@ import { ProduceLotsModule } from './components/produce-lots/ProduceLotsModule';
 import { MarketplaceModule } from './components/marketplace/MarketplaceModule';
 import ContractsPage from './pages/ContractsPage';
 import LandPage from './pages/LandPage';
+import AdvisoryPage from './pages/AdvisoryPage';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 
@@ -25,6 +26,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '11':
+        return {
+          path: '/admin/advisory',
+          title: 'AI Advisory, Disease Scan & Pest Radar',
+          sop: 'SOP-11',
+          collections: 'advisory_scans, pest_alerts, soil_tests, crop_cycles',
+          compliance: 'ICAR NPK Algorithm: v3.1 Enforced • Geofenced Broadcast: Active • Accuracy Audit: Enabled'
+        };
       case '10':
         return {
           path: '/admin/land',
@@ -154,6 +163,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '11' && (
+                <AdvisoryPage key={`mod-11-${refreshKey}`} />
+              )}
               {activeModuleId === '10' && (
                 <LandPage key={`mod-10-${refreshKey}`} />
               )}
