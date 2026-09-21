@@ -10,6 +10,7 @@ import { MandiRatesModule } from './components/mandi-rates/MandiRatesModule';
 import { ProduceLotsModule } from './components/produce-lots/ProduceLotsModule';
 import { MarketplaceModule } from './components/marketplace/MarketplaceModule';
 import ContractsPage from './pages/ContractsPage';
+import LandPage from './pages/LandPage';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 
@@ -24,6 +25,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '10':
+        return {
+          path: '/admin/land',
+          title: 'Landlord Land Management & Leasing',
+          sop: 'SOP-10',
+          collections: 'land_plots, land_leases, land_lease_payments, land_listings, lease_requests',
+          compliance: '7/12 Audit Before Listing: Enforced • Arbitrated Termination: Active • Dual Sign-off > ₹50,000: Enforced'
+        };
       case '09':
         return {
           path: '/admin/equipment',
@@ -145,6 +154,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '10' && (
+                <LandPage key={`mod-10-${refreshKey}`} />
+              )}
               {activeModuleId === '09' && (
                 <EquipmentModule key={`mod-09-${refreshKey}`} />
               )}
