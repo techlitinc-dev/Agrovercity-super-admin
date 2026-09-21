@@ -23,12 +23,14 @@ import LivestockPage from './pages/LivestockPage';
 import ContentPage from './pages/ContentPage';
 import AgroforestryPage from './pages/AgroforestryPage';
 import GamificationPage from './pages/GamificationPage';
+import ClimatePage from './pages/ClimatePage';
+import WomenShgPage from './pages/WomenShgPage';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 
 export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeModuleId, setActiveModuleId] = useState('21'); // Default to Module 21: Agroforestry & Trees
+  const [activeModuleId, setActiveModuleId] = useState('23'); // Default to Module 23: Climate & Cold Storage
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleDataRefreshed = () => {
@@ -37,6 +39,22 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '24':
+        return {
+          path: '/admin/women',
+          title: 'Women in Agriculture & Self Help Groups',
+          sop: 'SOP-24',
+          collections: 'women_shgs, shg_deposits, home_enterprises, shg_subsidies',
+          compliance: 'NRLM Cluster Linkage: Active • Duplicate Month Lock: Enforced • Dual Sign-off > ₹50,000 • DPDP Masking'
+        };
+      case '23':
+        return {
+          path: '/admin/climate',
+          title: 'Climate Resilience, Carbon Credits & Cold Storage',
+          sop: 'SOP-23',
+          collections: 'cold_storages, cold_storage_bookings, climate_varieties, carbon_audits, produce_gradings',
+          compliance: 'CA Storage Telemetry: Active • Carbon Credit Registry: Audited • Dual Sign-off > ₹50,000 • DPDP Masking'
+        };
       case '22':
         return {
           path: '/admin/ratings',
@@ -262,6 +280,12 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '24' && (
+                <WomenShgPage key={`mod-24-${refreshKey}`} />
+              )}
+              {activeModuleId === '23' && (
+                <ClimatePage key={`mod-23-${refreshKey}`} />
+              )}
               {activeModuleId === '22' && (
                 <GamificationPage key={`mod-22-${refreshKey}`} />
               )}
