@@ -14,6 +14,7 @@ import LandPage from './pages/LandPage';
 import AdvisoryPage from './pages/AdvisoryPage';
 import ChatbotPage from './pages/ChatbotPage';
 import DiaryPage from './pages/DiaryPage';
+import BankingPage from './pages/BankingPage';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 
@@ -28,6 +29,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '14':
+        return {
+          path: '/admin/finance',
+          title: 'Banking, Credit Score & Microfinance',
+          sop: 'SOP-14',
+          collections: 'bank_accounts, loan_applications, kcc_records',
+          compliance: 'Penny-Drop Verification: Active • Kisan Credit Score: Enforced • Dual Sign-off > ₹50,000: Enforced'
+        };
       case '13':
         return {
           path: '/admin/diary',
@@ -181,6 +190,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '14' && (
+                <BankingPage key={`mod-14-${refreshKey}`} />
+              )}
               {activeModuleId === '13' && (
                 <DiaryPage key={`mod-13-${refreshKey}`} />
               )}
