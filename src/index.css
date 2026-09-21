@@ -3,10 +3,34 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background: 138 45% 99%;      /* #f9fbf9 */
+    --foreground: 222 47% 11%;       /* #0f172a */
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 152 69% 34%;         /* #15803d */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 138 35% 96%;       /* #f0fdf4 */
+    --secondary-foreground: 140 60% 15%;
+    --muted: 210 25% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 138 35% 94%;
+    --accent-foreground: 140 60% 12%;
+    --destructive: 346.8 77.2% 49.8%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 152 69% 34%;
+    --radius: 0.85rem;
+  }
+
   body {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background-color: #090d16;
-    color: #e2e8f0;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f8fafc;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
   }
 
   code, pre, .font-mono {
@@ -14,23 +38,171 @@
   }
 }
 
-/* Custom scrollbar for high-density tables and drawers */
+/* =========================================================================
+   PROFESSIONAL AGRICULTURAL GLASSMORPHISM SYSTEM
+   ========================================================================= */
+
+/* Elegant Frosted Glass Cards & Panels */
+.glass-panel,
+.farm-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.04), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel:hover,
+.farm-card:hover {
+  border-color: rgba(167, 243, 208, 0.9);
+  box-shadow: 0 14px 40px -4px rgba(22, 101, 52, 0.08), inset 0 1px 1px 0 rgba(255, 255, 255, 1);
+}
+
+/* Top Sticky Header */
+.glass-header {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.03);
+}
+
+/* Sidebar with subtle botanical gradient */
+.glass-sidebar {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 252, 248, 0.92) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-right: 1px solid rgba(226, 232, 240, 0.85);
+}
+
+/* Modal and Drawer Slide-Over */
+.fixed.inset-0 .bg-slate-900,
+aside.bg-slate-900,
+aside.bg-slate-950 {
+  background: rgba(255, 255, 255, 0.97) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  border-color: rgba(226, 232, 240, 0.9) !important;
+  color: #0f172a !important;
+}
+
+/* Modal Scrim Overlay */
+.fixed.inset-0.bg-slate-950\/70,
+.fixed.inset-0.bg-slate-950\/80,
+.fixed.inset-0.bg-slate-950\/60,
+.fixed.inset-0.bg-slate-950\/50,
+.fixed.inset-0.bg-black\/60,
+.fixed.inset-0.bg-black\/70 {
+  background-color: rgba(15, 23, 42, 0.35) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+/* Crisp Form Inputs */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  outline: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* =========================================================================
+   INTELLIGENT TYPOGRAPHY & BUTTON CONTRAST
+   ========================================================================= */
+
+/* Headings and titles with text-white become crisp dark obsidian */
+.text-white {
+  color: #0f172a;
+}
+
+/* Preserve true white text where backgrounds are colored/dark */
+button.text-white,
+button .text-white,
+a.text-white[class*="bg-"],
+[class*="bg-emerald-5"] .text-white,
+[class*="bg-emerald-6"] .text-white,
+[class*="bg-emerald-7"] .text-white,
+[class*="bg-green-6"] .text-white,
+[class*="bg-rose-5"] .text-white,
+[class*="bg-rose-6"] .text-white,
+[class*="bg-red-6"] .text-white,
+[class*="bg-blue-5"] .text-white,
+[class*="bg-blue-6"] .text-white,
+[class*="bg-indigo-6"] .text-white,
+[class*="bg-purple-6"] .text-white,
+[class*="bg-amber-500"] .text-white,
+[class*="bg-amber-600"] .text-white,
+[class*="bg-primary"] .text-white,
+[class*="from-emerald-"] .text-white,
+[class*="from-blue-"] .text-white,
+[class*="from-teal-"] .text-white,
+[class*="from-purple-"] .text-white,
+[class*="from-rose-"] .text-white,
+[class*="bg-gradient-"] .text-white,
+.keep-white {
+  color: #ffffff !important;
+}
+
+button[class*="bg-emerald-"],
+button[class*="bg-rose-"],
+button[class*="bg-blue-"],
+button[class*="bg-purple-"],
+button[class*="bg-indigo-"],
+button[class*="bg-amber-600"],
+button[class*="bg-red-"] {
+  color: #ffffff !important;
+}
+
+/* Secondary / Ghost Buttons on Light Surfaces */
+button[class*="bg-slate-800"],
+button[class*="bg-slate-900"],
+button[class*="bg-slate-950"],
+button[class*="bg-white"] {
+  color: #334155;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+button[class*="bg-slate-800"]:hover,
+button[class*="bg-slate-900"]:hover,
+button[class*="bg-slate-950"]:hover,
+button[class*="bg-white"]:hover {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* Custom Refined Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: rgba(241, 245, 249, 0.6);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 3px;
+  background: rgba(203, 213, 225, 0.8);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: rgba(148, 163, 184, 0.9);
 }
 
 /* Pulse animation for active session indicators */

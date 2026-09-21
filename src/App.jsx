@@ -27,238 +27,32 @@ import ClimatePage from './pages/ClimatePage';
 import WomenShgPage from './pages/WomenShgPage';
 import SettlementsPage from './pages/SettlementsPage';
 import SystemConfigPage from './pages/SystemConfigPage';
+import { ExecutiveDashboard } from './pages/ExecutiveDashboard';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
+import { getModuleById, getGroupById } from './lib/navigationConfig';
 
 export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeModuleId, setActiveModuleId] = useState('26'); // Default to Module 26: System Config & Moderation
+  const [activeModuleId, setActiveModuleId] = useState('overview'); // Default to Executive Command Center & Overview
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleDataRefreshed = () => {
     setRefreshKey((prev) => prev + 1);
   };
 
-  const getBreadcrumb = () => {
-    switch (activeModuleId) {
-      case '26':
-        return {
-          path: '/admin/config',
-          title: 'System Health, Remote Config, Broadcast & Moderation',
-          sop: 'SOP-26',
-          collections: 'app_config, broadcasts, user_reports, user_blocks, user_consents, audit_logs',
-          compliance: 'Microservices SLA: 99.98% • Remote Version Gating • Targeted FCM Push • Dual Sign-off Bans • DPDP Masking'
-        };
-      case '25':
-        return {
-          path: '/admin/settlements',
-          title: 'Financial Settlements & Scheduled Jobs',
-          sop: 'SOP-25',
-          collections: 'settlements, transporter_payouts, seller_payouts, cron_job_logs',
-          compliance: 'T+1 Automated Reconciliation: Active • Dual Sign-off > ₹50,000 • GST Invoicing (18%) • DPDP Masking'
-        };
-      case '24':
-        return {
-          path: '/admin/women',
-          title: 'Women in Agriculture & Self Help Groups',
-          sop: 'SOP-24',
-          collections: 'women_shgs, shg_deposits, home_enterprises, shg_subsidies',
-          compliance: 'NRLM Cluster Linkage: Active • Duplicate Month Lock: Enforced • Dual Sign-off > ₹50,000 • DPDP Masking'
-        };
-      case '23':
-        return {
-          path: '/admin/climate',
-          title: 'Climate Resilience, Carbon Credits & Cold Storage',
-          sop: 'SOP-23',
-          collections: 'cold_storages, cold_storage_bookings, climate_varieties, carbon_audits, produce_gradings',
-          compliance: 'CA Storage Telemetry: Active • Carbon Credit Registry: Audited • Dual Sign-off > ₹50,000 • DPDP Masking'
-        };
-      case '22':
-        return {
-          path: '/admin/ratings',
-          title: 'Gamification, Krishi Ratna & Referrals',
-          sop: 'SOP-22',
-          collections: 'gamification_status, agri_coins_ledger, reward_coupons, referrals, ratings',
-          compliance: 'AgriCoins Circulation: Monitored • Referral Fraud Detection: Active • Dual Sign-off > ₹50,000 • DPDP Masking: Enforced'
-        };
-      case '21':
-        return {
-          path: '/admin/tree',
-          title: 'Agroforestry, Tree Plantation & Biofuel',
-          sop: 'SOP-21',
-          collections: 'tree_articles, ngos, biofuel_trees, tree_care_guides, sapling_requests',
-          compliance: 'Max 500 Saplings Cap: Enforced • NGO 80G/Darpan Audited: Verified • Geo-Survival Tracking: Active • Dual Sign-off > ₹50,000'
-        };
-      case '20':
-        return {
-          path: '/admin/content',
-          title: 'Knowledge Hub, Content CMS & Live Media',
-          sop: 'SOP-20',
-          collections: 'agri_news, agri_channels, workshops, expert_talks, video_guides, blog_articles',
-          compliance: 'RTMP Stream Key Security: Verified • ICAR Certification: Enforced • Live Chat Moderation: Active • DPDP Masking: Enforced'
-        };
-      case '19':
-        return {
-          path: '/admin/livestock',
-          title: 'Livestock, Dairy & Veterinary Services',
-          sop: 'SOP-19',
-          collections: 'gaushalas, nurseries, vets, dairy_products, vet_bookings, manure_orders',
-          compliance: 'MSVC Vet Licensure: Verified • 80G Gaushala Audit: Active • NABL A2 Purity: Enforced • Dual Sign-off > ₹50,000'
-        };
-      case '18':
-        return {
-          path: '/admin/fpo',
-          title: 'FPO Engine & Bulk Procurement Pools',
-          sop: 'SOP-18',
-          collections: 'fpos, fpo_pools, fpo_pool_members',
-          compliance: 'ROC CIN & NABARD Empanelment: Verified • Escrow Dual Sign-off > ₹50,000 • DPDP Masking: Enforced'
-        };
-      case '17':
-        return {
-          path: '/admin/water',
-          title: 'Water Intelligence & Irrigation Management',
-          sop: 'SOP-17',
-          collections: 'water_schedules, cgwb_stations, canal_schedules',
-          compliance: 'CGWB Piezometer Telemetry: Active • Canal Rotation Dispatch: Enforced • PMKSY 55% Cap: Enforced • Dual Sign-off > ₹50,000'
-        };
-      case '16':
-        return {
-          path: '/admin/land-records',
-          title: 'Land Records Registry (7/12 & 8A Utara)',
-          sop: 'SOP-16',
-          collections: 'land_records_712, users/{uid}/imported_records',
-          compliance: 'Mahabhulekh Gateway: Active • Redis L2 Cache: Sub-5ms • DPDP Aadhaar Masking: PASS • Audit Logging: Enforced'
-        };
-      case '15':
-        return {
-          path: '/admin/insurance',
-          title: 'Crop Insurance (PMFBY) & Calamity Claims',
-          sop: 'SOP-15',
-          collections: 'insurance_policies, insurance_claims, insurance_rates',
-          compliance: 'PMFBY 72-Hour Calamity Intimation • Geotagged Damage Verification • Dual Sign-off > ₹50,000 • Aadhaar Masking'
-        };
-      case '14':
-        return {
-          path: '/admin/finance',
-          title: 'Banking, Credit Score & Microfinance',
-          sop: 'SOP-14',
-          collections: 'bank_accounts, loan_applications, kcc_records',
-          compliance: 'Penny-Drop Verification: Active • Kisan Credit Score: Enforced • Dual Sign-off > ₹50,000: Enforced'
-        };
-      case '13':
-        return {
-          path: '/admin/diary',
-          title: 'Farm Diary, P&L Analytics & Break-Even',
-          sop: 'SOP-13',
-          collections: 'farm_diary_entries, crop_pnl',
-          compliance: 'AgriCoins Reward Ledger: Active • Pre-Sowing Cost Calibration: Enforced • Dual Sign-off > ₹50,000: Enforced'
-        };
-      case '12':
-        return {
-          path: '/admin/chatbot',
-          title: 'Kisan Mitra AI Chatbot & Human Expert Handoff',
-          sop: 'SOP-12',
-          collections: 'chatbot_sessions, chatbot_messages, expert_tickets, experts',
-          compliance: 'Gemini 2.5 Flash + Rule-Based Fallback: Active • Prompt Config Audit: v-tracked • KVK Expert SLA: Enforced'
-        };
-      case '11':
-        return {
-          path: '/admin/advisory',
-          title: 'AI Advisory, Disease Scan & Pest Radar',
-          sop: 'SOP-11',
-          collections: 'advisory_scans, pest_alerts, soil_tests, crop_cycles',
-          compliance: 'ICAR NPK Algorithm: v3.1 Enforced • Geofenced Broadcast: Active • Accuracy Audit: Enabled'
-        };
-      case '10':
-        return {
-          path: '/admin/land',
-          title: 'Landlord Land Management & Leasing',
-          sop: 'SOP-10',
-          collections: 'land_plots, land_leases, land_lease_payments, land_listings, lease_requests',
-          compliance: '7/12 Audit Before Listing: Enforced • Arbitrated Termination: Active • Dual Sign-off > ₹50,000: Enforced'
-        };
-      case '09':
-        return {
-          path: '/admin/equipment',
-          title: 'Equipment Rental & Yantra Time-Slots',
-          sop: 'SOP-09',
-          collections: 'equipment, equipment_slots, equipment_bookings',
-          compliance: 'Dual Sign-off > ₹50,000: Enforced • DPDP Aadhaar Masking: Active • Audit Logging: Immutable'
-        };
-      case '08':
-        return {
-          path: '/admin/transport',
-          title: 'Transport Logistics & Fleet Operations',
-          sop: 'SOP-08',
-          collections: 'vehicles, transport_bookings, transporter_settlements',
-          compliance: 'Dual Sign-off > ₹50,000: Enforced • POD Audit Before Payout: Active'
-        };
-      case '07':
-        return {
-          path: '/admin/contracts',
-          title: 'Buyer Contracts & Price Locks',
-          sop: 'SOP-07',
-          collections: 'buyer_contracts, contract_acceptances',
-          compliance: 'MPIN Digital Acceptance: Active • Escrow Dual Sign-off > ₹50,000: Enforced'
-        };
-      case '06':
-        return {
-          path: '/admin/marketplace',
-          title: 'Input Marketplace, Cart, Orders & Payments',
-          sop: 'SOP-06',
-          collections: 'products, orders, users/{uid}/cart, users/{uid}/addresses, products/{id}/reviews, payments',
-          compliance: 'Razorpay Refunds: Active • Agmark QR Verification: Enforced'
-        };
-      case '05':
-        return {
-          path: '/admin/lots',
-          title: 'Produce Lots & B2B Trading',
-          sop: 'SOP-05',
-          collections: 'market_lots, deals, procurements, buyer_ledgers',
-          compliance: 'Escrow Lock: Active • Electronic Weighbridge Attestation: Enforced'
-        };
-      case '04':
-        return {
-          path: '/admin/mandi',
-          title: 'Mandi Prices, Vyapari Live Rates & Approvals',
-          sop: 'SOP-04',
-          collections: 'mandi_prices, vyapari_rates, mandi_history',
-          compliance: 'Sanity Band: ±15% Enforced • 2-Hr Trader Feeds: Active'
-        };
-      case '03':
-        return {
-          path: '/admin/vault',
-          title: 'KYC Verification & Document Vault',
-          sop: 'SOP-03',
-          collections: 'users/{uid}/vault_documents, kyc_verifications',
-          compliance: 'AES-256 Vault: Encrypted • Side-by-Side OCR: Active'
-        };
-      case '02':
-        return {
-          path: '/admin/users',
-          title: 'User Profiles & Multi-Persona Management',
-          sop: 'SOP-02',
-          collections: 'users, users/{uid}/role_profiles, users/{uid}/bookings',
-          compliance: '6 Personas Supported • Satellite Polygon Geofencing: Active'
-        };
-      case '01':
-      default:
-        return {
-          path: '/admin/auth',
-          title: 'Authentication, RBAC, Sessions & Security',
-          sop: 'SOP-01',
-          collections: 'users, auth_tokens, devices, sessions',
-          compliance: 'FastAPI Endpoints: 6 Implemented • Pytest 9.1.1: 13/13 Passed'
-        };
-    }
-  };
-
-  const currentNav = getBreadcrumb();
+  const currentNav = getModuleById(activeModuleId);
+  const currentGroup = getGroupById(currentNav.groupId);
 
   return (
     <AuthAdminProvider>
       <NotificationProvider>
-        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased">
+        <div className="min-h-screen bg-gradient-to-br from-[#f8fbf9] via-[#f0fdf4]/50 to-[#ecfdf5]/40 text-slate-900 flex flex-col antialiased relative overflow-x-hidden selection:bg-emerald-500 selection:text-white">
+          {/* Subtle Ambient Agricultural Glassmorphic Glow Orbs */}
+          <div className="pointer-events-none fixed -top-40 -right-40 w-96 h-96 bg-emerald-300/25 rounded-full blur-3xl z-0" />
+          <div className="pointer-events-none fixed top-1/3 -left-32 w-80 h-80 bg-green-200/30 rounded-full blur-3xl z-0" />
+          <div className="pointer-events-none fixed -bottom-32 right-1/4 w-96 h-96 bg-teal-200/25 rounded-full blur-3xl z-0" />
+
           {/* Top Sticky Header */}
           <Header
             activeModuleId={activeModuleId}
@@ -266,8 +60,8 @@ export function App() {
           />
 
           {/* Main Layout Body */}
-          <div className="flex-1 flex overflow-hidden">
-            {/* 26-Module Superadmin Sidebar */}
+          <div className="flex-1 flex overflow-hidden z-10">
+            {/* 26-Module Superadmin Grouped Sidebar */}
             <Sidebar
               collapsed={sidebarCollapsed}
               setCollapsed={setSidebarCollapsed}
@@ -276,28 +70,40 @@ export function App() {
             />
 
             {/* Content Area */}
-            <main className="flex-1 overflow-y-auto bg-slate-950/60 pb-16">
+            <main className="flex-1 overflow-y-auto bg-transparent pb-16">
               {/* Breadcrumb & Path Indicator */}
-              <div className="bg-slate-900/40 border-b border-slate-800/80 px-4 lg:px-8 py-2.5 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 text-slate-400">
-                  <span className="text-slate-500">Superadmin</span>
-                  <span>/</span>
-                  <span className="font-mono text-emerald-400">
+              <div className="bg-white/75 backdrop-blur-md border-b border-emerald-100/90 px-4 lg:px-8 py-2.5 flex items-center justify-between text-xs shadow-2xs">
+                <div className="flex items-center gap-2 text-slate-500 flex-wrap">
+                  <span className="text-slate-400 font-medium">Superadmin</span>
+                  <span className="text-emerald-300">/</span>
+                  <span className="font-semibold text-emerald-900 bg-emerald-100/70 px-2 py-0.5 rounded-md border border-emerald-300/60">
+                    {currentGroup?.title}
+                  </span>
+                  <span className="text-emerald-300">/</span>
+                  <span className="font-mono text-emerald-800 font-bold bg-white px-2 py-0.5 rounded-md border border-emerald-200 shadow-2xs">
                     {currentNav.path}
                   </span>
-                  <span>/</span>
-                  <span className="text-slate-200 font-medium">
+                  <span className="text-slate-300">/</span>
+                  <span className="text-slate-900 font-bold">
                     {currentNav.title}
                   </span>
                 </div>
                 <div className="hidden sm:flex items-center gap-3 text-[11px] font-mono text-slate-500">
-                  <span>Standard: {currentNav.sop}</span>
-                  <span>•</span>
+                  <span className="bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 text-emerald-800 font-bold">
+                    Standard: {currentNav.sop}
+                  </span>
+                  <span className="text-emerald-200">•</span>
                   <span>Collections: {currentNav.collections}</span>
                 </div>
               </div>
 
               {/* Module Content */}
+              {activeModuleId === 'overview' && (
+                <ExecutiveDashboard
+                  key={`mod-overview-${refreshKey}`}
+                  onNavigate={(modId) => setActiveModuleId(modId)}
+                />
+              )}
               {activeModuleId === '26' && (
                 <SystemConfigPage key={`mod-26-${refreshKey}`} />
               )}
@@ -380,16 +186,16 @@ export function App() {
           </div>
 
           {/* Institutional Compliance & Audit Footer */}
-          <footer className="bg-slate-950 border-t border-slate-800/80 px-6 py-2.5 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <footer className="bg-white/85 backdrop-blur-xl border-t border-slate-200/80 px-6 py-2.5 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.03)] z-20">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span>
-                AGROVERCITY Superadmin Console · {currentNav.sop} Compliance Enforced
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
+              <span className="font-medium text-slate-700">
+                AGROVERCITY Superadmin Console · <span className="font-semibold text-emerald-700">{currentNav.sop}</span> Compliance Enforced
               </span>
             </div>
-            <div className="flex items-center gap-4 text-[11px] font-mono">
-              <span>DPDP Act (Aadhaar Masking): PASS</span>
-              <span>•</span>
+            <div className="flex items-center gap-4 text-[11px] font-mono text-slate-500">
+              <span className="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">DPDP Act: PASS</span>
+              <span className="text-slate-300">•</span>
               <span>{currentNav.compliance}</span>
             </div>
           </footer>
@@ -400,3 +206,4 @@ export function App() {
 }
 
 export default App;
+

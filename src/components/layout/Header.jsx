@@ -7,7 +7,9 @@ import { adminKycService } from '../../services/adminKycService';
 import { adminMandiService } from '../../services/adminMandiService';
 import { adminLotsService } from '../../services/adminLotsService';
 
-export function Header({ activeModuleId = '05', onDataRefreshed }) {
+import { getModuleById, getGroupById } from '../../lib/navigationConfig';
+
+export function Header({ activeModuleId = '26', onDataRefreshed }) {
   const { currentAdmin, currentRoleKey, switchRole } = useAuthAdmin();
   const { addToast } = useNotification();
 
@@ -32,70 +34,35 @@ export function Header({ activeModuleId = '05', onDataRefreshed }) {
     }
   };
 
-  const getModuleDetails = () => {
-    switch (activeModuleId) {
-      case '05':
-        return {
-          sop: 'SOP-05',
-          title: 'Produce Lots & B2B Trading',
-          icon: Package,
-          gradient: 'from-emerald-500 to-teal-700'
-        };
-      case '04':
-        return {
-          sop: 'SOP-04',
-          title: 'Mandi Prices, Vyapari Live Rates & Approvals',
-          icon: TrendingUp,
-          gradient: 'from-emerald-500 to-teal-700'
-        };
-      case '03':
-        return {
-          sop: 'SOP-03',
-          title: 'KYC Verification & Document Vault',
-          icon: FileCheck,
-          gradient: 'from-blue-500 to-teal-700'
-        };
-      case '02':
-        return {
-          sop: 'SOP-02',
-          title: 'User Profiles & Multi-Persona Management',
-          icon: Users,
-          gradient: 'from-teal-500 to-emerald-700'
-        };
-      case '01':
-      default:
-        return {
-          sop: 'SOP-01',
-          title: 'Authentication, RBAC, Sessions & Security',
-          icon: ShieldCheck,
-          gradient: 'from-emerald-500 to-teal-700'
-        };
-    }
-  };
-
-  const mod = getModuleDetails();
+  const mod = getModuleById(activeModuleId);
+  const group = getGroupById(mod.groupId);
   const IconComponent = mod.icon;
 
   return (
-    <header className="sticky top-0 z-30 bg-slate-950/90 backdrop-blur-md border-b border-slate-800">
+    <header className="sticky top-0 z-30 bg-white/85 backdrop-blur-xl border-b border-emerald-200/70 shadow-[0_4px_20px_-4px_rgba(16,185,129,0.05)]">
       {/* Top wireframe banner */}
       <div className="px-4 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
         {/* Brand & Module Identification */}
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${mod.gradient} flex items-center justify-center shadow-lg shadow-emerald-950/50 border border-emerald-400/30`}>
-            <IconComponent className="w-6 h-6 text-white" />
+          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${mod.gradient || 'from-emerald-600 to-teal-700'} flex items-center justify-center shadow-md shadow-emerald-600/20 border border-emerald-400/30`}>
+            <IconComponent className="w-5 h-5 text-white" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold tracking-wider text-sm text-emerald-400 uppercase">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-extrabold tracking-wider text-xs text-emerald-800 uppercase flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 Agrovercity Superadmin
               </span>
-              <span className="text-slate-600">::</span>
-              <span className="text-xs font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">
+              <span className="text-emerald-300">/</span>
+              <span className="text-[11px] font-semibold text-emerald-900 bg-emerald-100/80 px-2 py-0.5 rounded-md border border-emerald-300/70">
+                {group?.title || 'Platform'}
+              </span>
+              <span className="text-emerald-300">::</span>
+              <span className="text-[11px] font-mono bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded-md border border-emerald-200 font-bold">
                 {mod.sop}
               </span>
             </div>
-            <h1 className="text-base lg:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            <h1 className="text-base lg:text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
               {mod.title}
             </h1>
           </div>
@@ -107,16 +74,16 @@ export function Header({ activeModuleId = '05', onDataRefreshed }) {
           <button
             onClick={handleResetSeed}
             title="Reset to original test dataset"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white/90 hover:bg-slate-50 border border-slate-200/90 rounded-xl shadow-xs backdrop-blur-sm transition-all active:scale-[0.98]"
           >
-            <Database className="w-3.5 h-3.5 text-slate-400" />
+            <Database className="w-3.5 h-3.5 text-slate-500" />
             <span>Reset Demo DB</span>
           </button>
 
           {/* RBAC Role Selector */}
-          <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 p-1 rounded-xl">
-            <span className="text-xs text-slate-400 px-2 flex items-center gap-1 font-mono">
-              <KeyRound className="w-3 h-3 text-emerald-400" />
+          <div className="flex items-center gap-2 bg-white/90 border border-slate-200/90 p-1 rounded-xl shadow-xs backdrop-blur-sm">
+            <span className="text-xs text-slate-500 px-2 flex items-center gap-1 font-mono">
+              <KeyRound className="w-3 h-3 text-emerald-600" />
               RBAC:
             </span>
             <select
@@ -129,7 +96,7 @@ export function Header({ activeModuleId = '05', onDataRefreshed }) {
                   type: 'info'
                 });
               }}
-              className="bg-slate-950 text-xs font-semibold text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
+              className="bg-slate-50/80 text-xs font-semibold text-slate-800 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 cursor-pointer transition-colors"
             >
               <option value="SUPER_ADMIN">Super Admin (customClaims: admin:true)</option>
               <option value="SUPPORT_OPERATOR">Support Operator (Triage / Tier-2)</option>
@@ -137,16 +104,16 @@ export function Header({ activeModuleId = '05', onDataRefreshed }) {
             </select>
           </div>
 
-          {/* Wireframe User Pill */}
-          <div className="flex items-center gap-2.5 bg-emerald-950/40 border border-emerald-600/30 px-3 py-1.5 rounded-xl">
+          {/* User Status Pill */}
+          <div className="flex items-center gap-2.5 bg-emerald-50/80 border border-emerald-200/80 px-3 py-1.5 rounded-xl backdrop-blur-sm shadow-xs">
             <div className="relative">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-sm shadow-emerald-500/50" />
             </div>
             <div className="text-left">
-              <div className="text-xs font-semibold text-emerald-200">
-                [ Admin User: <span className="font-mono text-emerald-400">{currentAdmin.email}</span> ]
+              <div className="text-xs font-semibold text-emerald-900">
+                [ Admin: <span className="font-mono text-emerald-700 font-bold">{currentAdmin.email}</span> ]
               </div>
-              <div className="text-[10px] text-emerald-400/80 font-mono">
+              <div className="text-[10px] text-emerald-800 font-mono">
                 Claims: {JSON.stringify(currentAdmin.customClaims)}
               </div>
             </div>
@@ -156,16 +123,16 @@ export function Header({ activeModuleId = '05', onDataRefreshed }) {
 
       {/* Secondary micro-banner with RBAC notice if not superadmin */}
       {currentRoleKey !== 'SUPER_ADMIN' && (
-        <div className="bg-amber-950/50 border-t border-amber-900/40 px-4 lg:px-8 py-1.5 text-xs text-amber-300 flex items-center justify-between">
+        <div className="bg-amber-50/90 border-t border-amber-200/80 px-4 lg:px-8 py-1.5 text-xs text-amber-900 flex items-center justify-between backdrop-blur-sm">
           <div className="flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
+            <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
             <span>
               <strong>RBAC Simulation:</strong> You are currently operating as <em>{currentAdmin.name}</em>. Destructive actions (suspending accounts, unlinking primary personas) are restricted.
             </span>
           </div>
           <button
             onClick={() => switchRole('SUPER_ADMIN')}
-            className="text-[11px] font-semibold underline hover:text-amber-100 ml-4"
+            className="text-[11px] font-semibold text-amber-700 underline hover:text-amber-900 ml-4"
           >
             Switch to Super Admin
           </button>

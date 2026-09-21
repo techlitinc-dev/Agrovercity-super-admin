@@ -100,28 +100,31 @@ export function UrgencyBadge({ urgency }) {
 
 export function MetricCard({ title, value, subtitle, icon: Icon, badge, color = 'emerald' }) {
   const colorMap = {
-    emerald: { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-    blue: { text: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
-    amber: { text: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
-    purple: { text: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
-    rose: { text: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/20' }
+    emerald: { text: 'text-emerald-800', bg: 'bg-emerald-100/80', border: 'border-emerald-300/80' },
+    blue: { text: 'text-teal-800', bg: 'bg-teal-100/80', border: 'border-teal-300/80' },
+    amber: { text: 'text-amber-800', bg: 'bg-amber-100/80', border: 'border-amber-300/80' },
+    purple: { text: 'text-emerald-900', bg: 'bg-emerald-100/80', border: 'border-emerald-300/80' },
+    rose: { text: 'text-rose-800', bg: 'bg-rose-100/80', border: 'border-rose-300/80' }
   }
   const c = colorMap[color] || colorMap.emerald
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between hover:border-slate-700 transition-colors shadow-sm">
+    <div className="relative overflow-hidden rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/40 to-emerald-100/25 p-4 flex flex-col justify-between hover:-translate-y-0.5 hover:border-emerald-400 hover:shadow-[0_12px_36px_rgb(16,185,129,0.12)] transition-all duration-300 shadow-[0_8px_30px_rgb(16,185,129,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-xl group">
+      {/* Top agricultural green sprout accent */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-transparent" />
+
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">{title}</span>
-        <div className={`p-2 rounded-lg ${c.bg} ${c.text}`}>
+        <span className="text-xs font-bold text-emerald-900/80 uppercase tracking-wider">{title}</span>
+        <div className={`p-2 rounded-xl ${c.bg} ${c.text} border ${c.border} shadow-2xs group-hover:scale-110 transition-transform`}>
           <Icon className="w-4 h-4" />
         </div>
       </div>
       <div className="mt-3">
-        <div className="text-2xl font-bold text-white tracking-tight">{value}</div>
-        <div className="flex items-center justify-between mt-1 text-xs text-slate-400">
-          <span>{subtitle}</span>
+        <div className="text-2xl font-bold font-mono text-emerald-950 tracking-tight">{value}</div>
+        <div className="flex items-center justify-between mt-1 text-xs text-emerald-800/80 font-medium">
+          <span className="truncate mr-2">{subtitle}</span>
           {badge && (
-            <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${c.bg} ${c.text} ${c.border}`}>
+            <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md border ${c.bg} ${c.text} ${c.border} shadow-2xs shrink-0`}>
               {badge}
             </span>
           )}

@@ -27,33 +27,33 @@ export function NotificationProvider({ children }) {
     <NotificationContext.Provider value={{ addToast }}>
       {children}
       {/* Toast Overlay */}
-      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none">
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-md w-full pointer-events-none">
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`pointer-events-auto flex items-start gap-3 p-4 rounded-xl shadow-2xl border backdrop-blur-md transition-all duration-300 transform translate-y-0 ${
+            className={`pointer-events-auto flex items-start gap-3.5 p-4 rounded-2xl shadow-2xl border backdrop-blur-2xl transition-all duration-300 transform translate-y-0 ring-1 ring-slate-900/5 ${
               toast.type === 'success'
-                ? 'bg-emerald-950/90 border-emerald-500/40 text-emerald-100 shadow-emerald-950/50'
+                ? 'bg-white/95 border-emerald-300/80 text-slate-900 shadow-emerald-600/10'
                 : toast.type === 'error'
-                ? 'bg-rose-950/90 border-rose-500/40 text-rose-100 shadow-rose-950/50'
+                ? 'bg-white/95 border-rose-300/80 text-slate-900 shadow-rose-600/10'
                 : toast.type === 'warning'
-                ? 'bg-amber-950/90 border-amber-500/40 text-amber-100 shadow-amber-950/50'
-                : 'bg-slate-900/90 border-slate-700 text-slate-100 shadow-slate-950/50'
+                ? 'bg-white/95 border-amber-300/80 text-slate-900 shadow-amber-600/10'
+                : 'bg-white/95 border-slate-200/90 text-slate-900 shadow-slate-900/10'
             }`}
           >
             <div className="mt-0.5 flex-shrink-0">
-              {toast.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-400" />}
-              {toast.type === 'error' && <AlertCircle className="w-5 h-5 text-rose-400" />}
-              {toast.type === 'warning' && <AlertTriangle className="w-5 h-5 text-amber-400" />}
-              {toast.type === 'info' && <Info className="w-5 h-5 text-sky-400" />}
+              {toast.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
+              {toast.type === 'error' && <AlertCircle className="w-5 h-5 text-rose-600" />}
+              {toast.type === 'warning' && <AlertTriangle className="w-5 h-5 text-amber-600" />}
+              {toast.type === 'info' && <Info className="w-5 h-5 text-sky-600" />}
             </div>
-            <div className="flex-1 text-sm">
-              {toast.title && <div className="font-semibold">{toast.title}</div>}
-              <div className="text-xs text-slate-300 mt-0.5 leading-relaxed">{toast.message}</div>
+            <div className="flex-1 text-xs">
+              {toast.title && <div className="font-bold text-slate-900">{toast.title}</div>}
+              <div className="text-slate-600 mt-0.5 leading-relaxed">{toast.message}</div>
             </div>
             <button
               onClick={() => removeToast(toast.id)}
-              className="text-slate-400 hover:text-white transition-colors p-1"
+              className="text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors p-1 rounded-lg"
             >
               <X className="w-4 h-4" />
             </button>
