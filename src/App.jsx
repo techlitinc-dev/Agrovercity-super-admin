@@ -13,6 +13,7 @@ import ContractsPage from './pages/ContractsPage';
 import LandPage from './pages/LandPage';
 import AdvisoryPage from './pages/AdvisoryPage';
 import ChatbotPage from './pages/ChatbotPage';
+import DiaryPage from './pages/DiaryPage';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 
@@ -27,6 +28,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '13':
+        return {
+          path: '/admin/diary',
+          title: 'Farm Diary, P&L Analytics & Break-Even',
+          sop: 'SOP-13',
+          collections: 'farm_diary_entries, crop_pnl',
+          compliance: 'AgriCoins Reward Ledger: Active • Pre-Sowing Cost Calibration: Enforced • Dual Sign-off > ₹50,000: Enforced'
+        };
       case '12':
         return {
           path: '/admin/chatbot',
@@ -172,6 +181,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '13' && (
+                <DiaryPage key={`mod-13-${refreshKey}`} />
+              )}
               {activeModuleId === '12' && (
                 <ChatbotPage key={`mod-12-${refreshKey}`} />
               )}
