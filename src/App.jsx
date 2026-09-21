@@ -19,12 +19,13 @@ import InsurancePage from './pages/InsurancePage';
 import LandRecordsPage from './pages/LandRecordsPage';
 import WaterPage from './pages/WaterPage';
 import FpoPage from './pages/FpoPage';
+import LivestockPage from './pages/LivestockPage';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 
 export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeModuleId, setActiveModuleId] = useState('18'); // Default to Module 18: FPO Engine & Bulk Procurement Pools
+  const [activeModuleId, setActiveModuleId] = useState('19'); // Default to Module 19: Livestock, Dairy & Veterinary Services
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleDataRefreshed = () => {
@@ -33,6 +34,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '19':
+        return {
+          path: '/admin/livestock',
+          title: 'Livestock, Dairy & Veterinary Services',
+          sop: 'SOP-19',
+          collections: 'gaushalas, nurseries, vets, dairy_products, vet_bookings, manure_orders',
+          compliance: 'MSVC Vet Licensure: Verified • 80G Gaushala Audit: Active • NABL A2 Purity: Enforced • Dual Sign-off > ₹50,000'
+        };
       case '18':
         return {
           path: '/admin/fpo',
@@ -226,6 +235,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '19' && (
+                <LivestockPage key={`mod-19-${refreshKey}`} />
+              )}
               {activeModuleId === '18' && (
                 <FpoPage key={`mod-18-${refreshKey}`} />
               )}

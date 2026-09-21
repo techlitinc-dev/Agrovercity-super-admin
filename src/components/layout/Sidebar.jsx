@@ -49,7 +49,7 @@ const MODULES = [
   { id: '16', title: 'Land Registry (7/12)', icon: Layers, path: '/admin/land-records', badge: 'SOP-16' },
   { id: '17', title: 'Water & Irrigation', icon: Droplets, path: '/admin/water', badge: 'SOP-17' },
   { id: '18', title: 'FPO & Pool Mgmt', icon: Network, path: '/admin/fpo', badge: 'SOP-18' },
-  { id: '19', title: 'Livestock & Dairy', icon: HeartPulse, path: '/admin/livestock' },
+  { id: '19', title: 'Livestock & Dairy', icon: HeartPulse, path: '/admin/livestock', badge: 'SOP-19' },
   { id: '20', title: 'Content CMS & Gyan', icon: Video, path: '/admin/content' },
   { id: '21', title: 'Agroforestry & Trees', icon: Trees, path: '/admin/agroforestry' },
   { id: '22', title: 'Gamification Economy', icon: Award, path: '/admin/gamification' },
@@ -87,7 +87,7 @@ export function Sidebar({ collapsed, setCollapsed, activeModuleId = '05', onSele
         {MODULES.map((item) => {
           const Icon = item.icon;
           const isActive = item.id === activeModuleId;
-          const isImplemented = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18'].includes(item.id);
+          const isImplemented = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'].includes(item.id);
 
           return (
             <div
