@@ -25,12 +25,13 @@ import AgroforestryPage from './pages/AgroforestryPage';
 import GamificationPage from './pages/GamificationPage';
 import ClimatePage from './pages/ClimatePage';
 import WomenShgPage from './pages/WomenShgPage';
+import SettlementsPage from './pages/SettlementsPage';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 
 export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeModuleId, setActiveModuleId] = useState('23'); // Default to Module 23: Climate & Cold Storage
+  const [activeModuleId, setActiveModuleId] = useState('25'); // Default to Module 25: Financial Settlements
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleDataRefreshed = () => {
@@ -39,6 +40,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '25':
+        return {
+          path: '/admin/settlements',
+          title: 'Financial Settlements & Scheduled Jobs',
+          sop: 'SOP-25',
+          collections: 'settlements, transporter_payouts, seller_payouts, cron_job_logs',
+          compliance: 'T+1 Automated Reconciliation: Active • Dual Sign-off > ₹50,000 • GST Invoicing (18%) • DPDP Masking'
+        };
       case '24':
         return {
           path: '/admin/women',
@@ -280,6 +289,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '25' && (
+                <SettlementsPage key={`mod-25-${refreshKey}`} />
+              )}
               {activeModuleId === '24' && (
                 <WomenShgPage key={`mod-24-${refreshKey}`} />
               )}
