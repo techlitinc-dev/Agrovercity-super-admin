@@ -15,12 +15,13 @@ import AdvisoryPage from './pages/AdvisoryPage';
 import ChatbotPage from './pages/ChatbotPage';
 import DiaryPage from './pages/DiaryPage';
 import BankingPage from './pages/BankingPage';
+import InsurancePage from './pages/InsurancePage';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 
 export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeModuleId, setActiveModuleId] = useState('05'); // Default to Module 05: Produce Lots & B2B Trading
+  const [activeModuleId, setActiveModuleId] = useState('15'); // Default to Module 15: Crop Insurance (PMFBY) & Calamity Claims
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleDataRefreshed = () => {
@@ -29,6 +30,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '15':
+        return {
+          path: '/admin/insurance',
+          title: 'Crop Insurance (PMFBY) & Calamity Claims',
+          sop: 'SOP-15',
+          collections: 'insurance_policies, insurance_claims, insurance_rates',
+          compliance: 'PMFBY 72-Hour Calamity Intimation • Geotagged Damage Verification • Dual Sign-off > ₹50,000 • Aadhaar Masking'
+        };
       case '14':
         return {
           path: '/admin/finance',
@@ -190,6 +199,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '15' && (
+                <InsurancePage key={`mod-15-${refreshKey}`} />
+              )}
               {activeModuleId === '14' && (
                 <BankingPage key={`mod-14-${refreshKey}`} />
               )}
