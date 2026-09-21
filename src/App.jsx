@@ -11,6 +11,7 @@ import { ProduceLotsModule } from './components/produce-lots/ProduceLotsModule';
 import { MarketplaceModule } from './components/marketplace/MarketplaceModule';
 import ContractsPage from './pages/ContractsPage';
 import { TransportModule } from './components/transport/TransportModule';
+import { EquipmentModule } from './components/equipment/EquipmentModule';
 
 export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -23,6 +24,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '09':
+        return {
+          path: '/admin/equipment',
+          title: 'Equipment Rental & Yantra Time-Slots',
+          sop: 'SOP-09',
+          collections: 'equipment, equipment_slots, equipment_bookings',
+          compliance: 'Dual Sign-off > ₹50,000: Enforced • DPDP Aadhaar Masking: Active • Audit Logging: Immutable'
+        };
       case '08':
         return {
           path: '/admin/transport',
@@ -136,6 +145,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '09' && (
+                <EquipmentModule key={`mod-09-${refreshKey}`} />
+              )}
               {activeModuleId === '08' && (
                 <TransportModule key={`mod-08-${refreshKey}`} />
               )}
