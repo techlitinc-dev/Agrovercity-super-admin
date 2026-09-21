@@ -76,3 +76,42 @@ export const mockRentReminders = {
     { id: 'rem_9007', leaseId: 'lse_3006', channel: 'sms', sentAt: day(1, 10), status: 'delivered', receiptId: 'dlr_6d3c18' },
   ],
 }
+
+export const mockAdvisoryScans = [
+  { id: 'scn_4001', status: 'confirmed', userId: 'usr_a91f', farmerName: 'Ram Patil', farmerPhone: '+919822012345', crop: 'Soybean', district: 'Nashik', imageUrl: 'gs://agrovercity-scans/2026/09/scn_4001.jpg', diagnosis: 'Soybean Rust (Phakopsora pachyrhizi)', severity: 'moderate', confidence: 0.94, modelVersion: 'cnn-leafnet-v4.2', farmerFeedback: 'confirmed', reviewedAt: day(1), createdAt: day(4), updatedAt: day(1) },
+  { id: 'scn_4002', status: 'confirmed', userId: 'usr_b773', farmerName: 'Suresh Jadhav', farmerPhone: '+919822098765', crop: 'Cotton', district: 'Pune', imageUrl: 'gs://agrovercity-scans/2026/09/scn_4002.jpg', diagnosis: 'Bacterial Blight (Xanthomonas)', severity: 'high', confidence: 0.91, modelVersion: 'cnn-leafnet-v4.2', farmerFeedback: 'confirmed', reviewedAt: day(2), createdAt: day(6), updatedAt: day(2) },
+  { id: 'scn_4003', status: 'false_positive', userId: 'usr_c410', farmerName: 'Mahadev Shinde', farmerPhone: '+919822055588', crop: 'Onion', district: 'Nashik', imageUrl: 'gs://agrovercity-scans/2026/09/scn_4003.jpg', diagnosis: 'Purple Blotch (Alternaria porri)', severity: 'low', confidence: 0.58, modelVersion: 'cnn-leafnet-v4.1', farmerFeedback: 'false_positive', falsePositiveReason: 'Scan showed nutrient deficiency spots, not disease', reviewedAt: day(0, 5), createdAt: day(3), updatedAt: day(0, 5) },
+  { id: 'scn_4004', status: 'pending_review', userId: 'usr_d205', farmerName: 'Vitthal Kale', farmerPhone: '+919822077733', crop: 'Wheat', district: 'Ahmednagar', imageUrl: 'gs://agrovercity-scans/2026/09/scn_4004.jpg', diagnosis: 'Wheat Rust (Puccinia)', severity: 'high', confidence: 0.66, modelVersion: 'cnn-leafnet-v4.2', farmerFeedback: 'pending', createdAt: day(0, 3), updatedAt: day(0, 3) },
+  { id: 'scn_4005', status: 'confirmed', userId: 'usr_e881', farmerName: 'Gopal Deshmukh', farmerPhone: '+919822031122', crop: 'Maize', district: 'Pune', imageUrl: 'gs://agrovercity-scans/2026/09/scn_4005.jpg', diagnosis: 'Turcicum Leaf Blight', severity: 'moderate', confidence: 0.88, modelVersion: 'cnn-leafnet-v4.2', farmerFeedback: 'confirmed', reviewedAt: day(1), createdAt: day(2), updatedAt: day(1) },
+  { id: 'scn_4006', status: 'false_positive', userId: 'usr_f119', farmerName: 'Shanta Bai Pawar', farmerPhone: '+919822099001', crop: 'Tur', district: 'Jalgaon', imageUrl: 'gs://agrovercity-scans/2026/09/scn_4006.jpg', diagnosis: 'Wilt (Fusarium)', severity: 'high', confidence: 0.52, modelVersion: 'cnn-leafnet-v4.1', farmerFeedback: 'false_positive', falsePositiveReason: 'Healthy plant — dew drops misread as lesions', reviewedAt: day(0, 7), createdAt: day(1), updatedAt: day(0, 7) },
+  { id: 'scn_4007', status: 'confirmed', userId: 'usr_g552', farmerName: 'Nitin More', farmerPhone: '+919822024680', crop: 'Grapes', district: 'Nashik', imageUrl: 'gs://agrovercity-scans/2026/09/scn_4007.jpg', diagnosis: 'Downy Mildew (Plasmopara viticola)', severity: 'high', confidence: 0.97, modelVersion: 'cnn-leafnet-v4.2', farmerFeedback: 'confirmed', reviewedAt: day(0, 2), createdAt: day(0, 6), updatedAt: day(0, 2) },
+]
+
+export const mockPestAlerts = [
+  { id: 'alr_5001', status: 'active', pestName: 'Fall Armyworm (Spodoptera frugiperda)', district: 'Nashik', radiusKm: 45, severity: 'high', crop: 'Maize', message: 'Fall Armyworm outbreak confirmed in Dindori belt. Inspect whorl leaves daily; apply recommended pheromone traps.', broadcastAt: day(2), broadcastBy: 'root@agrovercity', recipientsNotified: 4820, createdAt: day(2), updatedAt: day(0, 6) },
+  { id: 'alr_5002', status: 'active', pestName: 'Pink Bollworm (Pectinophora gossypiella)', district: 'Jalgaon', radiusKm: 60, severity: 'high', crop: 'Cotton', message: 'Pink bollworm moth catches above ETL in Chopda taluka. Destroy infected bolls and follow ICAR spray schedule.', broadcastAt: day(4), broadcastBy: 'root@agrovercity', recipientsNotified: 6310, createdAt: day(4), updatedAt: day(3) },
+  { id: 'alr_5003', status: 'expired', pestName: 'Gregarious Locust Sighting', district: 'Ahmednagar', radiusKm: 100, severity: 'critical', crop: 'All Crops', message: 'Locust swarm movement reported near Rahuri. Report sightings immediately to the toll-free helpline.', broadcastAt: day(21), broadcastBy: 'root@agrovercity', recipientsNotified: 11450, createdAt: day(21), updatedAt: day(12) },
+  { id: 'alr_5004', status: 'scheduled', pestName: 'Aphid Buildup Warning', district: 'Pune', radiusKm: 30, severity: 'moderate', crop: 'Sorghum', message: 'Weather models indicate aphid population surge within 72 hours on Indapur sorghum belt.', broadcastAt: '2026-09-23T06:00:00.000Z', broadcastBy: 'root@agrovercity', recipientsNotified: 0, createdAt: day(1), updatedAt: day(1) },
+  { id: 'alr_5005', status: 'active', pestName: 'Whitefly Surge (Bemisia tabaci)', district: 'Nashik', radiusKm: 25, severity: 'moderate', crop: 'Cotton', message: 'Whitefly counts crossing ETL in Sinnar. Avoid broad-spectrum sprays; use yellow sticky traps.', broadcastAt: day(0, 8), broadcastBy: 'root@agrovercity', recipientsNotified: 2140, createdAt: day(0, 8), updatedAt: day(0, 8) },
+]
+
+export const mockSoilTests = [
+  { id: 'st_6001', status: 'result_uploaded', userId: 'usr_a91f', farmerName: 'Ram Patil', farmerPhone: '+919822012345', district: 'Nashik', surveyNo: '0712/2/34', sampleCode: 'SOIL/NSK/2026/1101', collectedAt: day(14), labName: 'MahaBhumi Soil Lab', nitrogen: 210, phosphorus: 18, potassium: 240, ph: 7.2, organicCarbon: 0.58, recommendation: 'Apply 40:60:20 NPK kg/ha split in two doses; add 5t FYM per acre', reportUrl: 'gs://agrovercity-soil/2026/st_6001.pdf', uploadedAt: day(2), createdAt: day(14), updatedAt: day(2) },
+  { id: 'st_6002', status: 'lab_processing', userId: 'usr_b773', farmerName: 'Suresh Jadhav', farmerPhone: '+919822098765', district: 'Pune', surveyNo: '0912/1/08', sampleCode: 'SOIL/PUN/2026/2210', collectedAt: day(6), labName: 'ICAR Regional Soil Lab', createdAt: day(6), updatedAt: day(4) },
+  { id: 'st_6003', status: 'sample_collected', userId: 'usr_c410', farmerName: 'Mahadev Shinde', farmerPhone: '+919822055588', district: 'Nashik', surveyNo: '0451/3/19', sampleCode: 'SOIL/NSK/2026/1128', collectedAt: day(1), labName: 'MahaBhumi Soil Lab', createdAt: day(1), updatedAt: day(1) },
+  { id: 'st_6004', status: 'lab_processing', userId: 'usr_d205', farmerName: 'Vitthal Kale', farmerPhone: '+919822077733', district: 'Ahmednagar', surveyNo: '1188/2/51', sampleCode: 'SOIL/AHM/2026/0774', collectedAt: day(9), labName: 'ICAR Regional Soil Lab', createdAt: day(9), updatedAt: day(7) },
+  { id: 'st_6005', status: 'result_uploaded', userId: 'usr_e881', farmerName: 'Gopal Deshmukh', farmerPhone: '+919822031122', district: 'Pune', surveyNo: '2201/4/02', sampleCode: 'SOIL/PUN/2026/3352', collectedAt: day(20), labName: 'MahaBhumi Soil Lab', nitrogen: 145, phosphorus: 11, potassium: 190, ph: 8.1, organicCarbon: 0.34, recommendation: 'Low N & P — apply 60:80:30 NPK kg/ha; gypsum 500 kg/acre for pH correction', reportUrl: 'gs://agrovercity-soil/2026/st_6005.pdf', uploadedAt: day(1), createdAt: day(20), updatedAt: day(1) },
+  { id: 'st_6006', status: 'result_uploaded', userId: 'usr_h937', farmerName: 'Kailas Wagh', farmerPhone: '+919822061357', district: 'Ahmednagar', surveyNo: '1671/1/12', sampleCode: 'SOIL/AHM/2026/0891', collectedAt: day(18), labName: 'ICAR Regional Soil Lab', nitrogen: 260, phosphorus: 25, potassium: 310, ph: 6.8, organicCarbon: 0.72, recommendation: 'Fertile soil — maintenance dose 30:40:20 NPK kg/ha only', reportUrl: 'gs://agrovercity-soil/2026/st_6006.pdf', uploadedAt: day(0, 5), createdAt: day(18), updatedAt: day(0, 5) },
+]
+
+export const NPK_CONFIG = {
+  algorithmVersion: 'icar-npk-v3.1',
+  lastReviewedAt: day(5),
+  params: [
+    { key: 'targetYieldFactor', value: 1.25, unit: '×', note: 'ICAR targeted-yield multiplier per crop' },
+    { key: 'soilOCAdjustment', value: 0.15, unit: 'ratio', note: 'Fertilizer reduction per 1% organic carbon above 0.5%' },
+    { key: 'soilTestCropResponse', value: 0.9, unit: 'ratio', note: 'Nutrient supply from soil test vs crop response weight' },
+    { key: 'saturationElasticity', value: 0.62, unit: 'index', note: 'Market saturation demand-forecast damping coefficient' },
+    { key: 'substitutionWindow', value: 14, unit: 'days', note: 'Crop substitution model look-ahead window' },
+  ],
+}
