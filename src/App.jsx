@@ -16,12 +16,13 @@ import ChatbotPage from './pages/ChatbotPage';
 import DiaryPage from './pages/DiaryPage';
 import BankingPage from './pages/BankingPage';
 import InsurancePage from './pages/InsurancePage';
+import LandRecordsPage from './pages/LandRecordsPage';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 
 export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeModuleId, setActiveModuleId] = useState('15'); // Default to Module 15: Crop Insurance (PMFBY) & Calamity Claims
+  const [activeModuleId, setActiveModuleId] = useState('16'); // Default to Module 16: Land Records Registry (7/12 & 8A Utara)
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleDataRefreshed = () => {
@@ -30,6 +31,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '16':
+        return {
+          path: '/admin/land-records',
+          title: 'Land Records Registry (7/12 & 8A Utara)',
+          sop: 'SOP-16',
+          collections: 'land_records_712, users/{uid}/imported_records',
+          compliance: 'Mahabhulekh Gateway: Active • Redis L2 Cache: Sub-5ms • DPDP Aadhaar Masking: PASS • Audit Logging: Enforced'
+        };
       case '15':
         return {
           path: '/admin/insurance',
@@ -199,6 +208,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '16' && (
+                <LandRecordsPage key={`mod-16-${refreshKey}`} />
+              )}
               {activeModuleId === '15' && (
                 <InsurancePage key={`mod-15-${refreshKey}`} />
               )}

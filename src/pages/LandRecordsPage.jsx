@@ -1,0 +1,607 @@
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import {
+  Layers,
+  FileText,
+  Building2,
+  MapPin,
+  CheckCircle2,
+  AlertTriangle,
+  Clock,
+  ExternalLink,
+  ChevronRight,
+  Sparkles,
+  Server,
+  Activity,
+  Database,
+  Lock,
+  RefreshCw,
+  Search,
+  Sliders,
+  ShieldCheck,
+  Zap,
+  Users,
+  Download,
+  Plus
+} from 'lucide-react'
+import {
+  getLandRecordsSummary,
+  getGatewayStatus,
+  listLandRecords,
+  listUserImportedRecords,
+  getAuditLogs,
+  manualProvisionRecord,
+  resolveDiscrepancy,
+  refreshRecordFromPortal,
+  seedVillageRecords,
+  exportGovernmentCompliance
+} from '../api/landRecordsApi'
+import {
+  MetricCard,
+  TabSwitch,
+  FiltersBar,
+  LandRecordsTable,
+  UserImportsTable,
+  GatewayStatusCards,
+  AuditLogTable,
+  Pagination
+} from './landRecordsWidgets'
+import LandRecordDetailDrawer from '../components/land-records/LandRecordDetailDrawer'
+import {
+  ManualProvisionRecordModal,
+  ResolveDiscrepancyModal,
+  SeedVillageCacheModal,
+  GovernmentExportModal
+} from '../components/land-records/LandRecordsModals'
+import { useNotification } from '../context/NotificationContext'
+
+const PAGE_SIZE = 20
+
+function toCsv(rows) {
+  if (!rows || rows.length === 0) return ''
+  const head = Object.keys(rows[0]).filter((k) => typeof rows[0][k] !== 'object')
+  const lines = rows.map((r) =>
+    head.map((k) => `"${String(r[k] ?? '').replace(/"/g, '""')}"`).join(',')
+  )
+  return [head.join(','), ...lines].join('\n')
+}
+
+function downloadBlob(content, filename, type = 'text/csv;charset=utf-8;') {
+  const blob = new Blob([content], { type })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+export default function LandRecordsPage() {
+  const { addToast } = useNotification() || { addToast: () => {} }
+
+  const [tab, setTab] = useState('records') // 'records' | 'imports' | 'gateways' | 'audit'
+  const [records, setRecords] = useState([])
+  const [imports, setImports] = useState([])
+  const [gatewayStatus, setGatewayStatus] = useState(null)
+  const [auditLogs, setAuditLogs] = useState([])
+  const [summary, setSummary] = useState(null)
+
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  // Filters
+  const [q, setQ] = useState('')
+  const [status, setStatus] = useState('all')
+  const [recordType, setRecordType] = useState('all')
+  const [district, setDistrict] = useState('all')
+  const [encumbranceOnly, setEncumbranceOnly] = useState(false)
+
+  // Detail Drawer
+  const [selectedRecord, setSelectedRecord] = useState(null)
+
+  // Modals
+  const [manualProvisionOpen, setManualProvisionOpen] = useState(false)
+  const [discrepancyModal, setDiscrepancyModal] = useState({ open: false, record: null })
+  const [seedCacheOpen, setSeedCacheOpen] = useState(false)
+  const [exportComplianceOpen, setExportComplianceOpen] = useState(false)
+
+  // 1. Load KPI summary and gateway telemetry
+  const loadSummaryAndGateways = useCallback(async () => {
+    try {
+      const [sumRes, gwRes] = await Promise.all([
+        getLandRecordsSummary(),
+        getGatewayStatus()
+      ])
+      setSummary(sumRes)
+      setGatewayStatus(gwRes)
+    } catch (err) {
+      console.warn('Failed to load summary / gateway telemetry:', err)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadSummaryAndGateways()
+  }, [loadSummaryAndGateways])
+
+  // 2. Load primary tab data
+  const loadTabData = useCallback(async () => {
+    setLoading(true)
+    setError('')
+    try {
+      if (tab === 'records') {
+        const res = await listLandRecords({
+          page,
+          pageSize: PAGE_SIZE,
+          q,
+          status,
+          recordType,
+          district,
+          encumbranceOnly
+        })
+        setRecords(res.data || [])
+        setTotal(res.total || 0)
+      } else if (tab === 'imports') {
+        const res = await listUserImportedRecords({
+          page,
+          pageSize: PAGE_SIZE,
+          q,
+          district
+        })
+        setImports(res.data || [])
+        setTotal(res.total || 0)
+      } else if (tab === 'gateways') {
+        const res = await getGatewayStatus()
+        setGatewayStatus(res)
+        setTotal(res.portals ? res.portals.length : 0)
+      } else if (tab === 'audit') {
+        const res = await getAuditLogs({ page, pageSize: PAGE_SIZE })
+        setAuditLogs(res.data || [])
+        setTotal(res.total || 0)
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to load land records registry data')
+    } finally {
+      setLoading(false)
+    }
+  }, [tab, page, q, status, recordType, district, encumbranceOnly])
+
+  useEffect(() => {
+    loadTabData()
+  }, [loadTabData])
+
+  // Reset page to 1 when changing tabs or primary filters
+  const handleTabChange = (newTab) => {
+    setTab(newTab)
+    setPage(1)
+  }
+
+  // 3. Actions: Refresh record from portal
+  const handleRefreshRecord = async (record) => {
+    setBusy(true)
+    try {
+      const res = await refreshRecordFromPortal(record.id)
+      addToast({
+        title: 'Portal Synced',
+        message: `Gat #${record.gatNumber} successfully re-queried from ${record.sourcePortal}.`,
+        type: 'success'
+      })
+      if (selectedRecord && selectedRecord.id === record.id && res.record) {
+        setSelectedRecord(res.record)
+      }
+      await loadTabData()
+      await loadSummaryAndGateways()
+    } catch (err) {
+      addToast({
+        title: 'Portal Query Failed',
+        message: err.message || 'Failed to re-query state land registry portal.',
+        type: 'error'
+      })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // 4. Actions: Manual Provision Record
+  const handleManualProvisionConfirm = async (payload) => {
+    try {
+      const created = await manualProvisionRecord(payload)
+      addToast({
+        title: '7/12 Provisioned',
+        message: `Gat #${created.gatNumber || payload.gatNumber} manually registered with audit entry.`,
+        type: 'success'
+      })
+      await loadTabData()
+      await loadSummaryAndGateways()
+    } catch (err) {
+      addToast({
+        title: 'Provisioning Failed',
+        message: err.message || 'Could not manually provision land record.',
+        type: 'error'
+      })
+      throw err
+    }
+  }
+
+  // 5. Actions: Resolve Discrepancy
+  const handleResolveDiscrepancyConfirm = async (payload) => {
+    if (!discrepancyModal.record) return
+    try {
+      const updated = await resolveDiscrepancy(discrepancyModal.record.id, payload)
+      addToast({
+        title: 'Discrepancy Reconciled',
+        message: `Gat #${updated.gatNumber} discrepancy marked resolved and verified.`,
+        type: 'success'
+      })
+      if (selectedRecord && selectedRecord.id === updated.id) {
+        setSelectedRecord(updated)
+      }
+      setDiscrepancyModal({ open: false, record: null })
+      await loadTabData()
+      await loadSummaryAndGateways()
+    } catch (err) {
+      addToast({
+        title: 'Resolution Failed',
+        message: err.message || 'Could not resolve land record discrepancy.',
+        type: 'error'
+      })
+      throw err
+    }
+  }
+
+  // 6. Actions: Seed Village Redis Cache
+  const handleSeedCacheConfirm = async (payload) => {
+    try {
+      const res = await seedVillageRecords(payload)
+      addToast({
+        title: 'Redis Cache Pre-Seeded',
+        message: `${res.recordsSeeded || payload.count} records for village ${payload.village} ingested to cache.`,
+        type: 'success'
+      })
+      await loadSummaryAndGateways()
+    } catch (err) {
+      addToast({
+        title: 'Seed Failed',
+        message: err.message || 'Failed to pre-seed village records.',
+        type: 'error'
+      })
+      throw err
+    }
+  }
+
+  // 7. Actions: Export Government Compliance Dossier
+  const handleExportComplianceConfirm = async (payload) => {
+    try {
+      const res = await exportGovernmentCompliance(payload)
+      addToast({
+        title: 'Compliance Dossier Generated',
+        message: `Export ${res.exportId || 'EXP_GOVT'} generated for ${payload.authority}.`,
+        type: 'success'
+      })
+      // Trigger download of current records as official CSV
+      const csvData = toCsv(records)
+      downloadBlob(csvData, `Land_Records_Audit_Dossier_${Date.now()}.csv`)
+    } catch (err) {
+      addToast({
+        title: 'Export Failed',
+        message: err.message || 'Could not generate compliance dossier.',
+        type: 'error'
+      })
+      throw err
+    }
+  }
+
+  // 8. General CSV export from current view
+  const handleExportCurrentView = () => {
+    if (tab === 'records') {
+      const csv = toCsv(records)
+      downloadBlob(csv, `Land_Records_712_8A_${Date.now()}.csv`)
+      addToast({
+        title: 'CSV Exported',
+        message: `Exported ${records.length} land records to CSV.`,
+        type: 'success'
+      })
+    } else if (tab === 'imports') {
+      const csv = toCsv(imports)
+      downloadBlob(csv, `Farmer_Farm_Imports_${Date.now()}.csv`)
+      addToast({
+        title: 'CSV Exported',
+        message: `Exported ${imports.length} user farm import records to CSV.`,
+        type: 'success'
+      })
+    } else if (tab === 'audit') {
+      const csv = toCsv(auditLogs)
+      downloadBlob(csv, `Land_Records_Audit_Trail_${Date.now()}.csv`)
+      addToast({
+        title: 'CSV Exported',
+        message: `Exported ${auditLogs.length} audit trail logs to CSV.`,
+        type: 'success'
+      })
+    } else {
+      setExportComplianceOpen(true)
+    }
+  }
+
+  // Counts for TabSwitch
+  const counts = useMemo(() => {
+    return {
+      records: summary?.activeVerifiedParcels || records.length,
+      imports: summary?.totalImportsThisMonth || imports.length,
+      gateways: gatewayStatus?.portals?.length || 4,
+      audit: auditLogs.length || 4
+    }
+  }, [summary, records.length, imports.length, gatewayStatus, auditLogs.length])
+
+  return (
+    <div className="space-y-6">
+      {/* Top Banner / Breadcrumb Details */}
+      <div className="px-6 pt-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                <Layers className="w-5 h-5" />
+              </span>
+              <div>
+                <h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                  <span>Land Records Registry (7/12 &amp; 8A Utara)</span>
+                  <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+                    SOP-16
+                  </span>
+                </h1>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Direct state revenue portal integration (Mahabhulekh, MP Bhulekh, AnyRoR, Bhoomi) for 7/12, 8A Khate, Gat fuzzy matching, and Redis L2 caching.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Action Buttons */}
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => setManualProvisionOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Manual Provision</span>
+            </button>
+
+            <button
+              onClick={() => setSeedCacheOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-semibold transition-all"
+            >
+              <Database className="w-4 h-4 text-blue-400" />
+              <span>Seed Cache</span>
+            </button>
+
+            <button
+              onClick={() => setExportComplianceOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-semibold transition-all"
+            >
+              <Download className="w-4 h-4 text-emerald-400" />
+              <span>Govt Dossier</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* KPI Summary Metrics Grid */}
+      <div className="px-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <MetricCard
+          title="Active Verified Parcels"
+          value={summary?.activeVerifiedParcels?.toLocaleString('en-IN') || '12,850'}
+          subtext="State Gateway Confirmed"
+          icon={ShieldCheck}
+          color="emerald"
+          onClick={() => {
+            setTab('records')
+            setStatus('verified')
+          }}
+        />
+
+        <MetricCard
+          title="Cached Records"
+          value={summary?.totalRecordsInCache?.toLocaleString('en-IN') || '14,280'}
+          subtext="Redis In-Memory L2"
+          icon={Database}
+          color="blue"
+          onClick={() => {
+            setTab('records')
+            setStatus('all')
+          }}
+        />
+
+        <MetricCard
+          title="Flagged Discrepancies"
+          value={summary?.flaggedDiscrepancies ?? 3}
+          subtext="Survey / Parsing Mismatch"
+          icon={AlertTriangle}
+          color="amber"
+          alert={Boolean(summary?.flaggedDiscrepancies && summary.flaggedDiscrepancies > 0)}
+          onClick={() => {
+            setTab('records')
+            setStatus('flagged_discrepancy')
+          }}
+        />
+
+        <MetricCard
+          title="Manual Overrides"
+          value={summary?.manualOverrides ?? 2}
+          subtext="Downtime Emergency Ingest"
+          icon={Clock}
+          color="purple"
+          onClick={() => {
+            setTab('records')
+            setStatus('manual_override')
+          }}
+        />
+
+        <MetricCard
+          title="Farmer Profile Imports"
+          value={summary?.totalImportsThisMonth?.toLocaleString('en-IN') || '3,420'}
+          subtext="Auto-Synced Acreage"
+          icon={Users}
+          color="emerald"
+          onClick={() => {
+            setTab('imports')
+          }}
+        />
+
+        <MetricCard
+          title="Cache Hit Ratio"
+          value={`${gatewayStatus?.cacheMetrics?.cacheHitRatio || '84.6'}%`}
+          subtext="Sub-5ms Lookup Speed"
+          icon={Zap}
+          color="blue"
+          onClick={() => {
+            setTab('gateways')
+          }}
+        />
+      </div>
+
+      {/* Main Content Area */}
+      <div className="mx-6 rounded-xl border border-slate-800 bg-slate-950 overflow-hidden shadow-xl">
+        {/* Module Sub-Navigation */}
+        <TabSwitch activeTab={tab} onChangeTab={handleTabChange} counts={counts} />
+
+        {/* Global Filter Bar */}
+        <FiltersBar
+          tab={tab}
+          q={q}
+          setQ={setQ}
+          status={status}
+          setStatus={setStatus}
+          recordType={recordType}
+          setRecordType={setRecordType}
+          district={district}
+          setDistrict={setDistrict}
+          encumbranceOnly={encumbranceOnly}
+          setEncumbranceOnly={setEncumbranceOnly}
+          onExportCsv={handleExportCurrentView}
+          onManualProvision={() => setManualProvisionOpen(true)}
+          onSeedCache={() => setSeedCacheOpen(true)}
+          onOpenGatewayHealth={() => setTab('gateways')}
+        />
+
+        {/* Loading / Error States */}
+        {loading && (
+          <div className="p-12 text-center text-slate-500">
+            <RefreshCw className="w-8 h-8 mx-auto mb-2 animate-spin text-emerald-400" />
+            <p className="text-sm">Loading land records registry data...</p>
+          </div>
+        )}
+
+        {error && !loading && (
+          <div className="p-8 text-center text-rose-400">
+            <AlertTriangle className="w-8 h-8 mx-auto mb-2" />
+            <p className="text-sm font-semibold">{error}</p>
+            <button
+              onClick={loadTabData}
+              className="mt-3 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 text-xs"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {/* Content Tab Displays */}
+        {!loading && !error && (
+          <>
+            {tab === 'records' && (
+              <>
+                <LandRecordsTable
+                  records={records}
+                  onSelectRecord={(r) => setSelectedRecord(r)}
+                  onResolveDiscrepancy={(r) => setDiscrepancyModal({ open: true, record: r })}
+                  onRefreshPortal={handleRefreshRecord}
+                />
+                <Pagination
+                  page={page}
+                  pageSize={PAGE_SIZE}
+                  total={total}
+                  onPageChange={(newPage) => setPage(newPage)}
+                />
+              </>
+            )}
+
+            {tab === 'imports' && (
+              <>
+                <UserImportsTable
+                  imports={imports}
+                  onSelectImport={(item) => {
+                    const match = records.find((r) => r.id === item.recordId || r.gatNumber === item.gatNumber)
+                    if (match) {
+                      setSelectedRecord(match)
+                    }
+                  }}
+                />
+                <Pagination
+                  page={page}
+                  pageSize={PAGE_SIZE}
+                  total={total}
+                  onPageChange={(newPage) => setPage(newPage)}
+                />
+              </>
+            )}
+
+            {tab === 'gateways' && (
+              <GatewayStatusCards gatewayStatus={gatewayStatus} />
+            )}
+
+            {tab === 'audit' && (
+              <>
+                <AuditLogTable logs={auditLogs} />
+                <Pagination
+                  page={page}
+                  pageSize={PAGE_SIZE}
+                  total={total}
+                  onPageChange={(newPage) => setPage(newPage)}
+                />
+              </>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Detail Slide-Over Drawer */}
+      <LandRecordDetailDrawer
+        record={selectedRecord}
+        onClose={() => setSelectedRecord(null)}
+        onResolveDiscrepancy={(r) => setDiscrepancyModal({ open: true, record: r })}
+        onRefreshPortal={handleRefreshRecord}
+      />
+
+      {/* Manual Provisioning Modal */}
+      <ManualProvisionRecordModal
+        open={manualProvisionOpen}
+        onClose={() => setManualProvisionOpen(false)}
+        onConfirm={handleManualProvisionConfirm}
+      />
+
+      {/* Resolve Discrepancy Modal */}
+      <ResolveDiscrepancyModal
+        open={discrepancyModal.open}
+        record={discrepancyModal.record}
+        onClose={() => setDiscrepancyModal({ open: false, record: null })}
+        onConfirm={handleResolveDiscrepancyConfirm}
+      />
+
+      {/* Seed Village Cache Modal */}
+      <SeedVillageCacheModal
+        open={seedCacheOpen}
+        onClose={() => setSeedCacheOpen(false)}
+        onConfirm={handleSeedCacheConfirm}
+      />
+
+      {/* Government Compliance Export Modal */}
+      <GovernmentExportModal
+        open={exportComplianceOpen}
+        onClose={() => setExportComplianceOpen(false)}
+        onConfirm={handleExportComplianceConfirm}
+      />
+    </div>
+  )
+}
