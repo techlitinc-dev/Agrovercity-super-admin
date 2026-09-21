@@ -12,6 +12,7 @@ import { MarketplaceModule } from './components/marketplace/MarketplaceModule';
 import ContractsPage from './pages/ContractsPage';
 import LandPage from './pages/LandPage';
 import AdvisoryPage from './pages/AdvisoryPage';
+import ChatbotPage from './pages/ChatbotPage';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 
@@ -26,6 +27,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '12':
+        return {
+          path: '/admin/chatbot',
+          title: 'Kisan Mitra AI Chatbot & Human Expert Handoff',
+          sop: 'SOP-12',
+          collections: 'chatbot_sessions, chatbot_messages, expert_tickets, experts',
+          compliance: 'Gemini 2.5 Flash + Rule-Based Fallback: Active • Prompt Config Audit: v-tracked • KVK Expert SLA: Enforced'
+        };
       case '11':
         return {
           path: '/admin/advisory',
@@ -163,6 +172,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '12' && (
+                <ChatbotPage key={`mod-12-${refreshKey}`} />
+              )}
               {activeModuleId === '11' && (
                 <AdvisoryPage key={`mod-11-${refreshKey}`} />
               )}

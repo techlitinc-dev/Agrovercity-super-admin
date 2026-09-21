@@ -31,6 +31,62 @@ export const mockAcceptances = {
   ],
 }
 
+export const mockChatSessions = [
+  { id: 'ses_7001', status: 'flagged', userId: 'usr_a91f', farmerName: 'Ram Patil', farmerPhone: '+919822012345', language: 'mr', engine: 'gemini-2.5-flash', topic: 'Market rate dispute', messageCount: 12, satisfactionScore: 2, flagged: true, flagReason: 'AI quoted an unverified mandi rate — escalated to human expert', escalated: true, createdAt: day(1), updatedAt: day(0, 5), messages: [
+    { id: 'msg_01', role: 'farmer', text: 'आज सोयाबीन भाव किती आहे जालना मंडीत?', lang: 'mr', at: day(1, 9) },
+    { id: 'msg_02', role: 'ai', text: 'जालना मंडीत आज सोयाबीन ₹5,250 प्रति क्विंटल दर्शविले जात आहे.', lang: 'mr', at: day(1, 9), confidence: 0.62 },
+    { id: 'msg_03', role: 'farmer', text: 'गलत है, अभी 5,600 चल रहा है. आपका डेटा पुराना है', lang: 'mr', at: day(1, 10) },
+    { id: 'msg_04', role: 'ai', text: 'क्षमा करा. मी तुमची विनंती मानवी तज्ज्ञाकडे पाठवत आहे.', lang: 'mr', at: day(1, 10), handoff: true },
+  ] },
+  { id: 'ses_7002', status: 'ended', userId: 'usr_b773', farmerName: 'Suresh Jadhav', farmerPhone: '+919822098765', language: 'hi', engine: 'gemini-2.5-flash', topic: 'Sowing window weather', messageCount: 8, satisfactionScore: 5, flagged: false, escalated: false, createdAt: day(2), updatedAt: day(2), messages: [
+    { id: 'msg_01', role: 'farmer', text: 'अगले हफ्ते गेहूं बोने के लिए मौसम कैसा रहेगा बारामती में?', lang: 'hi', at: day(2, 8) },
+    { id: 'msg_02', role: 'ai', text: 'बारामती में अगले 7 दिन हल्की बूंदाबांदी के साथ रहेंगे — बुवाई के लिए उपयुक्त समय 2-4 नवंबर है.', lang: 'hi', at: day(2, 8), confidence: 0.91 },
+  ] },
+  { id: 'ses_7003', status: 'active', userId: 'usr_c410', farmerName: 'Mahadev Shinde', farmerPhone: '+919822055588', language: 'mr', engine: 'rule-based-agronomy', topic: 'Fertilizer dosage', messageCount: 5, satisfactionScore: null, flagged: false, escalated: false, createdAt: day(0, 7), updatedAt: day(0, 6), messages: [
+    { id: 'msg_01', role: 'farmer', text: 'कांद्यासाठी युरिया किती द्यावी?', lang: 'mr', at: day(0, 7) },
+    { id: 'msg_02', role: 'ai', text: 'माती परीक्षणानुसार, 120 दिवसांच्या कांद्या पिकासाठी एकूण N 100 kg/ha — 3 भागांत विभागून द्या.', lang: 'mr', at: day(0, 7), confidence: 0.88 },
+  ] },
+  { id: 'ses_7004', status: 'ended', userId: 'usr_d205', farmerName: 'Vitthal Kale', farmerPhone: '+919822077733', language: 'mr', engine: 'gemini-2.5-flash', topic: 'Pest identification', messageCount: 14, satisfactionScore: 4, flagged: false, escalated: false, createdAt: day(4), updatedAt: day(3), messages: [
+    { id: 'msg_01', role: 'farmer', text: 'गवताळवर पिवळे किडे दिसत आहेत', lang: 'mr', at: day(4, 11) },
+    { id: 'msg_02', role: 'ai', text: 'हे बहुधा तंबाखू पांढरी माशी (Bemisia tabaci) आहे. पिवळे चिकट सापळे वापरा.', lang: 'mr', at: day(4, 11), confidence: 0.85 },
+  ] },
+  { id: 'ses_7005', status: 'ended', userId: 'usr_e881', farmerName: 'Gopal Deshmukh', farmerPhone: '+919822031122', language: 'hi', engine: 'rule-based-agronomy', topic: 'Market saturation alert', messageCount: 6, satisfactionScore: 3, flagged: false, escalated: false, createdAt: day(6), updatedAt: day(6), messages: [
+    { id: 'msg_01', role: 'ai', text: 'सूचना: पुणे मंडी में प्याज आपूर्ति असामान्य रूप से अधिक है — बिक्री 3-4 दिन टालने पर विचार करें.', lang: 'hi', at: day(6, 6) },
+  ] },
+  { id: 'ses_7006', status: 'escalated', userId: 'usr_f119', farmerName: 'Shanta Bai Pawar', farmerPhone: '+919822099001', language: 'mr', engine: 'gemini-2.5-flash', topic: 'Crop insurance query', messageCount: 10, satisfactionScore: null, flagged: false, escalated: true, createdAt: day(0, 3), updatedAt: day(0, 2), messages: [
+    { id: 'msg_01', role: 'farmer', text: 'माझे पीक विमा दावे नाकारले गेले आहे, मी काय करावे?', lang: 'mr', at: day(0, 3) },
+    { id: 'msg_02', role: 'ai', text: 'हा प्रश्न प्रमाणित KVK तज्ज्ञासाठी आहे. मी तुमची बोली एस्कलेट करत आहे.', lang: 'mr', at: day(0, 3), handoff: true },
+  ] },
+]
+
+export const mockHandoffTickets = [
+  { id: 'hnd_8001', status: 'open', sessionId: 'ses_7001', farmerId: 'usr_a91f', farmerName: 'Ram Patil', farmerPhone: '+919822012345', topic: 'Market rate dispute', priority: 'high', language: 'mr', assignedExpertId: null, assignedExpertName: null, slaDeadline: '2026-09-21T18:00:00.000Z', channel: 'whatsapp', createdAt: day(1), updatedAt: day(0, 5) },
+  { id: 'hnd_8002', status: 'assigned', sessionId: 'ses_7006', farmerId: 'usr_f119', farmerName: 'Shanta Bai Pawar', farmerPhone: '+919822099001', topic: 'Crop insurance claim rejection', priority: 'critical', language: 'mr', assignedExpertId: 'exp_9001', assignedExpertName: 'Dr. Anjali Deshmukh (KVK Nashik)', slaDeadline: '2026-09-20T15:00:00.000Z', channel: 'ivr', createdAt: day(0, 3), updatedAt: day(0, 2) },
+  { id: 'hnd_8003', status: 'resolved', sessionId: 'ses_7002', farmerId: 'usr_b773', farmerName: 'Suresh Jadhav', farmerPhone: '+919822098765', topic: 'Sowing window confirmation', priority: 'medium', language: 'hi', assignedExpertId: 'exp_9002', assignedExpertName: 'Dr. Rajesh Kulkarni (KVK Baramati)', slaDeadline: '2026-09-19T12:00:00.000Z', resolvedAt: day(1), channel: 'chat', createdAt: day(3), updatedAt: day(1) },
+  { id: 'hnd_8004', status: 'open', sessionId: 'ses_7004', farmerId: 'usr_d205', farmerName: 'Vitthal Kale', farmerPhone: '+919822077733', topic: 'Grapes downy mildew severity check', priority: 'high', language: 'mr', assignedExpertId: null, assignedExpertName: null, slaDeadline: '2026-09-22T10:00:00.000Z', channel: 'chat', createdAt: day(0, 6), updatedAt: day(0, 6) },
+  { id: 'hnd_8005', status: 'escalated', sessionId: 'ses_7005', farmerId: 'usr_e881', farmerName: 'Gopal Deshmukh', farmerPhone: '+919822031122', topic: 'Onion storage pricing advisory', priority: 'medium', language: 'hi', assignedExpertId: 'exp_9002', assignedExpertName: 'Dr. Rajesh Kulkarni (KVK Baramati)', slaDeadline: '2026-09-19T18:00:00.000Z', channel: 'chat', createdAt: day(2), updatedAt: day(1) },
+]
+
+export const mockExperts = [
+  { id: 'exp_9001', name: 'Dr. Anjali Deshmukh', organization: 'KVK Nashik', specialization: 'Plant Pathology', languages: ['mr', 'hi', 'en'], channels: ['whatsapp', 'ivr'], experienceYears: 14, available: true, activeTickets: 3, rating: 4.8, createdAt: day(200), updatedAt: day(2) },
+  { id: 'exp_9002', name: 'Dr. Rajesh Kulkarni', organization: 'KVK Baramati', specialization: 'Agronomy & Market Intelligence', languages: ['mr', 'hi'], channels: ['chat', 'whatsapp'], experienceYears: 11, available: true, activeTickets: 2, rating: 4.6, createdAt: day(180), updatedAt: day(1) },
+  { id: 'exp_9003', name: 'Dr. Meera Joshi', organization: 'KVK Pune', specialization: 'Soil Science & NPK', languages: ['mr', 'en'], channels: ['chat', 'ivr'], experienceYears: 9, available: false, activeTickets: 4, rating: 4.4, createdAt: day(150), updatedAt: day(0, 4) },
+  { id: 'exp_9004', name: 'Dr. Vikram Patange', organization: 'KVK Jalgaon', specialization: 'Entomology (Pest Radar)', languages: ['mr', 'hi'], channels: ['whatsapp'], experienceYears: 17, available: true, activeTickets: 1, rating: 4.9, createdAt: day(120), updatedAt: day(3) },
+]
+
+export const PROMPT_CONFIG = {
+  version: 7,
+  updatedAt: day(3),
+  updatedBy: 'root@agrovercity',
+  systemPrompt: 'You are Kisan Mitra, a multilingual agronomy assistant for Maharashtra farmers. Answer in the farmer\'s language (Marathi, Hindi or English). Quote mandi rates ONLY from verified Agrovercity feeds — if unverified, say so and offer expert handoff. For pesticide dosing, always recommend KVK consultation. Keep tone respectful, simple, and encouraging.',
+  model: 'gemini-2.5-flash',
+  tone: 'friendly-expert',
+  temperature: 0.4,
+  knowledgeBaseVersion: 'kb-agri-2026.09-r3',
+  fallbackEngine: 'rule-based-agronomy',
+  safetyFilters: ['no_unverified_rates', 'no_prescription_dosing', 'escalate_legal'],
+}
+
 export const AUDIT_LOG_ENTRIES = (contract, previousState, newState, reason) => [
   { id: `aud_${contract.id}`, adminUid: 'root@agrovercity', timestamp: new Date().toISOString(), action: 'STATUS_CHANGE', previousState, newState, reason, ipAddress: '10.0.0.4' },
 ]
