@@ -26,12 +26,13 @@ import GamificationPage from './pages/GamificationPage';
 import ClimatePage from './pages/ClimatePage';
 import WomenShgPage from './pages/WomenShgPage';
 import SettlementsPage from './pages/SettlementsPage';
+import SystemConfigPage from './pages/SystemConfigPage';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 
 export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeModuleId, setActiveModuleId] = useState('25'); // Default to Module 25: Financial Settlements
+  const [activeModuleId, setActiveModuleId] = useState('26'); // Default to Module 26: System Config & Moderation
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleDataRefreshed = () => {
@@ -40,6 +41,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '26':
+        return {
+          path: '/admin/config',
+          title: 'System Health, Remote Config, Broadcast & Moderation',
+          sop: 'SOP-26',
+          collections: 'app_config, broadcasts, user_reports, user_blocks, user_consents, audit_logs',
+          compliance: 'Microservices SLA: 99.98% • Remote Version Gating • Targeted FCM Push • Dual Sign-off Bans • DPDP Masking'
+        };
       case '25':
         return {
           path: '/admin/settlements',
@@ -289,6 +298,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '26' && (
+                <SystemConfigPage key={`mod-26-${refreshKey}`} />
+              )}
               {activeModuleId === '25' && (
                 <SettlementsPage key={`mod-25-${refreshKey}`} />
               )}

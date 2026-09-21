@@ -56,7 +56,7 @@ const MODULES = [
   { id: '23', title: 'Climate & Cold Storage', icon: CloudSun, path: '/admin/cold-storage', badge: 'SOP-23' },
   { id: '24', title: 'Women SHG Programs', icon: HandHeart, path: '/admin/women-shg', badge: 'SOP-24' },
   { id: '25', title: 'Financial Settlements', icon: Coins, path: '/admin/settlements', badge: 'SOP-25' },
-  { id: '26', title: 'System Config & Moderation', icon: Sliders, path: '/admin/config' },
+  { id: '26', title: 'System Config & Moderation', icon: Sliders, path: '/admin/config', badge: 'SOP-26' },
 ];
 
 export function Sidebar({ collapsed, setCollapsed, activeModuleId = '05', onSelectModule }) {
@@ -87,7 +87,7 @@ export function Sidebar({ collapsed, setCollapsed, activeModuleId = '05', onSele
         {MODULES.map((item) => {
           const Icon = item.icon;
           const isActive = item.id === activeModuleId;
-          const isImplemented = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25'].includes(item.id);
+          const isImplemented = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26'].includes(item.id);
 
           return (
             <div
