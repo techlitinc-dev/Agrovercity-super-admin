@@ -492,7 +492,7 @@ export default function SystemConfigPage() {
       {/* Remote Version Gate & Maintenance Modal */}
       <UpdateVersionGateModal
         isOpen={versionGateModalOpen}
-        currentConfig={appConfig}
+        currentConfig={appConfig || {}}
         onClose={() => setVersionGateModalOpen(false)}
         onSave={handleSaveVersionGates}
       />

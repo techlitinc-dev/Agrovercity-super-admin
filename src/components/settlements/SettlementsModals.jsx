@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   X,
   AlertTriangle,
@@ -362,16 +362,34 @@ export function UpdateCommissionsModal({
   onClose,
   onSave
 }) {
+  const safeConfig = currentConfig || {}
   const [form, setForm] = useState({
-    transporterCommissionPct: currentConfig.transporterCommissionPct ?? 10.0,
-    equipmentRentalCommissionPct: currentConfig.equipmentRentalCommissionPct ?? 12.0,
-    brokerCommissionPct: currentConfig.brokerCommissionPct ?? 2.0,
-    produceMarketplaceCommissionPct: currentConfig.produceMarketplaceCommissionPct ?? 2.5,
-    tdsRate194CPct: currentConfig.tdsRate194CPct ?? 1.0,
-    gstOnCommissionPct: currentConfig.gstOnCommissionPct ?? 18.0
+    transporterCommissionPct: safeConfig.transporterCommissionPct ?? 10.0,
+    equipmentRentalCommissionPct: safeConfig.equipmentRentalCommissionPct ?? 12.0,
+    brokerCommissionPct: safeConfig.brokerCommissionPct ?? 2.0,
+    produceMarketplaceCommissionPct: safeConfig.produceMarketplaceCommissionPct ?? 2.5,
+    tdsRate194CPct: safeConfig.tdsRate194CPct ?? 1.0,
+    gstOnCommissionPct: safeConfig.gstOnCommissionPct ?? 18.0
   })
   const [reason, setReason] = useState('')
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (currentConfig) {
+      setForm({
+        transporterCommissionPct: currentConfig.transporterCommissionPct ?? 10.0,
+        equipmentRentalCommissionPct: currentConfig.equipmentRentalCommissionPct ?? 12.0,
+        brokerCommissionPct: currentConfig.brokerCommissionPct ?? 2.0,
+        produceMarketplaceCommissionPct: currentConfig.produceMarketplaceCommissionPct ?? 2.5,
+        tdsRate194CPct: currentConfig.tdsRate194CPct ?? 1.0,
+        gstOnCommissionPct: currentConfig.gstOnCommissionPct ?? 18.0
+      })
+    }
+    if (isOpen) {
+      setError('')
+      setReason('')
+    }
+  }, [currentConfig, isOpen])
 
   if (!isOpen) return null
 

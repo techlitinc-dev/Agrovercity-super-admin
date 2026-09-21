@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   X,
   AlertTriangle,
@@ -329,15 +329,32 @@ export function UpdateVersionGateModal({
   onClose,
   onSave
 }) {
+  const safeConfig = currentConfig || {}
   const [form, setForm] = useState({
-    latestVersion: currentConfig.latestVersion || '2.6.2',
-    minSupportedVersion: currentConfig.minSupportedVersion || '2.4.0',
-    forceUpdateEnabled: currentConfig.forceUpdateEnabled ?? true,
-    maintenanceMode: currentConfig.maintenanceMode ?? false,
-    maintenanceMessage: currentConfig.maintenanceMessage || 'Platform under scheduled maintenance.'
+    latestVersion: safeConfig.latestVersion || '2.6.2',
+    minSupportedVersion: safeConfig.minSupportedVersion || '2.4.0',
+    forceUpdateEnabled: safeConfig.forceUpdateEnabled ?? true,
+    maintenanceMode: safeConfig.maintenanceMode ?? false,
+    maintenanceMessage: safeConfig.maintenanceMessage || 'Platform under scheduled maintenance.'
   })
   const [reason, setReason] = useState('')
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (currentConfig) {
+      setForm({
+        latestVersion: currentConfig.latestVersion || '2.6.2',
+        minSupportedVersion: currentConfig.minSupportedVersion || '2.4.0',
+        forceUpdateEnabled: currentConfig.forceUpdateEnabled ?? true,
+        maintenanceMode: currentConfig.maintenanceMode ?? false,
+        maintenanceMessage: currentConfig.maintenanceMessage || 'Platform under scheduled maintenance.'
+      })
+    }
+    if (isOpen) {
+      setError('')
+      setReason('')
+    }
+  }, [currentConfig, isOpen])
 
   if (!isOpen) return null
 
