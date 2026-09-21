@@ -17,12 +17,13 @@ import DiaryPage from './pages/DiaryPage';
 import BankingPage from './pages/BankingPage';
 import InsurancePage from './pages/InsurancePage';
 import LandRecordsPage from './pages/LandRecordsPage';
+import WaterPage from './pages/WaterPage';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 
 export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeModuleId, setActiveModuleId] = useState('16'); // Default to Module 16: Land Records Registry (7/12 & 8A Utara)
+  const [activeModuleId, setActiveModuleId] = useState('17'); // Default to Module 17: Water Resources & Irrigation Management
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleDataRefreshed = () => {
@@ -31,6 +32,14 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '17':
+        return {
+          path: '/admin/water',
+          title: 'Water Intelligence & Irrigation Management',
+          sop: 'SOP-17',
+          collections: 'water_schedules, cgwb_stations, canal_schedules',
+          compliance: 'CGWB Piezometer Telemetry: Active • Canal Rotation Dispatch: Enforced • PMKSY 55% Cap: Enforced • Dual Sign-off > ₹50,000'
+        };
       case '16':
         return {
           path: '/admin/land-records',
@@ -208,6 +217,9 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '17' && (
+                <WaterPage key={`mod-17-${refreshKey}`} />
+              )}
               {activeModuleId === '16' && (
                 <LandRecordsPage key={`mod-16-${refreshKey}`} />
               )}
