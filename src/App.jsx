@@ -21,12 +21,14 @@ import WaterPage from './pages/WaterPage';
 import FpoPage from './pages/FpoPage';
 import LivestockPage from './pages/LivestockPage';
 import ContentPage from './pages/ContentPage';
+import AgroforestryPage from './pages/AgroforestryPage';
+import GamificationPage from './pages/GamificationPage';
 import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 
 export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeModuleId, setActiveModuleId] = useState('20'); // Default to Module 20: Knowledge Hub, Content CMS & Live Media
+  const [activeModuleId, setActiveModuleId] = useState('21'); // Default to Module 21: Agroforestry & Trees
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleDataRefreshed = () => {
@@ -35,6 +37,22 @@ export function App() {
 
   const getBreadcrumb = () => {
     switch (activeModuleId) {
+      case '22':
+        return {
+          path: '/admin/ratings',
+          title: 'Gamification, Krishi Ratna & Referrals',
+          sop: 'SOP-22',
+          collections: 'gamification_status, agri_coins_ledger, reward_coupons, referrals, ratings',
+          compliance: 'AgriCoins Circulation: Monitored • Referral Fraud Detection: Active • Dual Sign-off > ₹50,000 • DPDP Masking: Enforced'
+        };
+      case '21':
+        return {
+          path: '/admin/tree',
+          title: 'Agroforestry, Tree Plantation & Biofuel',
+          sop: 'SOP-21',
+          collections: 'tree_articles, ngos, biofuel_trees, tree_care_guides, sapling_requests',
+          compliance: 'Max 500 Saplings Cap: Enforced • NGO 80G/Darpan Audited: Verified • Geo-Survival Tracking: Active • Dual Sign-off > ₹50,000'
+        };
       case '20':
         return {
           path: '/admin/content',
@@ -244,6 +262,12 @@ export function App() {
               </div>
 
               {/* Module Content */}
+              {activeModuleId === '22' && (
+                <GamificationPage key={`mod-22-${refreshKey}`} />
+              )}
+              {activeModuleId === '21' && (
+                <AgroforestryPage key={`mod-21-${refreshKey}`} />
+              )}
               {activeModuleId === '20' && (
                 <ContentPage key={`mod-20-${refreshKey}`} />
               )}
