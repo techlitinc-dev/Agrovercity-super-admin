@@ -65,6 +65,8 @@ import { useAuthAdmin } from '../context/AuthAdminContext'
 
 const PAGE_SIZE = 20
 
+const fmtINR = (v) => '₹' + Number(v || 0).toLocaleString('en-IN')
+
 function toCsv(rows) {
   if (!rows || rows.length === 0) return ''
   const head = Object.keys(rows[0]).filter((k) => typeof rows[0][k] !== 'object')
@@ -674,7 +676,7 @@ export default function ContentPage() {
       <ContentMetricBar summary={summary} loading={!summary} />
 
       {/* Primary Section */}
-      <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 lg:p-6 shadow-sm">
+      <div className="rounded-2xl border border-emerald-100/90 bg-white/90 backdrop-blur-xl p-4 lg:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-6">
         {/* Module Tab Switcher */}
         <ContentTabSwitch
           activeTab={activeTab}
@@ -709,7 +711,7 @@ export default function ContentPage() {
         {/* Primary Data Grid */}
         {loading ? (
           <div className="h-64 flex items-center justify-center text-slate-500 text-xs">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-500 mr-2" />
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600 mr-2" />
             Loading {activeTab} data records...
           </div>
         ) : (

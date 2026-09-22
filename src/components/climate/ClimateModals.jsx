@@ -40,18 +40,18 @@ export function AuditReasonModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-3 text-amber-400">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-3 text-amber-600">
           <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
-            <AlertTriangle className="w-5 h-5" />
+            <AlertTriangle className="w-5 h-5 text-amber-600" />
           </div>
-          <h3 className="text-base font-bold text-white">{title}</h3>
+          <h3 className="text-base font-bold text-slate-900">{title}</h3>
         </div>
-        <p className="text-xs text-slate-300 leading-relaxed">{message}</p>
+        <p className="text-xs text-slate-600 leading-relaxed">{message}</p>
         <div>
-          <label className="block text-xs font-medium text-slate-300 mb-1.5">
-            Audit Reason & Justification <span className="text-rose-400">*</span>
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            Audit Reason & Justification <span className="text-rose-500">*</span>
           </label>
           <textarea
             value={reason}
@@ -61,18 +61,25 @@ export function AuditReasonModal({
             }}
             placeholder="Enter policy rationale or incident details..."
             rows={3}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-500/60"
+            className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
           />
-          {error && <p className="text-[11px] text-rose-400 mt-1">{error}</p>}
+          {error && <p className="text-[11px] text-rose-500 font-semibold mt-1">{error}</p>}
         </div>
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
+          >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold text-white ${
-              confirmVariant === 'rose' ? 'bg-rose-600 hover:bg-rose-500' : 'bg-amber-600 hover:bg-amber-500'
+            className={`px-4 py-2 rounded-xl text-xs font-bold text-white shadow-xs active:scale-95 transition-all ${
+              confirmVariant === 'rose'
+                ? 'bg-rose-600 hover:bg-rose-700'
+                : confirmVariant === 'emerald'
+                ? 'bg-emerald-600 hover:bg-emerald-700'
+                : 'bg-amber-600 hover:bg-amber-700'
             }`}
           >
             {confirmLabel}
@@ -112,67 +119,70 @@ export function DualSignOffModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-3 text-purple-400">
-          <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-3 text-emerald-800">
+          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700">
             <Lock className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white">{title}</h3>
-            <span className="text-[11px] font-mono text-purple-400">Dual Admin Sign-off Required (&gt; ₹50,000 Threshold)</span>
+            <h3 className="text-base font-bold text-slate-900">{title}</h3>
+            <span className="text-[11px] font-mono text-emerald-700 font-bold">Dual Admin Sign-off Required (&gt; ₹50,000 Threshold)</span>
           </div>
         </div>
 
-        <div className="bg-purple-950/20 border border-purple-500/30 rounded-xl p-3 text-xs space-y-1">
-          <div className="flex justify-between font-medium text-slate-200">
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 text-xs space-y-1">
+          <div className="flex justify-between font-bold text-slate-900">
             <span>High-Value Financial Execution:</span>
-            <span className="font-mono text-purple-300 font-bold">{fmtINR(amount)}</span>
+            <span className="font-mono text-emerald-700 font-bold text-sm">{fmtINR(amount)}</span>
           </div>
-          {details && <p className="text-slate-300 text-[11px]">{details}</p>}
+          {details && <p className="text-slate-600 text-[11px] leading-relaxed">{details}</p>}
         </div>
 
         <div className="space-y-3 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Authorizing Co-Admin Email *</label>
+            <label className="block font-bold text-slate-700 mb-1">Authorizing Co-Admin Email *</label>
             <input
               type="email"
               value={secondAdminEmail}
               onChange={(e) => setSecondAdminEmail(e.target.value)}
               placeholder="e.g. director.compliance@agrovercity.in"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-purple-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Passcode / Cryptographic Token *</label>
+            <label className="block font-bold text-slate-700 mb-1">Passcode / Cryptographic Token *</label>
             <input
               type="password"
               value={passcode}
               onChange={(e) => setPasscode(e.target.value)}
               placeholder="••••••••••••"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-purple-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Administrative Audit Rationale *</label>
+            <label className="block font-bold text-slate-700 mb-1">Administrative Audit Rationale *</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Institutional justification for financial payout or refund..."
               rows={2}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-purple-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
-          {error && <p className="text-[11px] text-rose-400">{error}</p>}
+          {error && <p className="text-[11px] text-rose-500 font-semibold">{error}</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
+          >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-purple-600 hover:bg-purple-500 transition-all shadow-sm"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs active:scale-95"
           >
             Authorize & Execute
           </button>
@@ -241,14 +251,14 @@ export function CreateEditFacilityModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-2 text-white font-bold">
-            <Warehouse className="w-5 h-5 text-blue-400" />
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
+          <div className="flex items-center gap-2 text-slate-900 font-bold">
+            <Warehouse className="w-5 h-5 text-emerald-600" />
             <span>{facility ? 'Edit Cold Storage Facility' : 'Onboard New Cold Chain Hub'}</span>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -256,24 +266,24 @@ export function CreateEditFacilityModal({
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Facility Name *</label>
+              <label className="block font-bold text-slate-700 mb-1">Facility Name *</label>
               <input
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="e.g. Sahyadri Agro Mega Cold Hub"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500/60"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                 required
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">District / Region *</label>
+              <label className="block font-bold text-slate-700 mb-1">District / Region *</label>
               <input
                 type="text"
                 value={form.district}
                 onChange={(e) => setForm({ ...form, district: e.target.value })}
                 placeholder="e.g. Nashik, Pune, Solapur"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500/60"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                 required
               />
             </div>
@@ -281,103 +291,103 @@ export function CreateEditFacilityModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Operator Name</label>
+              <label className="block font-bold text-slate-700 mb-1">Operator Name</label>
               <input
                 type="text"
                 value={form.operatorName}
                 onChange={(e) => setForm({ ...form, operatorName: e.target.value })}
                 placeholder="e.g. Kailas Shinde"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Operator Phone (Masked)</label>
+              <label className="block font-bold text-slate-700 mb-1">Operator Phone (Masked)</label>
               <input
                 type="text"
                 value={form.operatorPhone}
                 onChange={(e) => setForm({ ...form, operatorPhone: e.target.value })}
                 placeholder="+91 98XXX XX412"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">FSSAI License No</label>
+              <label className="block font-bold text-slate-700 mb-1">FSSAI License No</label>
               <input
                 type="text"
                 value={form.fssaiLicense}
                 onChange={(e) => setForm({ ...form, fssaiLicense: e.target.value })}
                 placeholder="FSSAI-11524..."
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Total Cap (MT) *</label>
+              <label className="block font-bold text-slate-700 mb-1">Total Cap (MT) *</label>
               <input
                 type="number"
                 value={form.totalCapacityMt}
                 onChange={(e) => setForm({ ...form, totalCapacityMt: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                 required
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Chambers Count</label>
+              <label className="block font-bold text-slate-700 mb-1">Chambers Count</label>
               <input
                 type="number"
                 value={form.chambersCount}
                 onChange={(e) => setForm({ ...form, chambersCount: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Temp Min (°C)</label>
+              <label className="block font-bold text-slate-700 mb-1">Temp Min (°C)</label>
               <input
                 type="number"
                 value={form.tempRangeMin}
                 onChange={(e) => setForm({ ...form, tempRangeMin: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Temp Max (°C)</label>
+              <label className="block font-bold text-slate-700 mb-1">Temp Max (°C)</label>
               <input
                 type="number"
                 value={form.tempRangeMax}
                 onChange={(e) => setForm({ ...form, tempRangeMax: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Rate / MT / Month (₹)</label>
+              <label className="block font-bold text-slate-700 mb-1">Rate / MT / Month (₹)</label>
               <input
                 type="number"
                 value={form.monthlyRatePerMt}
                 onChange={(e) => setForm({ ...form, monthlyRatePerMt: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Power Backup</label>
+              <label className="block font-bold text-slate-700 mb-1">Power Backup</label>
               <input
                 type="text"
                 value={form.powerBackup}
                 onChange={(e) => setForm({ ...form, powerBackup: e.target.value })}
                 placeholder="Solar Hybrid + DG"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Operational Status</label>
+              <label className="block font-bold text-slate-700 mb-1">Operational Status</label>
               <select
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-semibold"
               >
                 <option value="active">Active</option>
                 <option value="near_capacity">Near Capacity</option>
@@ -388,29 +398,29 @@ export function CreateEditFacilityModal({
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Supported Commodities (comma-separated)</label>
+            <label className="block font-bold text-slate-700 mb-1">Supported Commodities (comma-separated)</label>
             <input
               type="text"
               value={Array.isArray(form.supportedCrops) ? form.supportedCrops.join(', ') : form.supportedCrops}
               onChange={(e) => setForm({ ...form, supportedCrops: e.target.value })}
               placeholder="Grapes, Pomegranate, Onions, Citrus"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
-          {error && <p className="text-[11px] text-rose-400">{error}</p>}
+          {error && <p className="text-[11px] text-rose-500 font-semibold">{error}</p>}
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-all shadow-sm"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs active:scale-95"
             >
               {facility ? 'Save Changes' : 'Onboard Partner Hub'}
             </button>
@@ -464,14 +474,14 @@ export function CreateEditVarietyModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-2 text-white font-bold">
-            <Sprout className="w-5 h-5 text-emerald-400" />
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
+          <div className="flex items-center gap-2 text-slate-900 font-bold">
+            <Sprout className="w-5 h-5 text-emerald-600" />
             <span>{variety ? 'Edit Resilient Variety' : 'Register Certified Climate Variety'}</span>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -479,24 +489,24 @@ export function CreateEditVarietyModal({
         <form onSubmit={handleSubmit} className="space-y-3 text-xs">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Crop Name *</label>
+              <label className="block font-bold text-slate-700 mb-1">Crop Name *</label>
               <input
                 type="text"
                 value={form.cropName}
                 onChange={(e) => setForm({ ...form, cropName: e.target.value })}
                 placeholder="e.g. Soybean, Wheat, Bajra"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                 required
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Variety Code *</label>
+              <label className="block font-bold text-slate-700 mb-1">Variety Code *</label>
               <input
                 type="text"
                 value={form.varietyCode}
                 onChange={(e) => setForm({ ...form, varietyCode: e.target.value })}
                 placeholder="e.g. NRC-142"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                 required
               />
             </div>
@@ -504,11 +514,11 @@ export function CreateEditVarietyModal({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Resilience Trait</label>
+              <label className="block font-bold text-slate-700 mb-1">Resilience Trait</label>
               <select
                 value={form.resilienceType}
                 onChange={(e) => setForm({ ...form, resilienceType: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-semibold"
               >
                 <option value="drought_tolerant">Drought Resilient</option>
                 <option value="heat_resilient">Heat Hardy</option>
@@ -518,74 +528,74 @@ export function CreateEditVarietyModal({
               </select>
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Certification Agency</label>
+              <label className="block font-bold text-slate-700 mb-1">Certification Agency</label>
               <input
                 type="text"
                 value={form.certifyingAgency}
                 onChange={(e) => setForm({ ...form, certifyingAgency: e.target.value })}
                 placeholder="e.g. ICAR-IISR Indore"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Maturity Days</label>
+              <label className="block font-bold text-slate-700 mb-1">Maturity Days</label>
               <input
                 type="text"
                 value={form.maturityDays}
                 onChange={(e) => setForm({ ...form, maturityDays: e.target.value })}
                 placeholder="90-95 days"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Yield (Qtl/Ha)</label>
+              <label className="block font-bold text-slate-700 mb-1">Yield (Qtl/Ha)</label>
               <input
                 type="text"
                 value={form.averageYieldQtlPerHa}
                 onChange={(e) => setForm({ ...form, averageYieldQtlPerHa: e.target.value })}
                 placeholder="28-32"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Water Need (mm)</label>
+              <label className="block font-bold text-slate-700 mb-1">Water Need (mm)</label>
               <input
                 type="text"
                 value={form.waterRequirementMm}
                 onChange={(e) => setForm({ ...form, waterRequirementMm: e.target.value })}
                 placeholder="400-450"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Recommended Regions (comma-separated)</label>
+            <label className="block font-bold text-slate-700 mb-1">Recommended Regions (comma-separated)</label>
             <input
               type="text"
               value={Array.isArray(form.recommendedRegions) ? form.recommendedRegions.join(', ') : form.recommendedRegions}
               onChange={(e) => setForm({ ...form, recommendedRegions: e.target.value })}
               placeholder="Vidarbha, Marathwada, Solapur"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
-          {error && <p className="text-[11px] text-rose-400">{error}</p>}
+          {error && <p className="text-[11px] text-rose-500 font-semibold">{error}</p>}
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 transition-all shadow-sm"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs active:scale-95"
             >
               {variety ? 'Save Changes' : 'Register Variety'}
             </button>
@@ -619,35 +629,35 @@ export function OverrideGradingModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-2 text-white font-bold">
-          <ScanEye className="w-5 h-5 text-purple-400" />
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-2 text-slate-900 font-bold">
+          <ScanEye className="w-5 h-5 text-emerald-600" />
           <span>Manual Produce Quality Override</span>
         </div>
 
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-1 font-mono">
-          <div className="flex justify-between text-slate-300">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-1 font-mono">
+          <div className="flex justify-between text-slate-600">
             <span>Commodity:</span>
-            <span className="text-white font-bold">{grading.commodity}</span>
+            <span className="text-slate-900 font-bold">{grading.commodity}</span>
           </div>
-          <div className="flex justify-between text-slate-300">
+          <div className="flex justify-between text-slate-600">
             <span>AI Predicted Grade:</span>
-            <span className="text-amber-400">{grading.aiPredictedGrade}</span>
+            <span className="text-amber-600 font-bold">{grading.aiPredictedGrade}</span>
           </div>
-          <div className="flex justify-between text-slate-300">
+          <div className="flex justify-between text-slate-600">
             <span>Defects / Confidence:</span>
-            <span>{grading.surfaceDefectsPct}% / {grading.confidenceScore}%</span>
+            <span className="text-slate-800 font-semibold">{grading.surfaceDefectsPct}% / {grading.confidenceScore}%</span>
           </div>
         </div>
 
         <div className="space-y-3 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Calibrated Target Grade *</label>
+            <label className="block font-bold text-slate-700 mb-1">Calibrated Target Grade *</label>
             <select
               value={manualGrade}
               onChange={(e) => setManualGrade(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-semibold"
             >
               <option value="Grade A (Export Quality)">Grade A (Export Quality)</option>
               <option value="Grade B (Domestic Premium)">Grade B (Domestic Premium)</option>
@@ -657,37 +667,40 @@ export function OverrideGradingModal({
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Optical Inspection Calibration Note *</label>
+            <label className="block font-bold text-slate-700 mb-1">Optical Inspection Calibration Note *</label>
             <input
               type="text"
               value={overrideNote}
               onChange={(e) => setOverrideNote(e.target.value)}
               placeholder="e.g. Surface shadow anomaly; brix refractometer reading 16.5°"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Immutable Audit Reason *</label>
+            <label className="block font-bold text-slate-700 mb-1">Immutable Audit Reason *</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Administrative justification for overriding AI model..."
               rows={2}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
-          {error && <p className="text-[11px] text-rose-400">{error}</p>}
+          {error && <p className="text-[11px] text-rose-500 font-semibold">{error}</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
+          >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-purple-600 hover:bg-purple-500 transition-all shadow-sm"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs active:scale-95"
           >
             Confirm Calibration Override
           </button>
@@ -719,61 +732,64 @@ export function ChamberAllocationModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-2 text-white font-bold">
-          <CalendarCheck className="w-5 h-5 text-blue-400" />
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-2 text-slate-900 font-bold">
+          <CalendarCheck className="w-5 h-5 text-teal-600" />
           <span>Allocate Physical Cold Chamber</span>
         </div>
 
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-1">
-          <div className="flex justify-between text-slate-300">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-1">
+          <div className="flex justify-between text-slate-600">
             <span>Booking ID:</span>
-            <span className="font-mono text-emerald-400 font-bold">{booking.id}</span>
+            <span className="font-mono text-emerald-700 font-bold">{booking.id}</span>
           </div>
-          <div className="flex justify-between text-slate-300">
+          <div className="flex justify-between text-slate-600">
             <span>Farmer & Commodity:</span>
-            <span className="text-white">{booking.farmerName} · {booking.cropType}</span>
+            <span className="text-slate-900 font-semibold">{booking.farmerName} · {booking.cropType}</span>
           </div>
-          <div className="flex justify-between text-slate-300">
+          <div className="flex justify-between text-slate-600">
             <span>Quantity:</span>
-            <span className="font-bold text-white">{booking.quantityMt} MT</span>
+            <span className="font-bold text-slate-900">{booking.quantityMt} MT</span>
           </div>
         </div>
 
         <div className="space-y-3 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Chamber Designation *</label>
+            <label className="block font-bold text-slate-700 mb-1">Chamber Designation *</label>
             <input
               type="text"
               value={chamber}
               onChange={(e) => setChamber(e.target.value)}
               placeholder="e.g. Chamber C-3 (Cold Bay A)"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Allocation Note / Reason</label>
+            <label className="block font-bold text-slate-700 mb-1">Allocation Note / Reason</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Intake verification notes..."
               rows={2}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
-          {error && <p className="text-[11px] text-rose-400">{error}</p>}
+          {error && <p className="text-[11px] text-rose-500 font-semibold">{error}</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
+          >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-all shadow-sm"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 transition-all shadow-xs active:scale-95"
           >
             Confirm Allocation
           </button>
@@ -782,3 +798,4 @@ export function ChamberAllocationModal({
     </div>
   )
 }
+

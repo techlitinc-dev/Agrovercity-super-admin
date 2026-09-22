@@ -38,18 +38,18 @@ export function AuditReasonModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-3 text-amber-400">
-          <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600 border border-amber-200">
             <AlertTriangle className="w-5 h-5" />
           </div>
-          <h3 className="text-base font-bold text-white">{title}</h3>
+          <h3 className="text-base font-bold text-slate-900">{title}</h3>
         </div>
-        <p className="text-xs text-slate-300 leading-relaxed">{message}</p>
+        <p className="text-xs text-slate-600 leading-relaxed">{message}</p>
         <div>
-          <label className="block text-xs font-medium text-slate-300 mb-1.5">
-            Audit Reason & Justification <span className="text-rose-400">*</span>
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            Audit Reason & Justification <span className="text-rose-500">*</span>
           </label>
           <textarea
             value={reason}
@@ -59,18 +59,23 @@ export function AuditReasonModal({
             }}
             placeholder="Enter policy rationale or incident details..."
             rows={3}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-500/60"
+            className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
           />
-          {error && <p className="text-[11px] text-rose-400 mt-1">{error}</p>}
+          {error && <p className="text-[11px] text-rose-600 font-semibold mt-1">{error}</p>}
         </div>
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+          >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold text-white ${
-              confirmVariant === 'rose' ? 'bg-rose-600 hover:bg-rose-500' : 'bg-amber-600 hover:bg-amber-500'
+            className={`px-4 py-2 rounded-xl text-xs font-bold text-white shadow-xs transition-all ${
+              confirmVariant === 'rose'
+                ? 'bg-rose-600 hover:bg-rose-700'
+                : 'bg-amber-600 hover:bg-amber-700'
             }`}
           >
             {confirmLabel}
@@ -109,64 +114,67 @@ export function DualSignOffModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-3 text-purple-400">
-          <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-purple-50 text-purple-700 border border-purple-200">
             <Lock className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white">{title}</h3>
-            <span className="text-[11px] font-mono text-purple-400">Institutional Dual Executive Authorization Required</span>
+            <h3 className="text-base font-bold text-slate-900">{title}</h3>
+            <span className="text-[11px] font-bold text-purple-700 font-mono">Institutional Dual Executive Authorization Required</span>
           </div>
         </div>
 
-        <div className="bg-purple-950/20 border border-purple-500/30 rounded-xl p-3 text-xs space-y-1">
-          <div className="font-medium text-slate-200">High-Impact Platform Mutation:</div>
-          <p className="text-slate-300 text-[11px]">{impactDetails}</p>
+        <div className="bg-purple-50/60 border border-purple-200 rounded-xl p-3.5 text-xs space-y-1">
+          <div className="font-bold text-slate-900">High-Impact Platform Mutation:</div>
+          <p className="text-slate-600 text-[11px] leading-relaxed">{impactDetails}</p>
         </div>
 
         <div className="space-y-3 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Authorizing Co-Admin Email *</label>
+            <label className="block font-bold text-slate-700 mb-1">Authorizing Co-Admin Email *</label>
             <input
               type="email"
               value={secondAdminEmail}
               onChange={(e) => setSecondAdminEmail(e.target.value)}
               placeholder="e.g. director.security@agrovercity.in"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-purple-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Cryptographic Token / Passcode *</label>
+            <label className="block font-bold text-slate-700 mb-1">Cryptographic Token / Passcode *</label>
             <input
               type="password"
               value={passcode}
               onChange={(e) => setPasscode(e.target.value)}
               placeholder="••••••••••••"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-purple-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Audit Authorization Rationale *</label>
+            <label className="block font-bold text-slate-700 mb-1">Audit Authorization Rationale *</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Institutional justification..."
               rows={2}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-purple-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
-          {error && <p className="text-[11px] text-rose-400">{error}</p>}
+          {error && <p className="text-[11px] text-rose-600 font-semibold">{error}</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+          >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-purple-600 hover:bg-purple-500 transition-all shadow-sm"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 transition-all shadow-xs"
           >
             Authorize & Execute
           </button>
@@ -204,50 +212,50 @@ export function SendBroadcastModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-2 text-white font-bold">
-            <Bell className="w-5 h-5 text-emerald-400" />
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
+          <div className="flex items-center gap-2 text-slate-900 font-bold">
+            <Bell className="w-5 h-5 text-emerald-600" />
             <span>Targeted FCM Push Broadcast</span>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Notification Title *</label>
+            <label className="block font-bold text-slate-700 mb-1">Notification Title *</label>
             <input
               type="text"
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               placeholder="e.g. ⚠️ Severe Weather Warning / Rate Spike"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               required
             />
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Notification Message Body *</label>
+            <label className="block font-bold text-slate-700 mb-1">Notification Message Body *</label>
             <textarea
               value={form.body}
               onChange={(e) => setForm({ ...form, body: e.target.value })}
               placeholder="Actionable alert message delivered to user lockscreens..."
               rows={3}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Urgency Level</label>
+              <label className="block font-bold text-slate-700 mb-1">Urgency Level</label>
               <select
                 value={form.urgency}
                 onChange={(e) => setForm({ ...form, urgency: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               >
                 <option value="normal">Standard Broadcast</option>
                 <option value="high">High Priority</option>
@@ -255,11 +263,11 @@ export function SendBroadcastModal({
               </select>
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Target Persona</label>
+              <label className="block font-bold text-slate-700 mb-1">Target Persona</label>
               <select
                 value={form.targetPersona}
                 onChange={(e) => setForm({ ...form, targetPersona: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               >
                 <option value="all">All Registered Users</option>
                 <option value="farmers">Farmers (Mahila Kisan & Smallholders)</option>
@@ -272,11 +280,11 @@ export function SendBroadcastModal({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Target District</label>
+              <label className="block font-bold text-slate-700 mb-1">Target District</label>
               <select
                 value={form.targetDistrict}
                 onChange={(e) => setForm({ ...form, targetDistrict: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               >
                 <option value="all">All Districts (Statewide)</option>
                 <option value="Nashik">Nashik</option>
@@ -288,29 +296,29 @@ export function SendBroadcastModal({
               </select>
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Target State</label>
+              <label className="block font-bold text-slate-700 mb-1">Target State</label>
               <input
                 type="text"
                 value={form.targetState}
                 onChange={(e) => setForm({ ...form, targetState: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
           </div>
 
-          {error && <p className="text-[11px] text-rose-400">{error}</p>}
+          {error && <p className="text-[11px] text-rose-600 font-semibold">{error}</p>}
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 transition-all shadow-sm"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs"
             >
               <Send className="w-3.5 h-3.5" />
               <span>Dispatch Push Notification</span>
@@ -368,14 +376,14 @@ export function UpdateVersionGateModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-2 text-white font-bold">
-            <Smartphone className="w-5 h-5 text-blue-400" />
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
+          <div className="flex items-center gap-2 text-slate-900 font-bold">
+            <Smartphone className="w-5 h-5 text-blue-600" />
             <span>Configure Mobile Version Gates</span>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -383,85 +391,85 @@ export function UpdateVersionGateModal({
         <form onSubmit={handleSubmit} className="space-y-3 text-xs">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Latest Release</label>
+              <label className="block font-bold text-slate-700 mb-1">Latest Release</label>
               <input
                 type="text"
                 value={form.latestVersion}
                 onChange={(e) => setForm({ ...form, latestVersion: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Min Supported *</label>
+              <label className="block font-bold text-slate-700 mb-1">Min Supported *</label>
               <input
                 type="text"
                 value={form.minSupportedVersion}
                 onChange={(e) => setForm({ ...form, minSupportedVersion: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                 required
               />
             </div>
           </div>
 
           <div className="space-y-2 pt-1">
-            <label className="flex items-center gap-2 text-slate-200 cursor-pointer">
+            <label className="flex items-center gap-2 text-slate-800 font-medium cursor-pointer">
               <input
                 type="checkbox"
                 checked={form.forceUpdateEnabled}
                 onChange={(e) => setForm({ ...form, forceUpdateEnabled: e.target.checked })}
-                className="rounded border-slate-800 text-emerald-500"
+                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
               />
               <span>Enable Force Update Splash Screen</span>
             </label>
 
-            <label className="flex items-center gap-2 text-slate-200 cursor-pointer">
+            <label className="flex items-center gap-2 text-slate-800 font-medium cursor-pointer">
               <input
                 type="checkbox"
                 checked={form.maintenanceMode}
                 onChange={(e) => setForm({ ...form, maintenanceMode: e.target.checked })}
-                className="rounded border-slate-800 text-rose-500"
+                className="rounded border-slate-300 text-rose-600 focus:ring-rose-500"
               />
-              <span className="text-rose-400 font-medium">Activate Platform Maintenance Mode (Locks trading)</span>
+              <span className="text-rose-700 font-bold">Activate Platform Maintenance Mode (Locks trading)</span>
             </label>
           </div>
 
           {form.maintenanceMode && (
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Maintenance Banner Message</label>
+              <label className="block font-bold text-slate-700 mb-1">Maintenance Banner Message</label>
               <input
                 type="text"
                 value={form.maintenanceMessage}
                 onChange={(e) => setForm({ ...form, maintenanceMessage: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
           )}
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Audit Rationale *</label>
+            <label className="block font-bold text-slate-700 mb-1">Audit Rationale *</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Enter justification for version gate changes..."
               rows={2}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               required
             />
           </div>
 
-          {error && <p className="text-[11px] text-rose-400">{error}</p>}
+          {error && <p className="text-[11px] text-rose-600 font-semibold">{error}</p>}
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-all shadow-sm"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-xs"
             >
               Save Remote Config
             </button>
@@ -494,27 +502,27 @@ export function ResolveReportModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-2 text-white font-bold">
-          <AlertOctagon className="w-5 h-5 text-rose-400" />
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-2 text-slate-900 font-bold">
+          <AlertOctagon className="w-5 h-5 text-rose-600" />
           <span>Resolve Moderation Complaint</span>
         </div>
 
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-1">
-          <div className="text-white font-semibold">{report.reportedUserName}</div>
-          <div className="text-slate-400 font-mono">{report.reportedUserId} · {report.reportedUserPhone}</div>
-          <div className="text-rose-400 font-mono uppercase text-[11px] pt-1">Violation: {report.category}</div>
-          <p className="text-slate-300 text-[11px] pt-1">{report.evidenceDescription}</p>
+        <div className="bg-emerald-50/30 border border-emerald-100/80 rounded-xl p-3.5 text-xs space-y-1">
+          <div className="text-slate-900 font-bold">{report.reportedUserName}</div>
+          <div className="text-slate-500 font-mono">{report.reportedUserId} · {report.reportedUserPhone}</div>
+          <div className="text-rose-700 font-mono font-bold uppercase text-[11px] pt-1">Violation: {report.category}</div>
+          <p className="text-slate-700 text-[11px] pt-1">{report.evidenceDescription}</p>
         </div>
 
         <div className="space-y-3 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Moderation Action *</label>
+            <label className="block font-bold text-slate-700 mb-1">Moderation Action *</label>
             <select
               value={resolution}
               onChange={(e) => setResolution(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             >
               <option value="resolved_warning">Issue Strike 1 Warning</option>
               <option value="resolved_banned">Permanently Ban User & Blacklist Device</option>
@@ -523,29 +531,32 @@ export function ResolveReportModal({
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Administrative Audit Justification *</label>
+            <label className="block font-bold text-slate-700 mb-1">Administrative Audit Justification *</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Enter policy rationale for warning, ban, or dismissal..."
               rows={3}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
-          {error && <p className="text-[11px] text-rose-400">{error}</p>}
+          {error && <p className="text-[11px] text-rose-600 font-semibold">{error}</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+          >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold text-white ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold text-white shadow-xs transition-all ${
               resolution === 'resolved_banned'
-                ? 'bg-rose-600 hover:bg-rose-500'
-                : 'bg-emerald-600 hover:bg-emerald-500'
+                ? 'bg-rose-600 hover:bg-rose-700'
+                : 'bg-emerald-600 hover:bg-emerald-700'
             }`}
           >
             Confirm Resolution

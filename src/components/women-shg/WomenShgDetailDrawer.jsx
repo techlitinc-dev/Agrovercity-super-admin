@@ -57,62 +57,62 @@ export default function WomenShgDetailDrawer({
   const Icon = getIcon()
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-950/70 backdrop-blur-sm flex justify-end transition-opacity">
-      <div className="w-full max-w-2xl bg-slate-900 border-l border-slate-800 h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-300">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 backdrop-blur-xs flex justify-end transition-opacity">
+      <div className="w-full max-w-2xl bg-white border-l border-emerald-100/90 h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-300">
         {/* Header */}
-        <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+        <div className="p-4 border-b border-emerald-100/80 flex items-center justify-between bg-emerald-50/40">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">
               <Icon className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-white tracking-tight">
+                <h2 className="text-base font-bold text-slate-900 tracking-tight">
                   {entity.shgName || entity.productTitle || entity.memberName || entity.schemeName || entity.id}
                 </h2>
                 <StatusBadge status={entity.status} />
               </div>
-              <p className="text-[11px] font-mono text-slate-400 mt-0.5">
+              <p className="text-[11px] font-mono text-slate-500 mt-0.5">
                 ID: {entity.id} · Updated: {formatDate(entity.updatedAt || entity.createdAt)}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-4 px-4 border-b border-slate-800 bg-slate-950/30 text-xs">
+        <div className="flex items-center gap-4 px-4 border-b border-emerald-100/80 bg-slate-50/50 text-xs">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`py-2.5 font-medium border-b-2 transition-colors ${
+            className={`py-2.5 font-bold border-b-2 transition-colors ${
               activeTab === 'overview'
-                ? 'border-emerald-400 text-emerald-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-emerald-600 text-emerald-800'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
             Overview
           </button>
           <button
             onClick={() => setActiveTab('financial')}
-            className={`py-2.5 font-medium border-b-2 transition-colors ${
+            className={`py-2.5 font-bold border-b-2 transition-colors ${
               activeTab === 'financial'
-                ? 'border-emerald-400 text-emerald-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-emerald-600 text-emerald-800'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
             Financial Health & Bank Mandate
           </button>
           <button
             onClick={() => setActiveTab('json')}
-            className={`py-2.5 font-medium border-b-2 transition-colors ${
+            className={`py-2.5 font-bold border-b-2 transition-colors ${
               activeTab === 'json'
-                ? 'border-emerald-400 text-emerald-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-emerald-600 text-emerald-800'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
             Raw Document JSON
@@ -120,71 +120,71 @@ export default function WomenShgDetailDrawer({
         </div>
 
         {/* Drawer Body */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-5 text-xs text-slate-300">
+        <div className="flex-1 overflow-y-auto p-5 space-y-5 text-xs text-slate-600">
           {activeTab === 'overview' && (
             <div className="space-y-4">
               {/* SHG View */}
               {type === 'shgs' && (
                 <>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3">
-                      <span className="text-[11px] text-slate-400">Total Members</span>
-                      <div className="text-base font-bold text-white mt-0.5">{entity.membersCount} Mahila Kisan</div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Total Members</span>
+                      <div className="text-base font-bold text-slate-900 mt-0.5">{entity.membersCount} Mahila Kisan</div>
                     </div>
-                    <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3">
-                      <span className="text-[11px] text-slate-400">Savings Corpus</span>
-                      <div className="text-base font-bold text-emerald-400 mt-0.5">{fmtINR(entity.savingsCorpusInr)}</div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Savings Corpus</span>
+                      <div className="text-base font-bold text-emerald-600 mt-0.5">{fmtINR(entity.savingsCorpusInr)}</div>
                     </div>
-                    <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3">
-                      <span className="text-[11px] text-slate-400">Internal Loans</span>
-                      <div className="text-base font-bold text-white mt-0.5">{fmtINR(entity.internalLoanOutstandInr)}</div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Internal Loans</span>
+                      <div className="text-base font-bold text-slate-900 mt-0.5">{fmtINR(entity.internalLoanOutstandInr)}</div>
                     </div>
-                    <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3">
-                      <span className="text-[11px] text-slate-400">Recovery Rate</span>
-                      <div className="text-base font-bold text-blue-400 mt-0.5">{entity.recoveryRatePct}%</div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Recovery Rate</span>
+                      <div className="text-base font-bold text-teal-700 mt-0.5">{entity.recoveryRatePct}%</div>
                     </div>
                   </div>
 
-                  <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
-                    <h4 className="font-semibold text-white">Cluster Federation & Location</h4>
+                  <div className="bg-emerald-50/20 border border-emerald-100/80 rounded-xl p-4 space-y-2.5">
+                    <h4 className="font-bold text-slate-900">Cluster Federation & Location</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <span className="text-slate-500">Village / Block:</span>
-                        <div className="text-slate-200 font-medium">{entity.village}, {entity.block}</div>
+                        <span className="text-slate-500 font-medium">Village / Block:</span>
+                        <div className="text-slate-900 font-semibold">{entity.village}, {entity.block}</div>
                       </div>
                       <div>
-                        <span className="text-slate-500">District / State:</span>
-                        <div className="text-slate-200">{entity.district}, {entity.state}</div>
+                        <span className="text-slate-500 font-medium">District / State:</span>
+                        <div className="text-slate-800 font-medium">{entity.district}, {entity.state}</div>
                       </div>
                       <div className="sm:col-span-2">
-                        <span className="text-slate-500">NRLM Cluster Federation:</span>
-                        <div className="text-slate-200 font-medium">{entity.federationCluster}</div>
+                        <span className="text-slate-500 font-medium">NRLM Cluster Federation:</span>
+                        <div className="text-slate-900 font-semibold">{entity.federationCluster}</div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
-                    <h4 className="font-semibold text-white">Office Bearers & Leadership</h4>
+                  <div className="bg-emerald-50/20 border border-emerald-100/80 rounded-xl p-4 space-y-2.5">
+                    <h4 className="font-bold text-slate-900">Office Bearers & Leadership</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <span className="text-slate-500">President:</span>
-                        <div className="text-slate-200 font-medium">{entity.presidentName}</div>
-                        <div className="text-[11px] font-mono text-slate-400">{entity.presidentPhone}</div>
+                        <span className="text-slate-500 font-medium">President:</span>
+                        <div className="text-slate-900 font-semibold">{entity.presidentName}</div>
+                        <div className="text-[11px] font-mono text-slate-500">{entity.presidentPhone}</div>
                       </div>
                       <div>
-                        <span className="text-slate-500">Secretary:</span>
-                        <div className="text-slate-200 font-medium">{entity.secretaryName}</div>
-                        <div className="text-[11px] font-mono text-slate-400">{entity.secretaryPhone}</div>
+                        <span className="text-slate-500 font-medium">Secretary:</span>
+                        <div className="text-slate-900 font-semibold">{entity.secretaryName}</div>
+                        <div className="text-[11px] font-mono text-slate-500">{entity.secretaryPhone}</div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2">
-                    <h4 className="font-semibold text-white">NRLM / MSRLM Verification Documents</h4>
+                  <div className="bg-emerald-50/20 border border-emerald-100/80 rounded-xl p-4 space-y-2">
+                    <h4 className="font-bold text-slate-900">NRLM / MSRLM Verification Documents</h4>
                     <div className="space-y-1.5">
                       {entity.verificationDocuments?.map((doc, i) => (
-                        <div key={i} className="flex items-center gap-2 text-slate-300">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <div key={i} className="flex items-center gap-2 text-slate-800 font-medium">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                           <span>{doc}</span>
                         </div>
                       ))}
@@ -197,41 +197,41 @@ export default function WomenShgDetailDrawer({
               {type === 'deposits' && (
                 <>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3">
-                      <span className="text-[11px] text-slate-400">Monthly Savings</span>
-                      <div className="text-base font-bold text-emerald-400 mt-0.5">{fmtINR(entity.amountInr)}</div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Monthly Savings</span>
+                      <div className="text-base font-bold text-emerald-600 mt-0.5">{fmtINR(entity.amountInr)}</div>
                     </div>
-                    <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3">
-                      <span className="text-[11px] text-slate-400">Loan Repayment</span>
-                      <div className="text-base font-bold text-white mt-0.5">{fmtINR(entity.internalLoanRepaymentInr)}</div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Loan Repayment</span>
+                      <div className="text-base font-bold text-slate-900 mt-0.5">{fmtINR(entity.internalLoanRepaymentInr)}</div>
                     </div>
-                    <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3">
-                      <span className="text-[11px] text-slate-400">Interest Paid</span>
-                      <div className="text-base font-bold text-blue-400 mt-0.5">{fmtINR(entity.internalInterestPaidInr)}</div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Interest Paid</span>
+                      <div className="text-base font-bold text-teal-700 mt-0.5">{fmtINR(entity.internalInterestPaidInr)}</div>
                     </div>
-                    <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3">
-                      <span className="text-[11px] text-slate-400">Deposit Month</span>
-                      <div className="text-base font-bold text-white mt-0.5 font-mono">{entity.depositMonth}</div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Deposit Month</span>
+                      <div className="text-base font-bold text-slate-900 mt-0.5 font-mono">{entity.depositMonth}</div>
                     </div>
                   </div>
 
-                  <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2">
-                    <h4 className="font-semibold text-white">Member & SHG Details</h4>
+                  <div className="bg-emerald-50/20 border border-emerald-100/80 rounded-xl p-4 space-y-2">
+                    <h4 className="font-bold text-slate-900">Member & SHG Details</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <span className="text-slate-500">Member Name:</span>
-                        <div className="text-slate-200 font-medium">{entity.memberName}</div>
+                        <span className="text-slate-500 font-medium">Member Name:</span>
+                        <div className="text-slate-900 font-semibold">{entity.memberName}</div>
                       </div>
                       <div>
-                        <span className="text-slate-500">Phone (Masked):</span>
-                        <div className="text-slate-200 font-mono">{entity.memberPhone}</div>
+                        <span className="text-slate-500 font-medium">Phone (Masked):</span>
+                        <div className="text-slate-800 font-mono font-medium">{entity.memberPhone}</div>
                       </div>
                       <div className="sm:col-span-2">
-                        <span className="text-slate-500">SHG Affiliation:</span>
-                        <div className="text-slate-200">{entity.shgName}</div>
+                        <span className="text-slate-500 font-medium">SHG Affiliation:</span>
+                        <div className="text-slate-800 font-medium">{entity.shgName}</div>
                       </div>
                     </div>
-                    <div className="pt-2 text-[11px] text-slate-400 border-t border-slate-800/80">
+                    <div className="pt-2 text-[11px] text-slate-500 border-t border-emerald-100/80">
                       Recorded By: {entity.recordedBy} · Mode: {entity.paymentMode}
                     </div>
                   </div>
@@ -242,45 +242,45 @@ export default function WomenShgDetailDrawer({
               {type === 'enterprises' && (
                 <>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3">
-                      <span className="text-[11px] text-slate-400">Price / Unit</span>
-                      <div className="text-base font-bold text-emerald-400 mt-0.5">{fmtINR(entity.priceInr)}</div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Price / Unit</span>
+                      <div className="text-base font-bold text-emerald-600 mt-0.5">{fmtINR(entity.priceInr)}</div>
                     </div>
-                    <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3">
-                      <span className="text-[11px] text-slate-400">Stock Inventory</span>
-                      <div className="text-base font-bold text-white mt-0.5">{entity.stockUnits} Units</div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Stock Inventory</span>
+                      <div className="text-base font-bold text-slate-900 mt-0.5">{entity.stockUnits} Units</div>
                     </div>
-                    <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3">
-                      <span className="text-[11px] text-slate-400">Sold Count</span>
-                      <div className="text-base font-bold text-white mt-0.5">{entity.totalSoldUnits} Units</div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Sold Count</span>
+                      <div className="text-base font-bold text-slate-900 mt-0.5">{entity.totalSoldUnits} Units</div>
                     </div>
-                    <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3">
-                      <span className="text-[11px] text-slate-400">Total Revenue</span>
-                      <div className="text-base font-bold text-purple-400 mt-0.5">{fmtINR(entity.revenueGeneratedInr)}</div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Total Revenue</span>
+                      <div className="text-base font-bold text-emerald-700 mt-0.5">{fmtINR(entity.revenueGeneratedInr)}</div>
                     </div>
                   </div>
 
-                  <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2">
-                    <h4 className="font-semibold text-white">Artisan & Cottage Certification</h4>
+                  <div className="bg-emerald-50/20 border border-emerald-100/80 rounded-xl p-4 space-y-2">
+                    <h4 className="font-bold text-slate-900">Artisan & Cottage Certification</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <span className="text-slate-500">Producer Artisan:</span>
-                        <div className="text-slate-200 font-medium">{entity.artisanName}</div>
+                        <span className="text-slate-500 font-medium">Producer Artisan:</span>
+                        <div className="text-slate-900 font-semibold">{entity.artisanName}</div>
                       </div>
                       <div>
-                        <span className="text-slate-500">SHG Origin:</span>
-                        <div className="text-slate-200">{entity.shgName}</div>
+                        <span className="text-slate-500 font-medium">SHG Origin:</span>
+                        <div className="text-slate-800 font-medium">{entity.shgName}</div>
                       </div>
                       <div>
-                        <span className="text-slate-500">FSSAI Registration:</span>
-                        <div className="text-slate-200 font-mono">{entity.fssaiRegistration}</div>
+                        <span className="text-slate-500 font-medium">FSSAI Registration:</span>
+                        <div className="text-slate-800 font-mono font-medium">{entity.fssaiRegistration}</div>
                       </div>
                       <div>
-                        <span className="text-slate-500">Organic / Quality Tag:</span>
-                        <div className="text-emerald-400 font-medium">{entity.organicCert}</div>
+                        <span className="text-slate-500 font-medium">Organic / Quality Tag:</span>
+                        <div className="text-emerald-700 font-bold">{entity.organicCert}</div>
                       </div>
                     </div>
-                    <div className="pt-2 text-[11px] text-slate-400 border-t border-slate-800/80">
+                    <div className="pt-2 text-[11px] text-slate-500 border-t border-emerald-100/80">
                       Curation Notes: {entity.curationNotes}
                     </div>
                   </div>
@@ -291,45 +291,45 @@ export default function WomenShgDetailDrawer({
               {type === 'subsidies' && (
                 <>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3">
-                      <span className="text-[11px] text-slate-400">Grant Amount</span>
-                      <div className="text-base font-bold text-emerald-400 mt-0.5">{fmtINR(entity.amountInr)}</div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Grant Amount</span>
+                      <div className="text-base font-bold text-emerald-600 mt-0.5">{fmtINR(entity.amountInr)}</div>
                     </div>
-                    <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3">
-                      <span className="text-[11px] text-slate-400">Grant Type</span>
-                      <div className="text-xs font-semibold text-white mt-1">{entity.grantType}</div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Grant Type</span>
+                      <div className="text-xs font-bold text-slate-900 mt-1">{entity.grantType}</div>
                     </div>
-                    <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-3">
-                      <span className="text-[11px] text-slate-400">Bank UTR</span>
-                      <div className="text-xs font-mono text-blue-400 mt-1 truncate">{entity.bankReferenceUtr || 'Pending'}</div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Bank UTR</span>
+                      <div className="text-xs font-mono text-teal-700 font-bold mt-1 truncate">{entity.bankReferenceUtr || 'Pending'}</div>
                     </div>
                   </div>
 
-                  <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2">
-                    <h4 className="font-semibold text-white">Beneficiary & Scheme Details</h4>
+                  <div className="bg-emerald-50/20 border border-emerald-100/80 rounded-xl p-4 space-y-2">
+                    <h4 className="font-bold text-slate-900">Beneficiary & Scheme Details</h4>
                     <div className="space-y-1 text-xs">
                       <div>
-                        <span className="text-slate-500">Scheme Name:</span>
-                        <div className="text-slate-200 font-medium">{entity.schemeName}</div>
+                        <span className="text-slate-500 font-medium">Scheme Name:</span>
+                        <div className="text-slate-900 font-semibold">{entity.schemeName}</div>
                       </div>
                       <div>
-                        <span className="text-slate-500">Beneficiary SHG:</span>
-                        <div className="text-slate-200">{entity.shgName}</div>
+                        <span className="text-slate-500 font-medium">Beneficiary SHG:</span>
+                        <div className="text-slate-800 font-medium">{entity.shgName}</div>
                       </div>
                       <div>
-                        <span className="text-slate-500">Sanction Justification:</span>
-                        <div className="text-slate-300">{entity.justification}</div>
+                        <span className="text-slate-500 font-medium">Sanction Justification:</span>
+                        <div className="text-slate-700">{entity.justification}</div>
                       </div>
                     </div>
                   </div>
 
                   {entity.amountInr > 50000 && (
-                    <div className="bg-purple-950/20 border border-purple-500/30 rounded-xl p-3 text-xs text-purple-300 space-y-1">
-                      <div className="font-bold flex items-center gap-1.5">
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs text-emerald-900 space-y-1">
+                      <div className="font-bold flex items-center gap-1.5 text-emerald-800">
                         <Lock className="w-4 h-4" />
                         <span>Dual Sign-off Threshold Enforced (&gt; ₹50k)</span>
                       </div>
-                      <div className="text-[11px] text-slate-300">
+                      <div className="text-[11px] text-slate-600">
                         Admin 1: {entity.signOffAdmin1 || 'Pending'} · Admin 2: {entity.signOffAdmin2 || 'Co-authorizer required'}
                       </div>
                     </div>
@@ -341,27 +341,27 @@ export default function WomenShgDetailDrawer({
 
           {activeTab === 'financial' && (
             <div className="space-y-4">
-              <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-3">
-                <h4 className="font-semibold text-white flex items-center gap-2">
-                  <Landmark className="w-4 h-4 text-emerald-400" />
+              <div className="bg-emerald-50/20 border border-emerald-100/80 rounded-xl p-4 space-y-3">
+                <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                  <Landmark className="w-4 h-4 text-emerald-700" />
                   <span>Bank Account Mandate & Micro-Credit Discipline</span>
                 </h4>
                 <div className="space-y-2 text-xs">
-                  <div className="flex justify-between py-1.5 border-b border-slate-800/60">
-                    <span className="text-slate-400">Designated Bank:</span>
-                    <span className="font-medium text-slate-200">{entity.bankName || 'Bank of Maharashtra'}</span>
+                  <div className="flex justify-between py-1.5 border-b border-emerald-100/80">
+                    <span className="text-slate-500 font-medium">Designated Bank:</span>
+                    <span className="font-bold text-slate-900">{entity.bankName || 'Bank of Maharashtra'}</span>
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-slate-800/60">
-                    <span className="text-slate-400">Account Number (Masked):</span>
-                    <span className="font-mono text-emerald-400">{entity.accountNumberMasked || '••••••••4921'}</span>
+                  <div className="flex justify-between py-1.5 border-b border-emerald-100/80">
+                    <span className="text-slate-500 font-medium">Account Number (Masked):</span>
+                    <span className="font-mono text-emerald-700 font-bold">{entity.accountNumberMasked || '••••••••4921'}</span>
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-slate-800/60">
-                    <span className="text-slate-400">IFSC Code:</span>
-                    <span className="font-mono text-slate-200">{entity.ifscCode || 'MAHB0000412'}</span>
+                  <div className="flex justify-between py-1.5 border-b border-emerald-100/80">
+                    <span className="text-slate-500 font-medium">IFSC Code:</span>
+                    <span className="font-mono text-slate-800 font-medium">{entity.ifscCode || 'MAHB0000412'}</span>
                   </div>
                   <div className="flex justify-between py-1.5">
-                    <span className="text-slate-400">Meeting Discipline Rate:</span>
-                    <span className="font-mono text-emerald-400 font-bold">{entity.weeklyMeetingDisciplinePct || 95}%</span>
+                    <span className="text-slate-500 font-medium">Meeting Discipline Rate:</span>
+                    <span className="font-mono text-emerald-700 font-bold">{entity.weeklyMeetingDisciplinePct || 95}%</span>
                   </div>
                 </div>
               </div>
@@ -372,7 +372,7 @@ export default function WomenShgDetailDrawer({
             <div className="relative">
               <button
                 onClick={handleCopyJson}
-                className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-200 border border-slate-700 transition-colors"
+                className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/80 hover:bg-slate-900 text-[11px] text-slate-200 border border-slate-700 transition-colors shadow-xs"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copied ? 'Copied' : 'Copy JSON'}</span>
@@ -385,15 +385,15 @@ export default function WomenShgDetailDrawer({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between">
-          <div className="text-[11px] text-slate-400">
+        <div className="p-4 border-t border-emerald-100/80 bg-slate-50/80 flex items-center justify-between">
+          <div className="text-[11px] text-slate-500 font-medium">
             SOP-24 Compliant · Rural Inclusion Gate
           </div>
           <div className="flex items-center gap-2">
             {type === 'shgs' && entity.status === 'pending_verification' && onVerifyShg && (
               <button
                 onClick={() => onVerifyShg(entity)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs"
               >
                 Verify SHG
               </button>
@@ -401,7 +401,7 @@ export default function WomenShgDetailDrawer({
             {type === 'shgs' && entity.status === 'verified' && onSuspendShg && (
               <button
                 onClick={() => onSuspendShg(entity)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-600 hover:bg-rose-500 text-white transition-colors"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white transition-all shadow-xs"
               >
                 Suspend
               </button>
@@ -409,7 +409,7 @@ export default function WomenShgDetailDrawer({
             {type === 'enterprises' && onCurateProduct && (
               <button
                 onClick={() => onCurateProduct(entity)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white transition-colors"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white transition-all shadow-xs"
               >
                 Curate SKU
               </button>
@@ -417,14 +417,14 @@ export default function WomenShgDetailDrawer({
             {type === 'subsidies' && (entity.status === 'pending_approval' || entity.status === 'dual_signoff_pending') && onDisburseSubsidy && (
               <button
                 onClick={() => onDisburseSubsidy(entity)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs"
               >
                 Disburse Subsidy
               </button>
             )}
             <button
               onClick={onClose}
-              className="px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white bg-slate-900 border border-slate-800"
+              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
             >
               Close
             </button>
@@ -434,3 +434,4 @@ export default function WomenShgDetailDrawer({
     </div>
   )
 }
+

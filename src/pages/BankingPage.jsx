@@ -369,17 +369,17 @@ export default function BankingPage() {
   return (
     <div className="p-4 lg:p-8 space-y-6">
       {/* Top Header Title & Institutional Badge */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-emerald-200/80 pb-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white shadow-sm shadow-emerald-700/20 border border-emerald-400/30">
               <Landmark className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-100 tracking-tight">
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight">
                 Banking, Credit Score & Microfinance
               </h1>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 font-medium">
                 Rural banking gateway · Penny-drop verification · Kisan Credit Score · Loan Underwriting
               </p>
             </div>
@@ -387,12 +387,12 @@ export default function BankingPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/60 text-xs font-mono">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span className="text-slate-300">DPDP Act: 100% Masked</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-emerald-200/90 bg-emerald-50/70 text-xs font-mono font-semibold text-emerald-900 shadow-2xs">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <span>DPDP Act: 100% Masked</span>
           </div>
           {isMockMode() && (
-            <span className="px-2 py-1 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[11px] font-mono">
+            <span className="px-2.5 py-1 rounded-xl bg-amber-50 text-amber-800 border border-amber-300 text-[11px] font-mono font-bold shadow-2xs">
               Offline Mock Engine
             </span>
           )}

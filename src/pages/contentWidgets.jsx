@@ -68,41 +68,41 @@ export function formatDate(isoStr) {
 export function StatusBadge({ status, type = 'default' }) {
   const map = {
     // News & Articles & Videos
-    published: { label: 'Published', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    scheduled: { label: 'Scheduled', bg: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
-    draft: { label: 'Draft', bg: 'bg-slate-500/10 text-slate-400 border-slate-500/30' },
-    archived: { label: 'Archived', bg: 'bg-zinc-600/10 text-zinc-400 border-zinc-600/30' },
-    under_review: { label: 'Under Review', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-    unlisted: { label: 'Unlisted', bg: 'bg-purple-500/10 text-purple-400 border-purple-500/30' },
+    published: { label: 'Published', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    scheduled: { label: 'Scheduled', bg: 'bg-blue-50 text-blue-700 border-blue-200' },
+    draft: { label: 'Draft', bg: 'bg-slate-100 text-slate-600 border-slate-200' },
+    archived: { label: 'Archived', bg: 'bg-zinc-100 text-zinc-600 border-zinc-200' },
+    under_review: { label: 'Under Review', bg: 'bg-amber-50 text-amber-700 border-amber-200' },
+    unlisted: { label: 'Unlisted', bg: 'bg-purple-50 text-purple-700 border-purple-200' },
 
     // Channels
-    live: { label: 'LIVE STREAM', bg: 'bg-rose-500/20 text-rose-400 border-rose-500/50 animate-pulse' },
-    offline: { label: 'Offline', bg: 'bg-slate-500/10 text-slate-400 border-slate-500/30' },
-    maintenance: { label: 'Maintenance', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
+    live: { label: 'LIVE STREAM', bg: 'bg-rose-50 text-rose-700 border-rose-200 animate-pulse' },
+    offline: { label: 'Offline', bg: 'bg-slate-100 text-slate-600 border-slate-200' },
+    maintenance: { label: 'Maintenance', bg: 'bg-amber-50 text-amber-700 border-amber-200' },
 
     // Workshops
-    upcoming: { label: 'Upcoming', bg: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30' },
-    ongoing: { label: 'In Session', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 animate-pulse' },
-    completed: { label: 'Concluded', bg: 'bg-slate-500/10 text-slate-400 border-slate-500/30' },
-    cancelled: { label: 'Cancelled', bg: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
+    upcoming: { label: 'Upcoming', bg: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+    ongoing: { label: 'In Session', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200 animate-pulse' },
+    completed: { label: 'Concluded', bg: 'bg-slate-100 text-slate-600 border-slate-200' },
+    cancelled: { label: 'Cancelled', bg: 'bg-rose-50 text-rose-700 border-rose-200' },
 
     // Roster & Payments
-    captured: { label: 'Fee Paid', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    refunded: { label: 'Refunded', bg: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
-    pending: { label: 'Pending', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
+    captured: { label: 'Fee Paid', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    refunded: { label: 'Refunded', bg: 'bg-rose-50 text-rose-700 border-rose-200' },
+    pending: { label: 'Pending', bg: 'bg-amber-50 text-amber-700 border-amber-200' },
 
     // Farmer Questions
-    approved: { label: 'Approved', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    pending_triage: { label: 'Pending Triage', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-    answered: { label: 'Answered', bg: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
-    rejected: { label: 'Rejected', bg: 'bg-slate-500/10 text-slate-400 border-slate-500/30' }
+    approved: { label: 'Approved', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    pending_triage: { label: 'Pending Triage', bg: 'bg-amber-50 text-amber-700 border-amber-200' },
+    answered: { label: 'Answered', bg: 'bg-blue-50 text-blue-700 border-blue-200' },
+    rejected: { label: 'Rejected', bg: 'bg-slate-100 text-slate-600 border-slate-200' }
   }
 
-  const badge = map[status] || { label: status || 'Unknown', bg: 'bg-slate-800 text-slate-300 border-slate-700' }
+  const badge = map[status] || { label: status || 'Unknown', bg: 'bg-slate-100 text-slate-700 border-slate-200' }
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium border ${badge.bg}`}>
-      {status === 'live' && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />}
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${badge.bg}`}>
+      {status === 'live' && <span className="w-1.5 h-1.5 rounded-full bg-rose-600 animate-ping" />}
       {badge.label}
     </span>
   )
@@ -110,28 +110,28 @@ export function StatusBadge({ status, type = 'default' }) {
 
 export function MetricCard({ title, value, subtitle, icon: Icon, badge, color = 'emerald' }) {
   const colorMap = {
-    emerald: { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-    blue: { text: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
-    purple: { text: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
-    rose: { text: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/20' },
-    amber: { text: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20' }
+    emerald: { text: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+    blue: { text: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
+    purple: { text: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
+    rose: { text: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-200' },
+    amber: { text: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' }
   }
   const c = colorMap[color] || colorMap.emerald
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between hover:border-slate-700 transition-colors shadow-sm">
+    <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-4 flex flex-col justify-between hover:border-emerald-300 transition-all shadow-[0_8px_30px_rgb(0,0,0,0.03)] backdrop-blur-xl">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">{title}</span>
-        <div className={`p-2 rounded-lg ${c.bg} ${c.text}`}>
+        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{title}</span>
+        <div className={`p-2 rounded-xl border ${c.bg} ${c.text} ${c.border}`}>
           <Icon className="w-4 h-4" />
         </div>
       </div>
       <div className="mt-3">
-        <div className="text-2xl font-bold text-white tracking-tight">{value}</div>
-        <div className="flex items-center justify-between mt-1 text-xs text-slate-400">
+        <div className="text-2xl font-bold text-slate-900 tracking-tight font-mono">{value}</div>
+        <div className="flex items-center justify-between mt-1 text-xs text-slate-500">
           <span>{subtitle}</span>
           {badge && (
-            <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${c.bg} ${c.text} ${c.border}`}>
+            <span className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full border ${c.bg} ${c.text} ${c.border}`}>
               {badge}
             </span>
           )}
@@ -146,7 +146,7 @@ export function ContentMetricBar({ summary, loading }) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-28 bg-slate-900/60 border border-slate-800 rounded-xl animate-pulse" />
+          <div key={i} className="h-28 bg-white/60 border border-emerald-100 rounded-2xl animate-pulse" />
         ))}
       </div>
     )
@@ -202,7 +202,7 @@ export function ContentTabSwitch({ activeTab, onSelectTab, counts = {} }) {
   ]
 
   return (
-    <div className="flex items-center gap-1 border-b border-slate-800 pb-2 overflow-x-auto scrollbar-none mb-4">
+    <div className="flex items-center gap-1 border-b border-emerald-100/80 px-6 bg-white/50 backdrop-blur-xs pb-2 overflow-x-auto scrollbar-none mb-4">
       {tabs.map((tab) => {
         const Icon = tab.icon
         const isActive = activeTab === tab.id
@@ -210,18 +210,18 @@ export function ContentTabSwitch({ activeTab, onSelectTab, counts = {} }) {
           <button
             key={tab.id}
             onClick={() => onSelectTab(tab.id)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
               isActive
-                ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 border border-transparent'
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-emerald-50/40 border border-transparent'
             }`}
           >
-            <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-400' : 'text-slate-500'}`} />
+            <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-700' : 'text-slate-400'}`} />
             <span>{tab.label}</span>
             {tab.count !== undefined && (
               <span
-                className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
-                  isActive ? 'bg-emerald-950 text-emerald-300' : 'bg-slate-800 text-slate-400'
+                className={`text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded-full border ${
+                  isActive ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-slate-100 text-slate-600 border-slate-200'
                 }`}
               >
                 {tab.count}
@@ -326,7 +326,7 @@ export function ContentFiltersBar({
   const catOptions = getCategoryOptions()
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div className="bg-emerald-50/40 border-b border-emerald-100/90 p-4 mb-4 flex flex-wrap items-center justify-between gap-3 text-xs">
       {/* Left search & filters */}
       <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
@@ -336,7 +336,7 @@ export function ContentFiltersBar({
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={`Search ${activeTab}...`}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+            className="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
           />
         </div>
 
@@ -344,7 +344,7 @@ export function ContentFiltersBar({
         <select
           value={status}
           onChange={(e) => onStatusChange(e.target.value)}
-          className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500/50"
+          className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
         >
           {getStatusOptions().map((opt) => (
             <option key={opt.val} value={opt.val}>
@@ -358,7 +358,7 @@ export function ContentFiltersBar({
           <select
             value={category}
             onChange={(e) => onCategoryChange(e.target.value)}
-            className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500/50"
+            className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
           >
             <option value="all">All Categories</option>
             {catOptions.filter((c) => c !== 'all').map((c) => (
@@ -374,7 +374,7 @@ export function ContentFiltersBar({
           <select
             value={language}
             onChange={(e) => onLanguageChange(e.target.value)}
-            className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500/50"
+            className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
           >
             <option value="all">All Languages</option>
             <option value="mr">Marathi (मराठी)</option>
@@ -388,7 +388,7 @@ export function ContentFiltersBar({
       <div className="flex items-center gap-2">
         <button
           onClick={onRefresh}
-          className="p-1.5 bg-slate-950 border border-slate-800 rounded-lg text-slate-400 hover:text-white hover:border-slate-700 transition-colors"
+          className="p-1.5 bg-white border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 shadow-xs transition"
           title="Refresh Data"
         >
           <RefreshCw className="w-3.5 h-3.5" />
@@ -396,17 +396,17 @@ export function ContentFiltersBar({
 
         <button
           onClick={onExportCsv}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-300 hover:text-white hover:border-slate-700 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs transition"
           title="Export Table as CSV"
         >
-          <Download className="w-3.5 h-3.5 text-slate-400" />
+          <Download className="w-3.5 h-3.5 text-slate-500" />
           <span>Export</span>
         </button>
 
         {activeTab !== 'audit' && canCreate && (
           <button
             onClick={onCreateNew}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-medium shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-xs transition active:scale-95"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>
@@ -431,102 +431,100 @@ export function ContentFiltersBar({
 export function AgriNewsTable({ data, onView, onEdit, onDelete }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400 text-xs">
+      <div className="p-8 text-center text-slate-400 text-xs">
         No agricultural news articles found matching the selected filters.
       </div>
     )
   }
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/70 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold text-[11px]">
-            <tr>
-              <th className="py-3 px-4">Article ID & Title</th>
-              <th className="py-3 px-3">Category</th>
-              <th className="py-3 px-3">Vernacular Narration</th>
-              <th className="py-3 px-3">Status</th>
-              <th className="py-3 px-3">Author & Source</th>
-              <th className="py-3 px-3 text-right">Reads</th>
-              <th className="py-3 px-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800/60">
-            {data.map((item) => (
-              <tr key={item.id} className="hover:bg-slate-800/40 transition-colors">
-                <td className="py-3 px-4 max-w-sm">
-                  <div className="flex items-start gap-2">
-                    {item.breaking && (
-                      <span className="shrink-0 flex items-center gap-0.5 px-1.5 py-0.5 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded text-[10px] font-bold uppercase tracking-wider">
-                        <Flame className="w-3 h-3 text-rose-400" />
-                        Breaking
-                      </span>
-                    )}
-                    <div>
-                      <div className="font-semibold text-slate-100 hover:text-emerald-400 cursor-pointer" onClick={() => onView(item)}>
-                        {item.title}
-                      </div>
-                      <div className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">{item.headline}</div>
-                      <div className="font-mono text-[10px] text-slate-500 mt-0.5">{item.id}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="py-3 px-3">
-                  <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-medium border border-slate-700">
-                    {item.category}
-                  </span>
-                </td>
-                <td className="py-3 px-3">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-slate-800/80 text-emerald-400 border border-emerald-500/20">
-                      {item.language === 'mr' ? 'Marathi' : item.language === 'hi' ? 'Hindi' : 'English'}
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
+          <tr>
+            <th className="py-3 px-4">Article ID &amp; Title</th>
+            <th className="py-3 px-3">Category</th>
+            <th className="py-3 px-3">Vernacular Narration</th>
+            <th className="py-3 px-3 text-center">Status</th>
+            <th className="py-3 px-3">Author &amp; Source</th>
+            <th className="py-3 px-3 text-right">Reads</th>
+            <th className="py-3 px-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100/80 font-mono">
+          {data.map((item) => (
+            <tr key={item.id} className="hover:bg-emerald-50/60 transition-colors">
+              <td className="py-3.5 px-4 max-w-sm font-sans">
+                <div className="flex items-start gap-2">
+                  {item.breaking && (
+                    <span className="shrink-0 flex items-center gap-0.5 px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                      <Flame className="w-3 h-3 text-rose-600" />
+                      Breaking
                     </span>
-                    {item.vernacularAudioUrl && (
-                      <span className="flex items-center gap-1 text-[11px] text-slate-400" title={`Narration: ${fmtDuration(item.audioDurationSeconds)}`}>
-                        <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>{fmtDuration(item.audioDurationSeconds)}</span>
-                      </span>
-                    )}
+                  )}
+                  <div>
+                    <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(item)}>
+                      {item.title}
+                    </div>
+                    <div className="text-[11px] text-slate-600 mt-0.5 line-clamp-1">{item.headline}</div>
+                    <div className="font-mono text-[10px] text-slate-400 mt-0.5">{item.id}</div>
                   </div>
-                </td>
-                <td className="py-3 px-3">
-                  <StatusBadge status={item.status} />
-                </td>
-                <td className="py-3 px-3">
-                  <div className="text-slate-200">{item.author}</div>
-                  <div className="text-[10px] text-slate-500">{item.source}</div>
-                </td>
-                <td className="py-3 px-3 text-right font-mono text-slate-300">
-                  {item.readCount?.toLocaleString()}
-                </td>
-                <td className="py-3 px-4 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
-                    <button
-                      onClick={() => onView(item)}
-                      className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px] transition-colors"
-                    >
-                      View
-                    </button>
-                    <button
-                      onClick={() => onEdit(item)}
-                      className="px-2 py-1 bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-400 border border-emerald-500/30 rounded text-[11px] transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => onDelete(item)}
-                      className="px-2 py-1 bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-500/20 rounded text-[11px] transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                </div>
+              </td>
+              <td className="py-3.5 px-3 font-sans">
+                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
+                  {item.category}
+                </span>
+              </td>
+              <td className="py-3.5 px-3 font-sans">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">
+                    {item.language === 'mr' ? 'Marathi' : item.language === 'hi' ? 'Hindi' : 'English'}
+                  </span>
+                  {item.vernacularAudioUrl && (
+                    <span className="flex items-center gap-1 text-[11px] text-slate-600" title={`Narration: ${fmtDuration(item.audioDurationSeconds)}`}>
+                      <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{fmtDuration(item.audioDurationSeconds)}</span>
+                    </span>
+                  )}
+                </div>
+              </td>
+              <td className="py-3.5 px-3 text-center">
+                <StatusBadge status={item.status} />
+              </td>
+              <td className="py-3.5 px-3 font-sans">
+                <div className="text-slate-900 font-medium">{item.author}</div>
+                <div className="text-[10px] text-slate-400">{item.source}</div>
+              </td>
+              <td className="py-3.5 px-3 text-right font-mono text-slate-800 font-bold">
+                {item.readCount?.toLocaleString()}
+              </td>
+              <td className="py-3.5 px-4 text-right font-sans">
+                <div className="flex items-center justify-end gap-1.5">
+                  <button
+                    onClick={() => onView(item)}
+                    className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold shadow-xs transition"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => onEdit(item)}
+                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition active:scale-95"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onDelete(item)}
+                    className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-semibold transition"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
@@ -534,106 +532,104 @@ export function AgriNewsTable({ data, onView, onEdit, onDelete }) {
 export function AgriChannelsTable({ data, onView, onManageKeys, onModerateChat, onToggleStatus }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400 text-xs">
+      <div className="p-8 text-center text-slate-400 text-xs">
         No live TV channels found.
       </div>
     )
   }
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/70 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold text-[11px]">
-            <tr>
-              <th className="py-3 px-4">Channel & Callsign</th>
-              <th className="py-3 px-3">Category</th>
-              <th className="py-3 px-3">Broadcast Status</th>
-              <th className="py-3 px-3">Live Telemetry</th>
-              <th className="py-3 px-3">RTMP Stream Key</th>
-              <th className="py-3 px-3">Live Chat</th>
-              <th className="py-3 px-4 text-right">Actions</th>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
+          <tr>
+            <th className="py-3 px-4">Channel &amp; Callsign</th>
+            <th className="py-3 px-3">Category</th>
+            <th className="py-3 px-3 text-center">Broadcast Status</th>
+            <th className="py-3 px-3">Live Telemetry</th>
+            <th className="py-3 px-3">RTMP Stream Key</th>
+            <th className="py-3 px-3 text-center">Live Chat</th>
+            <th className="py-3 px-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100/80 font-mono">
+          {data.map((chan) => (
+            <tr key={chan.id} className="hover:bg-emerald-50/60 transition-colors">
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(chan)}>
+                  {chan.channelName}
+                </div>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="font-mono text-[10px] text-slate-500">{chan.callsign}</span>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-[10px] text-emerald-700 uppercase font-semibold">{chan.language}</span>
+                </div>
+              </td>
+              <td className="py-3.5 px-3 font-sans">
+                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
+                  {chan.category}
+                </span>
+              </td>
+              <td className="py-3.5 px-3 text-center">
+                <StatusBadge status={chan.status} />
+              </td>
+              <td className="py-3.5 px-3">
+                <div className="font-mono text-slate-900">
+                  {chan.status === 'live' ? (
+                    <span className="text-rose-700 font-bold">{chan.activeViewers?.toLocaleString()} viewers</span>
+                  ) : (
+                    <span className="text-slate-500">Peak {chan.peakViewersToday?.toLocaleString()}</span>
+                  )}
+                </div>
+                <div className="text-[10px] font-mono text-slate-500">
+                  {chan.resolution} @ {chan.bitrateKbps} kbps
+                </div>
+              </td>
+              <td className="py-3.5 px-3 font-mono text-[11px]">
+                <div className="flex items-center gap-1.5 text-slate-600">
+                  <Key className="w-3 h-3 text-amber-600" />
+                  <span>{chan.streamKey ? `${chan.streamKey.slice(0, 10)}••••••••` : 'None'}</span>
+                </div>
+              </td>
+              <td className="py-3.5 px-3 text-center font-sans">
+                <div className="flex items-center justify-center gap-1.5">
+                  {chan.chatEnabled ? (
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold">
+                      Active ({chan.chatModerationLevel})
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[10px]">
+                      Disabled
+                    </span>
+                  )}
+                </div>
+              </td>
+              <td className="py-3.5 px-4 text-right font-sans">
+                <div className="flex items-center justify-end gap-1.5">
+                  <button
+                    onClick={() => onView(chan)}
+                    className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold shadow-xs transition"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => onManageKeys(chan)}
+                    className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-semibold transition"
+                  >
+                    Stream Key
+                  </button>
+                  <button
+                    onClick={() => onModerateChat(chan)}
+                    className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 rounded-lg text-[11px] font-semibold transition"
+                  >
+                    Chat ({chan.chatMessages?.length || 0})
+                  </button>
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800/60">
-            {data.map((chan) => (
-              <tr key={chan.id} className="hover:bg-slate-800/40 transition-colors">
-                <td className="py-3 px-4">
-                  <div className="font-semibold text-slate-100 hover:text-emerald-400 cursor-pointer" onClick={() => onView(chan)}>
-                    {chan.channelName}
-                  </div>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="font-mono text-[10px] text-slate-400">{chan.callsign}</span>
-                    <span className="text-slate-600">•</span>
-                    <span className="text-[10px] text-slate-500 uppercase">{chan.language}</span>
-                  </div>
-                </td>
-                <td className="py-3 px-3">
-                  <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-medium border border-slate-700">
-                    {chan.category}
-                  </span>
-                </td>
-                <td className="py-3 px-3">
-                  <StatusBadge status={chan.status} />
-                </td>
-                <td className="py-3 px-3">
-                  <div className="font-mono text-slate-200">
-                    {chan.status === 'live' ? (
-                      <span className="text-rose-400 font-bold">{chan.activeViewers?.toLocaleString()} viewers</span>
-                    ) : (
-                      <span className="text-slate-500">Peak {chan.peakViewersToday?.toLocaleString()}</span>
-                    )}
-                  </div>
-                  <div className="text-[10px] font-mono text-slate-400">
-                    {chan.resolution} @ {chan.bitrateKbps} kbps
-                  </div>
-                </td>
-                <td className="py-3 px-3 font-mono text-[11px]">
-                  <div className="flex items-center gap-1.5 text-slate-400">
-                    <Key className="w-3 h-3 text-amber-400" />
-                    <span>{chan.streamKey ? `${chan.streamKey.slice(0, 10)}••••••••` : 'None'}</span>
-                  </div>
-                </td>
-                <td className="py-3 px-3">
-                  <div className="flex items-center gap-1.5">
-                    {chan.chatEnabled ? (
-                      <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">
-                        Active ({chan.chatModerationLevel})
-                      </span>
-                    ) : (
-                      <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 text-[10px]">
-                        Disabled
-                      </span>
-                    )}
-                  </div>
-                </td>
-                <td className="py-3 px-4 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
-                    <button
-                      onClick={() => onView(chan)}
-                      className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px] transition-colors"
-                    >
-                      View
-                    </button>
-                    <button
-                      onClick={() => onManageKeys(chan)}
-                      className="px-2 py-1 bg-amber-950/60 hover:bg-amber-900/80 text-amber-400 border border-amber-500/30 rounded text-[11px] transition-colors"
-                    >
-                      Stream Key
-                    </button>
-                    <button
-                      onClick={() => onModerateChat(chan)}
-                      className="px-2 py-1 bg-blue-950/60 hover:bg-blue-900/80 text-blue-400 border border-blue-500/30 rounded text-[11px] transition-colors"
-                    >
-                      Chat ({chan.chatMessages?.length || 0})
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
@@ -641,111 +637,109 @@ export function AgriChannelsTable({ data, onView, onManageKeys, onModerateChat, 
 export function WorkshopsTable({ data, onView, onRoster, onEdit, onCancel }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400 text-xs">
+      <div className="p-8 text-center text-slate-400 text-xs">
         No ICAR workshops found.
       </div>
     )
   }
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/70 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold text-[11px]">
-            <tr>
-              <th className="py-3 px-4">Workshop & Accreditation</th>
-              <th className="py-3 px-3">Lead Instructor</th>
-              <th className="py-3 px-3">Fee & Gross</th>
-              <th className="py-3 px-3">Enrolled Seats</th>
-              <th className="py-3 px-3">Schedule</th>
-              <th className="py-3 px-3">Status</th>
-              <th className="py-3 px-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800/60">
-            {data.map((ws) => {
-              const fillPct = Math.min(100, Math.round((ws.enrolledCount / (ws.seatsCapacity || 1)) * 100))
-              const grossRevenue = (ws.enrolledCount || 0) * (ws.feeINR || 0)
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
+          <tr>
+            <th className="py-3 px-4">Workshop &amp; Accreditation</th>
+            <th className="py-3 px-3">Lead Instructor</th>
+            <th className="py-3 px-3">Fee &amp; Gross</th>
+            <th className="py-3 px-3">Enrolled Seats</th>
+            <th className="py-3 px-3">Schedule</th>
+            <th className="py-3 px-3 text-center">Status</th>
+            <th className="py-3 px-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100/80 font-mono">
+          {data.map((ws) => {
+            const fillPct = Math.min(100, Math.round((ws.enrolledCount / (ws.seatsCapacity || 1)) * 100))
+            const grossRevenue = (ws.enrolledCount || 0) * (ws.feeINR || 0)
 
-              return (
-                <tr key={ws.id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="py-3 px-4 max-w-xs">
-                    <div className="font-semibold text-slate-100 hover:text-emerald-400 cursor-pointer" onClick={() => onView(ws)}>
-                      {ws.title}
-                    </div>
-                    <div className="flex items-center gap-1.5 mt-0.5 font-mono text-[10px] text-emerald-400">
-                      <Award className="w-3 h-3 text-emerald-400" />
-                      <span>{ws.icarAccreditationNo}</span>
-                    </div>
-                    <div className="font-mono text-[10px] text-slate-500 mt-0.5">{ws.id}</div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <div className="text-slate-200 font-medium">{ws.instructorName}</div>
-                    <div className="text-[10px] text-slate-500 line-clamp-1">{ws.instructorTitle}</div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <div className="font-mono text-emerald-400 font-semibold">{fmtINR(ws.feeINR)}</div>
-                    <div className="text-[10px] font-mono text-slate-400">Gross: {fmtINR(grossRevenue)}</div>
-                  </td>
-                  <td className="py-3 px-3 min-w-[140px]">
-                    <div className="flex items-center justify-between text-[11px] mb-1">
-                      <span className="font-mono text-slate-300 font-medium">
-                        {ws.enrolledCount} / {ws.seatsCapacity}
-                      </span>
-                      <span className="font-mono text-[10px] text-slate-400">{fillPct}%</span>
-                    </div>
-                    <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${
-                          fillPct >= 95 ? 'bg-rose-500' : fillPct >= 70 ? 'bg-amber-500' : 'bg-emerald-500'
-                        }`}
-                        style={{ width: `${fillPct}%` }}
-                      />
-                    </div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <div className="text-slate-300">{formatDate(ws.scheduledAt)}</div>
-                    <div className="text-[10px] text-slate-500">{ws.durationMinutes} minutes</div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <StatusBadge status={ws.status} />
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
+            return (
+              <tr key={ws.id} className="hover:bg-emerald-50/60 transition-colors">
+                <td className="py-3.5 px-4 max-w-xs font-sans">
+                  <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(ws)}>
+                    {ws.title}
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-0.5 font-mono text-[10px] text-emerald-700 font-bold">
+                    <Award className="w-3 h-3 text-emerald-600" />
+                    <span>{ws.icarAccreditationNo}</span>
+                  </div>
+                  <div className="font-mono text-[10px] text-slate-400 mt-0.5">{ws.id}</div>
+                </td>
+                <td className="py-3.5 px-3 font-sans">
+                  <div className="text-slate-900 font-medium">{ws.instructorName}</div>
+                  <div className="text-[10px] text-slate-500 line-clamp-1">{ws.instructorTitle}</div>
+                </td>
+                <td className="py-3.5 px-3">
+                  <div className="font-mono text-emerald-700 font-bold">{fmtINR(ws.feeINR)}</div>
+                  <div className="text-[10px] font-mono text-slate-500">Gross: {fmtINR(grossRevenue)}</div>
+                </td>
+                <td className="py-3.5 px-3 min-w-[140px]">
+                  <div className="flex items-center justify-between text-[11px] mb-1">
+                    <span className="font-mono text-slate-900 font-semibold">
+                      {ws.enrolledCount} / {ws.seatsCapacity}
+                    </span>
+                    <span className="font-mono text-[10px] text-slate-500">{fillPct}%</span>
+                  </div>
+                  <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        fillPct >= 95 ? 'bg-rose-600' : fillPct >= 70 ? 'bg-amber-600' : 'bg-emerald-600'
+                      }`}
+                      style={{ width: `${fillPct}%` }}
+                    />
+                  </div>
+                </td>
+                <td className="py-3.5 px-3 font-sans">
+                  <div className="text-slate-800">{formatDate(ws.scheduledAt)}</div>
+                  <div className="text-[10px] text-slate-500 font-mono">{ws.durationMinutes} minutes</div>
+                </td>
+                <td className="py-3.5 px-3 text-center">
+                  <StatusBadge status={ws.status} />
+                </td>
+                <td className="py-3.5 px-4 text-right font-sans">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <button
+                      onClick={() => onView(ws)}
+                      className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold shadow-xs transition"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={() => onRoster(ws)}
+                      className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 rounded-lg text-[11px] font-semibold transition"
+                    >
+                      Roster ({ws.enrolledCount})
+                    </button>
+                    <button
+                      onClick={() => onEdit(ws)}
+                      className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition active:scale-95"
+                    >
+                      Edit
+                    </button>
+                    {ws.status !== 'cancelled' && (
                       <button
-                        onClick={() => onView(ws)}
-                        className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px] transition-colors"
+                        onClick={() => onCancel(ws)}
+                        className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-semibold transition"
                       >
-                        View
+                        Cancel
                       </button>
-                      <button
-                        onClick={() => onRoster(ws)}
-                        className="px-2 py-1 bg-blue-950/60 hover:bg-blue-900/80 text-blue-400 border border-blue-500/30 rounded text-[11px] transition-colors"
-                      >
-                        Roster ({ws.enrolledCount})
-                      </button>
-                      <button
-                        onClick={() => onEdit(ws)}
-                        className="px-2 py-1 bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-400 border border-emerald-500/30 rounded text-[11px] transition-colors"
-                      >
-                        Edit
-                      </button>
-                      {ws.status !== 'cancelled' && (
-                        <button
-                          onClick={() => onCancel(ws)}
-                          className="px-2 py-1 bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-500/20 rounded text-[11px] transition-colors"
-                        >
-                          Cancel
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
     </div>
   )
 }
@@ -753,93 +747,91 @@ export function WorkshopsTable({ data, onView, onRoster, onEdit, onCancel }) {
 export function ExpertTalksTable({ data, onView, onTriage, onEdit }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400 text-xs">
+      <div className="p-8 text-center text-slate-400 text-xs">
         No Ask-the-Scientist sessions found.
       </div>
     )
   }
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/70 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold text-[11px]">
-            <tr>
-              <th className="py-3 px-4">Expert Talk Topic</th>
-              <th className="py-3 px-3">Lead Scientist & Institute</th>
-              <th className="py-3 px-3">Specialization</th>
-              <th className="py-3 px-3">Scheduled Date</th>
-              <th className="py-3 px-3">Question Queue</th>
-              <th className="py-3 px-3">Status</th>
-              <th className="py-3 px-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800/60">
-            {data.map((talk) => {
-              const pendingCount = (talk.farmerQuestions || []).filter((q) => q.status === 'pending_triage').length
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
+          <tr>
+            <th className="py-3 px-4">Expert Talk Topic</th>
+            <th className="py-3 px-3">Lead Scientist &amp; Institute</th>
+            <th className="py-3 px-3">Specialization</th>
+            <th className="py-3 px-3">Scheduled Date</th>
+            <th className="py-3 px-3">Question Queue</th>
+            <th className="py-3 px-3 text-center">Status</th>
+            <th className="py-3 px-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100/80 font-mono">
+          {data.map((talk) => {
+            const pendingCount = (talk.farmerQuestions || []).filter((q) => q.status === 'pending_triage').length
 
-              return (
-                <tr key={talk.id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="py-3 px-4 max-w-xs">
-                    <div className="font-semibold text-slate-100 hover:text-emerald-400 cursor-pointer" onClick={() => onView(talk)}>
-                      {talk.title}
-                    </div>
-                    <div className="font-mono text-[10px] text-slate-500 mt-0.5">{talk.id}</div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <div className="text-slate-200 font-medium">{talk.scientistName}</div>
-                    <div className="text-[10px] text-slate-500">{talk.kvkOrInstitute}</div>
-                  </td>
-                  <td className="py-3 px-3 text-slate-300">
-                    <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-medium border border-slate-700">
-                      {talk.specialization}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3 text-slate-300">
-                    <div>{formatDate(talk.dateScheduled)}</div>
-                    <div className="text-[10px] text-slate-500">{talk.durationMinutes} min session</div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-mono text-slate-300">{talk.farmerQuestions?.length || 0} questions</span>
-                      {pendingCount > 0 && (
-                        <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-medium">
-                          {pendingCount} triage
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <StatusBadge status={talk.status} />
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => onView(talk)}
-                        className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px] transition-colors"
-                      >
-                        View
-                      </button>
-                      <button
-                        onClick={() => onTriage(talk)}
-                        className="px-2 py-1 bg-amber-950/60 hover:bg-amber-900/80 text-amber-400 border border-amber-500/30 rounded text-[11px] transition-colors"
-                      >
-                        Triage ({talk.farmerQuestions?.length || 0})
-                      </button>
-                      <button
-                        onClick={() => onEdit(talk)}
-                        className="px-2 py-1 bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-400 border border-emerald-500/30 rounded text-[11px] transition-colors"
-                      >
-                        Edit
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
+            return (
+              <tr key={talk.id} className="hover:bg-emerald-50/60 transition-colors">
+                <td className="py-3.5 px-4 max-w-xs font-sans">
+                  <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(talk)}>
+                    {talk.title}
+                  </div>
+                  <div className="font-mono text-[10px] text-slate-400 mt-0.5">{talk.id}</div>
+                </td>
+                <td className="py-3.5 px-3 font-sans">
+                  <div className="text-slate-900 font-medium">{talk.scientistName}</div>
+                  <div className="text-[10px] text-slate-500">{talk.kvkOrInstitute}</div>
+                </td>
+                <td className="py-3.5 px-3 text-slate-700 font-sans">
+                  <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
+                    {talk.specialization}
+                  </span>
+                </td>
+                <td className="py-3.5 px-3 text-slate-800 font-sans">
+                  <div>{formatDate(talk.dateScheduled)}</div>
+                  <div className="text-[10px] text-slate-500 font-mono">{talk.durationMinutes} min session</div>
+                </td>
+                <td className="py-3.5 px-3">
+                  <div className="flex items-center gap-1.5 font-sans">
+                    <span className="font-mono text-slate-900 font-semibold">{talk.farmerQuestions?.length || 0} questions</span>
+                    {pendingCount > 0 && (
+                      <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold">
+                        {pendingCount} triage
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td className="py-3.5 px-3 text-center">
+                  <StatusBadge status={talk.status} />
+                </td>
+                <td className="py-3.5 px-4 text-right font-sans">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <button
+                      onClick={() => onView(talk)}
+                      className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold shadow-xs transition"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={() => onTriage(talk)}
+                      className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-semibold transition"
+                    >
+                      Triage ({talk.farmerQuestions?.length || 0})
+                    </button>
+                    <button
+                      onClick={() => onEdit(talk)}
+                      className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition active:scale-95"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
     </div>
   )
 }
@@ -847,94 +839,92 @@ export function ExpertTalksTable({ data, onView, onTriage, onEdit }) {
 export function VideoGuidesTable({ data, onView, onEdit, onDelete }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400 text-xs">
+      <div className="p-8 text-center text-slate-400 text-xs">
         No video guides found.
       </div>
     )
   }
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/70 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold text-[11px]">
-            <tr>
-              <th className="py-3 px-4">Video Title & ID</th>
-              <th className="py-3 px-3">Category</th>
-              <th className="py-3 px-3">Duration</th>
-              <th className="py-3 px-3">Bilingual Support</th>
-              <th className="py-3 px-3 text-right">Views & Likes</th>
-              <th className="py-3 px-3">Status</th>
-              <th className="py-3 px-4 text-right">Actions</th>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
+          <tr>
+            <th className="py-3 px-4">Video Title &amp; ID</th>
+            <th className="py-3 px-3">Category</th>
+            <th className="py-3 px-3">Duration</th>
+            <th className="py-3 px-3">Bilingual Support</th>
+            <th className="py-3 px-3 text-right">Views &amp; Likes</th>
+            <th className="py-3 px-3 text-center">Status</th>
+            <th className="py-3 px-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100/80 font-mono">
+          {data.map((vid) => (
+            <tr key={vid.id} className="hover:bg-emerald-50/60 transition-colors">
+              <td className="py-3.5 px-4 max-w-sm font-sans">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 text-emerald-700">
+                    <Play className="w-4 h-4 fill-current ml-0.5" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(vid)}>
+                      {vid.title}
+                    </div>
+                    <div className="font-mono text-[10px] text-slate-400">{vid.id}</div>
+                  </div>
+                </div>
+              </td>
+              <td className="py-3.5 px-3 font-sans">
+                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
+                  {vid.category}
+                </span>
+              </td>
+              <td className="py-3.5 px-3 font-mono text-slate-800 font-semibold">
+                {fmtDuration(vid.durationSeconds)}
+              </td>
+              <td className="py-3.5 px-3 font-sans">
+                <div className="flex items-center gap-1">
+                  {Object.keys(vid.translations || {}).map((lang) => (
+                    <span key={lang} className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono uppercase font-semibold">
+                      {lang}
+                    </span>
+                  ))}
+                </div>
+              </td>
+              <td className="py-3.5 px-3 text-right font-mono text-slate-800">
+                <div className="font-bold">{vid.viewCount?.toLocaleString()} views</div>
+                <div className="text-[10px] text-slate-500">{vid.likeCount?.toLocaleString()} likes</div>
+              </td>
+              <td className="py-3.5 px-3 text-center">
+                <StatusBadge status={vid.status} />
+              </td>
+              <td className="py-3.5 px-4 text-right font-sans">
+                <div className="flex items-center justify-end gap-1.5">
+                  <button
+                    onClick={() => onView(vid)}
+                    className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold shadow-xs transition"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => onEdit(vid)}
+                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition active:scale-95"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onDelete(vid)}
+                    className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-semibold transition"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800/60">
-            {data.map((vid) => (
-              <tr key={vid.id} className="hover:bg-slate-800/40 transition-colors">
-                <td className="py-3 px-4 max-w-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded bg-slate-800 flex items-center justify-center shrink-0 text-emerald-400">
-                      <Play className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-slate-100 hover:text-emerald-400 cursor-pointer" onClick={() => onView(vid)}>
-                        {vid.title}
-                      </div>
-                      <div className="font-mono text-[10px] text-slate-500">{vid.id}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="py-3 px-3">
-                  <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-medium border border-slate-700">
-                    {vid.category}
-                  </span>
-                </td>
-                <td className="py-3 px-3 font-mono text-slate-300">
-                  {fmtDuration(vid.durationSeconds)}
-                </td>
-                <td className="py-3 px-3">
-                  <div className="flex items-center gap-1">
-                    {Object.keys(vid.translations || {}).map((lang) => (
-                      <span key={lang} className="px-1.5 py-0.5 rounded bg-slate-800/80 text-emerald-400 border border-emerald-500/20 text-[10px] font-mono uppercase">
-                        {lang}
-                      </span>
-                    ))}
-                  </div>
-                </td>
-                <td className="py-3 px-3 text-right font-mono text-slate-300">
-                  <div>{vid.viewCount?.toLocaleString()} views</div>
-                  <div className="text-[10px] text-slate-500">{vid.likeCount?.toLocaleString()} likes</div>
-                </td>
-                <td className="py-3 px-3">
-                  <StatusBadge status={vid.status} />
-                </td>
-                <td className="py-3 px-4 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
-                    <button
-                      onClick={() => onView(vid)}
-                      className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px] transition-colors"
-                    >
-                      View
-                    </button>
-                    <button
-                      onClick={() => onEdit(vid)}
-                      className="px-2 py-1 bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-400 border border-emerald-500/30 rounded text-[11px] transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => onDelete(vid)}
-                      className="px-2 py-1 bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-500/20 rounded text-[11px] transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
@@ -942,81 +932,79 @@ export function VideoGuidesTable({ data, onView, onEdit, onDelete }) {
 export function BlogArticlesTable({ data, onView, onEdit, onDelete }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400 text-xs">
+      <div className="p-8 text-center text-slate-400 text-xs">
         No blog articles found.
       </div>
     )
   }
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/70 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold text-[11px]">
-            <tr>
-              <th className="py-3 px-4">Article Title & Slug</th>
-              <th className="py-3 px-3">Category</th>
-              <th className="py-3 px-3">Author & Role</th>
-              <th className="py-3 px-3">Read Time</th>
-              <th className="py-3 px-3 text-right">Views</th>
-              <th className="py-3 px-3">Status</th>
-              <th className="py-3 px-4 text-right">Actions</th>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
+          <tr>
+            <th className="py-3 px-4">Article Title &amp; Slug</th>
+            <th className="py-3 px-3">Category</th>
+            <th className="py-3 px-3">Author &amp; Role</th>
+            <th className="py-3 px-3">Read Time</th>
+            <th className="py-3 px-3 text-right">Views</th>
+            <th className="py-3 px-3 text-center">Status</th>
+            <th className="py-3 px-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100/80 font-mono">
+          {data.map((blog) => (
+            <tr key={blog.id} className="hover:bg-emerald-50/60 transition-colors">
+              <td className="py-3.5 px-4 max-w-sm font-sans">
+                <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(blog)}>
+                  {blog.title}
+                </div>
+                <div className="font-mono text-[10px] text-slate-400 mt-0.5">{blog.slug}</div>
+              </td>
+              <td className="py-3.5 px-3 font-sans">
+                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
+                  {blog.category}
+                </span>
+              </td>
+              <td className="py-3.5 px-3 font-sans">
+                <div className="text-slate-900 font-medium">{blog.authorName}</div>
+                <div className="text-[10px] text-slate-500">{blog.authorRole}</div>
+              </td>
+              <td className="py-3.5 px-3 font-mono text-slate-800">
+                {blog.readTimeMinutes} min read
+              </td>
+              <td className="py-3.5 px-3 text-right font-mono text-slate-800 font-bold">
+                {blog.viewCount?.toLocaleString()}
+              </td>
+              <td className="py-3.5 px-3 text-center">
+                <StatusBadge status={blog.status} />
+              </td>
+              <td className="py-3.5 px-4 text-right font-sans">
+                <div className="flex items-center justify-end gap-1.5">
+                  <button
+                    onClick={() => onView(blog)}
+                    className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold shadow-xs transition"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => onEdit(blog)}
+                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition active:scale-95"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onDelete(blog)}
+                    className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-semibold transition"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800/60">
-            {data.map((blog) => (
-              <tr key={blog.id} className="hover:bg-slate-800/40 transition-colors">
-                <td className="py-3 px-4 max-w-sm">
-                  <div className="font-semibold text-slate-100 hover:text-emerald-400 cursor-pointer" onClick={() => onView(blog)}>
-                    {blog.title}
-                  </div>
-                  <div className="font-mono text-[10px] text-slate-500 mt-0.5">{blog.slug}</div>
-                </td>
-                <td className="py-3 px-3">
-                  <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-medium border border-slate-700">
-                    {blog.category}
-                  </span>
-                </td>
-                <td className="py-3 px-3">
-                  <div className="text-slate-200 font-medium">{blog.authorName}</div>
-                  <div className="text-[10px] text-slate-500">{blog.authorRole}</div>
-                </td>
-                <td className="py-3 px-3 font-mono text-slate-300">
-                  {blog.readTimeMinutes} min read
-                </td>
-                <td className="py-3 px-3 text-right font-mono text-slate-300">
-                  {blog.viewCount?.toLocaleString()}
-                </td>
-                <td className="py-3 px-3">
-                  <StatusBadge status={blog.status} />
-                </td>
-                <td className="py-3 px-4 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
-                    <button
-                      onClick={() => onView(blog)}
-                      className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px] transition-colors"
-                    >
-                      View
-                    </button>
-                    <button
-                      onClick={() => onEdit(blog)}
-                      className="px-2 py-1 bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-400 border border-emerald-500/30 rounded text-[11px] transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => onDelete(blog)}
-                      className="px-2 py-1 bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-500/20 rounded text-[11px] transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
@@ -1024,58 +1012,56 @@ export function BlogArticlesTable({ data, onView, onEdit, onDelete }) {
 export function ContentAuditLogsTable({ data }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400 text-xs">
-        No audit log records found for Knowledge Hub & Content CMS.
+      <div className="p-8 text-center text-slate-400 text-xs">
+        No audit log records found for Knowledge Hub &amp; Content CMS.
       </div>
     )
   }
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/70 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold text-[11px]">
-            <tr>
-              <th className="py-3 px-4">Audit ID & Timestamp</th>
-              <th className="py-3 px-3">Admin Operator</th>
-              <th className="py-3 px-3">Action Type</th>
-              <th className="py-3 px-3">Target Entity</th>
-              <th className="py-3 px-3">Transition</th>
-              <th className="py-3 px-4">Reason & Justification</th>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
+          <tr>
+            <th className="py-3 px-4">Audit ID &amp; Timestamp</th>
+            <th className="py-3 px-3">Admin Operator</th>
+            <th className="py-3 px-3">Action Type</th>
+            <th className="py-3 px-3">Target Entity</th>
+            <th className="py-3 px-3">Transition</th>
+            <th className="py-3 px-4">Reason &amp; Justification</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100/80 font-mono">
+          {data.map((log) => (
+            <tr key={log.id} className="hover:bg-emerald-50/60 transition-colors">
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-mono text-slate-900 font-semibold">{formatDate(log.timestamp)}</div>
+                <div className="font-mono text-[10px] text-slate-400">{log.id}</div>
+              </td>
+              <td className="py-3.5 px-3 font-sans">
+                <div className="text-slate-900 font-medium">{log.adminName}</div>
+                <div className="font-mono text-[10px] text-slate-400">{log.ipAddress}</div>
+              </td>
+              <td className="py-3.5 px-3">
+                <span className="font-mono text-[11px] px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">
+                  {log.actionType}
+                </span>
+              </td>
+              <td className="py-3.5 px-3 font-sans">
+                <div className="text-slate-900 font-bold">{log.entityName}</div>
+                <div className="font-mono text-[10px] text-slate-400">{log.entityId} ({log.collection})</div>
+              </td>
+              <td className="py-3.5 px-3 font-mono text-[11px]">
+                <div className="text-slate-400 line-through text-[10px]">{log.previousState}</div>
+                <div className="text-emerald-700 font-bold">{log.newState}</div>
+              </td>
+              <td className="py-3.5 px-4 text-slate-700 max-w-xs text-[11px] leading-relaxed font-sans">
+                {log.reason}
+              </td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800/60">
-            {data.map((log) => (
-              <tr key={log.id} className="hover:bg-slate-800/40 transition-colors">
-                <td className="py-3 px-4">
-                  <div className="font-mono text-slate-200">{formatDate(log.timestamp)}</div>
-                  <div className="font-mono text-[10px] text-slate-500">{log.id}</div>
-                </td>
-                <td className="py-3 px-3">
-                  <div className="text-slate-200 font-medium">{log.adminName}</div>
-                  <div className="font-mono text-[10px] text-slate-500">{log.ipAddress}</div>
-                </td>
-                <td className="py-3 px-3">
-                  <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700">
-                    {log.actionType}
-                  </span>
-                </td>
-                <td className="py-3 px-3">
-                  <div className="text-slate-300 font-medium">{log.entityName}</div>
-                  <div className="font-mono text-[10px] text-slate-500">{log.entityId} ({log.collection})</div>
-                </td>
-                <td className="py-3 px-3 font-mono text-[11px]">
-                  <div className="text-slate-400 line-through text-[10px]">{log.previousState}</div>
-                  <div className="text-emerald-400 font-semibold">{log.newState}</div>
-                </td>
-                <td className="py-3 px-4 text-slate-300 max-w-xs text-[11px] leading-relaxed">
-                  {log.reason}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
@@ -1086,28 +1072,28 @@ export function ContentPagination({ page, pageSize, total, onPageChange }) {
   const end = Math.min(page * pageSize, total)
 
   return (
-    <div className="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-slate-800/80 mt-4 px-1">
+    <div className="flex items-center justify-between text-xs text-slate-600 pt-3 border-t border-emerald-100/90 mt-4 px-6 bg-white/60 py-3">
       <div>
-        Showing <span className="font-mono text-slate-200">{total === 0 ? 0 : start}</span> -{' '}
-        <span className="font-mono text-slate-200">{end}</span> of{' '}
-        <span className="font-mono text-slate-200">{total}</span> records
+        Showing <span className="font-mono font-bold text-slate-900">{total === 0 ? 0 : start}</span> -{' '}
+        <span className="font-mono font-bold text-slate-900">{end}</span> of{' '}
+        <span className="font-mono font-bold text-slate-900">{total}</span> records
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 font-mono">
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-          className="flex items-center gap-1 px-2.5 py-1 bg-slate-900 border border-slate-800 rounded text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed shadow-xs transition"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
           <span>Prev</span>
         </button>
-        <span className="font-mono text-slate-300 px-1">
+        <span className="font-mono text-slate-800 font-bold px-1">
           Page {page} of {totalPages}
         </span>
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-          className="flex items-center gap-1 px-2.5 py-1 bg-slate-900 border border-slate-800 rounded text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed shadow-xs transition"
         >
           <span>Next</span>
           <ChevronRight className="w-3.5 h-3.5" />

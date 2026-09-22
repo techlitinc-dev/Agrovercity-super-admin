@@ -252,9 +252,16 @@ export function ExecutiveDashboard({ onNavigate }) {
               </span>
             </div>
 
-            <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
-              National AgriTech Executive Overview
-            </h1>
+            <div className="flex items-center gap-3 pt-1">
+              <img
+                src="/logo.png"
+                alt="Agrovercity"
+                className="w-11 h-11 rounded-2xl object-contain bg-white/10 p-1 border border-white/20 shadow-lg shadow-emerald-950/30 backdrop-blur-md shrink-0"
+              />
+              <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
+                National AgriTech Executive Overview
+              </h1>
+            </div>
             <p className="text-sm text-emerald-100/90 max-w-3xl leading-relaxed">
               Consolidated command radar orchestrating 26 institutional standard operating procedures across farm-gate commerce, groundwater telemetry, mandi commodity rates, and farmer KYC governance.
             </p>

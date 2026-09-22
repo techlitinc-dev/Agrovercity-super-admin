@@ -51,13 +51,13 @@ export default function WaterDetailDrawer({
         onClose={onClose}
       >
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-1 border-b border-slate-800 pb-2 mb-4 overflow-x-auto text-xs">
+        <div className="flex items-center gap-1 border-b border-emerald-100 pb-2 mb-4 overflow-x-auto text-xs">
           <button
             onClick={() => setActiveTab('overview')}
             className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
               activeTab === 'overview'
-                ? 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             Overview &amp; Plot
@@ -66,8 +66,8 @@ export default function WaterDetailDrawer({
             onClick={() => setActiveTab('sensors')}
             className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
               activeTab === 'sensors'
-                ? 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             Moisture &amp; Sensors
@@ -76,8 +76,8 @@ export default function WaterDetailDrawer({
             onClick={() => setActiveTab('json')}
             className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
               activeTab === 'json'
-                ? 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             Raw JSON
@@ -87,18 +87,18 @@ export default function WaterDetailDrawer({
         {activeTab === 'overview' && (
           <div className="space-y-4 text-xs">
             {/* Top Quick Status Pill */}
-            <div className="p-3 rounded-xl border border-slate-800 bg-slate-900/60 flex items-center justify-between">
+            <div className="p-3 rounded-xl border border-emerald-100/90 bg-emerald-50/40 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <StatusBadge status={item.status} type="schedule" />
                 <StatusBadge status={item.overUnderAlert} type="alert" />
               </div>
-              <span className="font-mono text-cyan-400 text-xs font-bold">
+              <span className="font-mono text-emerald-700 text-xs font-bold">
                 {item.waterEfficiencyIndex}% Water Score
               </span>
             </div>
 
             <DrawerSection title="Plot & Farmer Information">
-              <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800">
+              <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80">
                 <KeyValue label="Farmer Name" value={item.farmerName} />
                 <KeyValue label="Phone Number" value={item.farmerPhone} />
                 <KeyValue label="Gat Number" value={item.gatNumber} />
@@ -109,7 +109,7 @@ export default function WaterDetailDrawer({
             </DrawerSection>
 
             <DrawerSection title="Irrigation Execution Parameters">
-              <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800">
+              <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80">
                 <KeyValue label="Method / System" value={item.irrigationType} />
                 <KeyValue label="Water Source" value={item.waterSource} />
                 <KeyValue label="Scheduled Date & Time" value={`${item.scheduledDate} at ${item.scheduledStartTime}`} />
@@ -121,7 +121,7 @@ export default function WaterDetailDrawer({
             </DrawerSection>
 
             <DrawerSection title="Crop Phenology & Demand">
-              <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800">
+              <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80">
                 <KeyValue label="Crop" value={item.crop} />
                 <KeyValue label="Current Stage" value={item.cropStage} />
                 <KeyValue label="Evapotranspiration (ETc)" value={`${item.evapotranspirationEtcMm} mm/day`} />
@@ -133,27 +133,27 @@ export default function WaterDetailDrawer({
         {activeTab === 'sensors' && (
           <div className="space-y-4 text-xs">
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center">
-                <span className="text-slate-400 block text-[11px] mb-1">Current Soil Moisture</span>
-                <span className="text-2xl font-bold font-mono text-cyan-400">
+              <div className="p-4 rounded-xl bg-cyan-50/60 border border-cyan-100 text-center">
+                <span className="text-slate-500 block text-[11px] mb-1">Current Soil Moisture</span>
+                <span className="text-2xl font-bold font-mono text-cyan-700">
                   {item.soilMoistureCurrentPct}%
                 </span>
                 <span className="block text-[10px] text-slate-500 mt-1">Capacitive Sensor Probe</span>
               </div>
-              <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center">
-                <span className="text-slate-400 block text-[11px] mb-1">Target Moisture Band</span>
-                <span className="text-2xl font-bold font-mono text-emerald-400">
+              <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-100 text-center">
+                <span className="text-slate-500 block text-[11px] mb-1">Target Moisture Band</span>
+                <span className="text-2xl font-bold font-mono text-emerald-700">
                   {item.soilMoistureTargetPct}%
                 </span>
                 <span className="block text-[10px] text-slate-500 mt-1">Field Capacity Optimal</span>
               </div>
             </div>
 
-            <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/50 space-y-2">
-              <span className="font-semibold text-slate-200 block text-xs">
+            <div className="p-4 rounded-xl border border-emerald-100/90 bg-emerald-50/30 space-y-2">
+              <span className="font-semibold text-emerald-950 block text-xs">
                 Irrigation Recommendation Algorithm (ICAR Model)
               </span>
-              <p className="text-slate-400 text-xs leading-relaxed">
+              <p className="text-slate-600 text-xs leading-relaxed">
                 Calculated based on daily reference evapotranspiration (ETc: {item.evapotranspirationEtcMm} mm/day),
                 canopy cover coefficient (Kc: 1.05), and root zone depletion threshold in {item.soilType}.
               </p>
@@ -176,30 +176,30 @@ export default function WaterDetailDrawer({
         onClose={onClose}
       >
         <div className="space-y-4 text-xs">
-          <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-200/80 flex items-center justify-between">
             <StatusBadge status={item.category} type="cgwb" />
-            <span className="font-mono text-slate-400 text-xs">
+            <span className="font-mono text-slate-500 text-xs">
               Last Ping: {new Date(item.lastReadingAt).toLocaleTimeString('en-IN')}
             </span>
           </div>
 
           <DrawerSection title="Aquifer & Groundwater Depth">
             <div className="grid grid-cols-3 gap-2 font-mono text-center mb-3">
-              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800">
+              <div className="p-3 rounded-xl bg-cyan-50/60 border border-cyan-100">
                 <span className="text-slate-500 block text-[10px]">Current Level</span>
-                <span className="text-lg font-bold text-cyan-400">{item.currentWaterLevelMbgl} mbgl</span>
+                <span className="text-lg font-bold text-cyan-700">{item.currentWaterLevelMbgl} mbgl</span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800">
+              <div className="p-3 rounded-xl bg-amber-50/60 border border-amber-100">
                 <span className="text-slate-500 block text-[10px]">Pre-Monsoon</span>
-                <span className="text-lg font-bold text-amber-400">{item.preMonsoonMbgl} mbgl</span>
+                <span className="text-lg font-bold text-amber-700">{item.preMonsoonMbgl} mbgl</span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800">
+              <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100">
                 <span className="text-slate-500 block text-[10px]">Post-Monsoon</span>
-                <span className="text-lg font-bold text-emerald-400">{item.postMonsoonMbgl} mbgl</span>
+                <span className="text-lg font-bold text-emerald-700">{item.postMonsoonMbgl} mbgl</span>
               </div>
             </div>
 
-            <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800">
+            <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80">
               <KeyValue label="Recharge Trend" value={`${item.rechargeTrendPct > 0 ? `+${item.rechargeTrendPct}` : item.rechargeTrendPct}%`} />
               <KeyValue label="Critical Depth Threshold" value={`${item.criticalDepthThresholdMbgl} mbgl`} />
               <KeyValue label="Hydrogeological Formation" value={item.aquiferType} />
@@ -224,15 +224,15 @@ export default function WaterDetailDrawer({
         onClose={onClose}
       >
         <div className="space-y-4 text-xs">
-          <div className="p-3 rounded-xl border border-slate-800 bg-slate-900/60 flex items-center justify-between">
+          <div className="p-3 rounded-xl border border-emerald-100/90 bg-emerald-50/40 flex items-center justify-between">
             <StatusBadge status={item.status} type="canal" />
-            <span className="font-mono text-cyan-400 font-bold text-sm">
+            <span className="font-mono text-cyan-700 font-bold text-sm">
               {item.dischargeCusecs} Cusecs Flow
             </span>
           </div>
 
           <DrawerSection title="Rotation Window & Timetable">
-            <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800">
+            <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80">
               <KeyValue label="Rotation Cycle" value={item.rotationCycle} />
               <KeyValue label="Release Window Start" value={new Date(item.rotationStartDate).toLocaleString('en-IN')} />
               <KeyValue label="Release Window End" value={new Date(item.rotationEndDate).toLocaleString('en-IN')} />
@@ -243,7 +243,7 @@ export default function WaterDetailDrawer({
           </DrawerSection>
 
           <DrawerSection title="Beneficiary Minors & Villages">
-            <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800">
+            <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80">
               <KeyValue label="Distributary Minor" value={item.distributaryMinor} />
               <KeyValue label="Beneficiary Villages" value={item.beneficiaryVillages?.join(', ')} />
               <KeyValue label="Farmers Notified" value={`${item.notifiedFarmersCount} SMS Dispatched`} />
@@ -255,7 +255,7 @@ export default function WaterDetailDrawer({
             <div className="pt-2">
               <button
                 onClick={() => onUpdateCanal(item)}
-                className="w-full py-2 px-4 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold transition-colors"
+                className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-xs active:scale-95 transition"
               >
                 Modify Canal Rotation Timetable
               </button>
@@ -278,15 +278,15 @@ export default function WaterDetailDrawer({
         onClose={onClose}
       >
         <div className="space-y-4 text-xs">
-          <div className="p-3 rounded-xl border border-slate-800 bg-slate-900/60 flex items-center justify-between">
+          <div className="p-3 rounded-xl border border-emerald-100/90 bg-emerald-50/40 flex items-center justify-between">
             <StatusBadge status={item.status} />
-            <span className="font-mono text-emerald-400 font-bold text-sm">
+            <span className="font-mono text-emerald-700 font-bold text-sm">
               ₹{item.calculatedSubsidyInr?.toLocaleString('en-IN')} Subsidy
             </span>
           </div>
 
           <DrawerSection title="Farmer & Land Details">
-            <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800">
+            <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80">
               <KeyValue label="Farmer Name" value={item.farmerName} />
               <KeyValue label="Aadhaar (DPDP Masked)" value={item.aadhaarMasked} />
               <KeyValue label="Category" value={item.category} />
@@ -295,7 +295,7 @@ export default function WaterDetailDrawer({
           </DrawerSection>
 
           <DrawerSection title="Micro-Irrigation Equipment">
-            <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800">
+            <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80">
               <KeyValue label="System Type" value={item.systemType} />
               <KeyValue label="Approved Manufacturer" value={item.manufacturer} />
               <KeyValue label="Quotation Total" value={`₹${item.quotationAmountInr?.toLocaleString('en-IN')}`} />
@@ -310,7 +310,7 @@ export default function WaterDetailDrawer({
             <div className="pt-2">
               <button
                 onClick={() => onApproveSubsidy(item)}
-                className="w-full py-2 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition-colors"
+                className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-xs active:scale-95 transition"
               >
                 Approve PMKSY Subsidy (₹{item.calculatedSubsidyInr?.toLocaleString('en-IN')})
               </button>

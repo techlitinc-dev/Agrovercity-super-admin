@@ -39,18 +39,18 @@ export function AuditReasonModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-3 text-amber-400">
-          <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
-            <AlertTriangle className="w-5 h-5" />
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-3 text-amber-600">
+          <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200/80">
+            <AlertTriangle className="w-5 h-5 text-amber-600" />
           </div>
-          <h3 className="text-base font-bold text-white">{title}</h3>
+          <h3 className="text-base font-bold text-slate-900">{title}</h3>
         </div>
-        <p className="text-xs text-slate-300 leading-relaxed">{message}</p>
+        <p className="text-xs text-slate-600 leading-relaxed">{message}</p>
         <div>
-          <label className="block text-xs font-medium text-slate-300 mb-1.5">
-            Audit Reason & Justification <span className="text-rose-400">*</span>
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            Audit Reason & Justification <span className="text-rose-500">*</span>
           </label>
           <textarea
             value={reason}
@@ -60,21 +60,23 @@ export function AuditReasonModal({
             }}
             placeholder="Enter reason for audit record..."
             rows={3}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-500/60"
+            className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
           />
-          {error && <p className="text-[11px] text-rose-400 mt-1">{error}</p>}
+          {error && <p className="text-[11px] text-rose-600 font-medium mt-1">{error}</p>}
         </div>
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
           <button
             onClick={onClose}
-            className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold text-white ${
-              confirmVariant === 'rose' ? 'bg-rose-600 hover:bg-rose-500' : 'bg-amber-600 hover:bg-amber-500'
+            className={`px-4 py-2 rounded-xl text-xs font-bold text-white shadow-xs transition-colors active:scale-95 ${
+              confirmVariant === 'rose'
+                ? 'bg-rose-600 hover:bg-rose-700'
+                : 'bg-emerald-600 hover:bg-emerald-700'
             }`}
           >
             {confirmLabel}
@@ -114,67 +116,67 @@ export function DualSignOffModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-3 text-purple-400">
-          <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
-            <Lock className="w-5 h-5" />
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-3 text-teal-700">
+          <div className="p-2.5 rounded-xl bg-teal-50 border border-teal-200/80">
+            <Lock className="w-5 h-5 text-teal-700" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white">{title}</h3>
-            <span className="text-[11px] font-mono text-purple-400">Dual Admin Sign-off Required (&gt; ₹50,000)</span>
+            <h3 className="text-base font-bold text-slate-900">{title}</h3>
+            <span className="text-[11px] font-mono text-teal-700 font-bold">Dual Admin Sign-off Required (&gt; ₹50,000)</span>
           </div>
         </div>
 
-        <div className="bg-purple-950/20 border border-purple-500/30 rounded-xl p-3 text-xs space-y-1">
-          <div className="flex justify-between font-medium text-slate-200">
+        <div className="bg-teal-50/70 border border-teal-200/80 rounded-xl p-3.5 text-xs space-y-1">
+          <div className="flex justify-between font-bold text-slate-800">
             <span>Subsidy / Outlay Value:</span>
-            <span className="font-mono text-purple-300 font-bold">{fmtINR(amount)}</span>
+            <span className="font-mono text-teal-800 font-bold">{fmtINR(amount)}</span>
           </div>
-          {details && <p className="text-slate-300 text-[11px]">{details}</p>}
+          {details && <p className="text-slate-600 text-[11px] leading-relaxed pt-1">{details}</p>}
         </div>
 
         <div className="space-y-3 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Co-Admin Authorizer Email *</label>
+            <label className="block font-bold text-slate-700 mb-1">Co-Admin Authorizer Email *</label>
             <input
               type="email"
               value={secondAdminEmail}
               onChange={(e) => setSecondAdminEmail(e.target.value)}
               placeholder="e.g. director.forestry@agrovercity.in"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
             />
           </div>
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Authorizer Passcode *</label>
+            <label className="block font-bold text-slate-700 mb-1">Authorizer Passcode *</label>
             <input
               type="password"
               value={passcode}
               onChange={(e) => setPasscode(e.target.value)}
               placeholder="••••••••••••"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
             />
           </div>
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Authorization Justification *</label>
+            <label className="block font-bold text-slate-700 mb-1">Authorization Justification *</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="State institutional reason for high-value subsidy release..."
               rows={2}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
             />
           </div>
-          {error && <p className="text-[11px] text-rose-400">{error}</p>}
+          {error && <p className="text-[11px] text-rose-600 font-medium">{error}</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100">
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-purple-600 hover:bg-purple-500"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 shadow-xs active:scale-95 transition-all"
           >
             Authorize Dual Sign-Off
           </button>
@@ -208,41 +210,41 @@ export function ApproveSaplingModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+          <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700">
             <Sprout className="w-4 h-4" />
           </div>
-          <h3 className="text-base font-bold text-white">Approve Sapling Request</h3>
+          <h3 className="text-base font-bold text-slate-900">Approve Sapling Request</h3>
         </div>
 
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2 text-xs">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2 text-xs">
           <div className="flex justify-between">
-            <span className="text-slate-400">Farmer:</span>
-            <span className="text-slate-200 font-medium">{request.farmerName}</span>
+            <span className="text-slate-600 font-bold">Farmer:</span>
+            <span className="text-slate-900 font-semibold">{request.farmerName}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-400">Species:</span>
-            <span className="text-slate-200">{request.speciesRequested}</span>
+            <span className="text-slate-600 font-bold">Species:</span>
+            <span className="text-slate-900 font-medium">{request.speciesRequested}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-400">Quantity (Max 500 Cap):</span>
-            <span className="font-mono text-emerald-400 font-bold">{request.quantity} Saplings</span>
+            <span className="text-slate-600 font-bold">Quantity (Max 500 Cap):</span>
+            <span className="font-mono text-emerald-800 font-bold">{request.quantity} Saplings</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-400">Land 7/12 Survey:</span>
-            <span className="font-mono text-slate-300">{request.surveyNumber712} ({request.district})</span>
+            <span className="text-slate-600 font-bold">Land 7/12 Survey:</span>
+            <span className="font-mono text-slate-800">{request.surveyNumber712} ({request.district})</span>
           </div>
         </div>
 
         <div className="space-y-3 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Assign Partner NGO Nursery</label>
+            <label className="block font-bold text-slate-700 mb-1">Assign Partner NGO Nursery</label>
             <select
               value={allocatedNgoId}
               onChange={(e) => setAllocatedNgoId(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             >
               {ngos.map((ngo) => (
                 <option key={ngo.id} value={ngo.id}>
@@ -253,24 +255,24 @@ export function ApproveSaplingModal({
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Approval Notes</label>
+            <label className="block font-bold text-slate-700 mb-1">Approval Notes</label>
             <input
               type="text"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="7/12 land survey and water source verified..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100">
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs active:scale-95 transition-all"
           >
             Confirm Approval
           </button>
@@ -293,48 +295,48 @@ export function DispatchSaplingModal({
   if (!isOpen || !request) return null
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+          <div className="p-2 rounded-xl bg-purple-50 border border-purple-200 text-purple-700">
             <Truck className="w-4 h-4" />
           </div>
-          <h3 className="text-base font-bold text-white">Dispatch Sapling Consignment</h3>
+          <h3 className="text-base font-bold text-slate-900">Dispatch Sapling Consignment</h3>
         </div>
 
-        <p className="text-xs text-slate-300">
-          Dispatching {request.quantity} saplings of {request.speciesRequested} to {request.farmerName} ({request.district}).
+        <p className="text-xs text-slate-600 leading-relaxed">
+          Dispatching <span className="font-bold text-slate-900">{request.quantity}</span> saplings of <span className="font-bold text-slate-900">{request.speciesRequested}</span> to <span className="font-bold text-slate-900">{request.farmerName}</span> ({request.district}).
         </p>
 
         <div className="space-y-3 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Waybill / Gate Pass Tracking Number *</label>
+            <label className="block font-bold text-slate-700 mb-1">Waybill / Gate Pass Tracking Number *</label>
             <input
               type="text"
               value={trackingNo}
               onChange={(e) => setTrackingNo(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-purple-300 font-mono"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-purple-700 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-purple-500/20"
             />
           </div>
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Logistics Note</label>
+            <label className="block font-bold text-slate-700 mb-1">Logistics Note</label>
             <input
               type="text"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Loaded in pickup vehicle MH-12-PQ-4821..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100">
             Cancel
           </button>
           <button
             onClick={() => onDispatch(request.id, trackingNo, notes)}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-purple-600 hover:bg-purple-500"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 shadow-xs active:scale-95 transition-all"
           >
             Confirm Dispatch
           </button>
@@ -357,18 +359,18 @@ export function RecordDeliverySurvivalModal({
   if (!isOpen || !request) return null
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+          <div className="p-2 rounded-xl bg-teal-50 border border-teal-200 text-teal-700">
             <Trees className="w-4 h-4" />
           </div>
-          <h3 className="text-base font-bold text-white">Record Delivery & Survival Audit</h3>
+          <h3 className="text-base font-bold text-slate-900">Record Delivery & Survival Audit</h3>
         </div>
 
         <div className="space-y-3 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">
+            <label className="block font-bold text-slate-700 mb-1">
               Field Planting Survival Rate ({survivalRate}%)
             </label>
             <input
@@ -377,34 +379,34 @@ export function RecordDeliverySurvivalModal({
               max="100"
               value={survivalRate}
               onChange={(e) => setSurvivalRate(Number(e.target.value))}
-              className="w-full accent-emerald-500"
+              className="w-full accent-emerald-600"
             />
             <div className="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
               <span>0% (Crop Failure)</span>
-              <span>80% Target</span>
+              <span className="font-bold text-emerald-700">80% Target</span>
               <span>100% (Full Survival)</span>
             </div>
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Field Inspection Report</label>
+            <label className="block font-bold text-slate-700 mb-1">Field Inspection Report</label>
             <textarea
               rows={3}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Geo-tagged photos uploaded. Drip lines installed on time..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100">
             Cancel
           </button>
           <button
             onClick={() => onSave(request.id, survivalRate, notes)}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 shadow-xs active:scale-95 transition-all"
           >
             Mark Delivered
           </button>
@@ -433,82 +435,82 @@ export function EditBiofuelEconomicsModal({
   if (!isOpen || !tree) return null
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+          <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700">
             <Fuel className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white">Update Biofuel Crop Economics</h3>
-            <span className="text-[11px] font-mono text-emerald-400">{tree.commonName}</span>
+            <h3 className="text-base font-bold text-slate-900">Update Biofuel Crop Economics</h3>
+            <span className="text-[11px] font-mono text-emerald-800 font-bold">{tree.commonName}</span>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Gestation (Years)</label>
+            <label className="block font-bold text-slate-700 mb-1">Gestation (Years)</label>
             <input
               type="number"
               value={formData.gestationYears}
               onChange={(e) => setFormData({ ...formData, gestationYears: Number(e.target.value) })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Seed Oil Content (%)</label>
+            <label className="block font-bold text-slate-700 mb-1">Seed Oil Content (%)</label>
             <input
               type="number"
               value={formData.oilContentPercent}
               onChange={(e) => setFormData({ ...formData, oilContentPercent: Number(e.target.value) })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Seed Yield (kg / tree)</label>
+            <label className="block font-bold text-slate-700 mb-1">Seed Yield (kg / tree)</label>
             <input
               type="number"
               value={formData.seedYieldKgPerTree}
               onChange={(e) => setFormData({ ...formData, seedYieldKgPerTree: Number(e.target.value) })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Guaranteed Buyback Rate (₹/kg)</label>
+            <label className="block font-bold text-slate-700 mb-1">Guaranteed Buyback Rate (₹/kg)</label>
             <input
               type="number"
               value={formData.marketRatePerKgINR}
               onChange={(e) => setFormData({ ...formData, marketRatePerKgINR: Number(e.target.value) })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
           <div className="col-span-2">
-            <label className="block font-medium text-slate-300 mb-1">Gross Annual Return / Acre (₹)</label>
+            <label className="block font-bold text-slate-700 mb-1">Gross Annual Return / Acre (₹)</label>
             <input
               type="number"
               value={formData.annualGrossReturnPerAcreINR}
               onChange={(e) => setFormData({ ...formData, annualGrossReturnPerAcreINR: Number(e.target.value) })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-emerald-400 font-mono font-bold"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-emerald-800 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
           <div className="col-span-2">
-            <label className="block font-medium text-slate-300 mb-1">Buyback Depot Partner</label>
+            <label className="block font-bold text-slate-700 mb-1">Buyback Depot Partner</label>
             <input
               type="text"
               value={formData.buybackPartner}
               onChange={(e) => setFormData({ ...formData, buybackPartner: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100">
             Cancel
           </button>
           <button
             onClick={() => onSave(tree.id, formData)}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs active:scale-95 transition-all"
           >
             Save Economics
           </button>

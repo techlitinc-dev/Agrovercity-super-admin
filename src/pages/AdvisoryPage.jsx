@@ -225,14 +225,14 @@ export default function AdvisoryPage() {
           </button>
         )}
         {tab === 'scans' && npkConfig && (
-          <span className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-mono text-slate-400" title={npkConfig.params.map((p) => `${p.key}=${p.value}${p.unit}`).join(' · ')}>
-            <Satellite className="h-3.5 w-3.5 text-emerald-400" /> {npkConfig.algorithmVersion} · reviewed {npkConfig.lastReviewedAt?.slice(0, 10)}
+          <span className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50/80 px-3 py-2 text-xs font-mono font-semibold text-emerald-900 shadow-2xs" title={npkConfig.params.map((p) => `${p.key}=${p.value}${p.unit}`).join(' · ')}>
+            <Satellite className="h-3.5 w-3.5 text-emerald-600" /> {npkConfig.algorithmVersion} · reviewed {npkConfig.lastReviewedAt?.slice(0, 10)}
           </span>
         )}
       </FiltersBar>
 
       {loading ? (
-        <div className="rounded-xl border border-slate-800 py-16 text-center text-slate-500">Loading advisory data…</div>
+        <div className="rounded-2xl border border-emerald-100 bg-white/90 py-16 text-center text-xs text-slate-500 shadow-xs">Loading advisory data…</div>
       ) : tab === 'scans' ? (
         <ScansTable scans={sorted} sort={sort} onSort={(key) => setSort((s) => ({ key, dir: s.key === key && s.dir === 'asc' ? 'desc' : 'asc' }))} onView={(doc) => setSelected({ type: 'scans', doc })} />
       ) : tab === 'alerts' ? (

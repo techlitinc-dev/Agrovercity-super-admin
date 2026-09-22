@@ -57,7 +57,7 @@ function LeaseView({ lease, agreement, agreementLoading, reminders, remindersLoa
   return (
     <>
       <DrawerSection title="Lease Terms">
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2">
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 px-3.5 py-2.5 shadow-2xs">
           <KeyValue k="Landlord" v={`${lease.landlordName} · ${lease.landlordPhone?.replace(/^(\+91\d{2})\d{4}(\d{2})/, '$1••••$2')}`} />
           <KeyValue k="Tenant" v={`${lease.tenantName} · ${lease.tenantPhone?.replace(/^(\+91\d{2})\d{4}(\d{2})/, '$1••••$2')}`} />
           <KeyValue k="Plot" v={`${lease.surveyNo} · ${lease.areaAcres} acres · ${lease.crop}`} />
@@ -70,12 +70,12 @@ function LeaseView({ lease, agreement, agreementLoading, reminders, remindersLoa
       </DrawerSection>
 
       <DrawerSection title="Payment Compliance">
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2">
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 px-3.5 py-2.5 shadow-2xs">
           <KeyValue k="On-time Payments" v={`${lease.paymentsOnTime} / ${lease.monthsElapsed}`} mono />
           <KeyValue k="Overdue Payments" v={`${lease.paymentsOverdue}`} mono />
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-800">
+          <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-emerald-100 border border-emerald-200">
             <div
-              className={`h-full rounded-full transition-all ${lease.paymentsOverdue > 0 ? 'bg-rose-500' : 'bg-emerald-500'}`}
+              className={`h-full rounded-full transition-all ${lease.paymentsOverdue > 0 ? 'bg-rose-500' : 'bg-emerald-600'}`}
               style={{ width: `${lease.monthsTotal ? Math.min(100, (lease.monthsElapsed / lease.monthsTotal) * 100) : 0}%` }}
             />
           </div>
@@ -85,7 +85,7 @@ function LeaseView({ lease, agreement, agreementLoading, reminders, remindersLoa
 
       {lease.disputeReason && (
         <DrawerSection title="Dispute / Termination Conflict">
-          <div className="rounded-lg border border-orange-500/30 bg-orange-500/10 px-3 py-2 text-sm text-orange-300">
+          <div className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs text-rose-900 font-medium">
             {lease.disputeReason}
           </div>
         </DrawerSection>
@@ -93,26 +93,26 @@ function LeaseView({ lease, agreement, agreementLoading, reminders, remindersLoa
 
       <DrawerSection title="Legal Lease Agreement (Platform Generated)">
         {agreementLoading ? (
-          <div className="rounded-lg border border-slate-800 py-6 text-center text-xs text-slate-500">Inspecting agreement…</div>
+          <div className="rounded-xl border border-emerald-100 py-6 text-center text-xs text-slate-500">Inspecting agreement…</div>
         ) : !agreement ? (
           <EmptyState title="Agreement not generated yet" hint="The platform generates the standardized Marathi/Hindi contract after both parties sign." />
         ) : (
-          <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2">
+          <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 px-3.5 py-2.5 shadow-2xs">
             <KeyValue k="Agreement ID" v={agreement.id} mono />
             <KeyValue k="Language" v={agreement.language === 'mr' ? 'Marathi (मराठी)' : 'Hindi'} />
             <KeyValue k="Template Version" v={agreement.templateVersion} mono />
             <KeyValue k="Generated At" v={agreement.generatedAt?.slice(0, 10)} mono />
-            <ol className="mt-2 space-y-1.5 text-sm text-slate-300">
+            <ol className="mt-2 space-y-1.5 text-xs text-slate-800">
               {agreement.clauses.map((c, i) => (
                 <li key={i} className="flex gap-2">
-                  <span className="font-mono text-xs text-emerald-400">{i + 1}.</span>
+                  <span className="font-mono text-xs text-emerald-700 font-bold">{i + 1}.</span>
                   <span>{c}</span>
                 </li>
               ))}
             </ol>
             <div className="mt-2 flex gap-2">
               {agreement.signatures?.map((s, i) => (
-                <span key={i} className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] text-emerald-400">
+                <span key={i} className="rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-0.5 font-mono text-[10px] text-emerald-900 font-bold">
                   {s.party === 'landlord' ? 'LANDLORD' : 'TENANT'}: {s.name} ✓
                 </span>
               ))}
@@ -123,31 +123,31 @@ function LeaseView({ lease, agreement, agreementLoading, reminders, remindersLoa
 
       <DrawerSection title="Automated Rent Reminders (Cron Delivery Log)">
         {remindersLoading ? (
-          <div className="rounded-lg border border-slate-800 py-6 text-center text-xs text-slate-500">Loading reminder receipts…</div>
+          <div className="rounded-xl border border-emerald-100 py-6 text-center text-xs text-slate-500">Loading reminder receipts…</div>
         ) : reminders.length === 0 ? (
           <EmptyState title="No reminders sent yet" hint="The monthly rent reminder cron fires on the 1st of each cycle." />
         ) : (
-          <div className="overflow-hidden rounded-lg border border-slate-800">
+          <div className="overflow-hidden rounded-xl border border-emerald-100 shadow-2xs">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-slate-800 bg-slate-900/80 uppercase tracking-wider text-slate-500">
-                  <th className="px-3 py-2 font-semibold">Channel</th>
-                  <th className="px-3 py-2 font-semibold">Sent At</th>
-                  <th className="px-3 py-2 font-semibold">Status</th>
-                  <th className="px-3 py-2 font-semibold">Receipt</th>
+                <tr className="border-b border-emerald-200 bg-emerald-50/80 uppercase tracking-wider text-emerald-950 font-bold text-[10px]">
+                  <th className="px-3 py-2.5 font-bold">Channel</th>
+                  <th className="px-3 py-2.5 font-bold">Sent At</th>
+                  <th className="px-3 py-2.5 font-bold">Status</th>
+                  <th className="px-3 py-2.5 font-bold">Receipt</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-emerald-50 bg-white">
                 {reminders.map((r) => (
-                  <tr key={r.id} className="border-b border-slate-800/60 last:border-0">
-                    <td className="px-3 py-2 font-mono uppercase text-slate-200">{r.channel}</td>
-                    <td className="px-3 py-2 font-mono text-slate-400">{r.sentAt?.slice(0, 10)}</td>
+                  <tr key={r.id} className="hover:bg-emerald-50/50 transition-colors">
+                    <td className="px-3 py-2 font-mono uppercase text-slate-800 font-semibold">{r.channel}</td>
+                    <td className="px-3 py-2 font-mono text-slate-500 text-[11px]">{r.sentAt?.slice(0, 10)}</td>
                     <td className="px-3 py-2">
-                      <span className={`rounded px-1.5 py-0.5 font-mono text-[10px] ${REMINDER_STYLES[r.status] || 'bg-slate-500/10 text-slate-400'}`}>
+                      <span className={`rounded-full px-2 py-0.5 font-mono text-[10px] font-bold border ${r.status === 'delivered' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-slate-100 text-slate-700 border-slate-200'}`}>
                         {r.status.toUpperCase()}
                       </span>
                     </td>
-                    <td className="px-3 py-2 font-mono text-slate-500">{r.receiptId || '—'}</td>
+                    <td className="px-3 py-2 font-mono text-slate-400 text-[11px]">{r.receiptId || '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -180,7 +180,7 @@ function ListingView({ listing, onAuditListing }) {
   return (
     <>
       <DrawerSection title="Plot Details">
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2">
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 px-3.5 py-2.5 shadow-2xs">
           <KeyValue k="Landlord" v={`${listing.landlordName} · ${listing.landlordPhone?.replace(/^(\+91\d{2})\d{4}(\d{2})/, '$1••••$2')}`} />
           <KeyValue k="Survey Number" v={listing.surveyNo} mono />
           <KeyValue k="Location" v={`${listing.district}, ${listing.taluka}`} />
@@ -193,15 +193,15 @@ function ListingView({ listing, onAuditListing }) {
       </DrawerSection>
 
       <DrawerSection title="7/12 Land Record Audit">
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2">
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 px-3.5 py-2.5 shadow-2xs">
           <div className="flex items-center gap-2">
-            <ShieldCheck className={`h-4 w-4 ${listing.sevenTwelveVerified ? 'text-emerald-400' : 'text-amber-400'}`} />
-            <span className={`rounded px-1.5 py-0.5 font-mono text-[11px] ${listing.sevenTwelveVerified ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}`}>
+            <ShieldCheck className={`h-4 w-4 ${listing.sevenTwelveVerified ? 'text-emerald-600' : 'text-amber-600'}`} />
+            <span className={`rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold border ${listing.sevenTwelveVerified ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-amber-100 text-amber-800 border-amber-300'}`}>
               {listing.sevenTwelveVerified ? 'VERIFIED AGAINST 7/12' : 'UNVERIFIED'}
             </span>
             <LandStatusBadge status={listing.status} />
           </div>
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 text-xs text-slate-600">
             {listing.sevenTwelveVerified
               ? 'Ownership matches the MahaBhulekh 7/12 extract; safe to lease.'
               : 'Listing cannot go live until the survey number and owner name match the official 7/12 record.'}
@@ -211,14 +211,14 @@ function ListingView({ listing, onAuditListing }) {
 
       {listing.flagReason && (
         <DrawerSection title="Fraud Flag Reason">
-          <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
+          <div className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs text-rose-900 font-medium">
             {listing.flagReason}
           </div>
         </DrawerSection>
       )}
       {listing.removalReason && (
         <DrawerSection title="Removal Reason">
-          <div className="rounded-lg border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm text-slate-300">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs text-slate-700">
             {listing.removalReason}
           </div>
         </DrawerSection>

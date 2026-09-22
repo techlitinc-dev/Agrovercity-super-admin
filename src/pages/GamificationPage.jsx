@@ -317,7 +317,7 @@ export default function GamificationPage() {
       <GamificationMetricBar summary={summary} loading={!summary} />
 
       {/* Main Container */}
-      <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 lg:p-6 shadow-sm">
+      <div className="rounded-2xl border border-emerald-100/90 bg-white/90 backdrop-blur-xl p-4 lg:p-6 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-6">
         <GamificationTabSwitch
           activeTab={activeTab}
           onSelectTab={handleTabSelect}
@@ -344,7 +344,7 @@ export default function GamificationPage() {
 
         {loading ? (
           <div className="h-64 flex items-center justify-center text-slate-500 text-xs">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-500 mr-2" />
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600 mr-2" />
             Loading gamification records...
           </div>
         ) : (

@@ -39,18 +39,18 @@ export function AuditReasonModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-3 text-amber-400">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-3 text-amber-600">
           <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
-            <AlertTriangle className="w-5 h-5" />
+            <AlertTriangle className="w-5 h-5 text-amber-600" />
           </div>
-          <h3 className="text-base font-bold text-white">{title}</h3>
+          <h3 className="text-base font-bold text-slate-900">{title}</h3>
         </div>
-        <p className="text-xs text-slate-300 leading-relaxed">{message}</p>
+        <p className="text-xs text-slate-600 leading-relaxed">{message}</p>
         <div>
-          <label className="block text-xs font-medium text-slate-300 mb-1.5">
-            Audit Reason & Justification <span className="text-rose-400">*</span>
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            Audit Reason & Justification <span className="text-rose-500">*</span>
           </label>
           <textarea
             value={reason}
@@ -60,18 +60,25 @@ export function AuditReasonModal({
             }}
             placeholder="Enter policy rationale or incident details..."
             rows={3}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-500/60"
+            className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
           />
-          {error && <p className="text-[11px] text-rose-400 mt-1">{error}</p>}
+          {error && <p className="text-[11px] text-rose-500 font-semibold mt-1">{error}</p>}
         </div>
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
+          >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold text-white ${
-              confirmVariant === 'rose' ? 'bg-rose-600 hover:bg-rose-500' : 'bg-amber-600 hover:bg-amber-500'
+            className={`px-4 py-2 rounded-xl text-xs font-bold text-white shadow-xs active:scale-95 transition-all ${
+              confirmVariant === 'rose'
+                ? 'bg-rose-600 hover:bg-rose-700'
+                : confirmVariant === 'emerald'
+                ? 'bg-emerald-600 hover:bg-emerald-700'
+                : 'bg-amber-600 hover:bg-amber-700'
             }`}
           >
             {confirmLabel}
@@ -111,67 +118,70 @@ export function DualSignOffModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-3 text-purple-400">
-          <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-3 text-emerald-800">
+          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700">
             <Lock className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white">{title}</h3>
-            <span className="text-[11px] font-mono text-purple-400">Institutional Dual Admin Authorization (&gt; ₹50,000 Threshold)</span>
+            <h3 className="text-base font-bold text-slate-900">{title}</h3>
+            <span className="text-[11px] font-mono text-emerald-700 font-bold">Institutional Dual Admin Authorization (&gt; ₹50,000 Threshold)</span>
           </div>
         </div>
 
-        <div className="bg-purple-950/20 border border-purple-500/30 rounded-xl p-3 text-xs space-y-1">
-          <div className="flex justify-between font-medium text-slate-200">
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 text-xs space-y-1">
+          <div className="flex justify-between font-bold text-slate-900">
             <span>High-Value Subsidy / Grant Transfer:</span>
-            <span className="font-mono text-purple-300 font-bold">{fmtINR(amount)}</span>
+            <span className="font-mono text-emerald-700 font-bold text-sm">{fmtINR(amount)}</span>
           </div>
-          {details && <p className="text-slate-300 text-[11px]">{details}</p>}
+          {details && <p className="text-slate-600 text-[11px] leading-relaxed">{details}</p>}
         </div>
 
         <div className="space-y-3 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Authorizing Co-Admin (Women Livelihoods Director) *</label>
+            <label className="block font-bold text-slate-700 mb-1">Authorizing Co-Admin (Women Livelihoods Director) *</label>
             <input
               type="email"
               value={secondAdminEmail}
               onChange={(e) => setSecondAdminEmail(e.target.value)}
               placeholder="e.g. director.women@agrovercity.in"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-purple-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Passcode / Multi-Factor Token *</label>
+            <label className="block font-bold text-slate-700 mb-1">Passcode / Multi-Factor Token *</label>
             <input
               type="password"
               value={passcode}
               onChange={(e) => setPasscode(e.target.value)}
               placeholder="••••••••••••"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-purple-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Administrative Audit Justification *</label>
+            <label className="block font-bold text-slate-700 mb-1">Administrative Audit Justification *</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Rationale for sanctioning interest subvention / capital grant..."
               rows={2}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-purple-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
-          {error && <p className="text-[11px] text-rose-400">{error}</p>}
+          {error && <p className="text-[11px] text-rose-500 font-semibold">{error}</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
+          >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-purple-600 hover:bg-purple-500 transition-all shadow-sm"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs active:scale-95"
           >
             Authorize & Execute Transfer
           </button>
@@ -203,35 +213,35 @@ export function VerifyShgModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-2 text-white font-bold">
-          <FileCheck className="w-5 h-5 text-emerald-400" />
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-2 text-slate-900 font-bold">
+          <FileCheck className="w-5 h-5 text-emerald-600" />
           <span>Approve SHG Registration & Subvention</span>
         </div>
 
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-1">
-          <div className="flex justify-between text-slate-300">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-1">
+          <div className="flex justify-between text-slate-600">
             <span>SHG Name:</span>
-            <span className="font-semibold text-white">{shg.shgName}</span>
+            <span className="font-bold text-slate-900">{shg.shgName}</span>
           </div>
-          <div className="flex justify-between text-slate-300">
+          <div className="flex justify-between text-slate-600">
             <span>Village / District:</span>
-            <span>{shg.village}, {shg.district}</span>
+            <span className="text-slate-800 font-medium">{shg.village}, {shg.district}</span>
           </div>
-          <div className="flex justify-between text-slate-300">
+          <div className="flex justify-between text-slate-600">
             <span>Bank & Masked A/C:</span>
-            <span className="font-mono text-emerald-400">{shg.bankName} ({shg.accountNumberMasked})</span>
+            <span className="font-mono text-emerald-700 font-bold">{shg.bankName} ({shg.accountNumberMasked})</span>
           </div>
         </div>
 
         <div className="space-y-3 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Interest Subvention Eligibility *</label>
+            <label className="block font-bold text-slate-700 mb-1">Interest Subvention Eligibility *</label>
             <select
               value={eligibility}
               onChange={(e) => setEligibility(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-semibold"
             >
               <option value="eligible">Eligible for 7% to 3% Interest Subvention</option>
               <option value="ineligible">Ineligible (Recovery / Attendance Deficit)</option>
@@ -239,25 +249,28 @@ export function VerifyShgModal({
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Administrative Verification Note *</label>
+            <label className="block font-bold text-slate-700 mb-1">Administrative Verification Note *</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={2}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
-          {error && <p className="text-[11px] text-rose-400">{error}</p>}
+          {error && <p className="text-[11px] text-rose-500 font-semibold">{error}</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
+          >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 transition-all shadow-sm"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs active:scale-95"
           >
             Verify & Activate
           </button>
@@ -290,17 +303,17 @@ export function CurateProductModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-2 text-white font-bold">
-          <Store className="w-5 h-5 text-purple-400" />
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-2 text-slate-900 font-bold">
+          <Store className="w-5 h-5 text-teal-600" />
           <span>Curate Storefront Agro-Product</span>
         </div>
 
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-1">
-          <div className="text-white font-semibold">{product.productTitle}</div>
-          <div className="text-slate-400">{product.artisanName} · {product.shgName}</div>
-          <div className="flex justify-between font-mono text-emerald-400 pt-1">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-1">
+          <div className="text-slate-900 font-bold">{product.productTitle}</div>
+          <div className="text-slate-600 font-medium">{product.artisanName} · {product.shgName}</div>
+          <div className="flex justify-between font-mono text-emerald-700 pt-1 font-bold">
             <span>Price: {fmtINR(product.priceInr)} ({product.netWeight})</span>
             <span>Stock: {product.stockUnits}</span>
           </div>
@@ -308,11 +321,11 @@ export function CurateProductModal({
 
         <div className="space-y-3 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Curation Decision *</label>
+            <label className="block font-bold text-slate-700 mb-1">Curation Decision *</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-semibold"
             >
               <option value="approved">Approve & Publish to Storefront</option>
               <option value="changes_requested">Request Changes (Label / FSSAI / Packaging)</option>
@@ -321,37 +334,40 @@ export function CurateProductModal({
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">QC Curation & Packaging Note</label>
+            <label className="block font-bold text-slate-700 mb-1">QC Curation & Packaging Note</label>
             <input
               type="text"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. FSSAI verified; tamper evident seal confirmed"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Administrative Audit Reason *</label>
+            <label className="block font-bold text-slate-700 mb-1">Administrative Audit Reason *</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Explain rationale for approval or requested revision..."
               rows={2}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
-          {error && <p className="text-[11px] text-rose-400">{error}</p>}
+          {error && <p className="text-[11px] text-rose-500 font-semibold">{error}</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-          <button onClick={onClose} className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
+          >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-purple-600 hover:bg-purple-500 transition-all shadow-sm"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 transition-all shadow-xs active:scale-95"
           >
             Save Curation
           </button>
@@ -410,25 +426,25 @@ export function RecordDepositModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-2 text-white font-bold">
-            <PiggyBank className="w-5 h-5 text-emerald-400" />
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
+          <div className="flex items-center gap-2 text-slate-900 font-bold">
+            <PiggyBank className="w-5 h-5 text-emerald-600" />
             <span>Record Monthly Micro-Savings Deposit</span>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Target SHG *</label>
+            <label className="block font-bold text-slate-700 mb-1">Target SHG *</label>
             <select
               value={form.shgId}
               onChange={handleShgChange}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-semibold"
             >
               {shgs.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -440,24 +456,24 @@ export function RecordDepositModal({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Member Name *</label>
+              <label className="block font-bold text-slate-700 mb-1">Member Name *</label>
               <input
                 type="text"
                 value={form.memberName}
                 onChange={(e) => setForm({ ...form, memberName: e.target.value })}
                 placeholder="e.g. Rukmini Shinde"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                 required
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Deposit Month (YYYY-MM) *</label>
+              <label className="block font-bold text-slate-700 mb-1">Deposit Month (YYYY-MM) *</label>
               <input
                 type="text"
                 value={form.depositMonth}
                 onChange={(e) => setForm({ ...form, depositMonth: e.target.value })}
                 placeholder="2026-09"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-mono"
                 required
               />
             </div>
@@ -465,41 +481,41 @@ export function RecordDepositModal({
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Savings Amount (₹) *</label>
+              <label className="block font-bold text-slate-700 mb-1">Savings Amount (₹) *</label>
               <input
                 type="number"
                 value={form.amountInr}
                 onChange={(e) => setForm({ ...form, amountInr: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-mono font-bold"
                 required
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Loan Repayment (₹)</label>
+              <label className="block font-bold text-slate-700 mb-1">Loan Repayment (₹)</label>
               <input
                 type="number"
                 value={form.internalLoanRepaymentInr}
                 onChange={(e) => setForm({ ...form, internalLoanRepaymentInr: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-mono"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Interest Paid (₹)</label>
+              <label className="block font-bold text-slate-700 mb-1">Interest Paid (₹)</label>
               <input
                 type="number"
                 value={form.internalInterestPaidInr}
                 onChange={(e) => setForm({ ...form, internalInterestPaidInr: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-mono"
               />
             </div>
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Payment Mode</label>
+            <label className="block font-bold text-slate-700 mb-1">Payment Mode</label>
             <select
               value={form.paymentMode}
               onChange={(e) => setForm({ ...form, paymentMode: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-medium"
             >
               <option value="UPI - Digital QR">UPI - Digital QR</option>
               <option value="Cash in SHG Box">Cash in SHG Box</option>
@@ -507,19 +523,19 @@ export function RecordDepositModal({
             </select>
           </div>
 
-          {error && <p className="text-[11px] text-rose-400">{error}</p>}
+          {error && <p className="text-[11px] text-rose-500 font-semibold">{error}</p>}
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 transition-all shadow-sm"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs active:scale-95"
             >
               Post to Ledger
             </button>
@@ -529,3 +545,4 @@ export function RecordDepositModal({
     </div>
   )
 }
+

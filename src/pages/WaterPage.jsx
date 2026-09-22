@@ -156,34 +156,44 @@ export default function WaterPage() {
           page,
           pageSize: PAGE_SIZE,
           q,
-          status
+          status,
+          district
         })
         setCanals(res.data || [])
         setTotal(res.total || 0)
       } else if (tab === 'subsidy') {
-        const res = await getPmksySubsidyRules({
+        const rules = await getPmksySubsidyRules()
+        setPmksyData((prev) => ({ ...prev, rules }))
+        setTotal(pmksyData.applications?.total || 4)
+      } else if (tab === 'advisories') {
+        const res = await listDroughtAdvisories({
           page,
           pageSize: PAGE_SIZE,
           q,
-          status
+          district
         })
-        setPmksyData(res)
-        setTotal(res.applications ? res.applications.total : 0)
-      } else if (tab === 'advisories') {
-        const res = await listDroughtAdvisories()
         setAdvisories(res.data || [])
         setTotal(res.total || 0)
       } else if (tab === 'audit') {
-        const res = await getWaterAuditLogs({ page, pageSize: PAGE_SIZE })
+        const res = await getWaterAuditLogs({
+          page,
+          pageSize: PAGE_SIZE,
+          q
+        })
         setAuditLogs(res.data || [])
         setTotal(res.total || 0)
       }
     } catch (err) {
-      setError(err.message || 'Failed to load water and irrigation data')
+      setError(err.message || 'Failed to fetch water module data.')
+      addToast({
+        title: 'Network Error',
+        message: err.message || 'Could not retrieve water telemetry.',
+        type: 'error'
+      })
     } finally {
       setLoading(false)
     }
-  }, [tab, page, q, status, irrigationType, district, alertFilter])
+  }, [tab, page, q, status, irrigationType, district, alertFilter, addToast, pmksyData.applications?.total])
 
   useEffect(() => {
     loadTabData()
@@ -192,21 +202,25 @@ export default function WaterPage() {
   const handleTabChange = (newTab) => {
     setTab(newTab)
     setPage(1)
+    setQ('')
     setStatus('all')
+    setIrrigationType('all')
+    setDistrict('all')
     setAlertFilter('all')
   }
 
-  // Action: Update Canal Schedule
+  // 3. Operational Handlers
   const handleUpdateCanalConfirm = async (payload) => {
     try {
-      const res = await updateCanalSchedule(payload)
+      const res = await updateCanalSchedule(payload.id, payload)
       addToast({
         title: 'Canal Timetable Updated',
-        message: `${res.updatedSchedule?.canalName || 'Canal'} schedule updated with discharge ${payload.dischargeCusecs} cusecs.`,
+        message: `Updated release timetable for ${res.canalName} (${res.dischargeCusecs} cusecs).`,
         type: 'success'
       })
-      await loadTabData()
-      await loadSummary()
+      setUpdateCanalModal({ open: false, canal: null })
+      loadTabData()
+      loadSummary()
     } catch (err) {
       addToast({
         title: 'Update Failed',
@@ -217,41 +231,40 @@ export default function WaterPage() {
     }
   }
 
-  // Action: Sync CGWB Readings
-  const handleSyncCgwbConfirm = async (payload) => {
+  const handleSyncCgwbConfirm = async (stationCodes) => {
     try {
-      const res = await syncCgwbReadings(payload)
+      const res = await syncCgwbReadings(stationCodes)
       addToast({
-        title: 'CGWB Stations Synced',
-        message: `Updated ${res.stationsUpdated} groundwater observation stations.`,
+        title: 'CGWB Hydrological Sync Complete',
+        message: `Ingested latest depth telemetry for ${res.syncedCount} observatory stations.`,
         type: 'success'
       })
-      await loadTabData()
-      await loadSummary()
+      setSyncCgwbOpen(false)
+      loadTabData()
+      loadSummary()
     } catch (err) {
       addToast({
         title: 'Sync Failed',
-        message: err.message || 'Could not sync CGWB stations.',
+        message: err.message || 'Could not sync CGWB data.',
         type: 'error'
       })
       throw err
     }
   }
 
-  // Action: Configure PMKSY Rules
-  const handleConfigurePmksyConfirm = async (payload) => {
+  const handleConfigurePmksyConfirm = async (newRules) => {
     try {
-      await updatePmksySubsidyRules(payload)
+      const res = await updatePmksySubsidyRules(newRules)
+      setPmksyData((prev) => ({ ...prev, rules: res }))
       addToast({
-        title: 'Subsidy Parameters Updated',
-        message: `Small/Marginal subsidy set to ${payload.smallMarginalSubsidyPct}% with Drip cap ₹${payload.dripCeilingPerHaInr.toLocaleString('en-IN')}/ha.`,
+        title: 'PMKSY Rules Updated',
+        message: `Updated subsidy percentages: Small/Marginal ${res.smallMarginalSubsidyPct}%, Other ${res.otherFarmerSubsidyPct}%.`,
         type: 'success'
       })
-      await loadTabData()
-      await loadSummary()
+      setConfigureSubsidyOpen(false)
     } catch (err) {
       addToast({
-        title: 'Update Failed',
+        title: 'Rule Update Failed',
         message: err.message || 'Could not update PMKSY rules.',
         type: 'error'
       })
@@ -259,41 +272,38 @@ export default function WaterPage() {
     }
   }
 
-  // Action: Issue Drought Alert
-  const handleIssueDroughtConfirm = async (payload) => {
+  const handleIssueDroughtConfirm = async (alertPayload) => {
     try {
-      const res = await issueDroughtAlert(payload)
+      const res = await issueDroughtAlert(alertPayload)
       addToast({
-        title: 'Emergency Advisory Broadcast',
-        message: `Dispatched drought alert to ${res.alert?.smsBroadcastCount?.toLocaleString('en-IN')} farmers in ${payload.district}.`,
-        type: 'success'
+        title: 'Drought Alert Broadcasted',
+        message: `Alert broadcast to ${res.smsBroadcastCount?.toLocaleString('en-IN')} farmers in ${res.district}.`,
+        type: 'warning'
       })
-      await loadTabData()
-      await loadSummary()
+      setIssueDroughtOpen(false)
+      loadTabData()
+      loadSummary()
     } catch (err) {
       addToast({
         title: 'Broadcast Failed',
-        message: err.message || 'Could not issue drought alert.',
+        message: err.message || 'Could not broadcast drought alert.',
         type: 'error'
       })
       throw err
     }
   }
 
-  // Action: Approve PMKSY Subsidy
   const handleApproveSubsidyConfirm = async (payload) => {
     try {
-      const res = await approvePmksySubsidy(payload)
+      const res = await approvePmksySubsidy(payload.id, payload)
       addToast({
         title: 'PMKSY Subsidy Approved',
-        message: `Application ${res.application?.applicationNumber} approved for ₹${res.application?.calculatedSubsidyInr?.toLocaleString('en-IN')}.`,
+        message: `Approved 55% subsidy of ₹${res.calculatedSubsidyInr.toLocaleString('en-IN')} for ${res.farmerName}.`,
         type: 'success'
       })
-      if (drawerSelection.item && drawerSelection.item.id === payload.applicationId) {
-        setDrawerSelection({ item: res.application, type: 'subsidy' })
-      }
-      await loadTabData()
-      await loadSummary()
+      setApproveSubsidyModal({ open: false, application: null })
+      loadTabData()
+      loadSummary()
     } catch (err) {
       addToast({
         title: 'Approval Failed',
@@ -351,17 +361,17 @@ export default function WaterPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
+              <span className="p-2 rounded-xl bg-teal-50 border border-teal-100 text-teal-600">
                 <Droplets className="w-5 h-5" />
               </span>
               <div>
-                <h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
                   <span>Water Intelligence &amp; Irrigation Management</span>
-                  <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-500/40">
+                  <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200 font-bold">
                     SOP-17
                   </span>
                 </h1>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5 font-medium">
                   Optimal irrigation schedules, CGWB groundwater monitoring, canal rotation timetables, and PMKSY 55% micro-irrigation subsidy.
                 </p>
               </div>
@@ -372,7 +382,7 @@ export default function WaterPage() {
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => setIssueDroughtOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-sm transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition active:scale-95"
             >
               <BellRing className="w-4 h-4" />
               <span>Broadcast Drought Alert</span>
@@ -380,17 +390,17 @@ export default function WaterPage() {
 
             <button
               onClick={() => setSyncCgwbOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-semibold transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
             >
-              <RefreshCw className="w-4 h-4 text-cyan-400" />
+              <RefreshCw className="w-4 h-4 text-teal-600" />
               <span>Sync CGWB Readings</span>
             </button>
 
             <button
               onClick={() => setConfigureSubsidyOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-semibold transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
             >
-              <SlidersHorizontal className="w-4 h-4 text-emerald-400" />
+              <SlidersHorizontal className="w-4 h-4 text-emerald-600" />
               <span>PMKSY Rules</span>
             </button>
           </div>
@@ -473,7 +483,7 @@ export default function WaterPage() {
       </div>
 
       {/* Main Container Card */}
-      <div className="mx-6 rounded-xl border border-slate-800 bg-slate-950 overflow-hidden shadow-xl">
+      <div className="mx-6 rounded-2xl border border-emerald-100/90 bg-white/90 backdrop-blur-xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:border-emerald-300 transition-all">
         {/* Navigation Tabs */}
         <TabSwitch activeTab={tab} onChangeTab={handleTabChange} counts={counts} />
 
@@ -503,19 +513,19 @@ export default function WaterPage() {
 
         {/* Loading / Error States */}
         {loading && (
-          <div className="p-12 text-center text-slate-500">
-            <RefreshCw className="w-8 h-8 mx-auto mb-2 animate-spin text-cyan-400" />
-            <p className="text-sm">Loading water &amp; irrigation management data...</p>
+          <div className="p-16 text-center text-slate-500">
+            <div className="w-8 h-8 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-xs font-medium">Loading water &amp; irrigation management data...</p>
           </div>
         )}
 
         {error && !loading && (
-          <div className="p-8 text-center text-rose-400">
-            <AlertTriangle className="w-8 h-8 mx-auto mb-2" />
-            <p className="text-sm font-semibold">{error}</p>
+          <div className="p-12 text-center text-rose-600">
+            <AlertTriangle className="w-10 h-10 mx-auto mb-2 text-rose-500" />
+            <p className="font-bold text-sm">{error}</p>
             <button
               onClick={loadTabData}
-              className="mt-3 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 text-xs"
+              className="mt-3 px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-xs hover:bg-emerald-700 transition"
             >
               Try Again
             </button>

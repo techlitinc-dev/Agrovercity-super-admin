@@ -337,22 +337,22 @@ export function TransportModule() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl lg:text-2xl font-black text-white tracking-tight flex items-center gap-2">
-              <Truck className="w-6 h-6 text-emerald-400" />
+            <h1 className="text-xl lg:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <Truck className="w-6 h-6 text-emerald-600" />
               <span>Transport Logistics & Fleet Operations</span>
             </h1>
-            <span className="text-xs font-mono bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full font-bold">
+            <span className="text-xs font-mono bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-0.5 rounded-full font-bold shadow-2xs">
               SOP-08
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-600 mt-1 font-medium">
             On-demand rural logistics oversight: fleet paper verification, live dispatch monitoring, dispute arbitration, fare band management & proof-of-delivery payout audits.
           </p>
         </div>
 
         {/* Status Indicator */}
-        <div className="text-[11px] font-mono text-slate-500 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-2 self-start sm:self-auto">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        <div className="text-[11px] font-mono text-emerald-800 bg-white/90 border border-emerald-200 px-3.5 py-1.5 rounded-xl flex items-center gap-2 self-start sm:self-auto shadow-2xs font-bold">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span>Dispatch Engine Active</span>
         </div>
       </div>

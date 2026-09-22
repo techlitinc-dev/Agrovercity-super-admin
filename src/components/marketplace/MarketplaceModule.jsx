@@ -338,22 +338,22 @@ export function MarketplaceModule() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl lg:text-2xl font-black text-white tracking-tight flex items-center gap-2">
-              <ShoppingCart className="w-6 h-6 text-emerald-400" />
+            <h1 className="text-xl lg:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <ShoppingCart className="w-6 h-6 text-emerald-600" />
               <span>Input Marketplace, Cart, Orders & Payments</span>
             </h1>
-            <span className="text-xs font-mono bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full font-bold">
+            <span className="text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-0.5 rounded-full shadow-xs">
               SOP-06
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1 font-medium">
             Centralized oversight of the agri-input catalog, Agmark/Ministry QR certification, order lifecycle fulfillment, Razorpay refunds & customer review moderation.
           </p>
         </div>
 
         {/* Status Indicator */}
-        <div className="text-[11px] font-mono text-slate-500 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-2 self-start sm:self-auto">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        <div className="text-[11px] font-semibold text-emerald-900 bg-emerald-50/80 border border-emerald-200 px-3 py-1.5 rounded-xl flex items-center gap-2 self-start sm:self-auto shadow-xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span>Razorpay Settlement Engine Active</span>
         </div>
       </div>
@@ -445,7 +445,7 @@ export function MarketplaceModule() {
         {inspectOrder && (
           <>
             <DrawerSection title="Order Summary">
-              <Card className="divide-y divide-slate-800/60 px-4 py-1">
+              <Card className="divide-y divide-emerald-100/60 px-4 py-1">
                 <KeyValue k="Order ID" v={inspectOrder.id} mono />
                 <KeyValue k="Buyer" v={`${inspectOrder.farmerName} (${inspectOrder.userId})`} />
                 <KeyValue k="Status" v={inspectOrder.orderStatus} />
@@ -454,7 +454,7 @@ export function MarketplaceModule() {
               </Card>
             </DrawerSection>
             <DrawerSection title="Payment">
-              <Card className="divide-y divide-slate-800/60 px-4 py-1">
+              <Card className="divide-y divide-emerald-100/60 px-4 py-1">
                 <KeyValue k="Method" v={inspectOrder.paymentMethod.toUpperCase()} />
                 <KeyValue k="Payment Status" v={inspectOrder.paymentStatus} />
                 <KeyValue k="Razorpay Order / Payment" v={inspectOrder.razorpayOrderId ? `${inspectOrder.razorpayOrderId} · ${inspectOrder.razorpayPaymentId}` : '—'} mono />
@@ -463,11 +463,11 @@ export function MarketplaceModule() {
               </Card>
             </DrawerSection>
             <DrawerSection title="Items & Delivery">
-              <Card className="divide-y divide-slate-800/60 px-4 py-1">
+              <Card className="divide-y divide-emerald-100/60 px-4 py-1">
                 {(inspectOrder.items || []).map((it, i) => (
                   <div key={i} className="flex items-center justify-between py-2 text-sm">
-                    <span className="text-slate-300">{it.quantity}× {it.productName}</span>
-                    <span className="font-mono text-xs text-slate-400">{fmtRupees(it.totalPrice)}</span>
+                    <span className="text-slate-800 font-medium">{it.quantity}× {it.productName}</span>
+                    <span className="font-mono text-xs text-slate-600 font-bold">{fmtRupees(it.totalPrice)}</span>
                   </div>
                 ))}
                 <KeyValue k="Delivery Address" v={orderAddress(inspectOrder)} />
@@ -476,7 +476,7 @@ export function MarketplaceModule() {
             </DrawerSection>
             {inspectOrder.cancellationReason && (
               <DrawerSection title="Cancellation">
-                <Card className="px-4 py-3 text-xs text-rose-300">{inspectOrder.cancellationReason}</Card>
+                <Card className="px-4 py-3 text-xs text-rose-700 bg-rose-50 border-rose-200">{inspectOrder.cancellationReason}</Card>
               </DrawerSection>
             )}
             <DrawerSection title="Document JSON">

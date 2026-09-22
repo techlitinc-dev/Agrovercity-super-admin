@@ -90,25 +90,35 @@ export function Sidebar({ collapsed, setCollapsed, activeModuleId = 'overview', 
       }`}
     >
       {/* Sidebar Header */}
-      <div className="p-3.5 border-b border-emerald-200/60 flex items-center justify-between bg-emerald-50/40">
-        {!collapsed && (
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs shadow-emerald-600/30">
-              <Sprout className="w-3.5 h-3.5" />
-            </div>
+      <div className="p-3 border-b border-emerald-200/60 flex items-center justify-between bg-emerald-50/40">
+        {!collapsed ? (
+          <div className="flex items-center gap-2.5">
+            <img
+              src="/logo.png"
+              alt="Agrovercity"
+              className="w-8 h-8 rounded-lg object-contain bg-white border border-emerald-200 p-0.5 shadow-2xs"
+            />
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-950 block">
-                Agro Modules
+              <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-950 block">
+                Agrovercity
               </span>
-              <span className="text-[10px] font-mono text-emerald-700 font-medium">
-                6 Domains · 26 Standard SOPs
+              <span className="text-[10px] font-mono text-emerald-700 font-semibold">
+                6 Domains · 26 SOPs
               </span>
             </div>
+          </div>
+        ) : (
+          <div className="flex justify-center w-full">
+            <img
+              src="/logo.png"
+              alt="Agrovercity"
+              className="w-7 h-7 rounded-md object-contain bg-white border border-emerald-200 p-0.5 shadow-2xs"
+            />
           </div>
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-1.5 rounded-xl text-emerald-800 hover:text-emerald-950 hover:bg-emerald-100/70 transition-colors ml-auto shadow-2xs border border-emerald-200/50"
+          className={`p-1.5 rounded-xl text-emerald-800 hover:text-emerald-950 hover:bg-emerald-100/70 transition-colors shadow-2xs border border-emerald-200/50 ${collapsed ? 'mt-2' : 'ml-auto'}`}
           title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
         >
           {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -318,7 +328,7 @@ export function Sidebar({ collapsed, setCollapsed, activeModuleId = 'overview', 
                                   className={`text-[9px] font-mono px-1.5 py-0.5 rounded border ml-1 shrink-0 ${
                                     isActive
                                       ? 'bg-emerald-200/80 text-emerald-900 border-emerald-400 font-bold'
-                                      : 'bg-slate-100 text-slate-500 border-slate-200'
+                                      : 'bg-slate-900 text-emerald-300 border-slate-800 font-semibold'
                                   }`}
                                 >
                                   {item.sop}

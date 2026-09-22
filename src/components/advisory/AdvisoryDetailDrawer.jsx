@@ -36,19 +36,19 @@ function ScanView({ scan, onMarkFalsePositive }) {
   return (
     <>
       <DrawerSection title="Diagnosis (CNN Leaf Scan)">
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2">
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 px-3.5 py-2.5 shadow-2xs">
           <KeyValue k="Farmer" v={scan.farmerName} />
           <KeyValue k="Crop / District" v={`${scan.crop} · ${scan.district}`} />
           <KeyValue k="Diagnosed Disease" v={scan.diagnosis} />
           <KeyValue k="Severity" v={scan.severity} />
-          <div className="mt-2">
-            <div className="flex items-center justify-between text-xs text-slate-500">
-              <span>Model Confidence</span>
-              <span className="font-mono text-slate-300">{(scan.confidence * 100).toFixed(1)}%</span>
+          <div className="mt-2.5 pt-2 border-t border-emerald-100/60">
+            <div className="flex items-center justify-between text-xs text-slate-600">
+              <span className="font-medium">Model Confidence</span>
+              <span className="font-mono font-bold text-emerald-800">{(scan.confidence * 100).toFixed(1)}%</span>
             </div>
-            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-800">
+            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-emerald-100 border border-emerald-200">
               <div
-                className={`h-full rounded-full transition-all ${scan.confidence >= 0.85 ? 'bg-emerald-500' : scan.confidence >= 0.7 ? 'bg-amber-500' : 'bg-rose-500'}`}
+                className={`h-full rounded-full transition-all ${scan.confidence >= 0.85 ? 'bg-emerald-600' : scan.confidence >= 0.7 ? 'bg-amber-500' : 'bg-rose-500'}`}
                 style={{ width: `${Math.min(100, scan.confidence * 100)}%` }}
               />
             </div>
@@ -61,13 +61,13 @@ function ScanView({ scan, onMarkFalsePositive }) {
         {scan.farmerFeedback === 'pending' ? (
           <EmptyState title="Awaiting farmer feedback" hint="The farmer has not yet confirmed or disputed this diagnosis." />
         ) : scan.farmerFeedback === 'confirmed' ? (
-          <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300">
-            <BrainCircuit className="h-4 w-4" /> Diagnosis confirmed by farmer
+          <div className="flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-3.5 py-2.5 text-xs text-emerald-900 font-semibold shadow-2xs">
+            <BrainCircuit className="h-4 w-4 text-emerald-600" /> Diagnosis confirmed by farmer in field
           </div>
         ) : (
-          <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2">
-            <p className="text-sm font-semibold text-rose-300">Reported as false positive</p>
-            <p className="mt-1 text-xs text-rose-200/80">{scan.falsePositiveReason}</p>
+          <div className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 shadow-2xs">
+            <p className="text-xs font-bold text-rose-900">Reported as false positive</p>
+            <p className="mt-1 text-xs text-rose-800">{scan.falsePositiveReason}</p>
           </div>
         )}
       </DrawerSection>
@@ -89,7 +89,7 @@ function AlertView({ alert, onBroadcast }) {
   return (
     <>
       <DrawerSection title="Outbreak Alert">
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2">
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 px-3.5 py-2.5 shadow-2xs">
           <KeyValue k="Pest / Disease" v={alert.pestName} />
           <KeyValue k="District" v={alert.district} />
           <KeyValue k="Severity" v={alert.severity} />
@@ -101,17 +101,17 @@ function AlertView({ alert, onBroadcast }) {
       </DrawerSection>
 
       <DrawerSection title="Message Sent to Farmers">
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2 text-sm text-slate-300">
+        <div className="rounded-xl border border-emerald-100 bg-white px-3.5 py-2.5 text-xs text-slate-800 leading-relaxed shadow-2xs">
           {alert.message || '—'}
         </div>
       </DrawerSection>
 
       <DrawerSection title="Delivery Reach">
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2">
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/40 px-3.5 py-2.5 shadow-2xs">
           <div className="flex items-center gap-2">
-            <RadioTower className="h-4 w-4 text-emerald-400" />
-            <span className="font-mono text-lg font-bold text-emerald-400">{alert.recipientsNotified.toLocaleString('en-IN')}</span>
-            <span className="text-xs text-slate-500">farmers notified within geofence</span>
+            <RadioTower className="h-4 w-4 text-emerald-600" />
+            <span className="font-mono text-lg font-bold text-emerald-900">{alert.recipientsNotified.toLocaleString('en-IN')}</span>
+            <span className="text-xs text-slate-600">farmers notified within geofence</span>
           </div>
         </div>
       </DrawerSection>
@@ -135,7 +135,7 @@ function SoilView({ test, npkConfig, onUploadResults }) {
   return (
     <>
       <DrawerSection title="Soil Sample">
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2">
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 px-3.5 py-2.5 shadow-2xs">
           <KeyValue k="Farmer" v={test.farmerName} />
           <KeyValue k="Sample Code" v={test.sampleCode} mono />
           <KeyValue k="Plot Survey No" v={test.surveyNo} mono />
@@ -148,7 +148,7 @@ function SoilView({ test, npkConfig, onUploadResults }) {
       {test.status === 'result_uploaded' ? (
         <>
           <DrawerSection title="Lab Results (NPK & Micronutrients)">
-            <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2">
+            <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 px-3.5 py-2.5 shadow-2xs">
               <KeyValue k="Nitrogen (N)" v={`${test.nitrogen} kg/ha`} mono />
               <KeyValue k="Phosphorus (P)" v={`${test.phosphorus} kg/ha`} mono />
               <KeyValue k="Potassium (K)" v={`${test.potassium} kg/ha`} mono />
@@ -159,10 +159,13 @@ function SoilView({ test, npkConfig, onUploadResults }) {
           </DrawerSection>
 
           <DrawerSection title="NPK Recommendation (ICAR Algorithm)">
-            <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300">
-              <TestTube2 className="mb-1 h-4 w-4" />
-              {test.recommendation || '—'}
-              <p className="mt-2 font-mono text-[10px] text-emerald-400/70">
+            <div className="rounded-xl border border-emerald-300 bg-emerald-50 px-3.5 py-2.5 text-xs text-emerald-950 shadow-2xs">
+              <div className="flex items-center gap-1.5 font-bold text-emerald-900 mb-1">
+                <TestTube2 className="h-4 w-4 text-emerald-600" />
+                ICAR Soil Recommendation
+              </div>
+              <p className="leading-relaxed">{test.recommendation || '—'}</p>
+              <p className="mt-2 font-mono text-[10px] text-emerald-700 font-medium">
                 generated by {npkConfig?.algorithmVersion || 'icar-npk'} · farmer notified via SMS + app push
               </p>
             </div>

@@ -119,18 +119,15 @@ export default function LandRecordsPage() {
       setSummary(sumRes)
       setGatewayStatus(gwRes)
     } catch (err) {
-      console.warn('Failed to load summary / gateway telemetry:', err)
+      console.error('Failed to load land records summary:', err)
     }
   }, [])
 
-  useEffect(() => {
-    loadSummaryAndGateways()
-  }, [loadSummaryAndGateways])
-
-  // 2. Load primary tab data
+  // 2. Load tab specific dataset
   const loadTabData = useCallback(async () => {
     setLoading(true)
     setError('')
+
     try {
       if (tab === 'records') {
         const res = await listLandRecords({
@@ -140,7 +137,7 @@ export default function LandRecordsPage() {
           status,
           recordType,
           district,
-          encumbranceOnly
+          hasEncumbranceOnly: encumbranceOnly
         })
         setRecords(res.data || [])
         setTotal(res.total || 0)
@@ -156,48 +153,63 @@ export default function LandRecordsPage() {
       } else if (tab === 'gateways') {
         const res = await getGatewayStatus()
         setGatewayStatus(res)
-        setTotal(res.portals ? res.portals.length : 0)
       } else if (tab === 'audit') {
-        const res = await getAuditLogs({ page, pageSize: PAGE_SIZE })
+        const res = await getAuditLogs({
+          page,
+          pageSize: PAGE_SIZE,
+          q
+        })
         setAuditLogs(res.data || [])
         setTotal(res.total || 0)
       }
     } catch (err) {
-      setError(err.message || 'Failed to load land records registry data')
+      setError(err.message || 'Failed to fetch land records data')
+      addToast({
+        title: 'Network Error',
+        message: err.message || 'Unable to retrieve data from state gateway cache',
+        type: 'error'
+      })
     } finally {
       setLoading(false)
     }
-  }, [tab, page, q, status, recordType, district, encumbranceOnly])
+  }, [tab, page, q, status, recordType, district, encumbranceOnly, addToast])
+
+  useEffect(() => {
+    loadSummaryAndGateways()
+  }, [loadSummaryAndGateways])
 
   useEffect(() => {
     loadTabData()
   }, [loadTabData])
 
-  // Reset page to 1 when changing tabs or primary filters
+  // Reset page when switching tabs or changing filters
   const handleTabChange = (newTab) => {
     setTab(newTab)
     setPage(1)
+    setQ('')
+    setStatus('all')
+    setRecordType('all')
+    setDistrict('all')
+    setEncumbranceOnly(false)
   }
 
-  // 3. Actions: Refresh record from portal
-  const handleRefreshRecord = async (record) => {
-    setBusy(true)
+  // 3. Action Handlers
+  const handleManualProvisionConfirm = async (formData) => {
     try {
-      const res = await refreshRecordFromPortal(record.id)
+      setBusy(true)
+      const res = await manualProvisionRecord(formData)
       addToast({
-        title: 'Portal Synced',
-        message: `Gat #${record.gatNumber} successfully re-queried from ${record.sourcePortal}.`,
+        title: 'Record Provisioned',
+        message: `Successfully provisioned 7/12 record for Gat #${res.gatNumber} in ${res.village}.`,
         type: 'success'
       })
-      if (selectedRecord && selectedRecord.id === record.id && res.record) {
-        setSelectedRecord(res.record)
-      }
-      await loadTabData()
-      await loadSummaryAndGateways()
+      setManualProvisionOpen(false)
+      loadSummaryAndGateways()
+      loadTabData()
     } catch (err) {
       addToast({
-        title: 'Portal Query Failed',
-        message: err.message || 'Failed to re-query state land registry portal.',
+        title: 'Provisioning Failed',
+        message: err.message || 'Failed to ingest manual record',
         type: 'error'
       })
     } finally {
@@ -205,96 +217,103 @@ export default function LandRecordsPage() {
     }
   }
 
-  // 4. Actions: Manual Provision Record
-  const handleManualProvisionConfirm = async (payload) => {
+  const handleResolveDiscrepancyConfirm = async (resolutionData) => {
     try {
-      const created = await manualProvisionRecord(payload)
+      setBusy(true)
+      const res = await resolveDiscrepancy(discrepancyModal.record.id, resolutionData)
       addToast({
-        title: '7/12 Provisioned',
-        message: `Gat #${created.gatNumber || payload.gatNumber} manually registered with audit entry.`,
+        title: 'Discrepancy Resolved',
+        message: `Record Gat #${res.gatNumber} updated: ${resolutionData.actionTaken}.`,
         type: 'success'
       })
-      await loadTabData()
-      await loadSummaryAndGateways()
-    } catch (err) {
-      addToast({
-        title: 'Provisioning Failed',
-        message: err.message || 'Could not manually provision land record.',
-        type: 'error'
-      })
-      throw err
-    }
-  }
-
-  // 5. Actions: Resolve Discrepancy
-  const handleResolveDiscrepancyConfirm = async (payload) => {
-    if (!discrepancyModal.record) return
-    try {
-      const updated = await resolveDiscrepancy(discrepancyModal.record.id, payload)
-      addToast({
-        title: 'Discrepancy Reconciled',
-        message: `Gat #${updated.gatNumber} discrepancy marked resolved and verified.`,
-        type: 'success'
-      })
-      if (selectedRecord && selectedRecord.id === updated.id) {
-        setSelectedRecord(updated)
-      }
       setDiscrepancyModal({ open: false, record: null })
-      await loadTabData()
-      await loadSummaryAndGateways()
+      if (selectedRecord && selectedRecord.id === res.id) {
+        setSelectedRecord(res)
+      }
+      loadSummaryAndGateways()
+      loadTabData()
     } catch (err) {
       addToast({
         title: 'Resolution Failed',
-        message: err.message || 'Could not resolve land record discrepancy.',
+        message: err.message,
         type: 'error'
       })
-      throw err
+    } finally {
+      setBusy(false)
     }
   }
 
-  // 6. Actions: Seed Village Redis Cache
-  const handleSeedCacheConfirm = async (payload) => {
+  const handleRefreshRecord = async (record) => {
     try {
-      const res = await seedVillageRecords(payload)
       addToast({
-        title: 'Redis Cache Pre-Seeded',
-        message: `${res.recordsSeeded || payload.count} records for village ${payload.village} ingested to cache.`,
+        title: 'Querying State Gateway',
+        message: `Connecting to ${record.sourcePortal} for Gat #${record.gatNumber}...`,
+        type: 'info'
+      })
+      const refreshed = await refreshRecordFromPortal(record.id)
+      addToast({
+        title: 'Record Synchronized',
+        message: `Updated extract for Gat #${refreshed.gatNumber} with latest portal telemetry.`,
         type: 'success'
       })
-      await loadSummaryAndGateways()
+      if (selectedRecord && selectedRecord.id === refreshed.id) {
+        setSelectedRecord(refreshed)
+      }
+      loadTabData()
     } catch (err) {
       addToast({
-        title: 'Seed Failed',
-        message: err.message || 'Failed to pre-seed village records.',
+        title: 'Sync Failed',
+        message: err.message,
         type: 'error'
       })
-      throw err
     }
   }
 
-  // 7. Actions: Export Government Compliance Dossier
-  const handleExportComplianceConfirm = async (payload) => {
+  const handleSeedCacheConfirm = async (seedParams) => {
     try {
-      const res = await exportGovernmentCompliance(payload)
+      setBusy(true)
+      const res = await seedVillageRecords(seedParams)
       addToast({
-        title: 'Compliance Dossier Generated',
-        message: `Export ${res.exportId || 'EXP_GOVT'} generated for ${payload.authority}.`,
+        title: 'Cache Pre-warming Initiated',
+        message: `Successfully seeded ${res.seededRecordsCount} records for ${seedParams.village} into Redis cluster.`,
         type: 'success'
       })
-      // Trigger download of current records as official CSV
-      const csvData = toCsv(records)
-      downloadBlob(csvData, `Land_Records_Audit_Dossier_${Date.now()}.csv`)
+      setSeedCacheOpen(false)
+      loadSummaryAndGateways()
+      loadTabData()
+    } catch (err) {
+      addToast({
+        title: 'Cache Seeding Failed',
+        message: err.message,
+        type: 'error'
+      })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handleExportComplianceConfirm = async (exportParams) => {
+    try {
+      setBusy(true)
+      const res = await exportGovernmentCompliance(exportParams)
+      downloadBlob(res.csvContent, res.filename)
+      addToast({
+        title: 'Government Audit Dossier Ready',
+        message: `Generated compliance export with SHA-256: ${res.auditSha256.slice(0, 12)}...`,
+        type: 'success'
+      })
+      setExportComplianceOpen(false)
     } catch (err) {
       addToast({
         title: 'Export Failed',
-        message: err.message || 'Could not generate compliance dossier.',
+        message: err.message,
         type: 'error'
       })
-      throw err
+    } finally {
+      setBusy(false)
     }
   }
 
-  // 8. General CSV export from current view
   const handleExportCurrentView = () => {
     if (tab === 'records') {
       const csv = toCsv(records)
@@ -342,17 +361,17 @@ export default function LandRecordsPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+              <span className="p-2 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600">
                 <Layers className="w-5 h-5" />
               </span>
               <div>
-                <h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
                   <span>Land Records Registry (7/12 &amp; 8A Utara)</span>
-                  <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+                  <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold">
                     SOP-16
                   </span>
                 </h1>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5 font-medium">
                   Direct state revenue portal integration (Mahabhulekh, MP Bhulekh, AnyRoR, Bhoomi) for 7/12, 8A Khate, Gat fuzzy matching, and Redis L2 caching.
                 </p>
               </div>
@@ -363,7 +382,7 @@ export default function LandRecordsPage() {
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => setManualProvisionOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition active:scale-95"
             >
               <Plus className="w-4 h-4" />
               <span>Manual Provision</span>
@@ -371,17 +390,17 @@ export default function LandRecordsPage() {
 
             <button
               onClick={() => setSeedCacheOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-semibold transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
             >
-              <Database className="w-4 h-4 text-blue-400" />
+              <Database className="w-4 h-4 text-sky-600" />
               <span>Seed Cache</span>
             </button>
 
             <button
               onClick={() => setExportComplianceOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-semibold transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
             >
-              <Download className="w-4 h-4 text-emerald-400" />
+              <Download className="w-4 h-4 text-emerald-600" />
               <span>Govt Dossier</span>
             </button>
           </div>
@@ -463,7 +482,7 @@ export default function LandRecordsPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="mx-6 rounded-xl border border-slate-800 bg-slate-950 overflow-hidden shadow-xl">
+      <div className="mx-6 rounded-2xl border border-emerald-100/90 bg-white/90 backdrop-blur-xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:border-emerald-300 transition-all">
         {/* Module Sub-Navigation */}
         <TabSwitch activeTab={tab} onChangeTab={handleTabChange} counts={counts} />
 
@@ -488,19 +507,19 @@ export default function LandRecordsPage() {
 
         {/* Loading / Error States */}
         {loading && (
-          <div className="p-12 text-center text-slate-500">
-            <RefreshCw className="w-8 h-8 mx-auto mb-2 animate-spin text-emerald-400" />
-            <p className="text-sm">Loading land records registry data...</p>
+          <div className="p-16 text-center text-slate-500">
+            <div className="w-8 h-8 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-xs font-medium">Loading land records registry data...</p>
           </div>
         )}
 
         {error && !loading && (
-          <div className="p-8 text-center text-rose-400">
-            <AlertTriangle className="w-8 h-8 mx-auto mb-2" />
-            <p className="text-sm font-semibold">{error}</p>
+          <div className="p-12 text-center text-rose-600">
+            <AlertTriangle className="w-10 h-10 mx-auto mb-2 text-rose-500" />
+            <p className="font-bold text-sm">{error}</p>
             <button
               onClick={loadTabData}
-              className="mt-3 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 text-xs"
+              className="mt-3 px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-xs hover:bg-emerald-700 transition"
             >
               Try Again
             </button>

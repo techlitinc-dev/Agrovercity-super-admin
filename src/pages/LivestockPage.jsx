@@ -371,9 +371,33 @@ export default function LivestockPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Top Banner / Breadcrumb Details */}
+      <div className="px-6 pt-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <span className="p-2.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 shadow-xs">
+                <Stethoscope className="w-5 h-5" />
+              </span>
+              <div>
+                <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                  <span>Livestock &amp; Dairy Management</span>
+                  <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 font-semibold">
+                    SOP-19
+                  </span>
+                </h1>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Veterinary network, bovine welfare audits, plant nursery accreditation, A2 lab testing, and bulk manure settlements.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Top Metric Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <MetricCard
           title="Verified Vet Network"
           value={summary?.verifiedActiveVets || '162'}
@@ -407,7 +431,7 @@ export default function LivestockPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="bg-slate-900/70 border border-slate-800 rounded-xl overflow-hidden backdrop-blur-sm">
+      <div className="mx-6 rounded-2xl border border-emerald-100/90 bg-white/90 backdrop-blur-xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
         {/* Tab Navigation */}
         <TabSwitch
           activeTab={activeTab}
@@ -426,20 +450,18 @@ export default function LivestockPage() {
         />
 
         {/* Filter Controls Bar */}
-        <div className="p-3 border-b border-slate-800">
-          <FiltersBar
-            activeTab={activeTab}
-            search={search}
-            onSearchChange={setSearch}
-            statusFilter={statusFilter}
-            onStatusChange={setStatusFilter}
-            extraFilter={extraFilter}
-            onExtraFilterChange={setExtraFilter}
-            onRefresh={loadData}
-            onExport={handleExportCsv}
-            loading={loading}
-          />
-        </div>
+        <FiltersBar
+          activeTab={activeTab}
+          search={search}
+          onSearchChange={setSearch}
+          statusFilter={statusFilter}
+          onStatusChange={setStatusFilter}
+          extraFilter={extraFilter}
+          onExtraFilterChange={setExtraFilter}
+          onRefresh={loadData}
+          onExport={handleExportCsv}
+          loading={loading}
+        />
 
         {/* Primary Data Grid */}
         <div className="p-0">

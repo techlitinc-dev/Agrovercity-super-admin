@@ -76,158 +76,151 @@ export function ManualProvisionRecordModal({ open, onClose, onConfirm }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="relative w-full max-w-xl rounded-xl border border-slate-800 bg-slate-950 p-6 shadow-2xl my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 overflow-y-auto">
+      <div className="relative w-full max-w-xl rounded-2xl border border-emerald-100/90 bg-white p-6 shadow-2xl my-8">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-slate-400 hover:text-white"
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 transition"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-2.5 text-emerald-400 mb-4">
-          <Layers className="w-5 h-5" />
-          <h3 className="text-base font-bold text-slate-100">
+        <div className="flex items-center gap-2.5 text-emerald-700 mb-4">
+          <Layers className="w-5 h-5 text-emerald-600" />
+          <h3 className="text-base font-extrabold text-slate-900">
             Manual Land Record Provisioning (SOP-16 §3)
           </h3>
         </div>
 
-        <p className="text-xs text-slate-400 mb-4">
+        <p className="text-xs text-slate-500 mb-4 font-medium">
           Direct emergency injection of verified 7/12 land records during state revenue portal downtime. All overrides require an administrative audit justification.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Gat Number (गट क्र.)</label>
+              <label className="block text-slate-700 font-bold mb-1">Gat Number (गट क्र.)</label>
               <input
                 type="text"
                 value={gatNumber}
                 onChange={(e) => setGatNumber(e.target.value)}
                 required
                 placeholder="e.g. 128/1A"
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono font-bold focus:outline-none focus:border-emerald-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Khata Number</label>
+              <label className="block text-slate-700 font-bold mb-1">Khata Number</label>
               <input
                 type="text"
                 value={khataNumber}
                 onChange={(e) => setKhataNumber(e.target.value)}
                 required
                 placeholder="e.g. 52"
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-emerald-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Ferfar Mutation #</label>
+              <label className="block text-slate-700 font-bold mb-1">Ferfar Mutation #</label>
               <input
                 type="text"
                 value={ferfarNumber}
                 onChange={(e) => setFerfarNumber(e.target.value)}
-                placeholder="e.g. F-104"
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-slate-400 font-semibold mb-1">Owner Name (English)</label>
-              <input
-                type="text"
-                value={ownerName}
-                onChange={(e) => setOwnerName(e.target.value)}
-                required
-                placeholder="e.g. Pandurang Patil"
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-            <div>
-              <label className="block text-slate-400 font-semibold mb-1">Owner Name (Marathi Vernacular)</label>
-              <input
-                type="text"
-                value={vernacularOwnerName}
-                onChange={(e) => setVernacularOwnerName(e.target.value)}
-                placeholder="e.g. पांडुरंग नारायण पाटील"
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500"
+                placeholder="e.g. 1420"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Village (गाव)</label>
+              <label className="block text-slate-700 font-bold mb-1">Village</label>
               <input
                 type="text"
                 value={village}
                 onChange={(e) => setVillage(e.target.value)}
                 required
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Taluka (तालुका)</label>
+              <label className="block text-slate-700 font-bold mb-1">Taluka</label>
               <input
                 type="text"
                 value={taluka}
                 onChange={(e) => setTaluka(e.target.value)}
                 required
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">District (जिल्हा)</label>
-              <select
+              <label className="block text-slate-700 font-bold mb-1">District</label>
+              <input
+                type="text"
                 value={district}
                 onChange={(e) => setDistrict(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500"
-              >
-                <option value="Nashik">Nashik</option>
-                <option value="Chhatrapati Sambhajinagar">Chhatrapati Sambhajinagar</option>
-                <option value="Jalna">Jalna</option>
-                <option value="Beed">Beed</option>
-                <option value="Latur">Latur</option>
-                <option value="Pune">Pune</option>
-                <option value="Dewas">Dewas (MP)</option>
-                <option value="Rajkot">Rajkot (Gujarat)</option>
-              </select>
+                required
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Total Land Area (Acres)</label>
+              <label className="block text-slate-700 font-bold mb-1">Owner Name (English)</label>
+              <input
+                type="text"
+                value={ownerName}
+                onChange={(e) => setOwnerName(e.target.value)}
+                required
+                placeholder="e.g. Ramesh Dnyaneshwar Patil"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              />
+            </div>
+            <div>
+              <label className="block text-slate-700 font-bold mb-1">Owner Name (Marathi Vernacular)</label>
+              <input
+                type="text"
+                value={vernacularOwnerName}
+                onChange={(e) => setVernacularOwnerName(e.target.value)}
+                placeholder="e.g. रमेश ज्ञानेश्वर पाटील"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-slate-700 font-bold mb-1">Total Land Area (Acres)</label>
               <input
                 type="number"
                 step="0.01"
                 value={totalAreaAcres}
                 onChange={(e) => handleAcresChange(e.target.value)}
                 required
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono font-bold focus:outline-none focus:border-emerald-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Area in Hectares</label>
+              <label className="block text-slate-700 font-bold mb-1">Area in Hectares</label>
               <input
                 type="number"
                 step="0.01"
                 value={totalAreaHectares}
                 onChange={(e) => setTotalAreaHectares(Number(e.target.value))}
                 required
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-emerald-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Land Classification</label>
+              <label className="block text-slate-700 font-bold mb-1">Land Classification</label>
               <select
                 value={landClass}
                 onChange={(e) => setLandClass(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               >
                 <option value="जिरायत (Dry Crop)">जिरायत (Dry Crop)</option>
                 <option value="बागायत (Perennial Irrigated)">बागायत (Perennial Irrigated)</option>
@@ -236,25 +229,25 @@ export function ManualProvisionRecordModal({ open, onClose, onConfirm }) {
               </select>
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Bank Encumbrances (बोझा)</label>
+              <label className="block text-slate-700 font-bold mb-1">Bank Encumbrances (बोझा)</label>
               <input
                 type="text"
                 value={encumbrances}
                 onChange={(e) => setEncumbrances(e.target.value)}
                 placeholder="e.g. Nil / Clean Title OR Bank Name"
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-emerald-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Administrative Audit Justification (Mandatory)</label>
+            <label className="block text-slate-700 font-bold mb-1">Administrative Audit Justification (Mandatory)</label>
             <textarea
               rows={2}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               required
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-emerald-500 placeholder-slate-600"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
@@ -262,14 +255,14 @@ export function ManualProvisionRecordModal({ open, onClose, onConfirm }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-slate-900 text-slate-300 hover:bg-slate-800 font-medium"
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={busy}
-              className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs disabled:opacity-50 transition"
             >
               {busy ? 'Provisioning...' : 'Inject Land Record'}
             </button>
@@ -317,26 +310,26 @@ export function ResolveDiscrepancyModal({ open, record, onClose, onConfirm }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-lg rounded-xl border border-slate-800 bg-slate-950 p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+      <div className="relative w-full max-w-lg rounded-2xl border border-amber-200 bg-white p-6 shadow-2xl">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-slate-400 hover:text-white"
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 transition"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-2.5 text-amber-400 mb-4">
-          <AlertTriangle className="w-5 h-5" />
-          <h3 className="text-base font-bold text-slate-100">Resolve Land Record Discrepancy</h3>
+        <div className="flex items-center gap-2.5 text-amber-700 mb-4">
+          <AlertTriangle className="w-5 h-5 text-amber-600" />
+          <h3 className="text-base font-extrabold text-slate-900">Resolve Land Record Discrepancy</h3>
         </div>
 
-        <div className="p-3 rounded-lg bg-amber-950/30 border border-amber-500/30 text-xs mb-4 space-y-1">
+        <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs mb-4 space-y-1">
           <div className="flex justify-between font-mono">
-            <span className="text-slate-400">Gat Number:</span>
-            <span className="text-emerald-400 font-bold">{record.gatNumber} ({record.village})</span>
+            <span className="text-slate-500 font-sans font-bold">Gat Number:</span>
+            <span className="text-emerald-700 font-bold">{record.gatNumber} ({record.village})</span>
           </div>
-          <p className="text-amber-300 font-mono text-[11px] pt-1">
+          <p className="text-amber-800 font-mono text-[11px] pt-1 font-semibold">
             Flagged Issue: {record.discrepancyDetails || 'Parsing or survey subdivision discrepancy'}
           </p>
         </div>
@@ -344,47 +337,47 @@ export function ResolveDiscrepancyModal({ open, record, onClose, onConfirm }) {
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Reconciled Area (Acres)</label>
+              <label className="block text-slate-700 font-bold mb-1">Reconciled Area (Acres)</label>
               <input
                 type="number"
                 step="0.01"
                 value={totalAreaAcres}
                 onChange={(e) => setTotalAreaAcres(e.target.value)}
                 required
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono font-bold focus:outline-none focus:border-amber-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-amber-500"
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Reconciled Area (Hectares)</label>
+              <label className="block text-slate-700 font-bold mb-1">Reconciled Area (Hectares)</label>
               <input
                 type="number"
                 step="0.01"
                 value={totalAreaHectares}
                 onChange={(e) => setTotalAreaHectares(e.target.value)}
                 required
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-amber-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-amber-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Updated Bank Encumbrances (बोझा)</label>
+            <label className="block text-slate-700 font-bold mb-1">Updated Bank Encumbrances (बोझा)</label>
             <input
               type="text"
               value={encumbrances}
               onChange={(e) => setEncumbrances(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-amber-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-amber-500"
             />
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Reconciliation Notes for Audit Log</label>
+            <label className="block text-slate-700 font-bold mb-1">Reconciliation Notes for Audit Log</label>
             <textarea
               rows={3}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               required
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-amber-500 placeholder-slate-600"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-amber-500"
             />
           </div>
 
@@ -392,14 +385,14 @@ export function ResolveDiscrepancyModal({ open, record, onClose, onConfirm }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-slate-900 text-slate-300 hover:bg-slate-800 font-medium"
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={busy}
-              className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-xs disabled:opacity-50 transition"
             >
               {busy ? 'Resolving...' : 'Confirm Resolution'}
             </button>
@@ -431,42 +424,42 @@ export function SeedVillageCacheModal({ open, onClose, onConfirm }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-md rounded-xl border border-slate-800 bg-slate-950 p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+      <div className="relative w-full max-w-md rounded-2xl border border-emerald-100/90 bg-white p-6 shadow-2xl">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-slate-400 hover:text-white"
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 transition"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-2.5 text-blue-400 mb-4">
-          <Database className="w-5 h-5" />
-          <h3 className="text-base font-bold text-slate-100">Seed Village Land Records Cache</h3>
+        <div className="flex items-center gap-2.5 text-sky-700 mb-4">
+          <Database className="w-5 h-5 text-sky-600" />
+          <h3 className="text-base font-extrabold text-slate-900">Seed Village Land Records Cache</h3>
         </div>
 
-        <p className="text-xs text-slate-400 mb-4">
+        <p className="text-xs text-slate-500 mb-4 font-medium">
           Pre-warms the Redis distributed cache for an entire village/taluka to ensure sub-5ms lookup latency for farmers during peak crop loan and insurance cycles.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Target Village Name</label>
+            <label className="block text-slate-700 font-bold mb-1">Target Village Name</label>
             <input
               type="text"
               value={village}
               onChange={(e) => setVillage(e.target.value)}
               required
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">District</label>
+            <label className="block text-slate-700 font-bold mb-1">District</label>
             <select
               value={district}
               onChange={(e) => setDistrict(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             >
               <option value="Nashik">Nashik</option>
               <option value="Chhatrapati Sambhajinagar">Chhatrapati Sambhajinagar</option>
@@ -477,14 +470,14 @@ export function SeedVillageCacheModal({ open, onClose, onConfirm }) {
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Estimated Gat Records to Ingest</label>
+            <label className="block text-slate-700 font-bold mb-1">Estimated Gat Records to Ingest</label>
             <input
               type="number"
               value={count}
               onChange={(e) => setCount(e.target.value)}
               min="10"
               max="500"
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-blue-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
@@ -492,14 +485,14 @@ export function SeedVillageCacheModal({ open, onClose, onConfirm }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-slate-900 text-slate-300 hover:bg-slate-800 font-medium"
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={busy}
-              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold shadow-xs disabled:opacity-50 transition"
             >
               {busy ? 'Seeding...' : 'Seed Redis Cache'}
             </button>
@@ -531,31 +524,31 @@ export function GovernmentExportModal({ open, onClose, onConfirm }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-md rounded-xl border border-slate-800 bg-slate-950 p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+      <div className="relative w-full max-w-md rounded-2xl border border-emerald-100/90 bg-white p-6 shadow-2xl">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-slate-400 hover:text-white"
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 transition"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-2.5 text-emerald-400 mb-4">
-          <Download className="w-5 h-5" />
-          <h3 className="text-base font-bold text-slate-100">Export Government Compliance Dossier</h3>
+        <div className="flex items-center gap-2.5 text-emerald-700 mb-4">
+          <Download className="w-5 h-5 text-emerald-600" />
+          <h3 className="text-base font-extrabold text-slate-900">Export Government Compliance Dossier</h3>
         </div>
 
-        <p className="text-xs text-slate-400 mb-4">
+        <p className="text-xs text-slate-500 mb-4 font-medium">
           Generates an authenticated land ownership verification extract log for government authorities and institutional audits.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Target District Jurisdiction</label>
+            <label className="block text-slate-700 font-bold mb-1">Target District Jurisdiction</label>
             <select
               value={district}
               onChange={(e) => setDistrict(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             >
               <option value="All Districts">All Districts (Consolidated)</option>
               <option value="Nashik">District Nashik</option>
@@ -566,11 +559,11 @@ export function GovernmentExportModal({ open, onClose, onConfirm }) {
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Reporting Authority</label>
+            <label className="block text-slate-700 font-bold mb-1">Reporting Authority</label>
             <select
               value={authority}
               onChange={(e) => setAuthority(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             >
               <option value="District Collectorate Land Revenue Audit">District Collectorate Land Revenue Audit</option>
               <option value="State Level Bankers Committee (SLBC) KCC Audit">SLBC Institutional Credit Verification</option>
@@ -579,11 +572,11 @@ export function GovernmentExportModal({ open, onClose, onConfirm }) {
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Export Data Format</label>
+            <label className="block text-slate-700 font-bold mb-1">Export Data Format</label>
             <select
               value={format}
               onChange={(e) => setFormat(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             >
               <option value="CSV">CSV Spreadsheet with Cryptographic Hashes</option>
               <option value="PDF">Official Signed PDF Compliance Dossier</option>
@@ -594,14 +587,14 @@ export function GovernmentExportModal({ open, onClose, onConfirm }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-slate-900 text-slate-300 hover:bg-slate-800 font-medium"
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={busy}
-              className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs disabled:opacity-50 transition"
             >
               {busy ? 'Generating...' : 'Generate & Download Dossier'}
             </button>

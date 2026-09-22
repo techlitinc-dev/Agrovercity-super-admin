@@ -14,36 +14,36 @@ export default function ProductsView({ rows, onRefresh, createProduct, updatePro
   const [busy, setBusy] = useState(false)
 
   const columns = [
-    { key: 'id', label: 'ID', value: (r) => `#${r.id}`, mono: true, cls: 'text-slate-400' },
+    { key: 'id', label: 'ID', value: (r) => `#${r.id}`, mono: true, cls: 'text-emerald-800 font-bold' },
     { key: 'title', label: 'Product', value: (r) => (
         <div>
-          <p className="font-medium text-slate-100">{r.title}</p>
+          <p className="font-semibold text-slate-900">{r.title}</p>
           <p className="text-xs text-slate-500">{r.brand} · {r.dealerName || '—'}</p>
         </div>
       ) },
-    { key: 'category', label: 'Category', value: (r) => r.category },
+    { key: 'category', label: 'Category', value: (r) => <span className="font-medium text-slate-700">{r.category}</span> },
     { key: 'price', label: 'Price', value: (r) => (
-        <span className="font-mono">{fmtRupees(r.discountedPrice)} <span className="text-xs text-slate-500 line-through">{fmtRupees(r.mrp)}</span></span>
+        <span className="font-mono font-bold text-slate-900">{fmtRupees(r.discountedPrice)} <span className="text-xs text-slate-400 line-through font-normal">{fmtRupees(r.mrp)}</span></span>
       ) },
-    { key: 'quantity', label: 'Stock', value: (r) => r.quantity, mono: true },
+    { key: 'quantity', label: 'Stock', value: (r) => <span className="font-mono font-semibold text-slate-800">{r.quantity}</span>, mono: true },
     { key: 'cert', label: 'Certificate', value: (r) => (
         r.certificateNo
-          ? <span className="inline-flex items-center gap-1 text-xs">
+          ? <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-700">
               {r.certificateValid
-                ? <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-                : <ShieldAlert className="h-3.5 w-3.5 text-rose-400" />}
+                ? <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                : <ShieldAlert className="h-3.5 w-3.5 text-rose-600" />}
               {r.certifier}
             </span>
-          : <span className="text-xs text-slate-600">—</span>
+          : <span className="text-xs text-slate-400">—</span>
       ) },
     { key: 'status', label: 'Status', value: (r) => <Badge value={r.status} /> },
-    { key: 'createdAt', label: 'Created', value: (r) => fmtDay(r.createdAt), cls: 'text-slate-400' },
+    { key: 'createdAt', label: 'Created', value: (r) => fmtDay(r.createdAt), cls: 'text-slate-500' },
     { key: 'actions', label: 'Actions', value: (r) => (
         <span className="inline-flex gap-1" onClick={(e) => e.stopPropagation()}>
-          <Button variant="ghost" className="px-2 py-1" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
+          <Button variant="ghost" className="px-2 py-1 text-emerald-800 hover:bg-emerald-100/70" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
           {r.status !== 'discontinued'
-            ? <Button variant="ghost" className="px-2 py-1 text-rose-400" onClick={() => setConfirmState({ type: 'discontinue', product: r })}><Ban className="h-3.5 w-3.5" /></Button>
-            : <Button variant="ghost" className="px-2 py-1 text-emerald-400" onClick={() => setConfirmState({ type: 'reactivate', product: r })}><RotateCcw className="h-3.5 w-3.5" /></Button>}
+            ? <Button variant="ghost" className="px-2 py-1 text-rose-600 hover:bg-rose-50" onClick={() => setConfirmState({ type: 'discontinue', product: r })}><Ban className="h-3.5 w-3.5" /></Button>
+            : <Button variant="ghost" className="px-2 py-1 text-emerald-600 hover:bg-emerald-50" onClick={() => setConfirmState({ type: 'reactivate', product: r })}><RotateCcw className="h-3.5 w-3.5" /></Button>}
         </span>
       ) },
   ]
@@ -72,23 +72,23 @@ export default function ProductsView({ rows, onRefresh, createProduct, updatePro
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-400">{rows.length} SKUs in catalog</p>
+        <p className="text-sm font-medium text-slate-600">{rows.length} SKUs in catalog</p>
         <Button onClick={() => setCreating(true)}>+ Add product SKU</Button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60">
+      <div className="overflow-hidden rounded-2xl border border-emerald-200/80 bg-white/90 backdrop-blur-xl shadow-[0_8px_30px_rgb(16,185,129,0.04)] ring-1 ring-emerald-900/[0.02]">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-900/80 text-xs uppercase tracking-wide text-slate-500">
-                {columns.map((c) => <th key={c.key} className="whitespace-nowrap px-4 py-3 font-semibold">{c.label}</th>)}
+              <tr className="border-b border-emerald-200/80 bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 text-[11px] uppercase tracking-wider text-emerald-950 font-bold">
+                {columns.map((c) => <th key={c.key} className="whitespace-nowrap px-4 py-3.5 font-bold">{c.label}</th>)}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-emerald-100/60">
               {rows.map((r) => (
-                <tr key={r.id} onClick={() => setDetail(r)} className="cursor-pointer border-b border-slate-800/60 last:border-0 hover:bg-slate-800/40">
+                <tr key={r.id} onClick={() => setDetail(r)} className="cursor-pointer transition-colors hover:bg-emerald-50/60">
                   {columns.map((c) => (
-                    <td key={c.key} className={`whitespace-nowrap px-4 py-3 ${c.mono ? 'font-mono text-xs' : ''} ${c.cls || 'text-slate-300'}`}>
+                    <td key={c.key} className={`whitespace-nowrap px-4 py-3 ${c.mono ? 'font-mono text-xs' : ''} ${c.cls || 'text-slate-800'}`}>
                       {c.value(r)}
                     </td>
                   ))}

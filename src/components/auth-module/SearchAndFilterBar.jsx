@@ -25,7 +25,7 @@ export function SearchAndFilterBar({
   };
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 mb-6 backdrop-blur-sm shadow-xl space-y-3">
+    <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-4 mb-6 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-3">
       {/* Primary Row: Wireframe Search + Filter Controls + Export */}
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
         {/* Search Input */}
@@ -38,12 +38,12 @@ export function SearchAndFilterBar({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, ID (#1001), phone, or Firebase UID..."
-            className="w-full pl-10 pr-9 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+            className="w-full pl-10 pr-9 py-2.5 bg-emerald-50/30 border border-emerald-200/80 rounded-xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -57,7 +57,7 @@ export function SearchAndFilterBar({
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full appearance-none bg-slate-950/80 border border-slate-700/80 text-xs text-slate-200 py-2.5 pl-3 pr-8 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
+              className="w-full appearance-none bg-emerald-50/30 border border-emerald-200/80 text-xs text-slate-800 py-2.5 pl-3 pr-8 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer font-medium"
             >
               <option value="all">Status: All</option>
               <option value="verified">Verified / Active</option>
@@ -76,7 +76,7 @@ export function SearchAndFilterBar({
             <select
               value={personaFilter}
               onChange={(e) => setPersonaFilter(e.target.value)}
-              className="w-full appearance-none bg-slate-950/80 border border-slate-700/80 text-xs text-slate-200 py-2.5 pl-3 pr-8 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
+              className="w-full appearance-none bg-emerald-50/30 border border-emerald-200/80 text-xs text-slate-800 py-2.5 pl-3 pr-8 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer font-medium"
             >
               <option value="all">Persona: All Roles</option>
               <option value="Farmer">Farmer</option>
@@ -96,7 +96,7 @@ export function SearchAndFilterBar({
             <select
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className="w-full appearance-none bg-slate-950/80 border border-slate-700/80 text-xs text-slate-200 py-2.5 pl-3 pr-8 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
+              className="w-full appearance-none bg-emerald-50/30 border border-emerald-200/80 text-xs text-slate-800 py-2.5 pl-3 pr-8 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer font-medium"
             >
               <option value="24h">Last 24 Hours</option>
               <option value="7d">Last 7 Days</option>
@@ -113,9 +113,9 @@ export function SearchAndFilterBar({
             onClick={onRefresh}
             disabled={loading}
             title="Refresh from server"
-            className="px-3 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+            className="px-3 py-2.5 bg-white hover:bg-emerald-50 border border-emerald-200/80 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 shadow-2xs"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-emerald-400' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-emerald-600' : 'text-slate-500'}`} />
             <span className="hidden xl:inline">Refresh</span>
           </button>
 
@@ -123,7 +123,7 @@ export function SearchAndFilterBar({
           <div className="flex items-center gap-1">
             <button
               onClick={onExportCsv}
-              className="px-3 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-emerald-950/50 transition-colors"
+              className="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm shadow-emerald-700/20 transition-colors"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export CSV</span>
@@ -131,7 +131,7 @@ export function SearchAndFilterBar({
             <button
               onClick={onExportJson}
               title="Export Full JSON dataset"
-              className="px-2.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-xl text-xs font-mono font-medium transition-colors"
+              className="px-2.5 py-2.5 bg-white hover:bg-emerald-50 border border-emerald-200/80 text-emerald-800 rounded-xl text-xs font-mono font-bold transition-colors shadow-2xs"
             >
               JSON
             </button>
@@ -141,33 +141,33 @@ export function SearchAndFilterBar({
 
       {/* Active Filter Chips bar (if filters applied) */}
       {hasActiveFilters && (
-        <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
-          <div className="flex items-center gap-2 flex-wrap text-slate-400">
-            <span className="font-semibold text-slate-300">Active Filters:</span>
+        <div className="pt-2.5 border-t border-emerald-100/80 flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2 flex-wrap text-slate-500">
+            <span className="font-semibold text-slate-700">Active Filters:</span>
             {searchQuery && (
-              <span className="bg-slate-800 text-slate-200 px-2 py-0.5 rounded-md border border-slate-700">
+              <span className="bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded-md border border-emerald-200 font-medium">
                 Query: "{searchQuery}"
               </span>
             )}
             {statusFilter !== 'all' && (
-              <span className="bg-slate-800 text-slate-200 px-2 py-0.5 rounded-md border border-slate-700">
+              <span className="bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded-md border border-emerald-200 font-medium">
                 Status: {statusFilter}
               </span>
             )}
             {personaFilter !== 'all' && (
-              <span className="bg-slate-800 text-slate-200 px-2 py-0.5 rounded-md border border-slate-700">
+              <span className="bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded-md border border-emerald-200 font-medium">
                 Persona: {personaFilter}
               </span>
             )}
             {dateFilter !== '30d' && (
-              <span className="bg-slate-800 text-slate-200 px-2 py-0.5 rounded-md border border-slate-700">
+              <span className="bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded-md border border-emerald-200 font-medium">
                 Window: {dateFilter}
               </span>
             )}
           </div>
           <button
             onClick={clearFilters}
-            className="text-emerald-400 hover:text-emerald-300 font-medium underline text-xs ml-auto"
+            className="text-emerald-700 hover:text-emerald-900 font-bold underline text-xs ml-auto"
           >
             Clear All
           </button>

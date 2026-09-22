@@ -56,29 +56,29 @@ export function formatDate(isoStr) {
 export function StatusBadge({ status }) {
   const map = {
     // Health
-    healthy: { label: 'Healthy (Operational)', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    degraded: { label: 'Degraded Latency', bg: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
+    healthy: { label: 'Healthy (Operational)', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold' },
+    degraded: { label: 'Degraded Latency', bg: 'bg-amber-50 text-amber-700 border-amber-200 font-semibold' },
 
     // Broadcasts
-    sent: { label: 'Dispatched (FCM)', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    scheduled: { label: 'Scheduled Queue', bg: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
+    sent: { label: 'Dispatched (FCM)', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold' },
+    scheduled: { label: 'Scheduled Queue', bg: 'bg-blue-50 text-blue-700 border-blue-200 font-semibold' },
 
     // Reports / Moderation
-    pending: { label: 'Report Pending Review', bg: 'bg-amber-500/15 text-amber-400 border-amber-500/30 animate-pulse' },
-    investigating: { label: 'Under Investigation', bg: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
-    resolved_warning: { label: 'Warning Issued', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-    resolved_banned: { label: 'User Permanently Banned', bg: 'bg-rose-500/15 text-rose-400 border-rose-500/40 font-bold' },
-    dismissed: { label: 'Report Dismissed', bg: 'bg-zinc-600/10 text-zinc-400 border-zinc-600/30' },
+    pending: { label: 'Report Pending Review', bg: 'bg-amber-50 text-amber-700 border-amber-200 font-semibold animate-pulse' },
+    investigating: { label: 'Under Investigation', bg: 'bg-blue-50 text-blue-700 border-blue-200 font-semibold' },
+    resolved_warning: { label: 'Warning Issued', bg: 'bg-amber-50 text-amber-700 border-amber-200 font-semibold' },
+    resolved_banned: { label: 'User Permanently Banned', bg: 'bg-rose-50 text-rose-700 border-rose-200 font-bold' },
+    dismissed: { label: 'Report Dismissed', bg: 'bg-slate-100 text-slate-600 border-slate-200 font-semibold' },
 
     // Consents
-    granted: { label: 'Consent Granted', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    revoked: { label: 'Consent Revoked', bg: 'bg-rose-500/10 text-rose-400 border-rose-500/30' }
+    granted: { label: 'Consent Granted', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold' },
+    revoked: { label: 'Consent Revoked', bg: 'bg-rose-50 text-rose-700 border-rose-200 font-semibold' }
   }
 
-  const badge = map[status] || { label: status || 'Unknown', bg: 'bg-slate-800 text-slate-400 border-slate-700' }
+  const badge = map[status] || { label: status || 'Unknown', bg: 'bg-slate-100 text-slate-600 border-slate-200' }
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium border ${badge.bg}`}>
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${badge.bg}`}>
       {badge.label}
     </span>
   )
@@ -86,13 +86,13 @@ export function StatusBadge({ status }) {
 
 export function UrgencyBadge({ urgency }) {
   const map = {
-    critical_weather: { label: 'Critical Weather', bg: 'bg-rose-500/20 text-rose-300 border-rose-500/50 animate-pulse font-bold' },
-    high: { label: 'High Priority', bg: 'bg-amber-500/15 text-amber-300 border-amber-500/40' },
-    normal: { label: 'Standard Broadcast', bg: 'bg-blue-500/10 text-blue-300 border-blue-500/30' }
+    critical_weather: { label: 'Critical Weather', bg: 'bg-rose-50 text-rose-700 border-rose-200 animate-pulse font-bold' },
+    high: { label: 'High Priority', bg: 'bg-amber-50 text-amber-700 border-amber-200 font-semibold' },
+    normal: { label: 'Standard Broadcast', bg: 'bg-blue-50 text-blue-700 border-blue-200 font-semibold' }
   }
-  const badge = map[urgency] || { label: urgency, bg: 'bg-slate-800 text-slate-400 border-slate-700' }
+  const badge = map[urgency] || { label: urgency, bg: 'bg-slate-100 text-slate-600 border-slate-200' }
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono border ${badge.bg}`}>
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono border ${badge.bg}`}>
       <span>{badge.label}</span>
     </span>
   )
@@ -100,31 +100,28 @@ export function UrgencyBadge({ urgency }) {
 
 export function MetricCard({ title, value, subtitle, icon: Icon, badge, color = 'emerald' }) {
   const colorMap = {
-    emerald: { text: 'text-emerald-800', bg: 'bg-emerald-100/80', border: 'border-emerald-300/80' },
-    blue: { text: 'text-teal-800', bg: 'bg-teal-100/80', border: 'border-teal-300/80' },
-    amber: { text: 'text-amber-800', bg: 'bg-amber-100/80', border: 'border-amber-300/80' },
-    purple: { text: 'text-emerald-900', bg: 'bg-emerald-100/80', border: 'border-emerald-300/80' },
-    rose: { text: 'text-rose-800', bg: 'bg-rose-100/80', border: 'border-rose-300/80' }
+    emerald: { text: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200/80', badgeBg: 'bg-emerald-100/70 text-emerald-800 border-emerald-200' },
+    blue: { text: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200/80', badgeBg: 'bg-blue-100/70 text-blue-800 border-blue-200' },
+    amber: { text: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200/80', badgeBg: 'bg-amber-100/70 text-amber-800 border-amber-200' },
+    purple: { text: 'text-purple-700', bg: 'bg-purple-50', border: 'border-purple-200/80', badgeBg: 'bg-purple-100/70 text-purple-800 border-purple-200' },
+    rose: { text: 'text-rose-700', bg: 'bg-rose-50', border: 'border-rose-200/80', badgeBg: 'bg-rose-100/70 text-rose-800 border-rose-200' }
   }
   const c = colorMap[color] || colorMap.emerald
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/40 to-emerald-100/25 p-4 flex flex-col justify-between hover:-translate-y-0.5 hover:border-emerald-400 hover:shadow-[0_12px_36px_rgb(16,185,129,0.12)] transition-all duration-300 shadow-[0_8px_30px_rgb(16,185,129,0.05),inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-xl group">
-      {/* Top agricultural green sprout accent */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-transparent" />
-
+    <div className="bg-white/90 backdrop-blur-xl border border-emerald-100/90 rounded-2xl p-4 flex flex-col justify-between hover:border-emerald-300 hover:shadow-md transition-all shadow-[0_4px_20px_rgb(0,0,0,0.02)]">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-bold text-emerald-900/80 uppercase tracking-wider">{title}</span>
-        <div className={`p-2 rounded-xl ${c.bg} ${c.text} border ${c.border} shadow-2xs group-hover:scale-110 transition-transform`}>
+        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{title}</span>
+        <div className={`p-2 rounded-xl ${c.bg} ${c.text} border ${c.border}`}>
           <Icon className="w-4 h-4" />
         </div>
       </div>
       <div className="mt-3">
-        <div className="text-2xl font-bold font-mono text-emerald-950 tracking-tight">{value}</div>
-        <div className="flex items-center justify-between mt-1 text-xs text-emerald-800/80 font-medium">
+        <div className="text-2xl font-bold text-slate-900 tracking-tight">{value}</div>
+        <div className="flex items-center justify-between mt-1 text-xs text-slate-500">
           <span className="truncate mr-2">{subtitle}</span>
           {badge && (
-            <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md border ${c.bg} ${c.text} ${c.border} shadow-2xs shrink-0`}>
+            <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-md border shrink-0 ${c.badgeBg}`}>
               {badge}
             </span>
           )}
@@ -139,7 +136,7 @@ export function SystemConfigMetricBar({ summary, loading }) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-28 bg-slate-900/60 border border-slate-800 rounded-xl animate-pulse" />
+          <div key={i} className="h-28 bg-white/70 border border-emerald-100 rounded-2xl animate-pulse" />
         ))}
       </div>
     )
@@ -195,7 +192,7 @@ export function SystemConfigTabSwitch({ activeTab, onSelectTab, counts = {} }) {
   ]
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-800 mb-6">
+    <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-emerald-100/90 mb-6">
       {tabs.map((tab) => {
         const Icon = tab.icon
         const isActive = activeTab === tab.id
@@ -205,16 +202,16 @@ export function SystemConfigTabSwitch({ activeTab, onSelectTab, counts = {} }) {
             onClick={() => onSelectTab(tab.id)}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
               isActive
-                ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 border border-transparent'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
             }`}
           >
-            <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-400' : 'text-slate-500'}`} />
+            <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
             <span>{tab.label}</span>
             {tab.count !== undefined && (
               <span
-                className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
-                  isActive ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-400'
+                className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
+                  isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
                 }`}
               >
                 {tab.count}
@@ -239,12 +236,12 @@ export function SystemConfigFiltersBar({
   onOpenConfigModal
 }) {
   return (
-    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-4 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-4 bg-white/90 backdrop-blur-xl p-3.5 rounded-2xl border border-emerald-100/90 shadow-xs">
       <div className="flex flex-1 items-center gap-2 flex-wrap sm:flex-nowrap">
         {/* Search */}
         {activeTab !== 'health' && (
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               placeholder={
@@ -262,7 +259,7 @@ export function SystemConfigFiltersBar({
               }
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
         )}
@@ -272,7 +269,7 @@ export function SystemConfigFiltersBar({
           <select
             value={statusFilter}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500/50"
+            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
           >
             <option value="all">All Moderation Statuses</option>
             <option value="pending">Pending Review</option>
@@ -288,7 +285,7 @@ export function SystemConfigFiltersBar({
         <button
           onClick={onRefresh}
           title="Refresh Data"
-          className="p-2 rounded-lg bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+          className="p-2 rounded-xl text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
         >
           <RefreshCw className="w-3.5 h-3.5" />
         </button>
@@ -296,9 +293,9 @@ export function SystemConfigFiltersBar({
         {activeTab !== 'health' && (
           <button
             onClick={onExportCsv}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 text-xs font-medium transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-3.5 h-3.5 text-slate-500" />
             <span>Export CSV</span>
           </button>
         )}
@@ -306,7 +303,7 @@ export function SystemConfigFiltersBar({
         {activeTab === 'broadcasts' && onOpenBroadcastModal && (
           <button
             onClick={onOpenBroadcastModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-900/20 transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs"
           >
             <Send className="w-3.5 h-3.5" />
             <span>+ Compose FCM Broadcast</span>
@@ -316,7 +313,7 @@ export function SystemConfigFiltersBar({
         {activeTab === 'remote_config' && onOpenConfigModal && (
           <button
             onClick={onOpenConfigModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-900/20 transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs"
           >
             <Sliders className="w-3.5 h-3.5" />
             <span>Edit Version Gates & Maintenance</span>
@@ -327,24 +324,23 @@ export function SystemConfigFiltersBar({
   )
 }
 
-
 // 1. System Health & Telemetry View
 export function SystemHealthView({ health, onRefreshHealth }) {
   if (!health) return null
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+      <div className="flex items-center justify-between bg-white/90 backdrop-blur-xl p-4 rounded-2xl border border-emerald-100/90 shadow-xs">
         <div className="flex items-center gap-3">
           <div className="w-3 h-3 rounded-full bg-emerald-500 animate-ping" />
           <div>
-            <h3 className="text-sm font-bold text-white">Live Microservices Telemetry Gateway</h3>
-            <p className="text-xs text-slate-400 font-mono">Last Heartbeat: {formatDate(health.lastHealthCheckAt)}</p>
+            <h3 className="text-sm font-bold text-slate-900">Live Microservices Telemetry Gateway</h3>
+            <p className="text-xs text-slate-500 font-mono">Last Heartbeat: {formatDate(health.lastHealthCheckAt)}</p>
           </div>
         </div>
         <button
           onClick={onRefreshHealth}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 bg-slate-950 border border-slate-800 hover:border-slate-700 transition-colors"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors shadow-xs"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Ping Services</span>
@@ -352,39 +348,39 @@ export function SystemHealthView({ health, onRefreshHealth }) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-400">
+        <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-4 space-y-1 shadow-xs hover:border-emerald-300 transition-all">
+          <div className="flex items-center justify-between text-[10px] font-bold uppercase text-slate-500">
             <span>FastAPI Gateway</span>
-            <span className="font-mono text-emerald-400 font-bold">:8000 Online</span>
+            <span className="font-mono text-emerald-700 font-bold">:8000 Online</span>
           </div>
-          <div className="text-2xl font-bold text-white font-mono">{health.apiGatewayLatencyMs} ms</div>
+          <div className="text-2xl font-bold text-slate-900 font-mono">{health.apiGatewayLatencyMs} ms</div>
           <p className="text-[11px] text-slate-500">P99 response latency &lt; 50ms SLA</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-400">
+        <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-4 space-y-1 shadow-xs hover:border-emerald-300 transition-all">
+          <div className="flex items-center justify-between text-[10px] font-bold uppercase text-slate-500">
             <span>Redis L2 Cache</span>
-            <span className="font-mono text-emerald-400 font-bold">{health.redisMemoryUsageMb} MB</span>
+            <span className="font-mono text-emerald-700 font-bold">{health.redisMemoryUsageMb} MB</span>
           </div>
-          <div className="text-2xl font-bold text-emerald-400 font-mono">{health.redisCacheHitRatePct}%</div>
+          <div className="text-2xl font-bold text-emerald-700 font-mono">{health.redisCacheHitRatePct}%</div>
           <p className="text-[11px] text-slate-500">Sub-5ms Mandi rate cache hit rate</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-400">
+        <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-4 space-y-1 shadow-xs hover:border-emerald-300 transition-all">
+          <div className="flex items-center justify-between text-[10px] font-bold uppercase text-slate-500">
             <span>PostgreSQL Pool</span>
-            <span className="font-mono text-blue-400 font-bold">{health.databaseConnectionsActive} / {health.databaseConnectionsMax}</span>
+            <span className="font-mono text-blue-700 font-bold">{health.databaseConnectionsActive} / {health.databaseConnectionsMax}</span>
           </div>
-          <div className="text-2xl font-bold text-white font-mono">Healthy</div>
+          <div className="text-2xl font-bold text-slate-900 font-mono">Healthy</div>
           <p className="text-[11px] text-slate-500">HikariCP connection pool healthy</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-400">
+        <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-4 space-y-1 shadow-xs hover:border-emerald-300 transition-all">
+          <div className="flex items-center justify-between text-[10px] font-bold uppercase text-slate-500">
             <span>Sentry Error Rate</span>
-            <span className="font-mono text-emerald-400 font-bold">Passing</span>
+            <span className="font-mono text-emerald-700 font-bold">Passing</span>
           </div>
-          <div className="text-2xl font-bold text-emerald-400 font-mono">{health.sentryErrorRatePct}%</div>
+          <div className="text-2xl font-bold text-emerald-700 font-mono">{health.sentryErrorRatePct}%</div>
           <p className="text-[11px] text-slate-500">Global error rate well below 0.1%</p>
         </div>
       </div>
@@ -398,15 +394,15 @@ export function RemoteConfigView({ config, onEditConfig, onToggleFlag }) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+      <div className="bg-white/90 backdrop-blur-xl border border-emerald-100/90 rounded-2xl p-5 space-y-4 shadow-xs">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
           <div>
-            <h3 className="text-sm font-bold text-white">Mobile App Version Gates</h3>
-            <p className="text-xs text-slate-400">Enforces minimum supported APK/IPA builds and emergency maintenance</p>
+            <h3 className="text-sm font-bold text-slate-900">Mobile App Version Gates</h3>
+            <p className="text-xs text-slate-500">Enforces minimum supported APK/IPA builds and emergency maintenance</p>
           </div>
           <button
             onClick={onEditConfig}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs"
           >
             <Sliders className="w-3.5 h-3.5" />
             <span>Edit Version Gates</span>
@@ -414,21 +410,21 @@ export function RemoteConfigView({ config, onEditConfig, onToggleFlag }) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800/80 space-y-1">
-            <span className="text-slate-400">Latest Production Release:</span>
-            <div className="text-xl font-bold font-mono text-white">v{config.latestVersion}</div>
+          <div className="bg-emerald-50/30 p-4 rounded-xl border border-emerald-100/80 space-y-1">
+            <span className="text-slate-500 font-medium">Latest Production Release:</span>
+            <div className="text-xl font-bold font-mono text-slate-900">v{config.latestVersion}</div>
             <p className="text-[11px] text-slate-500">Current build on Google Play & App Store</p>
           </div>
-          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800/80 space-y-1">
-            <span className="text-slate-400">Minimum Supported Version:</span>
-            <div className="text-xl font-bold font-mono text-emerald-400">v{config.minSupportedVersion}</div>
+          <div className="bg-emerald-50/30 p-4 rounded-xl border border-emerald-100/80 space-y-1">
+            <span className="text-slate-500 font-medium">Minimum Supported Version:</span>
+            <div className="text-xl font-bold font-mono text-emerald-700">v{config.minSupportedVersion}</div>
             <p className="text-[11px] text-slate-500">
               {config.forceUpdateEnabled ? 'Force-update splash mandatory below this build' : 'Soft update warning'}
             </p>
           </div>
-          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800/80 space-y-1">
-            <span className="text-slate-400">Platform Maintenance Switch:</span>
-            <div className={`text-xl font-bold font-mono ${config.maintenanceMode ? 'text-rose-400' : 'text-emerald-400'}`}>
+          <div className="bg-emerald-50/30 p-4 rounded-xl border border-emerald-100/80 space-y-1">
+            <span className="text-slate-500 font-medium">Platform Maintenance Switch:</span>
+            <div className={`text-xl font-bold font-mono ${config.maintenanceMode ? 'text-rose-700' : 'text-emerald-700'}`}>
               {config.maintenanceMode ? 'MAINTENANCE ACTIVE' : 'LIVE & OPERATIONAL'}
             </div>
             <p className="text-[11px] text-slate-500">
@@ -438,32 +434,32 @@ export function RemoteConfigView({ config, onEditConfig, onToggleFlag }) {
         </div>
       </div>
 
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4">
+      <div className="bg-white/90 backdrop-blur-xl border border-emerald-100/90 rounded-2xl p-5 space-y-4 shadow-xs">
         <div>
-          <h3 className="text-sm font-bold text-white">Feature Flags Matrix (Dynamic Remote Config)</h3>
-          <p className="text-xs text-slate-400">Enable or disable module subsystems across mobile apps without redeployment</p>
+          <h3 className="text-sm font-bold text-slate-900">Feature Flags Matrix (Dynamic Remote Config)</h3>
+          <p className="text-xs text-slate-500">Enable or disable module subsystems across mobile apps without redeployment</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
           {Object.entries(config.featureFlags || {}).map(([key, enabled]) => (
             <div
               key={key}
-              className="bg-slate-950 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between"
+              className="bg-emerald-50/20 border border-emerald-100/80 rounded-xl p-3.5 flex items-center justify-between"
             >
               <div>
-                <div className="font-semibold text-white font-mono">{key}</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">
+                <div className="font-bold text-slate-900 font-mono">{key}</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">
                   {enabled ? 'Active across all user devices' : 'Disabled globally'}
                 </div>
               </div>
               <button
                 onClick={() => onToggleFlag(key, !enabled)}
                 className={`w-10 h-5 rounded-full p-0.5 transition-colors ${
-                  enabled ? 'bg-emerald-500' : 'bg-slate-800'
+                  enabled ? 'bg-emerald-600' : 'bg-slate-300'
                 }`}
               >
                 <div
-                  className={`w-4 h-4 rounded-full bg-white transition-transform ${
+                  className={`w-4 h-4 rounded-full bg-white transition-transform shadow-xs ${
                     enabled ? 'translate-x-5' : 'translate-x-0'
                   }`}
                 />
@@ -480,59 +476,59 @@ export function RemoteConfigView({ config, onEditConfig, onToggleFlag }) {
 export function BroadcastsTable({ data, onSelectRow }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400 text-xs">
+      <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-xs">
         No push notification broadcasts recorded.
       </div>
     )
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/80">
+    <div className="overflow-x-auto rounded-2xl border border-emerald-100/90 bg-white/90 shadow-xs">
       <table className="w-full text-left text-xs">
-        <thead className="bg-slate-950/80 text-slate-400 font-mono text-[11px] border-b border-slate-800">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 font-bold uppercase tracking-wider text-[10px]">
           <tr>
-            <th className="px-3.5 py-2.5">Title & Broadcast ID</th>
-            <th className="px-3.5 py-2.5">Urgency</th>
-            <th className="px-3.5 py-2.5">Target Audience & Region</th>
-            <th className="px-3.5 py-2.5">Recipients Delivered</th>
-            <th className="px-3.5 py-2.5">CTR (%)</th>
-            <th className="px-3.5 py-2.5">Sent Timestamp</th>
-            <th className="px-3.5 py-2.5 text-right">Actions</th>
+            <th className="px-4 py-3">Title & Broadcast ID</th>
+            <th className="px-4 py-3">Urgency</th>
+            <th className="px-4 py-3">Target Audience & Region</th>
+            <th className="px-4 py-3">Recipients Delivered</th>
+            <th className="px-4 py-3">CTR (%)</th>
+            <th className="px-4 py-3">Sent Timestamp</th>
+            <th className="px-4 py-3 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60 text-slate-300">
+        <tbody className="divide-y divide-slate-100/80 text-slate-700">
           {data.map((row) => (
             <tr
               key={row.id}
               onClick={() => onSelectRow(row)}
-              className="hover:bg-slate-800/40 cursor-pointer transition-colors"
+              className="hover:bg-emerald-50/60 cursor-pointer transition-colors"
             >
-              <td className="px-3.5 py-3">
-                <div className="font-semibold text-white">{row.title}</div>
-                <div className="text-[11px] font-mono text-slate-400">{row.id}</div>
+              <td className="px-4 py-3.5">
+                <div className="font-bold text-slate-900">{row.title}</div>
+                <div className="text-[11px] font-mono text-slate-500">{row.id}</div>
               </td>
-              <td className="px-3.5 py-3">
+              <td className="px-4 py-3.5">
                 <UrgencyBadge urgency={row.urgency} />
               </td>
-              <td className="px-3.5 py-3">
-                <div className="text-white capitalize">{row.targetPersona}</div>
-                <div className="text-[11px] text-slate-400 font-mono">
+              <td className="px-4 py-3.5">
+                <div className="text-slate-900 font-medium capitalize">{row.targetPersona}</div>
+                <div className="text-[11px] text-slate-500 font-mono">
                   {row.targetDistrict === 'all' ? 'All Districts' : row.targetDistrict}, {row.targetState}
                 </div>
               </td>
-              <td className="px-3.5 py-3 font-mono font-bold text-white">
+              <td className="px-4 py-3.5 font-mono font-bold text-slate-900">
                 {row.deliveredCount?.toLocaleString()} / {row.recipientCount?.toLocaleString()}
               </td>
-              <td className="px-3.5 py-3 font-mono text-emerald-400 font-bold">
+              <td className="px-4 py-3.5 font-mono text-emerald-700 font-bold">
                 {row.clickRatePct}%
               </td>
-              <td className="px-3.5 py-3 font-mono text-slate-400 text-[11px]">
+              <td className="px-4 py-3.5 font-mono text-slate-600 text-[11px]">
                 {formatDate(row.sentAt)}
               </td>
-              <td className="px-3.5 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+              <td className="px-4 py-3.5 text-right" onClick={(e) => e.stopPropagation()}>
                 <button
                   onClick={() => onSelectRow(row)}
-                  className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-200 transition-colors"
+                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[11px] font-semibold text-slate-700 transition-colors"
                 >
                   Inspect
                 </button>
@@ -549,66 +545,66 @@ export function BroadcastsTable({ data, onSelectRow }) {
 export function UserReportsTable({ data, onSelectRow, onResolveReport }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400 text-xs">
+      <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-xs">
         No moderation complaints in queue.
       </div>
     )
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/80">
+    <div className="overflow-x-auto rounded-2xl border border-emerald-100/90 bg-white/90 shadow-xs">
       <table className="w-full text-left text-xs">
-        <thead className="bg-slate-950/80 text-slate-400 font-mono text-[11px] border-b border-slate-800">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 font-bold uppercase tracking-wider text-[10px]">
           <tr>
-            <th className="px-3.5 py-2.5">Reported User & Accused ID</th>
-            <th className="px-3.5 py-2.5">Category & Severity</th>
-            <th className="px-3.5 py-2.5">Reporter & Evidence</th>
-            <th className="px-3.5 py-2.5">Status</th>
-            <th className="px-3.5 py-2.5">Created At</th>
-            <th className="px-3.5 py-2.5 text-right">Actions</th>
+            <th className="px-4 py-3">Reported User & Accused ID</th>
+            <th className="px-4 py-3">Category & Severity</th>
+            <th className="px-4 py-3">Reporter & Evidence</th>
+            <th className="px-4 py-3">Status</th>
+            <th className="px-4 py-3">Created At</th>
+            <th className="px-4 py-3 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60 text-slate-300">
+        <tbody className="divide-y divide-slate-100/80 text-slate-700">
           {data.map((row) => (
             <tr
               key={row.id}
               onClick={() => onSelectRow(row)}
-              className="hover:bg-slate-800/40 cursor-pointer transition-colors"
+              className="hover:bg-emerald-50/60 cursor-pointer transition-colors"
             >
-              <td className="px-3.5 py-3">
-                <div className="font-semibold text-white">{row.reportedUserName}</div>
-                <div className="text-[11px] font-mono text-slate-400">
+              <td className="px-4 py-3.5">
+                <div className="font-bold text-slate-900">{row.reportedUserName}</div>
+                <div className="text-[11px] font-mono text-slate-500">
                   {row.reportedUserId} · {row.reportedUserPhone}
                 </div>
               </td>
-              <td className="px-3.5 py-3">
-                <span className="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[11px] font-mono uppercase">
+              <td className="px-4 py-3.5">
+                <span className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-mono uppercase font-bold">
                   {row.category}
                 </span>
-                <div className="text-[10px] text-slate-400 mt-1 capitalize">Severity: {row.severity}</div>
+                <div className="text-[10px] text-slate-500 mt-1 capitalize">Severity: {row.severity}</div>
               </td>
-              <td className="px-3.5 py-3 max-w-xs">
-                <div className="text-white font-medium">{row.reporterName}</div>
-                <div className="text-[11px] text-slate-400 truncate">{row.evidenceDescription}</div>
+              <td className="px-4 py-3.5 max-w-xs">
+                <div className="text-slate-900 font-bold">{row.reporterName}</div>
+                <div className="text-[11px] text-slate-600 truncate">{row.evidenceDescription}</div>
               </td>
-              <td className="px-3.5 py-3">
+              <td className="px-4 py-3.5">
                 <StatusBadge status={row.status} />
               </td>
-              <td className="px-3.5 py-3 font-mono text-slate-400 text-[11px]">
+              <td className="px-4 py-3.5 font-mono text-slate-600 text-[11px]">
                 {formatDate(row.createdAt)}
               </td>
-              <td className="px-3.5 py-3 text-right space-x-1" onClick={(e) => e.stopPropagation()}>
+              <td className="px-4 py-3.5 text-right space-x-1" onClick={(e) => e.stopPropagation()}>
                 {row.status !== 'resolved_banned' && row.status !== 'dismissed' && (
                   <button
                     onClick={() => onResolveReport(row)}
-                    className="px-2 py-1 rounded bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-[11px] font-semibold transition-colors"
+                    className="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-[11px] font-bold transition-colors shadow-xs"
                   >
                     Moderate
                   </button>
                 )}
                 <button
                   onClick={() => onSelectRow(row)}
-                  className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-200 transition-colors"
+                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[11px] font-semibold text-slate-700 transition-colors"
                 >
                   Evidence
                 </button>
@@ -625,48 +621,48 @@ export function UserReportsTable({ data, onSelectRow, onResolveReport }) {
 export function UserBlocksTable({ data, onUnbanUser }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400 text-xs">
+      <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-xs">
         No permanently banned users or syndicates recorded.
       </div>
     )
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/80">
+    <div className="overflow-x-auto rounded-2xl border border-emerald-100/90 bg-white/90 shadow-xs">
       <table className="w-full text-left text-xs">
-        <thead className="bg-slate-950/80 text-slate-400 font-mono text-[11px] border-b border-slate-800">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 font-bold uppercase tracking-wider text-[10px]">
           <tr>
-            <th className="px-3.5 py-2.5">User & ID</th>
-            <th className="px-3.5 py-2.5">Phone & Masked Aadhaar</th>
-            <th className="px-3.5 py-2.5">Persona & District</th>
-            <th className="px-3.5 py-2.5">Ban Reason</th>
-            <th className="px-3.5 py-2.5">Banned Timestamp</th>
-            <th className="px-3.5 py-2.5 text-right">Actions</th>
+            <th className="px-4 py-3">User & ID</th>
+            <th className="px-4 py-3">Phone & Masked Aadhaar</th>
+            <th className="px-4 py-3">Persona & District</th>
+            <th className="px-4 py-3">Ban Reason</th>
+            <th className="px-4 py-3">Banned Timestamp</th>
+            <th className="px-4 py-3 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60 text-slate-300">
+        <tbody className="divide-y divide-slate-100/80 text-slate-700">
           {data.map((row) => (
-            <tr key={row.id} className="hover:bg-slate-800/30 transition-colors">
-              <td className="px-3.5 py-3">
-                <div className="font-semibold text-rose-400">{row.userName}</div>
+            <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
+              <td className="px-4 py-3.5">
+                <div className="font-bold text-rose-700">{row.userName}</div>
                 <div className="text-[11px] font-mono text-slate-500">{row.userId}</div>
               </td>
-              <td className="px-3.5 py-3 font-mono text-slate-300">
-                <div>{row.userPhone}</div>
+              <td className="px-4 py-3.5 font-mono text-slate-700">
+                <div className="font-semibold">{row.userPhone}</div>
                 <div className="text-[11px] text-slate-500">{row.userAadhaarMasked}</div>
               </td>
-              <td className="px-3.5 py-3 capitalize">
-                <div className="text-white">{row.persona}</div>
-                <div className="text-[11px] text-slate-400">{row.district}</div>
+              <td className="px-4 py-3.5 capitalize">
+                <div className="text-slate-900 font-bold">{row.persona}</div>
+                <div className="text-[11px] text-slate-500">{row.district}</div>
               </td>
-              <td className="px-3.5 py-3 text-slate-300 max-w-xs">{row.banReason}</td>
-              <td className="px-3.5 py-3 font-mono text-slate-400 text-[11px]">
+              <td className="px-4 py-3.5 text-slate-700 max-w-xs">{row.banReason}</td>
+              <td className="px-4 py-3.5 font-mono text-slate-600 text-[11px]">
                 {formatDate(row.bannedAt)}
               </td>
-              <td className="px-3.5 py-3 text-right">
+              <td className="px-4 py-3.5 text-right">
                 <button
                   onClick={() => onUnbanUser(row)}
-                  className="px-2.5 py-1 rounded bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 text-[11px] transition-colors"
+                  className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-[11px] font-bold transition-colors shadow-xs"
                 >
                   Unban
                 </button>
@@ -683,41 +679,41 @@ export function UserBlocksTable({ data, onUnbanUser }) {
 export function UserConsentsTable({ data }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400 text-xs">
+      <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-xs">
         No DPDP user consent audit logs found.
       </div>
     )
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/80">
+    <div className="overflow-x-auto rounded-2xl border border-emerald-100/90 bg-white/90 shadow-xs">
       <table className="w-full text-left text-xs">
-        <thead className="bg-slate-950/80 text-slate-400 font-mono text-[11px] border-b border-slate-800">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 font-bold uppercase tracking-wider text-[10px]">
           <tr>
-            <th className="px-3.5 py-2.5">User & ID</th>
-            <th className="px-3.5 py-2.5">Consent Specification</th>
-            <th className="px-3.5 py-2.5">Purpose & Lawful Scope</th>
-            <th className="px-3.5 py-2.5">Status</th>
-            <th className="px-3.5 py-2.5">IP & Timestamp</th>
+            <th className="px-4 py-3">User & ID</th>
+            <th className="px-4 py-3">Consent Specification</th>
+            <th className="px-4 py-3">Purpose & Lawful Scope</th>
+            <th className="px-4 py-3">Status</th>
+            <th className="px-4 py-3">IP & Timestamp</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60 text-slate-300">
+        <tbody className="divide-y divide-slate-100/80 text-slate-700">
           {data.map((row) => (
-            <tr key={row.id} className="hover:bg-slate-800/30 transition-colors">
-              <td className="px-3.5 py-3">
-                <div className="font-semibold text-white">{row.userName}</div>
+            <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
+              <td className="px-4 py-3.5">
+                <div className="font-bold text-slate-900">{row.userName}</div>
                 <div className="text-[11px] font-mono text-slate-500">{row.userId}</div>
               </td>
-              <td className="px-3.5 py-3 font-mono text-emerald-400">
+              <td className="px-4 py-3.5 font-mono text-emerald-700 font-bold">
                 {row.consentVersion}
               </td>
-              <td className="px-3.5 py-3 font-mono text-slate-300 text-[11px]">
+              <td className="px-4 py-3.5 font-mono text-slate-700 text-[11px]">
                 {row.purpose}
               </td>
-              <td className="px-3.5 py-3">
+              <td className="px-4 py-3.5">
                 <StatusBadge status={row.status} />
               </td>
-              <td className="px-3.5 py-3 font-mono text-slate-400 text-[11px]">
+              <td className="px-4 py-3.5 font-mono text-slate-600 text-[11px]">
                 <div>{row.ipAddress}</div>
                 <div>{formatDate(row.timestamp)}</div>
               </td>
@@ -733,48 +729,48 @@ export function UserConsentsTable({ data }) {
 export function SystemConfigAuditLogsTable({ data }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400 text-xs">
+      <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-xs">
         No administrative audit logs recorded for System Configuration.
       </div>
     )
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/80">
+    <div className="overflow-x-auto rounded-2xl border border-emerald-100/90 bg-white/90 shadow-xs">
       <table className="w-full text-left text-xs">
-        <thead className="bg-slate-950/80 text-slate-400 font-mono text-[11px] border-b border-slate-800">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 font-bold uppercase tracking-wider text-[10px]">
           <tr>
-            <th className="px-3.5 py-2.5">Timestamp & IP</th>
-            <th className="px-3.5 py-2.5">Action & Collection</th>
-            <th className="px-3.5 py-2.5">Target Entity</th>
-            <th className="px-3.5 py-2.5">State Transition</th>
-            <th className="px-3.5 py-2.5">Administrative Reason</th>
+            <th className="px-4 py-3">Timestamp & IP</th>
+            <th className="px-4 py-3">Action & Collection</th>
+            <th className="px-4 py-3">Target Entity</th>
+            <th className="px-4 py-3">State Transition</th>
+            <th className="px-4 py-3">Administrative Reason</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60 text-slate-300">
+        <tbody className="divide-y divide-slate-100/80 text-slate-700">
           {data.map((row) => (
-            <tr key={row.id} className="hover:bg-slate-800/30 transition-colors">
-              <td className="px-3.5 py-3 font-mono text-[11px]">
-                <div className="text-white">{formatDate(row.timestamp)}</div>
+            <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
+              <td className="px-4 py-3.5 font-mono text-[11px]">
+                <div className="text-slate-900 font-bold">{formatDate(row.timestamp)}</div>
                 <div className="text-slate-500">
                   {row.ipAddress} · {row.adminName}
                 </div>
               </td>
-              <td className="px-3.5 py-3">
-                <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700">
+              <td className="px-4 py-3.5">
+                <span className="font-mono text-[11px] px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
                   {row.actionType}
                 </span>
                 <div className="text-[10px] font-mono text-slate-500 mt-1">{row.collection}</div>
               </td>
-              <td className="px-3.5 py-3">
-                <div className="font-medium text-white">{row.entityName}</div>
+              <td className="px-4 py-3.5">
+                <div className="font-bold text-slate-900">{row.entityName}</div>
                 <div className="text-[11px] font-mono text-slate-500">{row.entityId}</div>
               </td>
-              <td className="px-3.5 py-3 text-[11px] font-mono">
-                {row.previousState && <div className="text-slate-400">Prev: {row.previousState}</div>}
-                <div className="text-emerald-400">New: {row.newState}</div>
+              <td className="px-4 py-3.5 text-[11px] font-mono">
+                {row.previousState && <div className="text-slate-500">Prev: {row.previousState}</div>}
+                <div className="text-emerald-700 font-bold">New: {row.newState}</div>
               </td>
-              <td className="px-3.5 py-3 text-slate-300 max-w-xs">{row.reason}</td>
+              <td className="px-4 py-3.5 text-slate-700 max-w-xs">{row.reason}</td>
             </tr>
           ))}
         </tbody>
@@ -789,25 +785,25 @@ export function ContentPagination({ page, total, pageSize = 20, onPageChange }) 
   if (totalPages <= 1) return null
 
   return (
-    <div className="flex items-center justify-between mt-4 px-2 text-xs text-slate-400">
+    <div className="flex items-center justify-between mt-4 px-2 text-xs text-slate-600">
       <div>
         Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of {total} records
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1.5">
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-          className="p-1 rounded bg-slate-900 border border-slate-800 disabled:opacity-40 hover:text-white"
+          className="p-1.5 rounded-lg bg-white border border-slate-200 shadow-xs disabled:opacity-40 hover:bg-slate-50 text-slate-700"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <span className="px-2 font-mono text-slate-200">
+        <span className="px-2 font-mono font-bold text-slate-800">
           {page} / {totalPages}
         </span>
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-          className="p-1 rounded bg-slate-900 border border-slate-800 disabled:opacity-40 hover:text-white"
+          className="p-1.5 rounded-lg bg-white border border-slate-200 shadow-xs disabled:opacity-40 hover:bg-slate-50 text-slate-700"
         >
           <ChevronRight className="w-4 h-4" />
         </button>

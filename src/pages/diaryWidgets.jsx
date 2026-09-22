@@ -68,23 +68,23 @@ const STATUS_LABELS = {
 }
 
 const STATUS_STYLES = {
-  verified: 'bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30',
-  audited: 'bg-sky-500/15 text-sky-300 ring-1 ring-sky-500/30',
-  pending_review: 'bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30',
-  flagged: 'bg-rose-500/15 text-rose-300 ring-1 ring-rose-500/30',
-  disputed: 'bg-orange-500/15 text-orange-300 ring-1 ring-orange-500/30',
-  rejected: 'bg-slate-700/60 text-slate-400',
-  approved: 'bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30',
-  under_review: 'bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30',
-  recommended: 'bg-teal-500/15 text-teal-300 ring-1 ring-teal-500/30',
-  high_risk: 'bg-rose-500/15 text-rose-300 ring-1 ring-rose-500/30'
+  verified: 'bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold',
+  audited: 'bg-sky-100 text-sky-900 border border-sky-300 font-bold',
+  pending_review: 'bg-amber-100 text-amber-900 border border-amber-300 font-bold',
+  flagged: 'bg-rose-100 text-rose-900 border border-rose-300 font-bold',
+  disputed: 'bg-orange-100 text-orange-900 border border-orange-300 font-bold',
+  rejected: 'bg-slate-100 text-slate-700 border border-slate-300',
+  approved: 'bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold',
+  under_review: 'bg-amber-100 text-amber-900 border border-amber-300 font-bold',
+  recommended: 'bg-teal-100 text-teal-900 border border-teal-300 font-bold',
+  high_risk: 'bg-rose-100 text-rose-900 border border-rose-300 font-bold'
 }
 
 export function DiaryStatusBadge({ status }) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-        STATUS_STYLES[status] || 'bg-slate-700 text-slate-300'
+        STATUS_STYLES[status] || 'bg-slate-100 text-slate-700 border border-slate-300'
       }`}
     >
       {STATUS_LABELS[status] || status}
@@ -95,28 +95,28 @@ export function DiaryStatusBadge({ status }) {
 export function TypeBadge({ type }) {
   if (type === 'income') {
     return (
-      <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-300 ring-1 ring-emerald-500/30">
-        <TrendingUp className="h-3 w-3 text-emerald-400" /> Income
+      <span className="inline-flex items-center gap-1 rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-900 border border-emerald-300">
+        <TrendingUp className="h-3 w-3 text-emerald-700" /> Income
       </span>
     )
   }
   if (type === 'farmActivity') {
     return (
-      <span className="inline-flex items-center gap-1 rounded-md bg-indigo-500/15 px-2 py-0.5 text-[11px] font-semibold text-indigo-300 ring-1 ring-indigo-500/30">
-        <Activity className="h-3 w-3 text-indigo-400" /> Activity
+      <span className="inline-flex items-center gap-1 rounded-md bg-indigo-100 px-2 py-0.5 text-[11px] font-bold text-indigo-900 border border-indigo-300">
+        <Activity className="h-3 w-3 text-indigo-700" /> Activity
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded-md bg-rose-500/15 px-2 py-0.5 text-[11px] font-semibold text-rose-300 ring-1 ring-rose-500/30">
-      <TrendingDown className="h-3 w-3 text-rose-400" /> Expense
+    <span className="inline-flex items-center gap-1 rounded-md bg-rose-100 px-2 py-0.5 text-[11px] font-bold text-rose-900 border border-rose-300">
+      <TrendingDown className="h-3 w-3 text-rose-700" /> Expense
     </span>
   )
 }
 
 export function CategoryBadge({ category }) {
   return (
-    <span className="inline-flex items-center rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-300 ring-1 ring-slate-700">
+    <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-slate-700 border border-slate-200">
       {category}
     </span>
   )
@@ -128,12 +128,12 @@ export function AgriCoinsPill({ coins = 15, status = 'disbursed' }) {
     <span
       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-mono font-bold ${
         isRevoked
-          ? 'bg-rose-500/15 text-rose-300 line-through ring-1 ring-rose-500/30'
-          : 'bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30'
+          ? 'bg-rose-50 text-rose-700 line-through border border-rose-200'
+          : 'bg-amber-50 text-amber-800 border border-amber-300'
       }`}
       title={isRevoked ? 'AgriCoins reward revoked due to duplicate submission' : 'AgriCoins credited for daily accounting'}
     >
-      <Coins className="h-3 w-3 text-amber-400" />
+      <Coins className="h-3 w-3 text-amber-600" />
       {isRevoked ? '-15' : `+${coins}`}
     </span>
   )
@@ -141,19 +141,19 @@ export function AgriCoinsPill({ coins = 15, status = 'disbursed' }) {
 
 export function MetricCard({ label, value, tone = 'emerald', sub, icon: Icon }) {
   const tones = {
-    emerald: 'text-emerald-400 ring-emerald-500/20',
-    amber: 'text-amber-400 ring-amber-500/20',
-    sky: 'text-sky-400 ring-sky-500/20',
-    rose: 'text-rose-400 ring-rose-500/20'
+    emerald: 'text-emerald-900',
+    amber: 'text-amber-900',
+    sky: 'text-sky-900',
+    rose: 'text-rose-900'
   }
   return (
-    <div className={`rounded-xl border border-slate-800 bg-slate-900 p-4 ring-1 ${tones[tone].split(' ')[1]}`}>
+    <div className="relative overflow-hidden rounded-2xl border border-emerald-100/90 bg-white/90 backdrop-blur-xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:border-emerald-300/80 hover:shadow-md transition-all">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</p>
-        {Icon && <Icon className={`h-4 w-4 ${tones[tone].split(' ')[0]}`} />}
+        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">{label}</p>
+        {Icon && <Icon className="h-4 w-4 text-emerald-700" />}
       </div>
-      <p className={`mt-1 text-2xl font-extrabold font-mono ${tones[tone].split(' ')[0]}`}>{value}</p>
-      {sub && <p className="mt-0.5 text-xs text-slate-500">{sub}</p>}
+      <p className={`mt-1 text-2xl font-extrabold font-mono ${tones[tone] || 'text-slate-900'}`}>{value}</p>
+      {sub && <p className="mt-1 text-xs text-slate-500 font-medium">{sub}</p>}
     </div>
   )
 }
@@ -167,15 +167,15 @@ export function TabSwitch({ tab, setTab }) {
   ]
 
   return (
-    <div className="inline-flex flex-wrap rounded-lg border border-slate-800 bg-slate-900 p-1">
+    <div className="inline-flex flex-wrap rounded-xl border border-emerald-200/80 bg-white/90 p-1 shadow-2xs backdrop-blur-md">
       {tabs.map((t) => (
         <button
           key={t.id}
           onClick={() => setTab(t.id)}
-          className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
+          className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all ${
             tab === t.id
-              ? 'bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30'
-              : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-emerald-950'
           }`}
         >
           {t.label}
@@ -208,11 +208,11 @@ export function FiltersBar({
   ]
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="bg-white/90 backdrop-blur-xl border border-emerald-100/90 rounded-2xl p-3.5 flex flex-wrap items-center gap-2.5 shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
       <div className="relative flex-1 min-w-56">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
-          className="w-full rounded-lg border border-slate-700 bg-slate-900 py-2 pl-9 pr-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-emerald-500"
+          className="w-full rounded-xl border border-emerald-200/80 bg-white py-2 pl-9 pr-3 text-xs text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-2xs font-sans"
           placeholder="Search by ID, farmer name, phone, crop, voucher or district…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -220,7 +220,7 @@ export function FiltersBar({
       </div>
 
       <select
-        className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-500"
+        className="rounded-xl border border-emerald-200/80 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500 shadow-2xs cursor-pointer"
         value={status}
         onChange={(e) => setStatus(e.target.value)}
       >
@@ -233,7 +233,7 @@ export function FiltersBar({
 
       {secondaryOptions && setSecondaryFilter && (
         <select
-          className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-500"
+          className="rounded-xl border border-emerald-200/80 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500 shadow-2xs cursor-pointer"
           value={secondaryFilter}
           onChange={(e) => setSecondaryFilter(e.target.value)}
         >
@@ -247,7 +247,7 @@ export function FiltersBar({
       )}
 
       <select
-        className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-500"
+        className="rounded-xl border border-emerald-200/80 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500 shadow-2xs cursor-pointer"
         value={dateRange}
         onChange={(e) => setDateRange(e.target.value)}
       >
@@ -261,7 +261,7 @@ export function FiltersBar({
       {children}
 
       <button
-        className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm font-semibold text-slate-300 hover:border-emerald-500 hover:text-emerald-400"
+        className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-emerald-700 shadow-sm transition-all active:scale-95 ml-auto"
         onClick={onExport}
       >
         <Download className="h-4 w-4" /> Export CSV
@@ -280,39 +280,39 @@ export function DiaryEntriesTable({
   onDelete
 }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/60 shadow-lg">
-      <table className="w-full text-left text-sm text-slate-300">
-        <thead className="border-b border-slate-800 bg-slate-950/80 text-xs font-semibold uppercase tracking-wider text-slate-400">
+    <div className="overflow-hidden rounded-2xl border border-emerald-100/90 bg-white/90 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
+      <table className="w-full text-left text-xs text-slate-700">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
-            <th className="px-4 py-3 cursor-pointer" onClick={() => onSort('id')}>
+            <th className="px-4 py-3.5 cursor-pointer" onClick={() => onSort('id')}>
               ID
             </th>
-            <th className="px-4 py-3 cursor-pointer" onClick={() => onSort('farmerName')}>
+            <th className="px-4 py-3.5 cursor-pointer" onClick={() => onSort('farmerName')}>
               Farmer / Contact
             </th>
-            <th className="px-4 py-3 cursor-pointer" onClick={() => onSort('type')}>
+            <th className="px-4 py-3.5 cursor-pointer" onClick={() => onSort('type')}>
               Type & Category
             </th>
-            <th className="px-4 py-3 cursor-pointer" onClick={() => onSort('cropName')}>
+            <th className="px-4 py-3.5 cursor-pointer" onClick={() => onSort('cropName')}>
               Crop
             </th>
-            <th className="px-4 py-3 text-right cursor-pointer" onClick={() => onSort('amount')}>
+            <th className="px-4 py-3.5 text-right cursor-pointer" onClick={() => onSort('amount')}>
               Amount (₹)
             </th>
-            <th className="px-4 py-3 text-center">Reward</th>
-            <th className="px-4 py-3 cursor-pointer" onClick={() => onSort('status')}>
+            <th className="px-4 py-3.5 text-center">Reward</th>
+            <th className="px-4 py-3.5 cursor-pointer" onClick={() => onSort('status')}>
               Status
             </th>
-            <th className="px-4 py-3 cursor-pointer" onClick={() => onSort('date')}>
+            <th className="px-4 py-3.5 cursor-pointer" onClick={() => onSort('date')}>
               Date
             </th>
-            <th className="px-4 py-3 text-right">Actions</th>
+            <th className="px-4 py-3.5 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60">
+        <tbody className="divide-y divide-emerald-100/60">
           {entries.length === 0 ? (
             <tr>
-              <td colSpan={9} className="py-12 text-center text-slate-500">
+              <td colSpan={9} className="py-12 text-center text-slate-500 font-semibold">
                 No farm diary entries match the filter criteria.
               </td>
             </tr>
@@ -320,62 +320,62 @@ export function DiaryEntriesTable({
             entries.map((item) => (
               <tr
                 key={item.id}
-                className={`transition-colors hover:bg-slate-800/40 ${
-                  item.flagged ? 'bg-rose-950/10' : ''
+                className={`transition-colors hover:bg-emerald-50/60 ${
+                  item.flagged ? 'bg-rose-50/50' : ''
                 }`}
               >
-                <td className="px-4 py-3 font-mono text-xs font-bold text-emerald-400">
+                <td className="px-4 py-3.5 font-mono text-xs font-bold text-emerald-800">
                   #{item.id}
                 </td>
-                <td className="px-4 py-3">
-                  <div className="font-medium text-slate-100">{item.farmerName}</div>
-                  <div className="text-xs text-slate-500 font-mono">
+                <td className="px-4 py-3.5">
+                  <div className="font-bold text-slate-900">{item.farmerName}</div>
+                  <div className="text-[11px] text-slate-500 font-medium">
                     {maskPhone(item.farmerPhone)} · {item.district}
                   </div>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3.5">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <TypeBadge type={item.type} />
                     <CategoryBadge category={item.category} />
                   </div>
-                  <div className="mt-1 text-xs text-slate-400 truncate max-w-xs" title={item.title}>
+                  <div className="mt-1 text-xs text-slate-600 truncate max-w-xs font-medium" title={item.title}>
                     {item.title}
                   </div>
                 </td>
-                <td className="px-4 py-3 font-medium text-slate-200">
+                <td className="px-4 py-3.5 font-bold text-slate-800">
                   {item.cropName || '—'}
                 </td>
-                <td className="px-4 py-3 text-right font-mono font-bold text-slate-100">
+                <td className="px-4 py-3.5 text-right font-mono font-bold">
                   {item.type === 'income' ? (
-                    <span className="text-emerald-400">+{fmtINR(item.amount)}</span>
+                    <span className="text-emerald-700">+{fmtINR(item.amount)}</span>
                   ) : item.type === 'expense' ? (
-                    <span className="text-slate-100">{fmtINR(item.amount)}</span>
+                    <span className="text-slate-900">{fmtINR(item.amount)}</span>
                   ) : (
-                    <span className="text-slate-500">Free / Activity</span>
+                    <span className="text-slate-500 font-medium">Free / Activity</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-center">
+                <td className="px-4 py-3.5 text-center">
                   <AgriCoinsPill coins={item.agriCoinsAwarded} status={item.coinsStatus} />
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3.5">
                   <div className="flex flex-col gap-1 items-start">
                     <DiaryStatusBadge status={item.status} />
                     {item.flagged && (
-                      <span className="inline-flex items-center gap-1 text-[10px] text-rose-400 font-semibold" title={item.flagReason}>
-                        <AlertTriangle className="h-3 w-3 shrink-0" />
+                      <span className="inline-flex items-center gap-1 text-[10px] text-rose-700 font-bold" title={item.flagReason}>
+                        <AlertTriangle className="h-3 w-3 shrink-0 text-rose-600" />
                         {item.duplicateSimilarity > 0.8 ? 'Duplicate Submission' : 'Anomalous'}
                       </span>
                     )}
                   </div>
                 </td>
-                <td className="px-4 py-3 font-mono text-xs text-slate-400">
+                <td className="px-4 py-3.5 font-mono text-[11px] text-slate-500 font-medium">
                   {item.date}
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3.5 text-right">
                   <div className="flex items-center justify-end gap-1.5">
                     <button
                       onClick={() => onView(item)}
-                      className="rounded p-1.5 text-slate-400 hover:bg-slate-800 hover:text-emerald-400"
+                      className="rounded-lg p-1.5 text-slate-600 hover:bg-emerald-50 hover:text-emerald-950 transition-colors shadow-2xs border border-emerald-100"
                       title="View Details & Audit Trail"
                     >
                       <Eye className="h-4 w-4" />
@@ -383,7 +383,7 @@ export function DiaryEntriesTable({
                     {item.status !== 'verified' && (
                       <button
                         onClick={() => onVerify(item)}
-                        className="rounded p-1.5 text-slate-400 hover:bg-slate-800 hover:text-emerald-400"
+                        className="rounded-lg p-1.5 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-950 transition-colors shadow-2xs border border-emerald-200"
                         title="Verify Entry"
                       >
                         <CheckCircle className="h-4 w-4" />
@@ -392,7 +392,7 @@ export function DiaryEntriesTable({
                     {!item.flagged && (
                       <button
                         onClick={() => onFlag(item)}
-                        className="rounded p-1.5 text-slate-400 hover:bg-slate-800 hover:text-amber-400"
+                        className="rounded-lg p-1.5 text-amber-700 hover:bg-amber-100 hover:text-amber-950 transition-colors shadow-2xs border border-amber-200"
                         title="Flag for Anomaly / Duplicate Investigation"
                       >
                         <Flag className="h-4 w-4" />
@@ -400,7 +400,7 @@ export function DiaryEntriesTable({
                     )}
                     <button
                       onClick={() => onDelete(item)}
-                      className="rounded p-1.5 text-slate-400 hover:bg-rose-950 hover:text-rose-400"
+                      className="rounded-lg p-1.5 text-rose-700 hover:bg-rose-100 hover:text-rose-950 transition-colors shadow-2xs border border-rose-200"
                       title="Soft-Delete & Revoke 15 AgriCoins"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -425,42 +425,42 @@ export function CropPnlTable({
   onVerify
 }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/60 shadow-lg">
-      <table className="w-full text-left text-sm text-slate-300">
-        <thead className="border-b border-slate-800 bg-slate-950/80 text-xs font-semibold uppercase tracking-wider text-slate-400">
+    <div className="overflow-hidden rounded-2xl border border-emerald-100/90 bg-white/90 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
+      <table className="w-full text-left text-xs text-slate-700">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
-            <th className="px-4 py-3 cursor-pointer" onClick={() => onSort('id')}>
+            <th className="px-4 py-3.5 cursor-pointer" onClick={() => onSort('id')}>
               ID
             </th>
-            <th className="px-4 py-3 cursor-pointer" onClick={() => onSort('farmerName')}>
+            <th className="px-4 py-3.5 cursor-pointer" onClick={() => onSort('farmerName')}>
               Farmer
             </th>
-            <th className="px-4 py-3 cursor-pointer" onClick={() => onSort('cropName')}>
+            <th className="px-4 py-3.5 cursor-pointer" onClick={() => onSort('cropName')}>
               Crop / Season
             </th>
-            <th className="px-4 py-3 text-right cursor-pointer" onClick={() => onSort('totalExpenses')}>
+            <th className="px-4 py-3.5 text-right cursor-pointer" onClick={() => onSort('totalExpenses')}>
               Total Expenses
             </th>
-            <th className="px-4 py-3 text-right cursor-pointer" onClick={() => onSort('grossRevenue')}>
+            <th className="px-4 py-3.5 text-right cursor-pointer" onClick={() => onSort('grossRevenue')}>
               Gross Revenue
             </th>
-            <th className="px-4 py-3 text-right cursor-pointer" onClick={() => onSort('netProfit')}>
+            <th className="px-4 py-3.5 text-right cursor-pointer" onClick={() => onSort('netProfit')}>
               Net P&L (₹)
             </th>
-            <th className="px-4 py-3 text-right cursor-pointer" onClick={() => onSort('roiPercent')}>
+            <th className="px-4 py-3.5 text-right cursor-pointer" onClick={() => onSort('roiPercent')}>
               ROI (%)
             </th>
-            <th className="px-4 py-3 text-right cursor-pointer" onClick={() => onSort('breakEvenPricePerQuintal')}>
+            <th className="px-4 py-3.5 text-right cursor-pointer" onClick={() => onSort('breakEvenPricePerQuintal')}>
               Break-Even / qtl
             </th>
-            <th className="px-4 py-3 text-center">Loan Underwrite</th>
-            <th className="px-4 py-3 text-right">Actions</th>
+            <th className="px-4 py-3.5 text-center">Loan Underwrite</th>
+            <th className="px-4 py-3.5 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60">
+        <tbody className="divide-y divide-emerald-100/60">
           {records.length === 0 ? (
             <tr>
-              <td colSpan={10} className="py-12 text-center text-slate-500">
+              <td colSpan={10} className="py-12 text-center text-slate-500 font-semibold">
                 No Crop P&L statements found.
               </td>
             </tr>
@@ -468,72 +468,72 @@ export function CropPnlTable({
             records.map((item) => {
               const isProfitable = item.netProfit >= 0
               return (
-                <tr key={item.id} className="transition-colors hover:bg-slate-800/40">
-                  <td className="px-4 py-3 font-mono text-xs font-bold text-emerald-400">
+                <tr key={item.id} className="transition-colors hover:bg-emerald-50/60">
+                  <td className="px-4 py-3.5 font-mono text-xs font-bold text-emerald-800">
                     #{item.id}
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="font-medium text-slate-100">{item.farmerName}</div>
-                    <div className="text-xs text-slate-500 font-mono">
+                  <td className="px-4 py-3.5">
+                    <div className="font-bold text-slate-900">{item.farmerName}</div>
+                    <div className="text-[11px] text-slate-500 font-medium">
                       {item.district} · {maskPhone(item.farmerPhone)}
                     </div>
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="font-semibold text-slate-200">{item.cropName}</div>
-                    <div className="text-xs text-slate-400">
-                      {item.season} · <span className="font-mono text-slate-300">{item.areaAcres} acres</span>
+                  <td className="px-4 py-3.5">
+                    <div className="font-bold text-slate-900">{item.cropName}</div>
+                    <div className="text-[11px] text-slate-500 font-medium">
+                      {item.season} · <span className="font-mono text-emerald-900 font-semibold">{item.areaAcres} acres</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-slate-300">
+                  <td className="px-4 py-3.5 text-right font-mono font-bold text-slate-700">
                     {fmtINR(item.totalExpenses)}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-slate-300">
+                  <td className="px-4 py-3.5 text-right font-mono font-bold text-slate-900">
                     {fmtINR(item.grossRevenue)}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono font-bold">
-                    <span className={isProfitable ? 'text-emerald-400' : 'text-rose-400'}>
+                  <td className="px-4 py-3.5 text-right font-mono font-bold">
+                    <span className={isProfitable ? 'text-emerald-700' : 'text-rose-700'}>
                       {isProfitable ? `+${fmtINR(item.netProfit)}` : `-${fmtINR(Math.abs(item.netProfit))}`}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono">
+                  <td className="px-4 py-3.5 text-right font-mono">
                     <span
-                      className={`inline-block rounded px-1.5 py-0.5 text-xs font-bold ${
+                      className={`inline-block rounded-md px-2 py-0.5 text-xs font-bold border ${
                         item.roiPercent >= 50
-                          ? 'bg-emerald-500/15 text-emerald-400'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                           : item.roiPercent >= 0
-                          ? 'bg-sky-500/15 text-sky-400'
-                          : 'bg-rose-500/15 text-rose-400'
+                          ? 'bg-sky-50 text-sky-800 border-sky-200'
+                          : 'bg-rose-50 text-rose-800 border-rose-200'
                       }`}
                     >
                       {item.roiPercent > 0 ? `+${item.roiPercent}%` : `${item.roiPercent}%`}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono">
-                    <div className="text-xs font-bold text-slate-200">
+                  <td className="px-4 py-3.5 text-right font-mono">
+                    <div className="text-xs font-bold text-slate-900">
                       {fmtINR(item.breakEvenPricePerQuintal)}
                     </div>
-                    <div className="text-[10px] text-slate-500">
+                    <div className="text-[10px] text-slate-500 font-medium">
                       Market: {fmtINR(item.marketAvgRate)}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-4 py-3.5 text-center">
                     <DiaryStatusBadge status={item.loanEligibility} />
-                    <div className="text-[10px] font-mono text-slate-400 mt-0.5">
+                    <div className="text-[10px] font-mono text-slate-500 font-semibold mt-0.5">
                       Score: {item.creditScore}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3.5 text-right">
                     <div className="flex items-center justify-end gap-1.5">
                       <button
                         onClick={() => onView(item)}
-                        className="rounded p-1.5 text-slate-400 hover:bg-slate-800 hover:text-emerald-400"
+                        className="rounded-lg p-1.5 text-slate-600 hover:bg-emerald-50 hover:text-emerald-950 transition-colors shadow-2xs border border-emerald-100"
                         title="View Detailed P&L Breakdown"
                       >
                         <Eye className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => onPdfView(item)}
-                        className="rounded p-1.5 text-slate-400 hover:bg-slate-800 hover:text-sky-400"
+                        className="rounded-lg p-1.5 text-sky-700 hover:bg-sky-50 hover:text-sky-950 transition-colors shadow-2xs border border-sky-200"
                         title="Audit Generated PDF Statement"
                       >
                         <FileText className="h-4 w-4" />
@@ -541,7 +541,7 @@ export function CropPnlTable({
                       {item.status !== 'verified' && (
                         <button
                           onClick={() => onVerify(item)}
-                          className="rounded p-1.5 text-slate-400 hover:bg-slate-800 hover:text-emerald-400"
+                          className="rounded-lg p-1.5 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-950 transition-colors shadow-2xs border border-emerald-200"
                           title="Verify Statement"
                         >
                           <CheckCircle className="h-4 w-4" />
@@ -564,72 +564,72 @@ export function BenchmarksTable({ benchmarks, onCalibrate, onTestBreakEven }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-bold text-slate-200">
+          <h3 className="text-sm font-bold text-slate-900">
             State-Level Crop Production Cost Baselines & Break-Even Calibration
           </h3>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             Official ICAR and State Agricultural University baselines for cost verification and pre-sowing price calibration.
           </p>
         </div>
         <button
           onClick={onTestBreakEven}
-          className="flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/20"
+          className="flex items-center gap-1.5 rounded-xl border border-emerald-200/80 bg-white px-3.5 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-50 shadow-2xs transition-colors"
         >
-          <Calculator className="h-4 w-4" /> Pre-Sowing Calculator
+          <Calculator className="h-4 w-4 text-emerald-600" /> Pre-Sowing Calculator
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/60 shadow-lg">
-        <table className="w-full text-left text-sm text-slate-300">
-          <thead className="border-b border-slate-800 bg-slate-950/80 text-xs font-semibold uppercase tracking-wider text-slate-400">
+      <div className="overflow-hidden rounded-2xl border border-emerald-100/90 bg-white/90 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
+        <table className="w-full text-left text-xs text-slate-700">
+          <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <tr>
-              <th className="px-4 py-3">Crop & Season</th>
-              <th className="px-4 py-3">State / Jurisdiction</th>
-              <th className="px-4 py-3 text-right">Baseline Cost / Acre</th>
-              <th className="px-4 py-3 text-right">Seeds / Acre</th>
-              <th className="px-4 py-3 text-right">Fertilizer / Acre</th>
-              <th className="px-4 py-3 text-right">Labor / Acre</th>
-              <th className="px-4 py-3 text-right">Target Yield</th>
-              <th className="px-4 py-3 text-right">Break-Even Benchmark</th>
-              <th className="px-4 py-3 text-right">MSP Benchmark</th>
-              <th className="px-4 py-3 text-right">Actions</th>
+              <th className="px-4 py-3.5">Crop & Season</th>
+              <th className="px-4 py-3.5">State / Jurisdiction</th>
+              <th className="px-4 py-3.5 text-right">Baseline Cost / Acre</th>
+              <th className="px-4 py-3.5 text-right">Seeds / Acre</th>
+              <th className="px-4 py-3.5 text-right">Fertilizer / Acre</th>
+              <th className="px-4 py-3.5 text-right">Labor / Acre</th>
+              <th className="px-4 py-3.5 text-right">Target Yield</th>
+              <th className="px-4 py-3.5 text-right">Break-Even Benchmark</th>
+              <th className="px-4 py-3.5 text-right">MSP Benchmark</th>
+              <th className="px-4 py-3.5 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-emerald-100/60">
             {benchmarks.map((b) => (
-              <tr key={`${b.crop}-${b.state}`} className="transition-colors hover:bg-slate-800/40">
-                <td className="px-4 py-3">
-                  <div className="font-bold text-slate-100">{b.crop}</div>
-                  <div className="text-xs text-slate-500">{b.season}</div>
+              <tr key={`${b.crop}-${b.state}`} className="transition-colors hover:bg-emerald-50/60">
+                <td className="px-4 py-3.5">
+                  <div className="font-bold text-slate-900">{b.crop}</div>
+                  <div className="text-[11px] text-slate-500 font-medium">{b.season}</div>
                 </td>
-                <td className="px-4 py-3 font-medium text-slate-300">
+                <td className="px-4 py-3.5 font-bold text-slate-800">
                   {b.state}
                 </td>
-                <td className="px-4 py-3 text-right font-mono font-bold text-emerald-400">
+                <td className="px-4 py-3.5 text-right font-mono font-bold text-emerald-800">
                   {fmtINR(b.baselineCostPerAcre)}
                 </td>
-                <td className="px-4 py-3 text-right font-mono text-slate-400">
+                <td className="px-4 py-3.5 text-right font-mono text-slate-600 font-medium">
                   {fmtINR(b.seedsCost)}
                 </td>
-                <td className="px-4 py-3 text-right font-mono text-slate-400">
+                <td className="px-4 py-3.5 text-right font-mono text-slate-600 font-medium">
                   {fmtINR(b.fertilizerCost)}
                 </td>
-                <td className="px-4 py-3 text-right font-mono text-slate-400">
+                <td className="px-4 py-3.5 text-right font-mono text-slate-600 font-medium">
                   {fmtINR(b.laborCost)}
                 </td>
-                <td className="px-4 py-3 text-right font-mono text-slate-200">
+                <td className="px-4 py-3.5 text-right font-mono font-bold text-slate-800">
                   {b.targetYieldQuintalsPerAcre} qtl/acre
                 </td>
-                <td className="px-4 py-3 text-right font-mono font-bold text-sky-400">
+                <td className="px-4 py-3.5 text-right font-mono font-bold text-sky-700">
                   {fmtINR(b.benchmarkBreakEvenPrice)} / qtl
                 </td>
-                <td className="px-4 py-3 text-right font-mono text-slate-300">
+                <td className="px-4 py-3.5 text-right font-mono font-bold text-slate-800">
                   {fmtINR(b.mspRate)} / qtl
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3.5 text-right">
                   <button
                     onClick={() => onCalibrate(b)}
-                    className="inline-flex items-center gap-1 rounded border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-200 hover:border-emerald-500 hover:text-emerald-400"
+                    className="inline-flex items-center gap-1 rounded-lg border border-emerald-200/80 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-950 transition-colors shadow-2xs"
                   >
                     <Sliders className="h-3 w-3" /> Calibrate
                   </button>
@@ -650,39 +650,39 @@ export function RegionalTrendsView({ trends, agriCoins, onTestCalculator }) {
   return (
     <div className="space-y-6">
       {/* AgriCoins Audit Integrity Ledger Banner */}
-      <div className="rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-slate-900 to-slate-900 p-5 shadow-lg">
+      <div className="rounded-2xl border border-amber-200/90 bg-gradient-to-r from-amber-50/80 via-white to-amber-50/40 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
-              <Coins className="h-6 w-6 text-amber-400" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-800 border border-amber-300 shadow-2xs">
+              <Coins className="h-6 w-6 text-amber-600" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-100">
+              <h3 className="text-base font-bold text-slate-900">
                 AgriCoins Daily Accounting Reward Ledger & Integrity Audit
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-600 font-medium">
                 Disbursement integrity: +15 coins awarded per valid farm diary entry. Strict daily cap of 3 paid entries (45 coins/day) enforced.
               </p>
             </div>
           </div>
           <div className="flex items-center gap-4 text-xs font-mono">
             <div className="text-right">
-              <div className="text-slate-400 uppercase text-[10px]">Total Coins Disbursed</div>
-              <div className="text-lg font-extrabold text-amber-400">
+              <div className="text-slate-500 uppercase text-[10px] font-bold">Total Coins Disbursed</div>
+              <div className="text-lg font-bold text-amber-800">
                 {agriCoins?.totalCoinsDisbursed?.toLocaleString('en-IN') || '632,550'} 🪙
               </div>
             </div>
-            <div className="h-8 w-px bg-slate-800" />
+            <div className="h-8 w-px bg-slate-200" />
             <div className="text-right">
-              <div className="text-slate-400 uppercase text-[10px]">Audit Integrity Score</div>
-              <div className="text-lg font-extrabold text-emerald-400">
+              <div className="text-slate-500 uppercase text-[10px] font-bold">Audit Integrity Score</div>
+              <div className="text-lg font-bold text-emerald-800">
                 {agriCoins?.auditIntegrityScore || 99.7}%
               </div>
             </div>
-            <div className="h-8 w-px bg-slate-800" />
+            <div className="h-8 w-px bg-slate-200" />
             <div className="text-right">
-              <div className="text-slate-400 uppercase text-[10px]">Reversals Processed</div>
-              <div className="text-lg font-extrabold text-rose-400">
+              <div className="text-slate-500 uppercase text-[10px] font-bold">Reversals Processed</div>
+              <div className="text-lg font-bold text-rose-700">
                 {agriCoins?.reversalsProcessed || 14}
               </div>
             </div>
@@ -692,25 +692,25 @@ export function RegionalTrendsView({ trends, agriCoins, onTestCalculator }) {
 
       {/* District Expenditure Breakdown Cards */}
       <div>
-        <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">
+        <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-700">
           Regional Farm Expenditure Trends by District & Commodity
         </h4>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {districts.map((d) => (
             <div
               key={d.district}
-              className="rounded-xl border border-slate-800 bg-slate-900 p-4 transition hover:border-slate-700"
+              className="rounded-2xl border border-emerald-100/90 bg-white/90 backdrop-blur-xl p-4 transition hover:border-emerald-300 shadow-[0_8px_30px_rgb(0,0,0,0.03)]"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <h5 className="font-bold text-slate-100 flex items-center gap-1.5">
-                    <MapPin className="h-4 w-4 text-emerald-400" /> {d.district}
+                  <h5 className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <MapPin className="h-4 w-4 text-emerald-600" /> {d.district}
                   </h5>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-500 font-medium">
                     {d.totalFarmers.toLocaleString()} active bookkeeping farmers
                   </p>
                 </div>
-                <span className="rounded bg-slate-800 px-2 py-0.5 text-[11px] font-mono text-emerald-300">
+                <span className="rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[11px] font-mono font-bold text-emerald-800">
                   {d.diaryEntriesCount} logs
                 </span>
               </div>
@@ -718,21 +718,21 @@ export function RegionalTrendsView({ trends, agriCoins, onTestCalculator }) {
               <div className="mt-4 space-y-2 text-xs">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Total Expenditure</span>
-                  <span className="font-mono font-bold text-slate-200">
+                  <span className="font-mono font-bold text-slate-900">
                     {fmtINR(d.totalExpenditure)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Average Cost / Acre</span>
-                  <span className="font-mono text-slate-300">{fmtINR(d.avgCostPerAcre)}</span>
+                  <span className="font-mono text-slate-700 font-semibold">{fmtINR(d.avgCostPerAcre)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Dominant Expense</span>
-                  <span className="font-semibold text-amber-400">{d.topExpenseCategory}</span>
+                  <span className="font-bold text-amber-800">{d.topExpenseCategory}</span>
                 </div>
-                <div className="flex justify-between items-center pt-2 border-t border-slate-800">
+                <div className="flex justify-between items-center pt-2 border-t border-emerald-100">
                   <span className="text-slate-500">Active Crops</span>
-                  <span className="text-slate-300 text-[11px]">
+                  <span className="text-slate-700 font-medium text-[11px]">
                     {d.activeCrops.join(', ')}
                   </span>
                 </div>
@@ -743,17 +743,17 @@ export function RegionalTrendsView({ trends, agriCoins, onTestCalculator }) {
       </div>
 
       {/* Statewide Expenditure Distribution Bar */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-        <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-          <PieChart className="h-4 w-4 text-emerald-400" /> State-Wide Input Expenditure Allocation
+      <div className="rounded-2xl border border-emerald-100/90 bg-white/90 backdrop-blur-xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
+        <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+          <PieChart className="h-4 w-4 text-emerald-600" /> State-Wide Input Expenditure Allocation
         </h4>
-        <p className="text-xs text-slate-400 mb-4">
+        <p className="text-xs text-slate-500 mb-4 font-medium">
           Aggregated across 42,000+ farmer bookkeeping records. Labor & fertilizing comprise 56% of statewide input costs.
         </p>
 
         {/* Multi-segment progress bar */}
-        <div className="flex h-3 w-full overflow-hidden rounded-full bg-slate-800">
-          <div className="bg-emerald-500" style={{ width: '32%' }} title="Labor: 32%" />
+        <div className="flex h-3 w-full overflow-hidden rounded-full bg-slate-100 border border-slate-200">
+          <div className="bg-emerald-600" style={{ width: '32%' }} title="Labor: 32%" />
           <div className="bg-sky-500" style={{ width: '24%' }} title="Fertilizers: 24%" />
           <div className="bg-amber-500" style={{ width: '18%' }} title="Seeds: 18%" />
           <div className="bg-indigo-500" style={{ width: '14%' }} title="Pesticides: 14%" />
@@ -764,22 +764,22 @@ export function RegionalTrendsView({ trends, agriCoins, onTestCalculator }) {
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 text-xs">
           {categories.map((c, i) => {
             const colors = [
-              'text-emerald-400',
-              'text-sky-400',
-              'text-amber-400',
-              'text-indigo-400',
-              'text-purple-400',
-              'text-teal-400'
+              'text-emerald-800',
+              'text-sky-800',
+              'text-amber-800',
+              'text-indigo-800',
+              'text-purple-800',
+              'text-teal-800'
             ]
             return (
-              <div key={c.category} className="rounded-lg border border-slate-800/80 p-2.5">
-                <div className={`font-mono font-bold ${colors[i % colors.length]}`}>
+              <div key={c.category} className="rounded-xl border border-emerald-100 bg-emerald-50/30 p-2.5 shadow-2xs">
+                <div className={`font-mono font-bold text-sm ${colors[i % colors.length]}`}>
                   {c.percentage}%
                 </div>
-                <div className="font-medium text-slate-200 text-[11px] truncate" title={c.category}>
+                <div className="font-bold text-slate-800 text-[11px] truncate mt-0.5" title={c.category}>
                   {c.category}
                 </div>
-                <div className="text-[10px] font-mono text-slate-500">{fmtINR(c.totalAmount)}</div>
+                <div className="text-[10px] font-mono text-slate-500 font-medium">{fmtINR(c.totalAmount)}</div>
               </div>
             )
           })}
@@ -795,17 +795,17 @@ export function Pagination({ page, pageSize, total, onPage }) {
   const end = Math.min(page * pageSize, total)
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800/80 pt-4 text-xs text-slate-400">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-emerald-100/80 pt-4 text-xs text-slate-600">
       <div>
-        Showing <span className="font-mono font-bold text-slate-200">{start}</span> to{' '}
-        <span className="font-mono font-bold text-slate-200">{end}</span> of{' '}
-        <span className="font-mono font-bold text-slate-200">{total}</span> records
+        Showing <span className="font-mono font-bold text-slate-900">{start}</span> to{' '}
+        <span className="font-mono font-bold text-slate-900">{end}</span> of{' '}
+        <span className="font-mono font-bold text-slate-900">{total}</span> records
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1.5">
         <button
           onClick={() => onPage(page - 1)}
           disabled={page <= 1}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700 disabled:opacity-40"
+          className="flex h-8 w-8 items-center justify-center rounded-xl border border-emerald-200/80 bg-white text-slate-700 hover:bg-emerald-50 shadow-2xs disabled:opacity-30 font-semibold transition-colors"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -815,10 +815,10 @@ export function Pagination({ page, pageSize, total, onPage }) {
             <button
               key={p}
               onClick={() => onPage(p)}
-              className={`h-8 w-8 rounded-lg font-mono text-xs font-bold transition ${
+              className={`h-8 w-8 rounded-xl font-mono text-xs font-bold transition-all ${
                 page === p
-                  ? 'border border-emerald-500/40 bg-emerald-500/20 text-emerald-400'
-                  : 'border border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'border border-emerald-200/70 bg-white text-slate-700 hover:bg-emerald-50 shadow-2xs'
               }`}
             >
               {p}
@@ -828,7 +828,7 @@ export function Pagination({ page, pageSize, total, onPage }) {
         <button
           onClick={() => onPage(page + 1)}
           disabled={page >= pages}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700 disabled:opacity-40"
+          className="flex h-8 w-8 items-center justify-center rounded-xl border border-emerald-200/80 bg-white text-slate-700 hover:bg-emerald-50 shadow-2xs disabled:opacity-30 font-semibold transition-colors"
         >
           <ChevronRight className="h-4 w-4" />
         </button>

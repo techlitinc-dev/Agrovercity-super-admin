@@ -39,35 +39,38 @@ export function fmtLiters(liters) {
 }
 
 export function MetricCard({ title, value, subtext, icon: Icon, color = 'emerald', alert = false, onClick }) {
-  const colorMap = {
-    emerald: 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400 hover:border-emerald-500/50',
-    amber: 'border-amber-500/30 bg-amber-500/5 text-amber-400 hover:border-amber-500/50',
-    rose: 'border-rose-500/30 bg-rose-500/5 text-rose-400 hover:border-rose-500/50',
-    blue: 'border-blue-500/30 bg-blue-500/5 text-blue-400 hover:border-blue-500/50',
-    purple: 'border-purple-500/30 bg-purple-500/5 text-purple-400 hover:border-purple-500/50',
-    cyan: 'border-cyan-500/30 bg-cyan-500/5 text-cyan-400 hover:border-cyan-500/50',
-    slate: 'border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-600'
+  const toneMap = {
+    emerald: 'text-emerald-700 bg-emerald-50 text-emerald-600 border-emerald-100',
+    amber: 'text-amber-700 bg-amber-50 text-amber-600 border-amber-100',
+    rose: 'text-rose-700 bg-rose-50 text-rose-600 border-rose-100',
+    blue: 'text-sky-700 bg-sky-50 text-sky-600 border-sky-100',
+    purple: 'text-purple-700 bg-purple-50 text-purple-600 border-purple-100',
+    cyan: 'text-teal-700 bg-teal-50 text-teal-600 border-teal-100',
+    slate: 'text-slate-800 bg-slate-50 text-slate-600 border-slate-200'
   }
+
+  const currentTone = toneMap[color] || toneMap.emerald
+  const [valColor, iconBg, iconColor, iconBorder] = currentTone.split(' ')
 
   return (
     <div
       onClick={onClick}
-      className={`rounded-xl border p-4 transition-all duration-200 cursor-pointer ${
-        colorMap[color] || colorMap.emerald
-      } ${alert ? 'ring-1 ring-amber-500/50 animate-pulse' : ''}`}
+      className={`rounded-2xl border border-emerald-100/90 bg-white/90 backdrop-blur-xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:border-emerald-300 hover:shadow-md transition-all flex flex-col justify-between ${
+        onClick ? 'cursor-pointer' : ''
+      } ${alert ? 'ring-2 ring-rose-500/30' : ''}`}
     >
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-slate-400">{title}</span>
+        <span className="text-xs font-bold uppercase tracking-wider text-slate-500">{title}</span>
         {Icon && (
-          <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
+          <div className={`p-2 rounded-xl border ${iconBg} ${iconColor} ${iconBorder}`}>
             <Icon className="w-4 h-4" />
           </div>
         )}
       </div>
-      <div className="mt-2 flex items-baseline gap-2">
-        <span className="text-2xl font-bold font-mono tracking-tight text-white">{value}</span>
+      <div className="mt-2.5">
+        <span className={`text-2xl font-black font-mono tracking-tight ${valColor}`}>{value}</span>
+        {subtext && <p className="mt-1 text-xs text-slate-500 font-medium truncate">{subtext}</p>}
       </div>
-      {subtext && <p className="mt-1 text-xs text-slate-400 truncate">{subtext}</p>}
     </div>
   )
 }
@@ -83,7 +86,7 @@ export function TabSwitch({ activeTab, onChangeTab, counts = {} }) {
   ]
 
   return (
-    <div className="flex items-center gap-1 border-b border-slate-800 px-6 bg-slate-950/40 overflow-x-auto">
+    <div className="flex items-center gap-1.5 border-b border-emerald-100/80 px-6 pb-2 bg-white/50 backdrop-blur-sm overflow-x-auto">
       {tabs.map((tab) => {
         const Icon = tab.icon
         const isActive = activeTab === tab.id
@@ -91,20 +94,20 @@ export function TabSwitch({ activeTab, onChangeTab, counts = {} }) {
           <button
             key={tab.id}
             onClick={() => onChangeTab(tab.id)}
-            className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold whitespace-nowrap transition-all border-b-2 -mb-px ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 ${
               isActive
-                ? 'border-cyan-500 text-cyan-300 bg-cyan-500/10 rounded-t-lg'
-                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-emerald-50/60'
             }`}
           >
-            <Icon className={`w-4 h-4 ${isActive ? 'text-cyan-400' : 'text-slate-500'}`} />
+            <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
             <span>{tab.label}</span>
             {tab.badge !== undefined && (
               <span
-                className={`ml-1 text-[10px] font-mono px-1.5 py-0.2 rounded-full border ${
+                className={`ml-1 text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full border ${
                   isActive
-                    ? 'bg-cyan-950 text-cyan-300 border-cyan-500/40'
-                    : 'bg-slate-800 text-slate-400 border-slate-700'
+                    ? 'bg-emerald-700/80 text-emerald-100 border-emerald-500/50'
+                    : 'bg-emerald-50 text-emerald-800 border-emerald-200'
                 }`}
               >
                 {tab.badge}
@@ -120,14 +123,14 @@ export function TabSwitch({ activeTab, onChangeTab, counts = {} }) {
 export function StatusBadge({ status, type = 'schedule' }) {
   if (type === 'cgwb') {
     const map = {
-      SAFE: { label: 'Safe Aquifer', cls: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40' },
-      SEMI_CRITICAL: { label: 'Semi-Critical', cls: 'bg-amber-950/60 text-amber-400 border-amber-500/40' },
-      CRITICAL: { label: 'Critical Depth', cls: 'bg-rose-950/60 text-rose-400 border-rose-500/40' },
-      OVER_EXPLOITED: { label: 'Over-Exploited (OEX)', cls: 'bg-purple-950/60 text-purple-300 border-purple-500/40' }
+      SAFE: { label: 'Safe Aquifer', cls: 'bg-emerald-50 text-emerald-800 border-emerald-300' },
+      SEMI_CRITICAL: { label: 'Semi-Critical', cls: 'bg-amber-50 text-amber-800 border-amber-300' },
+      CRITICAL: { label: 'Critical Depth', cls: 'bg-rose-50 text-rose-800 border-rose-300' },
+      OVER_EXPLOITED: { label: 'Over-Exploited (OEX)', cls: 'bg-purple-50 text-purple-800 border-purple-300' }
     }
-    const s = map[status] || { label: status, cls: 'bg-slate-800 text-slate-300 border-slate-700' }
+    const s = map[status] || { label: status, cls: 'bg-slate-100 text-slate-700 border-slate-200' }
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-mono font-medium border ${s.cls}`}>
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold border ${s.cls}`}>
         {s.label}
       </span>
     )
@@ -135,14 +138,14 @@ export function StatusBadge({ status, type = 'schedule' }) {
 
   if (type === 'canal') {
     const map = {
-      active_rotation: { label: 'Active Release', cls: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40' },
-      scheduled: { label: 'Scheduled Rotation', cls: 'bg-cyan-950/60 text-cyan-400 border-cyan-500/40' },
-      maintenance_closure: { label: 'Maintenance Closure', cls: 'bg-amber-950/60 text-amber-400 border-amber-500/40' },
-      dry_spell: { label: 'Water Deficit Hold', cls: 'bg-rose-950/60 text-rose-400 border-rose-500/40' }
+      active_rotation: { label: 'Active Release', cls: 'bg-emerald-50 text-emerald-800 border-emerald-300' },
+      scheduled: { label: 'Scheduled Rotation', cls: 'bg-sky-50 text-sky-800 border-sky-300' },
+      maintenance_closure: { label: 'Maintenance Closure', cls: 'bg-amber-50 text-amber-800 border-amber-300' },
+      dry_spell: { label: 'Water Deficit Hold', cls: 'bg-rose-50 text-rose-800 border-rose-300' }
     }
-    const s = map[status] || { label: status, cls: 'bg-slate-800 text-slate-300 border-slate-700' }
+    const s = map[status] || { label: status, cls: 'bg-slate-100 text-slate-700 border-slate-200' }
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium border ${s.cls}`}>
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${s.cls}`}>
         {s.label}
       </span>
     )
@@ -150,13 +153,13 @@ export function StatusBadge({ status, type = 'schedule' }) {
 
   if (type === 'alert') {
     const map = {
-      OPTIMAL: { label: 'Optimal Irrigation', cls: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40' },
-      UNDER_IRRIGATED: { label: 'Under-Irrigated', cls: 'bg-amber-950/60 text-amber-400 border-amber-500/40' },
-      OVER_IRRIGATED: { label: 'Over-Irrigated Risk', cls: 'bg-rose-950/60 text-rose-400 border-rose-500/40' }
+      OPTIMAL: { label: 'Optimal Irrigation', cls: 'bg-emerald-50 text-emerald-800 border-emerald-300' },
+      UNDER_IRRIGATED: { label: 'Under-Irrigated', cls: 'bg-amber-50 text-amber-800 border-amber-300' },
+      OVER_IRRIGATED: { label: 'Over-Irrigated Risk', cls: 'bg-rose-50 text-rose-800 border-rose-300' }
     }
-    const s = map[status] || { label: status, cls: 'bg-slate-800 text-slate-300 border-slate-700' }
+    const s = map[status] || { label: status, cls: 'bg-slate-100 text-slate-700 border-slate-200' }
     return (
-      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium border ${s.cls}`}>
+      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${s.cls}`}>
         {s.label}
       </span>
     )
@@ -164,18 +167,18 @@ export function StatusBadge({ status, type = 'schedule' }) {
 
   // General Schedule / Subsidy
   const map = {
-    active: { label: 'Active Running', cls: 'bg-cyan-950/60 text-cyan-300 border-cyan-500/40' },
-    scheduled: { label: 'Scheduled', cls: 'bg-blue-950/60 text-blue-300 border-blue-500/40' },
-    completed: { label: 'Completed', cls: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40' },
-    skipped: { label: 'Skipped', cls: 'bg-slate-800 text-slate-400 border-slate-700' },
-    approved: { label: 'Approved', cls: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40' },
-    pending_inspection: { label: 'Pending Inspection', cls: 'bg-amber-950/60 text-amber-400 border-amber-500/40' },
-    first_signoff: { label: '1st Signoff Done', cls: 'bg-purple-950/60 text-purple-300 border-purple-500/40' }
+    active: { label: 'Active Running', cls: 'bg-teal-50 text-teal-800 border-teal-300' },
+    scheduled: { label: 'Scheduled', cls: 'bg-sky-50 text-sky-800 border-sky-300' },
+    completed: { label: 'Completed', cls: 'bg-emerald-50 text-emerald-800 border-emerald-300' },
+    skipped: { label: 'Skipped', cls: 'bg-slate-100 text-slate-600 border-slate-200' },
+    approved: { label: 'Approved', cls: 'bg-emerald-50 text-emerald-800 border-emerald-300' },
+    pending_inspection: { label: 'Pending Inspection', cls: 'bg-amber-50 text-amber-800 border-amber-300' },
+    first_signoff: { label: '1st Signoff Done', cls: 'bg-purple-50 text-purple-800 border-purple-300' }
   }
 
-  const s = map[status] || { label: status, cls: 'bg-slate-800 text-slate-300 border-slate-700' }
+  const s = map[status] || { label: status, cls: 'bg-slate-100 text-slate-700 border-slate-200' }
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium border ${s.cls}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${s.cls}`}>
       {s.label}
     </span>
   )
@@ -200,7 +203,7 @@ export function FiltersBar({
   onIssueDroughtAlert
 }) {
   return (
-    <div className="p-4 bg-slate-900/60 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+    <div className="p-4 bg-white/80 backdrop-blur-md border-b border-emerald-100/80 flex flex-wrap items-center justify-between gap-3 text-xs">
       <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
         {/* Search Input */}
         <div className="relative flex-1 min-w-[220px] max-w-sm">
@@ -219,12 +222,12 @@ export function FiltersBar({
                 ? 'Search PMKSY app #, farmer, Aadhaar...'
                 : 'Search water advisories or audit logs...'
             }
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-3 pr-8 py-1.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+            className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
           />
           {q && (
             <button
               onClick={() => setQ('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
             >
               ×
             </button>
@@ -236,7 +239,7 @@ export function FiltersBar({
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-cyan-500"
+            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
           >
             <option value="all">All Schedule Statuses</option>
             <option value="active">Active Running</option>
@@ -251,7 +254,7 @@ export function FiltersBar({
           <select
             value={irrigationType}
             onChange={(e) => setIrrigationType(e.target.value)}
-            className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-cyan-500"
+            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
           >
             <option value="all">All Irrigation Methods</option>
             <option value="Drip">Drip Irrigation (ठिबक)</option>
@@ -266,7 +269,7 @@ export function FiltersBar({
           <select
             value={alertFilter}
             onChange={(e) => setAlertFilter(e.target.value)}
-            className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-cyan-500"
+            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
           >
             <option value="all">All Irrigation Levels</option>
             <option value="OPTIMAL">Optimal Irrigation</option>
@@ -280,7 +283,7 @@ export function FiltersBar({
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-cyan-500"
+            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
           >
             <option value="all">All Aquifer Categories</option>
             <option value="SAFE">Safe Category</option>
@@ -295,7 +298,7 @@ export function FiltersBar({
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-cyan-500"
+            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
           >
             <option value="all">All Canal Release Statuses</option>
             <option value="active_rotation">Active Flow Release</option>
@@ -310,7 +313,7 @@ export function FiltersBar({
           <select
             value={district}
             onChange={(e) => setDistrict(e.target.value)}
-            className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-cyan-500"
+            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
           >
             <option value="all">All Districts</option>
             <option value="Nashik">Nashik</option>
@@ -328,7 +331,7 @@ export function FiltersBar({
         {tab === 'cgwb' && onSyncCgwb && (
           <button
             onClick={onSyncCgwb}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-medium shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-xs transition active:scale-95"
             title="Batch ingest CGWB observatory station readings (SOP-17 §3)"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -339,7 +342,7 @@ export function FiltersBar({
         {tab === 'canals' && onUpdateCanal && (
           <button
             onClick={onUpdateCanal}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-medium shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-xs transition active:scale-95"
             title="Update canal rotation timetable & release dates (SOP-17 §3)"
           >
             <Waves className="w-3.5 h-3.5" />
@@ -350,17 +353,17 @@ export function FiltersBar({
         {tab === 'subsidy' && onConfigureSubsidy && (
           <button
             onClick={onConfigureSubsidy}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold shadow-2xs transition"
             title="Configure PMKSY 55% subsidy percentages & per-acre caps"
           >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-cyan-400" />
+            <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-600" />
             <span>Configure Rules</span>
           </button>
         )}
 
         <button
           onClick={onIssueDroughtAlert}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600/90 hover:bg-rose-500 text-white font-medium shadow-sm transition-colors"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-xs transition active:scale-95"
           title="Issue emergency low-water and drought alert to affected tehsils"
         >
           <AlertTriangle className="w-3.5 h-3.5" />
@@ -369,7 +372,7 @@ export function FiltersBar({
 
         <button
           onClick={onExportCsv}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition-colors"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold shadow-2xs transition"
           title="Export current view to CSV"
         >
           <span>Export CSV</span>
@@ -383,9 +386,9 @@ export function WaterSchedulesTable({ schedules, onSelectSchedule }) {
   if (!schedules || schedules.length === 0) {
     return (
       <div className="p-12 text-center text-slate-500">
-        <Droplets className="w-12 h-12 mx-auto mb-3 opacity-30 text-cyan-400" />
-        <p className="text-base font-medium text-slate-400">No irrigation water schedules found</p>
-        <p className="text-xs mt-1">Try adjusting the search criteria or resetting status filters.</p>
+        <Droplets className="w-12 h-12 mx-auto mb-3 opacity-30 text-teal-600" />
+        <p className="text-base font-bold text-slate-700">No irrigation water schedules found</p>
+        <p className="text-xs text-slate-500 mt-1">Try adjusting the search criteria or resetting status filters.</p>
       </div>
     )
   }
@@ -394,7 +397,7 @@ export function WaterSchedulesTable({ schedules, onSelectSchedule }) {
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse text-xs">
         <thead>
-          <tr className="border-b border-slate-800 bg-slate-900/70 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+          <tr className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <th className="py-3 px-4">Farmer & Gat Plot</th>
             <th className="py-3 px-4">Crop & Growth Stage</th>
             <th className="py-3 px-4">Irrigation System & Source</th>
@@ -405,16 +408,16 @@ export function WaterSchedulesTable({ schedules, onSelectSchedule }) {
             <th className="py-3 px-4 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60">
+        <tbody className="divide-y divide-slate-100/80">
           {schedules.map((ws) => (
             <tr
               key={ws.id}
               onClick={() => onSelectSchedule(ws)}
-              className="hover:bg-slate-900/50 cursor-pointer transition-colors group"
+              className="hover:bg-emerald-50/60 cursor-pointer transition-colors group"
             >
               <td className="py-3.5 px-4">
-                <div className="font-medium text-slate-200">{ws.farmerName}</div>
-                <div className="text-[11px] text-cyan-400 font-mono mt-0.5">
+                <div className="font-bold text-slate-900">{ws.farmerName}</div>
+                <div className="text-[11px] text-teal-700 font-mono font-semibold mt-0.5">
                   Gat #{ws.gatNumber} · {ws.village} ({ws.district})
                 </div>
                 <div className="text-[10px] text-slate-500 font-mono">
@@ -423,42 +426,42 @@ export function WaterSchedulesTable({ schedules, onSelectSchedule }) {
               </td>
 
               <td className="py-3.5 px-4">
-                <div className="font-semibold text-slate-200">{ws.crop}</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">{ws.cropStage}</div>
-                <div className="text-[10px] text-slate-500 font-mono">
+                <div className="font-bold text-slate-900">{ws.crop}</div>
+                <div className="text-[11px] text-slate-500 mt-0.5">{ws.cropStage}</div>
+                <div className="text-[10px] text-slate-400 font-mono">
                   Area: {ws.acreage} Acres · {ws.soilType}
                 </div>
               </td>
 
               <td className="py-3.5 px-4">
-                <div className="text-slate-300 font-medium">{ws.irrigationType}</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">{ws.waterSource}</div>
-                <div className="text-[10px] text-emerald-400 font-mono mt-0.5">
+                <div className="text-slate-800 font-semibold">{ws.irrigationType}</div>
+                <div className="text-[11px] text-slate-500 mt-0.5">{ws.waterSource}</div>
+                <div className="text-[10px] text-emerald-700 font-mono font-bold mt-0.5">
                   {ws.pumpElectricitySlot}
                 </div>
               </td>
 
               <td className="py-3.5 px-4 text-right font-mono">
-                <div className="font-bold text-slate-100">{fmtLiters(ws.waterVolumeLiters)}</div>
-                <div className="text-[11px] text-emerald-400">
+                <div className="font-bold text-slate-900">{fmtLiters(ws.waterVolumeLiters)}</div>
+                <div className="text-[11px] text-emerald-700 font-bold">
                   +{fmtLiters(ws.waterSavedLiters)} saved
                 </div>
-                <div className="text-[10px] text-slate-500 mt-0.5">
+                <div className="text-[10px] text-slate-400 mt-0.5">
                   {ws.durationMinutes} mins slot
                 </div>
               </td>
 
               <td className="py-3.5 px-4 text-center font-mono">
-                <div className="text-slate-200 font-bold">
+                <div className="text-slate-900 font-bold">
                   {ws.soilMoistureCurrentPct}% / {ws.soilMoistureTargetPct}%
                 </div>
-                <div className="text-[10px] text-slate-400">
+                <div className="text-[10px] text-slate-500">
                   ETc: {ws.evapotranspirationEtcMm} mm/day
                 </div>
               </td>
 
               <td className="py-3.5 px-4 text-center space-y-1">
-                <div className="text-xs font-mono font-bold text-cyan-400">
+                <div className="text-xs font-mono font-bold text-teal-700">
                   {ws.waterEfficiencyIndex}% Score
                 </div>
                 <StatusBadge status={ws.overUnderAlert} type="alert" />
@@ -466,7 +469,7 @@ export function WaterSchedulesTable({ schedules, onSelectSchedule }) {
 
               <td className="py-3.5 px-4 text-center">
                 <StatusBadge status={ws.status} type="schedule" />
-                <span className="block text-[10px] text-slate-500 font-mono mt-1">
+                <span className="block text-[10px] text-slate-500 font-mono mt-1 font-medium">
                   {ws.scheduledStartTime}
                 </span>
               </td>
@@ -474,7 +477,7 @@ export function WaterSchedulesTable({ schedules, onSelectSchedule }) {
               <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                 <button
                   onClick={() => onSelectSchedule(ws)}
-                  className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
                   title="View plot irrigation telemetry"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -492,8 +495,8 @@ export function CgwbStationsTable({ stations, onSelectStation }) {
   if (!stations || stations.length === 0) {
     return (
       <div className="p-12 text-center text-slate-500">
-        <Gauge className="w-12 h-12 mx-auto mb-3 opacity-30 text-cyan-400" />
-        <p className="text-base font-medium text-slate-400">No CGWB groundwater stations found</p>
+        <Gauge className="w-12 h-12 mx-auto mb-3 opacity-30 text-teal-600" />
+        <p className="text-base font-bold text-slate-700">No CGWB groundwater stations found</p>
       </div>
     )
   }
@@ -502,7 +505,7 @@ export function CgwbStationsTable({ stations, onSelectStation }) {
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse text-xs">
         <thead>
-          <tr className="border-b border-slate-800 bg-slate-900/70 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+          <tr className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <th className="py-3 px-4">Station Code & Observatory</th>
             <th className="py-3 px-4">Jurisdiction & Aquifer</th>
             <th className="py-3 px-4 text-right">Water Level (mbgl)</th>
@@ -512,7 +515,7 @@ export function CgwbStationsTable({ stations, onSelectStation }) {
             <th className="py-3 px-4 text-right">Telemetry Status</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60">
+        <tbody className="divide-y divide-slate-100/80">
           {stations.map((st) => {
             const isCritical = st.currentWaterLevelMbgl >= st.criticalDepthThresholdMbgl
 
@@ -520,42 +523,42 @@ export function CgwbStationsTable({ stations, onSelectStation }) {
               <tr
                 key={st.id}
                 onClick={() => onSelectStation && onSelectStation(st)}
-                className="hover:bg-slate-900/50 cursor-pointer transition-colors"
+                className="hover:bg-emerald-50/60 cursor-pointer transition-colors"
               >
                 <td className="py-3.5 px-4 font-mono">
-                  <div className="font-bold text-cyan-400">{st.stationCode}</div>
-                  <div className="text-slate-200 text-xs font-sans mt-0.5">{st.stationName}</div>
+                  <div className="font-bold text-teal-700">{st.stationCode}</div>
+                  <div className="text-slate-900 text-xs font-sans font-bold mt-0.5">{st.stationName}</div>
                 </td>
 
                 <td className="py-3.5 px-4">
-                  <div className="text-slate-200 font-medium">
+                  <div className="text-slate-900 font-medium">
                     {st.tehsil}, {st.district} ({st.state})
                   </div>
-                  <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                  <div className="text-[11px] text-slate-500 font-mono mt-0.5">
                     {st.aquiferType}
                   </div>
                 </td>
 
                 <td className="py-3.5 px-4 text-right font-mono">
-                  <div className={`text-base font-bold ${isCritical ? 'text-rose-400' : 'text-slate-100'}`}>
+                  <div className={`text-base font-bold ${isCritical ? 'text-rose-700' : 'text-slate-900'}`}>
                     {st.currentWaterLevelMbgl} mbgl
                   </div>
-                  <div className="text-[10px] text-slate-500">
+                  <div className="text-[10px] text-slate-400">
                     Threshold: {st.criticalDepthThresholdMbgl} mbgl
                   </div>
                 </td>
 
                 <td className="py-3.5 px-4 text-center font-mono text-[11px]">
-                  <span className="text-amber-400 font-semibold">{st.preMonsoonMbgl}</span>
-                  <span className="text-slate-500 mx-1">/</span>
-                  <span className="text-emerald-400 font-semibold">{st.postMonsoonMbgl}</span>
-                  <span className="block text-[10px] text-slate-500">Pre / Post Mbgl</span>
+                  <span className="text-amber-700 font-bold">{st.preMonsoonMbgl}</span>
+                  <span className="text-slate-400 mx-1">/</span>
+                  <span className="text-emerald-700 font-bold">{st.postMonsoonMbgl}</span>
+                  <span className="block text-[10px] text-slate-400 font-sans">Pre / Post Mbgl</span>
                 </td>
 
                 <td className="py-3.5 px-4 text-center font-mono">
                   <span
                     className={`inline-flex items-center gap-1 font-bold ${
-                      st.rechargeTrendPct >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                      st.rechargeTrendPct >= 0 ? 'text-emerald-700' : 'text-rose-700'
                     }`}
                   >
                     {st.rechargeTrendPct >= 0 ? (
@@ -572,11 +575,11 @@ export function CgwbStationsTable({ stations, onSelectStation }) {
                 </td>
 
                 <td className="py-3.5 px-4 text-right font-mono text-[11px]">
-                  <div className="text-emerald-400 flex items-center justify-end gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <div className="text-emerald-700 font-bold flex items-center justify-end gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
                     <span>{st.sensorStatus} ({st.batteryPercent}%)</span>
                   </div>
-                  <div className="text-[10px] text-slate-500 mt-0.5">
+                  <div className="text-[10px] text-slate-400 mt-0.5">
                     {new Date(st.lastReadingAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </td>
@@ -593,8 +596,8 @@ export function CanalSchedulesTable({ canals, onSelectCanal, onEditCanal }) {
   if (!canals || canals.length === 0) {
     return (
       <div className="p-12 text-center text-slate-500">
-        <Waves className="w-12 h-12 mx-auto mb-3 opacity-30 text-cyan-400" />
-        <p className="text-base font-medium text-slate-400">No canal rotation schedules found</p>
+        <Waves className="w-12 h-12 mx-auto mb-3 opacity-30 text-teal-600" />
+        <p className="text-base font-bold text-slate-700">No canal rotation schedules found</p>
       </div>
     )
   }
@@ -603,7 +606,7 @@ export function CanalSchedulesTable({ canals, onSelectCanal, onEditCanal }) {
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse text-xs">
         <thead>
-          <tr className="border-b border-slate-800 bg-slate-900/70 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+          <tr className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <th className="py-3 px-4">Canal Division & Minor</th>
             <th className="py-3 px-4">Command Area & Dam Source</th>
             <th className="py-3 px-4">Rotation Release Window</th>
@@ -613,55 +616,55 @@ export function CanalSchedulesTable({ canals, onSelectCanal, onEditCanal }) {
             <th className="py-3 px-4 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60">
+        <tbody className="divide-y divide-slate-100/80">
           {canals.map((c) => (
             <tr
               key={c.id}
               onClick={() => onSelectCanal && onSelectCanal(c)}
-              className="hover:bg-slate-900/50 cursor-pointer transition-colors"
+              className="hover:bg-emerald-50/60 cursor-pointer transition-colors"
             >
               <td className="py-3.5 px-4">
-                <div className="font-bold text-slate-200">{c.canalName}</div>
-                <div className="text-[11px] text-cyan-400 font-mono mt-0.5">
+                <div className="font-bold text-slate-900">{c.canalName}</div>
+                <div className="text-[11px] text-teal-700 font-mono font-semibold mt-0.5">
                   Code: {c.canalCode} · {c.distributaryMinor}
                 </div>
-                <div className="text-[10px] text-slate-500 font-mono">
+                <div className="text-[10px] text-slate-400 font-mono">
                   {c.division} ({c.subDivision})
                 </div>
               </td>
 
               <td className="py-3.5 px-4 font-mono">
-                <div className="font-bold text-slate-200">
+                <div className="font-bold text-slate-900">
                   {c.commandAreaAcres.toLocaleString('en-IN')} Acres
                 </div>
-                <div className="text-[11px] text-slate-400 mt-0.5">
+                <div className="text-[11px] text-slate-500 mt-0.5">
                   Source: {c.waterSourceDam}
                 </div>
-                <div className="text-[10px] text-emerald-400 mt-0.5">
+                <div className="text-[10px] text-emerald-700 font-semibold mt-0.5">
                   {c.rotationCycle}
                 </div>
               </td>
 
               <td className="py-3.5 px-4 font-mono text-[11px]">
-                <div className="text-slate-200">
+                <div className="text-slate-800 font-semibold">
                   From: {new Date(c.rotationStartDate).toLocaleDateString('en-IN')}
                 </div>
-                <div className="text-slate-400">
+                <div className="text-slate-500">
                   To: {new Date(c.rotationEndDate).toLocaleDateString('en-IN')}
                 </div>
               </td>
 
               <td className="py-3.5 px-4 text-right font-mono">
-                <div className="text-base font-bold text-cyan-300">
+                <div className="text-base font-bold text-teal-700">
                   {c.dischargeCusecs} Cusecs
                 </div>
-                <div className="text-[10px] text-slate-400">
+                <div className="text-[10px] text-slate-500">
                   Quota: {c.waterQuotaMldPerHa} MLD/Ha
                 </div>
               </td>
 
               <td className="py-3.5 px-4">
-                <div className="text-slate-300 font-medium truncate max-w-[200px]">
+                <div className="text-slate-800 font-medium truncate max-w-[200px]">
                   {c.beneficiaryVillages.join(', ')}
                 </div>
                 <div className="text-[10px] text-slate-500 font-mono mt-0.5">
@@ -676,7 +679,7 @@ export function CanalSchedulesTable({ canals, onSelectCanal, onEditCanal }) {
               <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                 <button
                   onClick={() => onEditCanal && onEditCanal(c)}
-                  className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-medium transition-colors"
+                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition-colors"
                 >
                   Edit Timetable
                 </button>
@@ -695,31 +698,31 @@ export function PmksySubsidiesTable({ rules, applications, onApproveApplication,
   return (
     <div className="space-y-4">
       {/* Parameter Cards Bar */}
-      <div className="p-4 rounded-xl border border-cyan-500/20 bg-cyan-950/20 m-4 flex flex-wrap items-center justify-between gap-4 text-xs">
+      <div className="p-4 rounded-2xl border border-emerald-100 bg-emerald-50/40 m-4 flex flex-wrap items-center justify-between gap-4 text-xs">
         <div>
-          <span className="font-bold text-cyan-300 block text-sm">
+          <span className="font-bold text-slate-900 block text-sm">
             PMKSY (Per Drop More Crop) Micro-Irrigation Subsidy Framework
           </span>
-          <span className="text-[11px] text-slate-400">
+          <span className="text-[11px] text-slate-500 font-medium">
             Govt. of India + Mahadbt State Top-Up configuration for Drip &amp; Sprinkler adoption.
           </span>
         </div>
         <div className="flex items-center gap-4 font-mono text-xs">
-          <div className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800">
-            <span className="text-slate-500 block text-[10px]">Small/Marginal Subsidy:</span>
-            <span className="text-emerald-400 font-bold">{smallMarginalSubsidyPct}%</span>
+          <div className="px-3 py-1.5 rounded-xl bg-white border border-emerald-100 shadow-2xs">
+            <span className="text-slate-500 block text-[10px] font-sans font-bold">Small/Marginal Subsidy:</span>
+            <span className="text-emerald-700 font-bold">{smallMarginalSubsidyPct}%</span>
           </div>
-          <div className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800">
-            <span className="text-slate-500 block text-[10px]">Other Farmers Subsidy:</span>
-            <span className="text-blue-400 font-bold">{otherFarmerSubsidyPct}%</span>
+          <div className="px-3 py-1.5 rounded-xl bg-white border border-emerald-100 shadow-2xs">
+            <span className="text-slate-500 block text-[10px] font-sans font-bold">Other Farmers Subsidy:</span>
+            <span className="text-sky-700 font-bold">{otherFarmerSubsidyPct}%</span>
           </div>
-          <div className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800">
-            <span className="text-slate-500 block text-[10px]">Drip Cost Ceiling:</span>
-            <span className="text-slate-200 font-bold">₹{dripCeilingPerHaInr.toLocaleString('en-IN')}/Ha</span>
+          <div className="px-3 py-1.5 rounded-xl bg-white border border-emerald-100 shadow-2xs">
+            <span className="text-slate-500 block text-[10px] font-sans font-bold">Drip Cost Ceiling:</span>
+            <span className="text-slate-900 font-bold">₹{dripCeilingPerHaInr.toLocaleString('en-IN')}/Ha</span>
           </div>
-          <div className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800">
-            <span className="text-slate-500 block text-[10px]">Sprinkler Ceiling:</span>
-            <span className="text-slate-200 font-bold">₹{sprinklerCeilingPerHaInr.toLocaleString('en-IN')}/Ha</span>
+          <div className="px-3 py-1.5 rounded-xl bg-white border border-emerald-100 shadow-2xs">
+            <span className="text-slate-500 block text-[10px] font-sans font-bold">Sprinkler Ceiling:</span>
+            <span className="text-slate-900 font-bold">₹{sprinklerCeilingPerHaInr.toLocaleString('en-IN')}/Ha</span>
           </div>
         </div>
       </div>
@@ -728,7 +731,7 @@ export function PmksySubsidiesTable({ rules, applications, onApproveApplication,
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs">
           <thead>
-            <tr className="border-b border-slate-800 bg-slate-900/70 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+            <tr className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
               <th className="py-3 px-4">Application # & Farmer</th>
               <th className="py-3 px-4">Aadhaar (DPDP Masked)</th>
               <th className="py-3 px-4">Category & Acreage</th>
@@ -739,40 +742,40 @@ export function PmksySubsidiesTable({ rules, applications, onApproveApplication,
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-slate-100/80">
             {applications.map((app) => (
               <tr
                 key={app.id}
                 onClick={() => onSelectApplication && onSelectApplication(app)}
-                className="hover:bg-slate-900/50 cursor-pointer transition-colors"
+                className="hover:bg-emerald-50/60 cursor-pointer transition-colors"
               >
                 <td className="py-3.5 px-4 font-mono">
-                  <div className="font-bold text-cyan-400">{app.applicationNumber}</div>
-                  <div className="text-slate-200 text-xs font-sans mt-0.5">{app.farmerName}</div>
+                  <div className="font-bold text-teal-700">{app.applicationNumber}</div>
+                  <div className="text-slate-900 text-xs font-sans font-bold mt-0.5">{app.farmerName}</div>
                   <div className="text-[10px] text-slate-500">{app.farmerPhone}</div>
                 </td>
 
-                <td className="py-3.5 px-4 font-mono font-bold text-emerald-400">
+                <td className="py-3.5 px-4 font-mono font-bold text-emerald-700">
                   {app.aadhaarMasked}
                 </td>
 
                 <td className="py-3.5 px-4">
-                  <div className="text-slate-200 font-medium">{app.category}</div>
-                  <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                  <div className="text-slate-900 font-medium">{app.category}</div>
+                  <div className="text-[11px] text-slate-500 font-mono mt-0.5">
                     {app.landAreaAcres} Acres ({app.landAreaHectares} Ha)
                   </div>
                 </td>
 
                 <td className="py-3.5 px-4">
-                  <div className="text-slate-200 font-medium">{app.systemType}</div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">{app.manufacturer}</div>
+                  <div className="text-slate-800 font-medium">{app.systemType}</div>
+                  <div className="text-[11px] text-slate-500 mt-0.5">{app.manufacturer}</div>
                 </td>
 
                 <td className="py-3.5 px-4 text-right font-mono">
                   <div className="text-slate-400 text-[11px]">
                     Quote: ₹{app.quotationAmountInr.toLocaleString('en-IN')}
                   </div>
-                  <div className="text-sm font-bold text-emerald-400">
+                  <div className="text-sm font-bold text-emerald-700">
                     ₹{app.calculatedSubsidyInr.toLocaleString('en-IN')} (55%)
                   </div>
                   <div className="text-[10px] text-slate-500">
@@ -782,16 +785,16 @@ export function PmksySubsidiesTable({ rules, applications, onApproveApplication,
 
                 <td className="py-3.5 px-4 text-center font-mono text-[10px]">
                   <span
-                    className={`inline-block px-2 py-0.5 rounded border ${
+                    className={`inline-block px-2 py-0.5 rounded font-bold border ${
                       app.fieldInspectionStatus.includes('PASSED')
-                        ? 'bg-emerald-950 text-emerald-400 border-emerald-500/40'
-                        : 'bg-amber-950 text-amber-400 border-amber-500/40'
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                        : 'bg-amber-50 text-amber-800 border-amber-300'
                     }`}
                   >
                     {app.fieldInspectionStatus}
                   </span>
                   {app.inspectorName && (
-                    <span className="block text-slate-500 mt-0.5">{app.inspectorName}</span>
+                    <span className="block text-slate-500 mt-0.5 font-sans font-normal">{app.inspectorName}</span>
                   )}
                 </td>
 
@@ -803,12 +806,12 @@ export function PmksySubsidiesTable({ rules, applications, onApproveApplication,
                   {app.status !== 'approved' ? (
                     <button
                       onClick={() => onApproveApplication(app)}
-                      className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-semibold transition-colors"
+                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition"
                     >
                       Approve Subsidy
                     </button>
                   ) : (
-                    <span className="text-[11px] font-mono text-emerald-400">Approved ✓</span>
+                    <span className="text-xs font-mono text-emerald-700 font-bold">Approved ✓</span>
                   )}
                 </td>
               </tr>
@@ -824,8 +827,8 @@ export function DroughtAdvisoriesTable({ advisories }) {
   if (!advisories || advisories.length === 0) {
     return (
       <div className="p-12 text-center text-slate-500">
-        <BellRing className="w-12 h-12 mx-auto mb-3 opacity-30 text-rose-400" />
-        <p className="text-base font-medium text-slate-400">No active drought advisories broadcast</p>
+        <BellRing className="w-12 h-12 mx-auto mb-3 opacity-30 text-rose-600" />
+        <p className="text-base font-bold text-slate-700">No active drought advisories broadcast</p>
       </div>
     )
   }
@@ -834,7 +837,7 @@ export function DroughtAdvisoriesTable({ advisories }) {
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse text-xs">
         <thead>
-          <tr className="border-b border-slate-800 bg-slate-900/70 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+          <tr className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <th className="py-3 px-4">District & Tehsils</th>
             <th className="py-3 px-4">Alert Severity</th>
             <th className="py-3 px-4">Advisory Headline & Directive</th>
@@ -843,12 +846,12 @@ export function DroughtAdvisoriesTable({ advisories }) {
             <th className="py-3 px-4 text-right">Issued At</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60">
+        <tbody className="divide-y divide-slate-100/80">
           {advisories.map((adv) => (
-            <tr key={adv.id} className="hover:bg-slate-900/50 transition-colors">
+            <tr key={adv.id} className="hover:bg-emerald-50/60 transition-colors">
               <td className="py-3.5 px-4">
-                <div className="font-bold text-slate-200">{adv.district}</div>
-                <div className="text-[11px] text-cyan-400 mt-0.5">
+                <div className="font-bold text-slate-900">{adv.district}</div>
+                <div className="text-[11px] text-teal-700 font-semibold mt-0.5">
                   Tehsils: {adv.tehsils.join(', ')}
                 </div>
                 <div className="text-[10px] text-slate-500 font-mono">
@@ -858,10 +861,10 @@ export function DroughtAdvisoriesTable({ advisories }) {
 
               <td className="py-3.5 px-4 font-mono">
                 <span
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold border ${
+                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
                     adv.alertLevel === 'SEVERE_DROUGHT'
-                      ? 'bg-rose-950 text-rose-300 border-rose-500/50'
-                      : 'bg-amber-950 text-amber-300 border-amber-500/50'
+                      ? 'bg-rose-50 text-rose-800 border-rose-300'
+                      : 'bg-amber-50 text-amber-800 border-amber-300'
                   }`}
                 >
                   <AlertTriangle className="w-3 h-3" />
@@ -870,28 +873,28 @@ export function DroughtAdvisoriesTable({ advisories }) {
               </td>
 
               <td className="py-3.5 px-4 max-w-md">
-                <div className="font-bold text-slate-200">{adv.headline}</div>
-                <div className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                <div className="font-bold text-slate-900">{adv.headline}</div>
+                <div className="text-[11px] text-slate-600 mt-1 leading-relaxed">
                   {adv.message}
                 </div>
               </td>
 
               <td className="py-3.5 px-4 text-center font-mono">
-                <span className="text-base font-bold text-emerald-400">
+                <span className="text-base font-bold text-emerald-700">
                   {adv.waterSavingTargetPct}%
                 </span>
-                <span className="block text-[10px] text-slate-500">Conservation Target</span>
+                <span className="block text-[10px] text-slate-500 font-sans font-medium">Conservation Target</span>
               </td>
 
               <td className="py-3.5 px-4 text-right font-mono">
-                <div className="text-slate-200 font-bold">
+                <div className="text-slate-900 font-bold">
                   {adv.smsBroadcastCount?.toLocaleString('en-IN')}
                 </div>
-                <div className="text-[10px] text-slate-500">Farmers Notified</div>
+                <div className="text-[10px] text-slate-500 font-sans">Farmers Notified</div>
               </td>
 
               <td className="py-3.5 px-4 text-right font-mono text-[11px]">
-                <div className="text-slate-300">
+                <div className="text-slate-800 font-semibold">
                   {new Date(adv.issuedAt).toLocaleDateString('en-IN')}
                 </div>
                 <div className="text-[10px] text-slate-500">{adv.issuedBy}</div>
@@ -908,8 +911,8 @@ export function AuditLogTable({ logs }) {
   if (!logs || logs.length === 0) {
     return (
       <div className="p-12 text-center text-slate-500">
-        <Activity className="w-12 h-12 mx-auto mb-3 opacity-30 text-cyan-400" />
-        <p className="text-base font-medium text-slate-400">No water module audit entries found</p>
+        <Activity className="w-12 h-12 mx-auto mb-3 opacity-30 text-teal-600" />
+        <p className="text-base font-bold text-slate-700">No water module audit entries found</p>
       </div>
     )
   }
@@ -918,7 +921,7 @@ export function AuditLogTable({ logs }) {
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse text-xs">
         <thead>
-          <tr className="border-b border-slate-800 bg-slate-900/70 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+          <tr className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <th className="py-3 px-4">Timestamp & Admin</th>
             <th className="py-3 px-4">Action Type</th>
             <th className="py-3 px-4">Entity Ref</th>
@@ -927,39 +930,39 @@ export function AuditLogTable({ logs }) {
             <th className="py-3 px-4 text-right">IP Address</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60">
+        <tbody className="divide-y divide-slate-100/80">
           {logs.map((log) => (
-            <tr key={log.id} className="hover:bg-slate-900/50 transition-colors">
+            <tr key={log.id} className="hover:bg-emerald-50/60 transition-colors">
               <td className="py-3.5 px-4 font-mono">
-                <div className="text-slate-200 font-medium">
+                <div className="text-slate-900 font-bold">
                   {new Date(log.timestamp).toLocaleString('en-IN')}
                 </div>
-                <div className="text-[11px] text-cyan-400 mt-0.5">
+                <div className="text-[11px] text-teal-700 font-semibold mt-0.5">
                   {log.adminName || log.adminUid}
                 </div>
               </td>
 
               <td className="py-3.5 px-4">
-                <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200">
                   {log.actionType}
                 </span>
               </td>
 
               <td className="py-3.5 px-4 font-mono">
-                <div className="text-slate-200 font-bold">{log.entityName}</div>
-                <div className="text-[11px] text-slate-400">ID: {log.entityId}</div>
+                <div className="text-slate-900 font-bold">{log.entityName}</div>
+                <div className="text-[11px] text-slate-500">ID: {log.entityId}</div>
               </td>
 
               <td className="py-3.5 px-4 font-mono text-[11px]">
-                <span className="text-amber-400">{log.previousState}</span> &rarr;{' '}
-                <span className="text-emerald-400">{log.newState}</span>
+                <span className="text-amber-700 font-bold">{log.previousState}</span> &rarr;{' '}
+                <span className="text-emerald-700 font-bold">{log.newState}</span>
               </td>
 
-              <td className="py-3.5 px-4 text-slate-300 text-xs max-w-sm">
+              <td className="py-3.5 px-4 text-slate-700 text-xs max-w-sm font-medium">
                 {log.reason}
               </td>
 
-              <td className="py-3.5 px-4 text-right font-mono text-slate-500 text-[11px]">
+              <td className="py-3.5 px-4 text-right font-mono text-slate-400 text-[11px]">
                 {log.ipAddress}
               </td>
             </tr>
@@ -976,27 +979,27 @@ export function Pagination({ page, pageSize, total, onPageChange }) {
   const end = Math.min(page * pageSize, total)
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-3 border-t border-slate-800 text-xs text-slate-400 bg-slate-950/40">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-3 border-t border-emerald-100/80 text-xs text-slate-600 bg-white/50 backdrop-blur-sm">
       <div>
-        Showing <span className="font-mono text-slate-200">{start}</span> to{' '}
-        <span className="font-mono text-slate-200">{end}</span> of{' '}
-        <span className="font-mono text-slate-200">{total}</span> records
+        Showing <span className="font-mono font-bold text-slate-900">{start}</span> to{' '}
+        <span className="font-mono font-bold text-slate-900">{end}</span> of{' '}
+        <span className="font-mono font-bold text-slate-900">{total}</span> records
       </div>
       <div className="flex items-center gap-1 font-mono">
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-          className="px-2.5 py-1 rounded border border-slate-800 bg-slate-900 text-slate-300 disabled:opacity-30 hover:bg-slate-800"
+          className="px-3 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 disabled:opacity-40 hover:bg-emerald-50 transition"
         >
           &lt; Prev
         </button>
-        <span className="px-2 py-1 text-slate-300">
+        <span className="px-2 py-1 text-slate-700 font-semibold">
           Page {page} of {totalPages}
         </span>
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-          className="px-2.5 py-1 rounded border border-slate-800 bg-slate-900 text-slate-300 disabled:opacity-30 hover:bg-slate-800"
+          className="px-3 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 disabled:opacity-40 hover:bg-emerald-50 transition"
         >
           Next &gt;
         </button>

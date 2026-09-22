@@ -23,10 +23,8 @@ export function TopMetricBar({ users = [] }) {
       badge: '+12.4% this week',
       icon: Users,
       color: 'emerald',
-      gradient: 'from-emerald-500/10 via-emerald-500/5 to-transparent',
-      borderColor: 'border-emerald-500/30',
-      iconColor: 'text-emerald-400',
-      iconBg: 'bg-emerald-500/20'
+      gradient: 'from-emerald-500 to-green-700',
+      badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200'
     },
     {
       id: 'pending',
@@ -36,10 +34,8 @@ export function TopMetricBar({ users = [] }) {
       badge: 'Immediate triage',
       icon: Lock,
       color: 'amber',
-      gradient: 'from-amber-500/10 via-amber-500/5 to-transparent',
-      borderColor: 'border-amber-500/30',
-      iconColor: 'text-amber-400',
-      iconBg: 'bg-amber-500/20'
+      gradient: 'from-amber-500 to-orange-600',
+      badgeClass: 'bg-amber-50 text-amber-800 border-amber-200'
     },
     {
       id: 'volume',
@@ -49,10 +45,8 @@ export function TopMetricBar({ users = [] }) {
       badge: '99.8% success',
       icon: Activity,
       color: 'sky',
-      gradient: 'from-sky-500/10 via-sky-500/5 to-transparent',
-      borderColor: 'border-sky-500/30',
-      iconColor: 'text-sky-400',
-      iconBg: 'bg-sky-500/20'
+      gradient: 'from-sky-500 to-blue-600',
+      badgeClass: 'bg-sky-50 text-sky-800 border-sky-200'
     },
     {
       id: 'flagged',
@@ -62,10 +56,8 @@ export function TopMetricBar({ users = [] }) {
       badge: 'High Priority',
       icon: AlertTriangle,
       color: 'rose',
-      gradient: 'from-rose-500/10 via-rose-500/5 to-transparent',
-      borderColor: 'border-rose-500/30',
-      iconColor: 'text-rose-400',
-      iconBg: 'bg-rose-500/20'
+      gradient: 'from-rose-500 to-red-600',
+      badgeClass: 'bg-rose-50 text-rose-800 border-rose-200'
     }
   ];
 
@@ -76,39 +68,29 @@ export function TopMetricBar({ users = [] }) {
         return (
           <div
             key={kpi.id}
-            className={`relative overflow-hidden rounded-2xl bg-slate-900/80 border ${kpi.borderColor} p-5 backdrop-blur-sm transition-all duration-200 hover:shadow-xl hover:border-opacity-60 bg-gradient-to-b ${kpi.gradient}`}
+            className="relative group rounded-2xl bg-white/90 backdrop-blur-xl border border-emerald-100/90 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(16,185,129,0.1)] hover:border-emerald-300/80 transition-all duration-300"
           >
             <div className="flex items-start justify-between">
               <div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   {kpi.title}
                 </span>
                 <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight font-mono">
+                  <span className="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight font-mono">
                     {kpi.value}
                   </span>
                 </div>
               </div>
-              <div className={`p-2.5 rounded-xl ${kpi.iconBg} ${kpi.iconColor}`}>
+              <div className={`p-2.5 rounded-xl bg-gradient-to-br ${kpi.gradient} text-white shadow-md`}>
                 <Icon className="w-5 h-5" />
               </div>
             </div>
 
-            <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-              <span className="text-slate-400 truncate max-w-[170px]" title={kpi.subtext}>
+            <div className="mt-3 pt-3 border-t border-emerald-100/80 flex items-center justify-between text-xs">
+              <span className="text-slate-500 truncate max-w-[170px]" title={kpi.subtext}>
                 {kpi.subtext}
               </span>
-              <span
-                className={`font-semibold font-mono text-[11px] px-2 py-0.5 rounded-full ${
-                  kpi.color === 'rose'
-                    ? 'bg-rose-500/10 text-rose-300 border border-rose-500/30'
-                    : kpi.color === 'amber'
-                    ? 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
-                    : kpi.color === 'sky'
-                    ? 'bg-sky-500/10 text-sky-300 border border-sky-500/30'
-                    : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
-                }`}
-              >
+              <span className={`font-bold font-mono text-[11px] px-2 py-0.5 rounded-md border ${kpi.badgeClass}`}>
                 {kpi.badge}
               </span>
             </div>

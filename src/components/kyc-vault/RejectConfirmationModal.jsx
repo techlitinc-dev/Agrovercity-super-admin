@@ -43,26 +43,26 @@ export function RejectConfirmationModal({ isOpen, onClose, item, onConfirm }) {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="min-h-screen px-4 text-center flex items-center justify-center">
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={onClose} />
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity" onClick={onClose} />
 
-        <div className="inline-block w-full max-w-lg p-6 my-8 text-left align-middle transition-all transform bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl relative z-10">
+        <div className="inline-block w-full max-w-lg p-6 my-8 text-left align-middle transition-all transform bg-white/95 backdrop-blur-xl border border-emerald-100 rounded-2xl shadow-2xl relative z-10">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-xl bg-rose-950/60 text-rose-400 border border-rose-800/60">
+              <div className="p-3 rounded-xl bg-rose-100 text-rose-700 border border-rose-200">
                 <XCircle className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white tracking-tight">
+                <h3 className="text-base font-bold text-slate-900 tracking-tight">
                   Reject KYC Verification
                 </h3>
-                <span className="text-xs text-slate-400 font-mono">
+                <span className="text-xs text-slate-500 font-mono">
                   POST /v1/admin/kyc/{item.id}/reject (SOP-03)
                 </span>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-emerald-100/50 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -70,21 +70,21 @@ export function RejectConfirmationModal({ isOpen, onClose, item, onConfirm }) {
 
           <form onSubmit={handleSubmit} className="mt-4 space-y-4">
             {/* Target Document & User Summary */}
-            <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs flex justify-between items-center">
+            <div className="p-3 bg-emerald-50/40 rounded-xl border border-emerald-100 text-xs flex justify-between items-center shadow-xs">
               <div>
-                <span className="font-semibold text-white">{item.docName}</span>
-                <div className="text-slate-400 font-mono text-[11px]">
+                <span className="font-bold text-slate-900">{item.docName}</span>
+                <div className="text-slate-500 font-mono text-[11px]">
                   User: {item.userName} ({item.userMobile})
                 </div>
               </div>
-              <span className="px-2 py-0.5 rounded text-xs font-mono bg-slate-800 text-slate-300">
+              <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">
                 {item.id}
               </span>
             </div>
 
             {/* Standard Predefined Rejection Reasons */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
                 Select Predefined Reason Template:
               </label>
               <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
@@ -99,8 +99,8 @@ export function RejectConfirmationModal({ isOpen, onClose, item, onConfirm }) {
                     }}
                     className={`w-full text-left p-2 rounded-lg border text-xs transition-colors ${
                       selectedTemplate === tpl
-                        ? 'bg-rose-950/40 border-rose-500/60 text-rose-300'
-                        : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        ? 'bg-rose-50 border-rose-300 text-rose-900 font-medium'
+                        : 'bg-white border-emerald-100 text-slate-600 hover:text-slate-900 hover:bg-emerald-50/50'
                     }`}
                   >
                     {tpl}
@@ -111,7 +111,7 @@ export function RejectConfirmationModal({ isOpen, onClose, item, onConfirm }) {
 
             {/* Detailed Reason Textarea */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                 Mandatory Reason (Sent to User & Written to Audit Log) *
               </label>
               <textarea
@@ -122,34 +122,34 @@ export function RejectConfirmationModal({ isOpen, onClose, item, onConfirm }) {
                 }}
                 rows="3"
                 placeholder="Explain why this document was rejected and what the user must provide to resolve it..."
-                className="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500 font-mono"
+                className="w-full px-3.5 py-2 bg-emerald-50/30 border border-emerald-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono"
                 required
               />
             </div>
 
             {error && (
-              <div className="p-2.5 bg-rose-950/60 border border-rose-500/40 rounded-xl text-xs text-rose-300">
+              <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 font-semibold">
                 {error}
               </div>
             )}
 
-            <div className="pt-2 flex items-center justify-between text-xs text-slate-400">
+            <div className="pt-2 flex items-center justify-between text-xs text-slate-500">
               <span className="font-mono text-[11px]">
-                Audited Admin: <strong className="text-slate-200">{currentAdmin.email}</strong>
+                Audited Admin: <strong className="text-slate-800">{currentAdmin.email}</strong>
               </span>
 
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl transition-colors"
+                  className="px-4 py-2 bg-white hover:bg-emerald-50 text-slate-700 font-semibold rounded-xl border border-emerald-200 transition-colors shadow-xs"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading || !customReason.trim()}
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-rose-950/50 transition-all flex items-center gap-1.5 disabled:opacity-40"
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 disabled:opacity-40"
                 >
                   {loading ? (
                     <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />

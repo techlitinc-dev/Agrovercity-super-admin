@@ -191,7 +191,7 @@ export default function LandPage() {
       <FiltersBar q={q} setQ={(v) => { setPage(1); setQ(v) }} status={status} setStatus={(v) => { setPage(1); setStatus(v) }} statuses={tab === 'leases' ? LEASE_STATUSES : LISTING_STATUSES} dateRange={dateRange} setDateRange={(v) => { setPage(1); setDateRange(v) }} onExport={handleExport} />
 
       {loading ? (
-        <div className="rounded-xl border border-slate-800 py-16 text-center text-slate-500">Loading land records…</div>
+        <div className="rounded-2xl border border-emerald-100 bg-white/90 py-16 text-center text-xs text-slate-500 shadow-xs">Loading land records…</div>
       ) : tab === 'leases' ? (
         <LeasesTable leases={sorted} sort={sort} onSort={(key) => setSort((s) => ({ key, dir: s.key === key && s.dir === 'asc' ? 'desc' : 'asc' }))} onView={openDrawer} />
       ) : (

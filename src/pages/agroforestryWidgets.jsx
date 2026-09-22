@@ -52,24 +52,24 @@ export function formatDate(isoStr) {
 
 export function StatusBadge({ status }) {
   const map = {
-    pending: { label: 'Pending Review', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-    approved: { label: 'Approved (Allocated)', bg: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
-    dispatched: { label: 'In Transit', bg: 'bg-purple-500/10 text-purple-400 border-purple-500/30 animate-pulse' },
-    delivered: { label: 'Delivered (Planted)', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    rejected: { label: 'Rejected', bg: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
+    pending: { label: 'Pending Review', bg: 'bg-amber-50 text-amber-700 border-amber-200/80' },
+    approved: { label: 'Approved (Allocated)', bg: 'bg-teal-50 text-teal-700 border-teal-200/80' },
+    dispatched: { label: 'In Transit', bg: 'bg-purple-50 text-purple-700 border-purple-200/80 animate-pulse' },
+    delivered: { label: 'Delivered (Planted)', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200/80' },
+    rejected: { label: 'Rejected', bg: 'bg-rose-50 text-rose-700 border-rose-200/80' },
 
-    verified: { label: 'Empaneled & Verified', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    pending_verification: { label: 'Audit Pending', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-    suspended: { label: 'Suspended', bg: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
+    verified: { label: 'Empaneled & Verified', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200/80' },
+    pending_verification: { label: 'Audit Pending', bg: 'bg-amber-50 text-amber-700 border-amber-200/80' },
+    suspended: { label: 'Suspended', bg: 'bg-rose-50 text-rose-700 border-rose-200/80' },
 
-    active: { label: 'Active', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    published: { label: 'Published', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' }
+    active: { label: 'Active', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200/80' },
+    published: { label: 'Published', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200/80' }
   }
 
-  const badge = map[status] || { label: status || 'Unknown', bg: 'bg-slate-800 text-slate-400 border-slate-700' }
+  const badge = map[status] || { label: status || 'Unknown', bg: 'bg-slate-100 text-slate-600 border-slate-200' }
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium border ${badge.bg}`}>
+    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-bold border ${badge.bg}`}>
       {badge.label}
     </span>
   )
@@ -77,27 +77,27 @@ export function StatusBadge({ status }) {
 
 export function MetricCard({ title, value, subtitle, icon: Icon, badge, color = 'emerald' }) {
   const colorMap = {
-    emerald: { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-    blue: { text: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
-    amber: { text: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
-    purple: { text: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20' }
+    emerald: { text: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200/80' },
+    blue: { text: 'text-teal-700', bg: 'bg-teal-50', border: 'border-teal-200/80' },
+    amber: { text: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200/80' },
+    purple: { text: 'text-purple-700', bg: 'bg-purple-50', border: 'border-purple-200/80' }
   }
   const c = colorMap[color] || colorMap.emerald
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between hover:border-slate-700 transition-colors shadow-sm">
+    <div className="rounded-2xl border border-emerald-100/90 bg-white/90 backdrop-blur-xl p-4 flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:border-emerald-300 transition-all">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">{title}</span>
-        <div className={`p-2 rounded-lg ${c.bg} ${c.text}`}>
+        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{title}</span>
+        <div className={`p-2 rounded-xl ${c.bg} ${c.text} ${c.border} border shadow-2xs`}>
           <Icon className="w-4 h-4" />
         </div>
       </div>
       <div className="mt-3">
-        <div className="text-2xl font-bold text-white tracking-tight">{value}</div>
-        <div className="flex items-center justify-between mt-1 text-xs text-slate-400">
+        <div className="text-2xl font-bold text-slate-900 tracking-tight">{value}</div>
+        <div className="flex items-center justify-between mt-1 text-xs text-slate-600">
           <span>{subtitle}</span>
           {badge && (
-            <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${c.bg} ${c.text} ${c.border}`}>
+            <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full border ${c.bg} ${c.text} ${c.border}`}>
               {badge}
             </span>
           )}
@@ -112,7 +112,7 @@ export function AgroforestryMetricBar({ summary, loading }) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-28 bg-slate-900/60 border border-slate-800 rounded-xl animate-pulse" />
+          <div key={i} className="h-28 bg-emerald-50/40 border border-emerald-100/80 rounded-2xl animate-pulse" />
         ))}
       </div>
     )
@@ -167,7 +167,7 @@ export function AgroforestryTabSwitch({ activeTab, onSelectTab, counts = {} }) {
   ]
 
   return (
-    <div className="flex items-center gap-1 border-b border-slate-800 pb-2 overflow-x-auto scrollbar-none mb-4">
+    <div className="flex items-center gap-1 border-b border-emerald-100/80 pb-2 overflow-x-auto scrollbar-none mb-4">
       {tabs.map((tab) => {
         const Icon = tab.icon
         const isActive = activeTab === tab.id
@@ -175,18 +175,18 @@ export function AgroforestryTabSwitch({ activeTab, onSelectTab, counts = {} }) {
           <button
             key={tab.id}
             onClick={() => onSelectTab(tab.id)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
               isActive
-                ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 border border-transparent'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-emerald-950 hover:bg-emerald-50/60'
             }`}
           >
-            <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-400' : 'text-slate-500'}`} />
+            <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-emerald-700'}`} />
             <span>{tab.label}</span>
             {tab.count !== undefined && (
               <span
-                className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
-                  isActive ? 'bg-emerald-950 text-emerald-300' : 'bg-slate-800 text-slate-400'
+                className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
+                  isActive ? 'bg-emerald-800 text-emerald-100' : 'bg-emerald-50 text-emerald-800'
                 }`}
               >
                 {tab.count}
@@ -235,7 +235,7 @@ export function AgroforestryFiltersBar({
   }
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div className="bg-emerald-50/30 border border-emerald-100/80 rounded-2xl p-3 mb-4 flex flex-wrap items-center justify-between gap-3">
       <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -244,7 +244,7 @@ export function AgroforestryFiltersBar({
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={`Search ${activeTab}...`}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+            className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
           />
         </div>
 
@@ -252,7 +252,7 @@ export function AgroforestryFiltersBar({
           <select
             value={status}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500/50"
+            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
           >
             {getStatusOptions().map((opt) => (
               <option key={opt.val} value={opt.val}>
@@ -266,7 +266,7 @@ export function AgroforestryFiltersBar({
           <select
             value={category}
             onChange={(e) => onCategoryChange(e.target.value)}
-            className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500/50"
+            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
           >
             <option value="all">All Tree Categories</option>
             <option value="timber">Timber (Teak, Melia Dubia)</option>
@@ -280,7 +280,7 @@ export function AgroforestryFiltersBar({
       <div className="flex items-center gap-2">
         <button
           onClick={onRefresh}
-          className="p-1.5 bg-slate-950 border border-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
+          className="p-1.5 bg-white border border-slate-200 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-2xs"
           title="Refresh Data"
         >
           <RefreshCw className="w-3.5 h-3.5" />
@@ -288,16 +288,16 @@ export function AgroforestryFiltersBar({
 
         <button
           onClick={onExportCsv}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-300 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-2xs"
         >
-          <Download className="w-3.5 h-3.5 text-slate-400" />
+          <Download className="w-3.5 h-3.5 text-slate-500" />
           <span>Export</span>
         </button>
 
         {['guides', 'articles'].includes(activeTab) && (
           <button
             onClick={onCreateNew}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-medium transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{activeTab === 'guides' ? 'New Care Guide' : 'New Model Article'}</span>
@@ -314,17 +314,17 @@ export function AgroforestryFiltersBar({
 export function SaplingRequestsTable({ data, onView, onApprove, onDispatch, onDeliver, onReject }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400 text-xs">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-sm">
         No sapling requests found matching filters.
       </div>
     )
   }
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+    <div className="bg-white border border-emerald-100/90 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/70 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold text-[11px]">
+          <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <tr>
               <th className="py-3 px-4">Request ID & Farmer</th>
               <th className="py-3 px-3">Species & Tree Category</th>
@@ -335,42 +335,42 @@ export function SaplingRequestsTable({ data, onView, onApprove, onDispatch, onDe
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-slate-100">
             {data.map((item) => (
-              <tr key={item.id} className="hover:bg-slate-800/40 transition-colors">
+              <tr key={item.id} className="hover:bg-emerald-50/60 transition-colors">
                 <td className="py-3 px-4">
-                  <div className="font-semibold text-slate-100 hover:text-emerald-400 cursor-pointer" onClick={() => onView(item)}>
+                  <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(item)}>
                     {item.farmerName}
                   </div>
-                  <div className="font-mono text-[10px] text-slate-400">{item.farmerPhone}</div>
-                  <div className="font-mono text-[10px] text-slate-500">{item.id}</div>
+                  <div className="font-mono text-[10px] text-slate-500">{item.farmerPhone}</div>
+                  <div className="font-mono text-[10px] text-slate-400">{item.id}</div>
                 </td>
                 <td className="py-3 px-3">
-                  <div className="font-medium text-slate-200">{item.speciesRequested}</div>
-                  <span className="px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 text-[10px] uppercase font-mono">
+                  <div className="font-semibold text-slate-900">{item.speciesRequested}</div>
+                  <span className="px-1.5 py-0.2 rounded-full bg-emerald-50 text-emerald-800 text-[10px] uppercase font-mono font-bold">
                     {item.treeCategory}
                   </span>
                 </td>
                 <td className="py-3 px-3">
-                  <div className="font-mono text-emerald-400 font-bold">{item.quantity} saplings</div>
+                  <div className="font-mono text-emerald-800 font-bold">{item.quantity} saplings</div>
                   <div className="text-[10px] text-slate-500">
                     {item.subsidyPct}% Subsidy (Payable: {fmtINR(item.farmerPayableINR)})
                   </div>
                 </td>
                 <td className="py-3 px-3">
-                  <div className="text-slate-300">{item.district}, {item.taluka}</div>
+                  <div className="text-slate-800 font-medium">{item.district}, {item.taluka}</div>
                   <div className="font-mono text-[10px] text-slate-500">Survey 7/12: {item.surveyNumber712} ({item.landAreaAcres} ac)</div>
                 </td>
-                <td className="py-3 px-3 text-slate-300">
-                  <div className="line-clamp-1">{item.allocatedNgoName}</div>
+                <td className="py-3 px-3 text-slate-800">
+                  <div className="line-clamp-1 font-medium">{item.allocatedNgoName}</div>
                   {item.dispatchTrackingNo && (
-                    <div className="font-mono text-[10px] text-purple-400">{item.dispatchTrackingNo}</div>
+                    <div className="font-mono text-[10px] text-purple-700 font-bold">{item.dispatchTrackingNo}</div>
                   )}
                 </td>
                 <td className="py-3 px-3">
                   <StatusBadge status={item.status} />
                   {item.survivalRatePercent !== null && (
-                    <div className="font-mono text-[10px] text-emerald-400 mt-0.5">
+                    <div className="font-mono text-[10px] text-emerald-700 font-bold mt-0.5">
                       Survival: {item.survivalRatePercent}%
                     </div>
                   )}
@@ -379,14 +379,14 @@ export function SaplingRequestsTable({ data, onView, onApprove, onDispatch, onDe
                   <div className="flex items-center justify-end gap-1.5">
                     <button
                       onClick={() => onView(item)}
-                      className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px]"
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold"
                     >
                       View
                     </button>
                     {item.status === 'pending' && (
                       <button
                         onClick={() => onApprove(item)}
-                        className="px-2 py-1 bg-emerald-950/60 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/30 rounded text-[11px]"
+                        className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold"
                       >
                         Approve
                       </button>
@@ -394,7 +394,7 @@ export function SaplingRequestsTable({ data, onView, onApprove, onDispatch, onDe
                     {item.status === 'approved' && (
                       <button
                         onClick={() => onDispatch(item)}
-                        className="px-2 py-1 bg-purple-950/60 hover:bg-purple-900 text-purple-300 border border-purple-500/30 rounded text-[11px]"
+                        className="px-2 py-1 bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-300 rounded-lg text-[11px] font-bold"
                       >
                         Dispatch
                       </button>
@@ -402,7 +402,7 @@ export function SaplingRequestsTable({ data, onView, onApprove, onDispatch, onDe
                     {item.status === 'dispatched' && (
                       <button
                         onClick={() => onDeliver(item)}
-                        className="px-2 py-1 bg-blue-950/60 hover:bg-blue-900 text-blue-300 border border-blue-500/30 rounded text-[11px]"
+                        className="px-2 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 rounded-lg text-[11px] font-bold"
                       >
                         Delivered
                       </button>
@@ -410,7 +410,7 @@ export function SaplingRequestsTable({ data, onView, onApprove, onDispatch, onDe
                     {['pending', 'approved'].includes(item.status) && (
                       <button
                         onClick={() => onReject(item)}
-                        className="px-2 py-1 bg-rose-950/40 hover:bg-rose-900 text-rose-300 border border-rose-500/20 rounded text-[11px]"
+                        className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold"
                       >
                         Reject
                       </button>
@@ -429,17 +429,17 @@ export function SaplingRequestsTable({ data, onView, onApprove, onDispatch, onDe
 export function NgosTable({ data, onView, onVerify, onSuspend }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400 text-xs">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-sm">
         No partner NGOs or nurseries found.
       </div>
     )
   }
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+    <div className="bg-white border border-emerald-100/90 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/70 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold text-[11px]">
+          <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <tr>
               <th className="py-3 px-4">NGO / Nursery Name</th>
               <th className="py-3 px-3">Darpan & Reg No</th>
@@ -450,32 +450,32 @@ export function NgosTable({ data, onView, onVerify, onSuspend }) {
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-slate-100">
             {data.map((ngo) => (
-              <tr key={ngo.id} className="hover:bg-slate-800/40 transition-colors">
+              <tr key={ngo.id} className="hover:bg-emerald-50/60 transition-colors">
                 <td className="py-3 px-4">
-                  <div className="font-semibold text-slate-100 hover:text-emerald-400 cursor-pointer" onClick={() => onView(ngo)}>
+                  <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(ngo)}>
                     {ngo.name}
                   </div>
-                  <div className="text-[10px] text-slate-400">{ngo.contactPerson} ({ngo.district})</div>
+                  <div className="text-[10px] text-slate-500">{ngo.contactPerson} ({ngo.district})</div>
                 </td>
-                <td className="py-3 px-3 font-mono text-[11px] text-slate-300">
+                <td className="py-3 px-3 font-mono text-[11px] text-slate-800 font-medium">
                   <div>{ngo.darpanId}</div>
                   <div className="text-[10px] text-slate-500">{ngo.trustRegNo}</div>
                 </td>
                 <td className="py-3 px-3">
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${
-                    ngo.has80G12A ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-slate-800 text-slate-400'
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                    ngo.has80G12A ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'
                   }`}>
                     {ngo.has80G12A ? '80G & 12A Active' : 'Exemption Pending'}
                   </span>
                 </td>
                 <td className="py-3 px-3">
-                  <div className="text-slate-200">{ngo.nurseryAcres} Acres</div>
-                  <div className="font-mono text-[10px] text-slate-400">Cap: {ngo.annualSaplingCapacity?.toLocaleString()} / yr</div>
+                  <div className="text-slate-900 font-semibold">{ngo.nurseryAcres} Acres</div>
+                  <div className="font-mono text-[10px] text-slate-500">Cap: {ngo.annualSaplingCapacity?.toLocaleString()} / yr</div>
                 </td>
-                <td className="py-3 px-3 font-mono text-slate-300">
-                  <div className="text-emerald-400 font-bold">{ngo.currentStock?.toLocaleString()} stock</div>
+                <td className="py-3 px-3 font-mono text-slate-800">
+                  <div className="text-emerald-800 font-bold">{ngo.currentStock?.toLocaleString()} stock</div>
                   <div className="text-[10px] text-slate-500">{ngo.totalDistributed?.toLocaleString()} distributed</div>
                 </td>
                 <td className="py-3 px-3">
@@ -485,14 +485,14 @@ export function NgosTable({ data, onView, onVerify, onSuspend }) {
                   <div className="flex items-center justify-end gap-1.5">
                     <button
                       onClick={() => onView(ngo)}
-                      className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px]"
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold"
                     >
                       View
                     </button>
                     {ngo.status !== 'verified' && (
                       <button
                         onClick={() => onVerify(ngo)}
-                        className="px-2 py-1 bg-emerald-950/60 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/30 rounded text-[11px]"
+                        className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold"
                       >
                         Verify
                       </button>
@@ -500,7 +500,7 @@ export function NgosTable({ data, onView, onVerify, onSuspend }) {
                     {ngo.status === 'verified' && (
                       <button
                         onClick={() => onSuspend(ngo)}
-                        className="px-2 py-1 bg-rose-950/40 hover:bg-rose-900 text-rose-300 border border-rose-500/20 rounded text-[11px]"
+                        className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold"
                       >
                         Suspend
                       </button>
@@ -518,10 +518,10 @@ export function NgosTable({ data, onView, onVerify, onSuspend }) {
 
 export function BiofuelTreesTable({ data, onView, onEditEconomics }) {
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+    <div className="bg-white border border-emerald-100/90 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/70 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold text-[11px]">
+          <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <tr>
               <th className="py-3 px-4">Biofuel Tree Species</th>
               <th className="py-3 px-3">Gestation Period</th>
@@ -532,40 +532,40 @@ export function BiofuelTreesTable({ data, onView, onEditEconomics }) {
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-slate-100">
             {data.map((tree) => (
-              <tr key={tree.id} className="hover:bg-slate-800/40 transition-colors">
+              <tr key={tree.id} className="hover:bg-emerald-50/60 transition-colors">
                 <td className="py-3 px-4">
-                  <div className="font-semibold text-slate-100 hover:text-emerald-400 cursor-pointer" onClick={() => onView(tree)}>
+                  <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(tree)}>
                     {tree.commonName}
                   </div>
-                  <div className="italic text-slate-400 text-[10px]">{tree.botanicalName}</div>
+                  <div className="italic text-slate-500 text-[10px]">{tree.botanicalName}</div>
                 </td>
-                <td className="py-3 px-3 font-mono text-slate-300">{tree.gestationYears} Years</td>
+                <td className="py-3 px-3 font-mono text-slate-800 font-medium">{tree.gestationYears} Years</td>
                 <td className="py-3 px-3">
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono font-bold">
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono font-bold">
                     {tree.oilContentPercent}% Oil
                   </span>
                 </td>
-                <td className="py-3 px-3 font-mono text-emerald-400 font-semibold">
+                <td className="py-3 px-3 font-mono text-emerald-800 font-bold">
                   {fmtINR(tree.annualGrossReturnPerAcreINR)}
                 </td>
-                <td className="py-3 px-3 font-mono text-slate-300">{tree.co2SequestrationKgPerYear} kg / yr</td>
-                <td className="py-3 px-3 text-slate-300">
-                  <div className="line-clamp-1">{tree.buybackPartner}</div>
+                <td className="py-3 px-3 font-mono text-slate-800 font-medium">{tree.co2SequestrationKgPerYear} kg / yr</td>
+                <td className="py-3 px-3 text-slate-800">
+                  <div className="line-clamp-1 font-medium">{tree.buybackPartner}</div>
                   <div className="font-mono text-[10px] text-slate-500">Seed rate: ₹{tree.marketRatePerKgINR}/kg</div>
                 </td>
                 <td className="py-3 px-4 text-right">
                   <div className="flex items-center justify-end gap-1.5">
                     <button
                       onClick={() => onView(tree)}
-                      className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px]"
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold"
                     >
                       View
                     </button>
                     <button
                       onClick={() => onEditEconomics(tree)}
-                      className="px-2 py-1 bg-emerald-950/60 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/30 rounded text-[11px]"
+                      className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold"
                     >
                       Edit Economics
                     </button>
@@ -582,10 +582,10 @@ export function BiofuelTreesTable({ data, onView, onEditEconomics }) {
 
 export function TreeCareGuidesTable({ data, onView }) {
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+    <div className="bg-white border border-emerald-100/90 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/70 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold text-[11px]">
+          <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <tr>
               <th className="py-3 px-4">Guide Title & Species</th>
               <th className="py-3 px-3">Soil Compatibility</th>
@@ -595,23 +595,23 @@ export function TreeCareGuidesTable({ data, onView }) {
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-slate-100">
             {data.map((guide) => (
-              <tr key={guide.id} className="hover:bg-slate-800/40 transition-colors">
+              <tr key={guide.id} className="hover:bg-emerald-50/60 transition-colors">
                 <td className="py-3 px-4">
-                  <div className="font-semibold text-slate-100 hover:text-emerald-400 cursor-pointer" onClick={() => onView(guide)}>
+                  <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(guide)}>
                     {guide.title}
                   </div>
                   <div className="font-mono text-[10px] text-slate-500">{guide.species}</div>
                 </td>
-                <td className="py-3 px-3 text-slate-300 max-w-xs line-clamp-1">{guide.soilType}</td>
-                <td className="py-3 px-3 font-mono text-slate-300">{guide.pitDimensions}</td>
-                <td className="py-3 px-3 font-mono text-slate-300">{guide.spacingMeters}</td>
-                <td className="py-3 px-3 font-mono text-slate-300">Every {guide.pruningCycleMonths} mos</td>
+                <td className="py-3 px-3 text-slate-800 max-w-xs line-clamp-1">{guide.soilType}</td>
+                <td className="py-3 px-3 font-mono text-slate-800">{guide.pitDimensions}</td>
+                <td className="py-3 px-3 font-mono text-slate-800">{guide.spacingMeters}</td>
+                <td className="py-3 px-3 font-mono text-slate-800">Every {guide.pruningCycleMonths} mos</td>
                 <td className="py-3 px-4 text-right">
                   <button
                     onClick={() => onView(guide)}
-                    className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px]"
+                    className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold"
                   >
                     View SOP
                   </button>
@@ -627,10 +627,10 @@ export function TreeCareGuidesTable({ data, onView }) {
 
 export function TreeArticlesTable({ data, onView }) {
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+    <div className="bg-white border border-emerald-100/90 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/70 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold text-[11px]">
+          <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <tr>
               <th className="py-3 px-4">Article Title</th>
               <th className="py-3 px-3">Intercropping Model</th>
@@ -640,27 +640,27 @@ export function TreeArticlesTable({ data, onView }) {
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-slate-100">
             {data.map((art) => (
-              <tr key={art.id} className="hover:bg-slate-800/40 transition-colors">
+              <tr key={art.id} className="hover:bg-emerald-50/60 transition-colors">
                 <td className="py-3 px-4 max-w-sm">
-                  <div className="font-semibold text-slate-100 hover:text-emerald-400 cursor-pointer" onClick={() => onView(art)}>
+                  <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(art)}>
                     {art.title}
                   </div>
                   <div className="font-mono text-[10px] text-slate-500">{art.id}</div>
                 </td>
-                <td className="py-3 px-3 text-slate-300">{art.intercroppingModel}</td>
-                <td className="py-3 px-3 font-mono text-slate-300">{art.expectedPaybackYears} Years</td>
+                <td className="py-3 px-3 text-slate-800">{art.intercroppingModel}</td>
+                <td className="py-3 px-3 font-mono text-slate-800">{art.expectedPaybackYears} Years</td>
                 <td className="py-3 px-3">
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px]">
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
                     Eligible (Verified)
                   </span>
                 </td>
-                <td className="py-3 px-3 text-slate-300">{art.author}</td>
+                <td className="py-3 px-3 text-slate-800">{art.author}</td>
                 <td className="py-3 px-4 text-right">
                   <button
                     onClick={() => onView(art)}
-                    className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px]"
+                    className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold"
                   >
                     View
                   </button>
@@ -677,17 +677,17 @@ export function TreeArticlesTable({ data, onView }) {
 export function AgroforestryAuditLogsTable({ data }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400 text-xs">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-sm">
         No audit log records found for Agroforestry & Tree Plantation.
       </div>
     )
   }
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+    <div className="bg-white border border-emerald-100/90 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/70 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold text-[11px]">
+          <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <tr>
               <th className="py-3 px-4">Audit ID & Timestamp</th>
               <th className="py-3 px-3">Admin Operator</th>
@@ -697,31 +697,31 @@ export function AgroforestryAuditLogsTable({ data }) {
               <th className="py-3 px-4">Reason & Justification</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-slate-100">
             {data.map((log) => (
-              <tr key={log.id} className="hover:bg-slate-800/40 transition-colors">
+              <tr key={log.id} className="hover:bg-emerald-50/60 transition-colors">
                 <td className="py-3 px-4">
-                  <div className="font-mono text-slate-200">{formatDate(log.timestamp)}</div>
+                  <div className="font-mono text-slate-900 font-medium">{formatDate(log.timestamp)}</div>
                   <div className="font-mono text-[10px] text-slate-500">{log.id}</div>
                 </td>
                 <td className="py-3 px-3">
-                  <div className="text-slate-200 font-medium">{log.adminName}</div>
+                  <div className="text-slate-900 font-bold">{log.adminName}</div>
                   <div className="font-mono text-[10px] text-slate-500">{log.ipAddress}</div>
                 </td>
                 <td className="py-3 px-3">
-                  <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700">
+                  <span className="font-mono text-[11px] px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">
                     {log.actionType}
                   </span>
                 </td>
                 <td className="py-3 px-3">
-                  <div className="text-slate-300 font-medium">{log.entityName}</div>
+                  <div className="text-slate-900 font-semibold">{log.entityName}</div>
                   <div className="font-mono text-[10px] text-slate-500">{log.entityId} ({log.collection})</div>
                 </td>
                 <td className="py-3 px-3 font-mono text-[11px]">
                   <div className="text-slate-400 line-through text-[10px]">{log.previousState}</div>
-                  <div className="text-emerald-400 font-semibold">{log.newState}</div>
+                  <div className="text-emerald-800 font-bold">{log.newState}</div>
                 </td>
-                <td className="py-3 px-4 text-slate-300 max-w-xs text-[11px] leading-relaxed">
+                <td className="py-3 px-4 text-slate-700 max-w-xs text-[11px] leading-relaxed">
                   {log.reason}
                 </td>
               </tr>
@@ -739,28 +739,28 @@ export function ContentPagination({ page, pageSize, total, onPageChange }) {
   const end = Math.min(page * pageSize, total)
 
   return (
-    <div className="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-slate-800/80 mt-4 px-1">
+    <div className="flex items-center justify-between text-xs text-slate-600 pt-3 border-t border-emerald-100/80 mt-4 px-1">
       <div>
-        Showing <span className="font-mono text-slate-200">{total === 0 ? 0 : start}</span> -{' '}
-        <span className="font-mono text-slate-200">{end}</span> of{' '}
-        <span className="font-mono text-slate-200">{total}</span> records
+        Showing <span className="font-mono text-slate-900 font-bold">{total === 0 ? 0 : start}</span> -{' '}
+        <span className="font-mono text-slate-900 font-bold">{end}</span> of{' '}
+        <span className="font-mono text-slate-900 font-bold">{total}</span> records
       </div>
       <div className="flex items-center gap-2">
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-          className="flex items-center gap-1 px-2.5 py-1 bg-slate-900 border border-slate-800 rounded text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium shadow-2xs"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
           <span>Prev</span>
         </button>
-        <span className="font-mono text-slate-300 px-1">
+        <span className="font-mono text-slate-800 font-medium px-1">
           Page {page} of {totalPages}
         </span>
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-          className="flex items-center gap-1 px-2.5 py-1 bg-slate-900 border border-slate-800 rounded text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium shadow-2xs"
         >
           <span>Next</span>
           <ChevronRight className="w-3.5 h-3.5" />

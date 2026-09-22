@@ -49,20 +49,20 @@ export function AuditReasonConfirmationModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-3 text-amber-400">
-          <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
-            <AlertTriangle className="w-5 h-5" />
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-3 text-amber-600">
+          <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200/80">
+            <AlertTriangle className="w-5 h-5 text-amber-600" />
           </div>
-          <h3 className="text-base font-bold text-white">{title}</h3>
+          <h3 className="text-base font-bold text-slate-900">{title}</h3>
         </div>
 
-        <p className="text-xs text-slate-300 leading-relaxed">{message}</p>
+        <p className="text-xs text-slate-600 leading-relaxed">{message}</p>
 
         <div>
-          <label className="block text-xs font-medium text-slate-300 mb-1.5">
-            Administrative Audit Reason <span className="text-rose-400">*</span>
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            Administrative Audit Reason <span className="text-rose-500">*</span>
           </label>
           <textarea
             value={reason}
@@ -72,26 +72,26 @@ export function AuditReasonConfirmationModal({
             }}
             placeholder="State policy rationale or incident reference (mandatory for audit trail)..."
             rows={3}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/60"
+            className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
           />
-          {error && <p className="text-[11px] text-rose-400 mt-1">{error}</p>}
+          {error && <p className="text-[11px] text-rose-600 mt-1 font-medium">{error}</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
           <button
             onClick={onClose}
-            className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold text-white shadow-sm transition-colors ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold text-white shadow-xs transition-colors active:scale-95 ${
               confirmVariant === 'rose'
-                ? 'bg-rose-600 hover:bg-rose-500'
+                ? 'bg-rose-600 hover:bg-rose-700'
                 : confirmVariant === 'amber'
-                ? 'bg-amber-600 hover:bg-amber-500'
-                : 'bg-emerald-600 hover:bg-emerald-500'
+                ? 'bg-amber-600 hover:bg-amber-700'
+                : 'bg-emerald-600 hover:bg-emerald-700'
             }`}
           >
             {confirmLabel}
@@ -133,81 +133,81 @@ export function DualSignOffModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-3 text-purple-400">
-          <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
-            <Lock className="w-5 h-5" />
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-3 text-teal-700">
+          <div className="p-2.5 rounded-xl bg-teal-50 border border-teal-200/80">
+            <Lock className="w-5 h-5 text-teal-700" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white">{title}</h3>
-            <span className="text-[11px] font-mono text-purple-400">Institutional Dual Admin Sign-Off Required</span>
+            <h3 className="text-base font-bold text-slate-900">{title}</h3>
+            <span className="text-[11px] font-mono text-teal-700 font-bold">Institutional Dual Admin Sign-Off Required</span>
           </div>
         </div>
 
-        <div className="bg-purple-950/20 border border-purple-500/30 rounded-xl p-3 text-xs space-y-1">
-          <div className="flex justify-between font-medium text-slate-200">
+        <div className="bg-teal-50/70 border border-teal-200/80 rounded-xl p-3.5 text-xs space-y-1">
+          <div className="flex justify-between font-bold text-slate-800">
             <span>Transaction Threshold Exceeded:</span>
-            <span className="font-mono text-purple-300 font-bold">{fmtINR(amount)}</span>
+            <span className="font-mono text-teal-800 font-bold">{fmtINR(amount)}</span>
           </div>
-          <p className="text-slate-400 text-[11px] leading-relaxed">
+          <p className="text-slate-600 text-[11px] leading-relaxed">
             Per AGROVERCITY Superadmin SOP Section 6, financial disbursements or refund liabilities exceeding ₹50,000 require concurrent dual-admin authorization.
           </p>
-          {details && <p className="text-slate-300 font-medium text-[11px] pt-1">{details}</p>}
+          {details && <p className="text-slate-800 font-semibold text-[11px] pt-1">{details}</p>}
         </div>
 
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">
-              Authorizing Co-Admin Email <span className="text-rose-400">*</span>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Authorizing Co-Admin Email <span className="text-rose-500">*</span>
             </label>
             <input
               type="email"
               value={secondAdminEmail}
               onChange={(e) => setSecondAdminEmail(e.target.value)}
               placeholder="e.g. director.compliance@agrovercity.in"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">
-              Co-Admin Security Token / Passcode <span className="text-rose-400">*</span>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Co-Admin Security Token / Passcode <span className="text-rose-500">*</span>
             </label>
             <input
               type="password"
               value={passcode}
               onChange={(e) => setPasscode(e.target.value)}
               placeholder="••••••••••••"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">
-              Authorization Justification <span className="text-rose-400">*</span>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Authorization Justification <span className="text-rose-500">*</span>
             </label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="State institutional reason for refund or override..."
               rows={2}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
             />
           </div>
-          {error && <p className="text-[11px] text-rose-400">{error}</p>}
+          {error && <p className="text-[11px] text-rose-600 font-medium">{error}</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
           <button
             onClick={onClose}
-            className="px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-purple-600 hover:bg-purple-500 shadow-sm transition-colors"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 shadow-xs transition-colors active:scale-95"
           >
             Authorize Dual Sign-Off
           </button>
@@ -255,54 +255,54 @@ export function CreateEditNewsModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+            <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-700">
               <Flame className="w-4 h-4" />
             </div>
-            <h3 className="text-base font-bold text-white">
+            <h3 className="text-base font-bold text-slate-900">
               {initialData ? 'Edit Agricultural News Article' : 'Publish Agricultural News Article'}
             </h3>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-white">
+          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
-          {error && <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400">{error}</div>}
+          {error && <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 font-medium">{error}</div>}
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Article Headline / Title *</label>
+            <label className="block font-bold text-slate-700 mb-1">Article Headline / Title *</label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="e.g. Maharashtra Declares ₹12,000/Ha Subsidy for Micro-Irrigation"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Sub-Headline *</label>
+            <label className="block font-bold text-slate-700 mb-1">Sub-Headline *</label>
             <input
               type="text"
               value={formData.headline}
               onChange={(e) => setFormData({ ...formData, headline: e.target.value })}
               placeholder="e.g. State Agriculture Dept issues GR for drip automation & solar pumps"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Category</label>
+              <label className="block font-bold text-slate-700 mb-1">Category</label>
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-slate-300 focus:outline-none focus:border-emerald-500/60"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-2.5 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               >
                 <option value="Govt Schemes">Govt Schemes</option>
                 <option value="Weather Alerts">Weather Alerts</option>
@@ -313,11 +313,11 @@ export function CreateEditNewsModal({
               </select>
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Language</label>
+              <label className="block font-bold text-slate-700 mb-1">Language</label>
               <select
                 value={formData.language}
                 onChange={(e) => setFormData({ ...formData, language: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-slate-300 focus:outline-none focus:border-emerald-500/60"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-2.5 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               >
                 <option value="mr">Marathi (मराठी)</option>
                 <option value="hi">Hindi (हिन्दी)</option>
@@ -325,11 +325,11 @@ export function CreateEditNewsModal({
               </select>
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Publication Status</label>
+              <label className="block font-bold text-slate-700 mb-1">Publication Status</label>
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-slate-300 focus:outline-none focus:border-emerald-500/60"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-2.5 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               >
                 <option value="published">Published</option>
                 <option value="scheduled">Scheduled</option>
@@ -339,22 +339,22 @@ export function CreateEditNewsModal({
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3 bg-slate-950 rounded-xl border border-slate-800">
+          <div className="flex items-center gap-3 p-3 bg-emerald-50/40 rounded-xl border border-emerald-100">
             <input
               type="checkbox"
               id="breakingToggle"
               checked={formData.breaking}
               onChange={(e) => setFormData({ ...formData, breaking: e.target.checked })}
-              className="w-4 h-4 rounded text-rose-500 bg-slate-900 border-slate-700"
+              className="w-4 h-4 rounded text-rose-600 bg-white border-slate-300 focus:ring-rose-500"
             />
-            <label htmlFor="breakingToggle" className="cursor-pointer text-slate-200 font-medium flex items-center gap-1.5">
-              <Flame className="w-4 h-4 text-rose-500" />
+            <label htmlFor="breakingToggle" className="cursor-pointer text-slate-900 font-bold flex items-center gap-1.5">
+              <Flame className="w-4 h-4 text-rose-600" />
               <span>Flag as Breaking News (Triggers High-Priority Mobile Broadcast Push)</span>
             </label>
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">
+            <label className="block font-bold text-slate-700 mb-1">
               Vernacular Audio Narration URL (MP3/AAC)
             </label>
             <input
@@ -362,43 +362,43 @@ export function CreateEditNewsModal({
               value={formData.vernacularAudioUrl}
               onChange={(e) => setFormData({ ...formData, vernacularAudioUrl: e.target.value })}
               placeholder="https://cdn.agrovercity.in/audio/news/narration.mp3"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Executive Summary *</label>
+            <label className="block font-bold text-slate-700 mb-1">Executive Summary *</label>
             <textarea
               rows={2}
               value={formData.summary}
               onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
               placeholder="Concise 2-sentence summary for ticker feeds and push notifications..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-emerald-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Full Article Body</label>
+            <label className="block font-bold text-slate-700 mb-1">Full Article Body</label>
             <textarea
               rows={4}
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               placeholder="Full agricultural guidance, dosage, procedure, or GR details..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-emerald-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-slate-400 hover:text-white transition-colors"
+              className="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-semibold transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium shadow-sm transition-colors"
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs active:scale-95 transition-all"
             >
               {initialData ? 'Save Changes' : 'Publish Article'}
             </button>
@@ -443,38 +443,38 @@ export function ManageChannelModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
+            <div className="p-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-700">
               <Key className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">Live Channel Stream Key & Ingest</h3>
-              <span className="text-[11px] font-mono text-slate-400">{channel.callsign} ({channel.id})</span>
+              <h3 className="text-base font-bold text-slate-900">Live Channel Stream Key & Ingest</h3>
+              <span className="text-[11px] font-mono text-slate-500 font-medium">{channel.callsign} ({channel.id})</span>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-white">
+          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* RTMP Credentials Box */}
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3 text-xs">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3 text-xs">
           <div>
-            <label className="text-slate-400 block mb-1">RTMP Ingest Server Endpoint</label>
+            <label className="text-slate-600 font-bold block mb-1">RTMP Ingest Server Endpoint</label>
             <div className="flex items-center gap-2">
               <input
                 type="text"
                 readOnly
                 value={channel.rtmpIngestUrl}
-                className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 font-mono text-slate-200 text-xs"
+                className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 font-mono text-slate-900 text-xs"
               />
               <button
                 type="button"
                 onClick={() => handleCopy(channel.rtmpIngestUrl)}
-                className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs"
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold"
               >
                 Copy
               </button>
@@ -483,11 +483,11 @@ export function ManageChannelModal({
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-slate-400">Secret Stream Key</label>
+              <label className="text-slate-600 font-bold">Secret Stream Key</label>
               <button
                 type="button"
                 onClick={() => setShowSecret(!showSecret)}
-                className="text-[11px] text-emerald-400 hover:underline"
+                className="text-[11px] text-emerald-700 hover:underline font-bold"
               >
                 {showSecret ? 'Hide Key' : 'Reveal Key'}
               </button>
@@ -497,14 +497,14 @@ export function ManageChannelModal({
                 type={showSecret ? 'text' : 'password'}
                 readOnly
                 value={channel.streamKey || 'None'}
-                className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 font-mono text-amber-400 text-xs"
+                className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 font-mono text-amber-700 font-bold text-xs"
               />
               <button
                 type="button"
                 onClick={() => handleCopy(channel.streamKey)}
-                className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs flex items-center gap-1"
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1"
               >
-                {copiedKey ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                {copiedKey ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                 <span>{copiedKey ? 'Copied' : 'Copy'}</span>
               </button>
             </div>
@@ -515,7 +515,7 @@ export function ManageChannelModal({
             <button
               type="button"
               onClick={() => onRegenerateKey(channel)}
-              className="px-3 py-1 bg-amber-950/60 hover:bg-amber-900/80 text-amber-300 border border-amber-500/30 rounded-lg text-xs transition-colors"
+              className="px-3 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold transition-colors"
             >
               Regenerate Stream Key
             </button>
@@ -526,11 +526,11 @@ export function ManageChannelModal({
         <div className="space-y-3 text-xs">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-400 mb-1">Broadcast Status</label>
+              <label className="block text-slate-700 font-bold mb-1">Broadcast Status</label>
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               >
                 <option value="live">Live Streaming</option>
                 <option value="offline">Offline</option>
@@ -538,11 +538,11 @@ export function ManageChannelModal({
               </select>
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">Chat Moderation Level</label>
+              <label className="block text-slate-700 font-bold mb-1">Chat Moderation Level</label>
               <select
                 value={formData.chatModerationLevel}
                 onChange={(e) => setFormData({ ...formData, chatModerationLevel: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               >
                 <option value="strict">Strict (AI Anti-Spam + Profanity Filter)</option>
                 <option value="standard">Standard (Keyword Filtering)</option>
@@ -551,32 +551,32 @@ export function ManageChannelModal({
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3 bg-slate-950 rounded-xl border border-slate-800">
+          <div className="flex items-center gap-3 p-3 bg-emerald-50/40 rounded-xl border border-emerald-100">
             <input
               type="checkbox"
               id="chatToggle"
               checked={formData.chatEnabled}
               onChange={(e) => setFormData({ ...formData, chatEnabled: e.target.checked })}
-              className="w-4 h-4 rounded text-emerald-500 bg-slate-900 border-slate-700"
+              className="w-4 h-4 rounded text-emerald-600 bg-white border-slate-300"
             />
-            <label htmlFor="chatToggle" className="cursor-pointer text-slate-300 font-medium">
+            <label htmlFor="chatToggle" className="cursor-pointer text-slate-800 font-bold">
               Enable Real-Time Live Chat Feed for Viewers
             </label>
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-slate-400 hover:text-white transition-colors"
+            className="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-semibold transition-colors"
           >
             Close
           </button>
           <button
             type="button"
             onClick={() => onSave(formData)}
-            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium transition-colors"
+            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs active:scale-95 transition-all"
           >
             Save Channel Settings
           </button>
@@ -607,19 +607,19 @@ export function ChannelChatModerationModal({
   })
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+            <div className="p-2 rounded-xl bg-teal-50 border border-teal-200 text-teal-700">
               <MessageSquare className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">Live Stream Chat Moderation</h3>
-              <span className="text-[11px] font-mono text-slate-400">{channel.channelName}</span>
+              <h3 className="text-base font-bold text-slate-900">Live Stream Chat Moderation</h3>
+              <span className="text-[11px] font-mono text-slate-500 font-medium">{channel.channelName}</span>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-white">
+          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -629,20 +629,20 @@ export function ChannelChatModerationModal({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setFilter('all')}
-              className={`px-3 py-1 rounded-lg border transition-colors ${
+              className={`px-3 py-1 rounded-xl border transition-colors ${
                 filter === 'all'
-                  ? 'bg-slate-800 text-white border-slate-700 font-medium'
-                  : 'text-slate-400 border-transparent hover:text-slate-200'
+                  ? 'bg-emerald-600 text-white border-emerald-600 font-bold'
+                  : 'text-slate-600 border-slate-200 hover:bg-slate-50'
               }`}
             >
               All Messages ({messages.length})
             </button>
             <button
               onClick={() => setFilter('flagged')}
-              className={`px-3 py-1 rounded-lg border transition-colors ${
+              className={`px-3 py-1 rounded-xl border transition-colors ${
                 filter === 'flagged'
-                  ? 'bg-rose-950/60 text-rose-300 border-rose-500/40 font-medium'
-                  : 'text-slate-400 border-transparent hover:text-slate-200'
+                  ? 'bg-rose-600 text-white border-rose-600 font-bold'
+                  : 'text-slate-600 border-slate-200 hover:bg-slate-50'
               }`}
             >
               Flagged Anomaly ({messages.filter((m) => m.moderationStatus === 'flagged').length})
@@ -663,30 +663,30 @@ export function ChannelChatModerationModal({
                 key={msg.id}
                 className={`p-3 rounded-xl border text-xs flex items-start justify-between gap-3 ${
                   msg.moderationStatus === 'deleted'
-                    ? 'bg-slate-950/40 border-slate-800/60 opacity-50'
+                    ? 'bg-slate-50 border-slate-200 opacity-50'
                     : msg.moderationStatus === 'flagged'
-                    ? 'bg-rose-950/20 border-rose-500/30'
-                    : 'bg-slate-950/60 border-slate-800'
+                    ? 'bg-rose-50 border-rose-200'
+                    : 'bg-white border-slate-200/80 shadow-2xs'
                 }`}
               >
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-200">{msg.userName}</span>
-                    <span className="font-mono text-[10px] text-slate-400">{msg.userPhone}</span>
-                    <span className="text-slate-600">•</span>
+                    <span className="font-bold text-slate-900">{msg.userName}</span>
+                    <span className="font-mono text-[10px] text-slate-500">{msg.userPhone}</span>
+                    <span className="text-slate-400">•</span>
                     <span className="font-mono text-[10px] text-slate-500">{formatDate(msg.timestamp)}</span>
                     {msg.moderationStatus === 'flagged' && (
-                      <span className="px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[10px] font-bold">
+                      <span className="px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-700 border border-rose-200 text-[10px] font-bold">
                         Spam Flag
                       </span>
                     )}
                     {msg.moderationStatus === 'deleted' && (
-                      <span className="px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 text-[10px]">
+                      <span className="px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-600 text-[10px]">
                         Removed
                       </span>
                     )}
                   </div>
-                  <p className={`text-slate-300 leading-relaxed ${msg.moderationStatus === 'deleted' ? 'line-through text-slate-500' : ''}`}>
+                  <p className={`text-slate-700 leading-relaxed ${msg.moderationStatus === 'deleted' ? 'line-through text-slate-400' : ''}`}>
                     {msg.message}
                   </p>
                 </div>
@@ -695,14 +695,14 @@ export function ChannelChatModerationModal({
                   <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
                     <button
                       onClick={() => onDeleteMessage(channel.id, msg.id)}
-                      className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs"
+                      className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs"
                       title="Delete message"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => onBanUser(channel.id, msg.userId, msg.userName)}
-                      className="p-1.5 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-500/30 rounded-lg text-xs flex items-center gap-1"
+                      className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs flex items-center gap-1 font-bold"
                       title="Ban user from live chat"
                     >
                       <Ban className="w-3.5 h-3.5" />
@@ -715,10 +715,10 @@ export function ChannelChatModerationModal({
           )}
         </div>
 
-        <div className="pt-3 border-t border-slate-800 flex justify-end">
+        <div className="pt-3 border-t border-slate-100 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs bg-slate-800 hover:bg-slate-700 text-white font-medium transition-colors"
+            className="px-4 py-2 rounded-xl text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors"
           >
             Close Feed
           </button>
@@ -765,144 +765,144 @@ export function CreateEditWorkshopModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+            <div className="p-2 rounded-xl bg-teal-50 border border-teal-200 text-teal-700">
               <Award className="w-4 h-4" />
             </div>
-            <h3 className="text-base font-bold text-white">
+            <h3 className="text-base font-bold text-slate-900">
               {initialData ? 'Edit ICAR Certified Workshop' : 'Create Paid ICAR Certified Workshop'}
             </h3>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-white">
+          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3 text-xs">
-          {error && <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400">{error}</div>}
+          {error && <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 font-medium">{error}</div>}
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Workshop Title *</label>
+            <label className="block font-bold text-slate-700 mb-1">Workshop Title *</label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="e.g. Automated Drip Fertigation & IoT Soil Sensor Integration"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Lead Instructor Name *</label>
+              <label className="block font-bold text-slate-700 mb-1">Lead Instructor Name *</label>
               <input
                 type="text"
                 value={formData.instructorName}
                 onChange={(e) => setFormData({ ...formData, instructorName: e.target.value })}
                 placeholder="e.g. Dr. Rameshwar V. Tambe"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/60"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Instructor Title / Department</label>
+              <label className="block font-bold text-slate-700 mb-1">Instructor Title / Department</label>
               <input
                 type="text"
                 value={formData.instructorTitle}
                 onChange={(e) => setFormData({ ...formData, instructorTitle: e.target.value })}
                 placeholder="e.g. Principal Scientist, MPKV Rahuri"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/60"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">ICAR Accreditation No. *</label>
+              <label className="block font-bold text-slate-700 mb-1">ICAR Accreditation No. *</label>
               <input
                 type="text"
                 value={formData.icarAccreditationNo}
                 onChange={(e) => setFormData({ ...formData, icarAccreditationNo: e.target.value })}
                 placeholder="ICAR-TRG-2026-MH-4412"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-emerald-500/60"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Fee (INR) *</label>
+              <label className="block font-bold text-slate-700 mb-1">Fee (INR) *</label>
               <input
                 type="number"
                 value={formData.feeINR}
                 onChange={(e) => setFormData({ ...formData, feeINR: Number(e.target.value) })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-emerald-500/60"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Seat Capacity *</label>
+              <label className="block font-bold text-slate-700 mb-1">Seat Capacity *</label>
               <input
                 type="number"
                 value={formData.seatsCapacity}
                 onChange={(e) => setFormData({ ...formData, seatsCapacity: Number(e.target.value) })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-emerald-500/60"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Scheduled Date & Time</label>
+              <label className="block font-bold text-slate-700 mb-1">Scheduled Date & Time</label>
               <input
                 type="datetime-local"
                 value={formData.scheduledAt.slice(0, 16)}
                 onChange={(e) => setFormData({ ...formData, scheduledAt: new Date(e.target.value).toISOString() })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/60"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Duration (Minutes)</label>
+              <label className="block font-bold text-slate-700 mb-1">Duration (Minutes)</label>
               <input
                 type="number"
                 value={formData.durationMinutes}
                 onChange={(e) => setFormData({ ...formData, durationMinutes: Number(e.target.value) })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-emerald-500/60"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-semibold"
               />
             </div>
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Meeting Platform URL</label>
+            <label className="block font-bold text-slate-700 mb-1">Meeting Platform URL</label>
             <input
               type="url"
               value={formData.meetingUrl}
               onChange={(e) => setFormData({ ...formData, meetingUrl: e.target.value })}
               placeholder="https://live.agrovercity.in/workshops/room"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Syllabus & Course Curriculum</label>
+            <label className="block font-bold text-slate-700 mb-1">Syllabus & Course Curriculum</label>
             <textarea
               rows={3}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Detailed overview of technical topics, field demonstration, and practical modules..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-emerald-500/60"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-slate-400 hover:text-white transition-colors"
+              className="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-semibold transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium transition-colors"
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs active:scale-95 transition-all"
             >
               {initialData ? 'Save Changes' : 'Create Workshop'}
             </button>
@@ -936,21 +936,21 @@ export function WorkshopRosterModal({
   })
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-4xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+            <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700">
               <Users className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">Workshop Enrolled Farmers Roster</h3>
-              <span className="text-[11px] font-mono text-emerald-400">
+              <h3 className="text-base font-bold text-slate-900">Workshop Enrolled Farmers Roster</h3>
+              <span className="text-[11px] font-mono text-emerald-800 font-bold">
                 {workshop.title} ({workshop.icarAccreditationNo})
               </span>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-white">
+          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -964,22 +964,22 @@ export function WorkshopRosterModal({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search farmer name, phone, district..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
-          <div className="flex items-center gap-3 text-[11px] font-mono text-slate-400">
+          <div className="flex items-center gap-3 text-[11px] font-mono text-slate-600 font-medium">
             <span>Enrolled: {workshop.enrolledCount} / {workshop.seatsCapacity}</span>
             <span>•</span>
-            <span>Gross: {fmtINR(workshop.enrolledCount * workshop.feeINR)}</span>
+            <span className="font-bold text-slate-900">Gross: {fmtINR(workshop.enrolledCount * workshop.feeINR)}</span>
             <span>•</span>
-            <span className="text-emerald-400">DPDP Aadhaar Masked</span>
+            <span className="text-emerald-700 font-bold">DPDP Aadhaar Masked</span>
           </div>
         </div>
 
         {/* Roster Table */}
-        <div className="flex-1 overflow-y-auto border border-slate-800 rounded-xl overflow-hidden">
+        <div className="flex-1 overflow-y-auto border border-emerald-100 rounded-xl overflow-hidden shadow-2xs">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950 border-b border-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
+            <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase text-[10px] tracking-wider font-bold">
               <tr>
                 <th className="py-2.5 px-3">Farmer Name & ID</th>
                 <th className="py-2.5 px-3">Contact (DPDP Masked)</th>
@@ -990,7 +990,7 @@ export function WorkshopRosterModal({
                 <th className="py-2.5 px-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100">
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-8 text-center text-slate-500">
@@ -999,40 +999,40 @@ export function WorkshopRosterModal({
                 </tr>
               ) : (
                 filtered.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-800/40">
-                    <td className="py-2.5 px-3 font-medium text-slate-200">
+                  <tr key={item.id} className="hover:bg-emerald-50/60 transition-colors">
+                    <td className="py-2.5 px-3 font-semibold text-slate-900">
                       <div>{item.farmerName}</div>
-                      <div className="font-mono text-[10px] text-slate-500">{item.farmerId}</div>
+                      <div className="font-mono text-[10px] text-slate-500 font-normal">{item.farmerId}</div>
                     </td>
-                    <td className="py-2.5 px-3 font-mono text-[11px] text-slate-300">
+                    <td className="py-2.5 px-3 font-mono text-[11px] text-slate-700">
                       <div>{item.farmerPhone}</div>
                       <div className="text-[10px] text-slate-500">Aadhaar: {item.aadhaarMasked}</div>
                     </td>
-                    <td className="py-2.5 px-3 text-slate-300">{item.district}</td>
+                    <td className="py-2.5 px-3 text-slate-700">{item.district}</td>
                     <td className="py-2.5 px-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
                         item.paymentStatus === 'captured'
-                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                          : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-rose-50 text-rose-700 border-rose-200'
                       }`}>
                         {item.paymentStatus === 'captured' ? `Paid ${fmtINR(item.amountPaidINR)}` : 'Refunded'}
                       </span>
                     </td>
                     <td className="py-2.5 px-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${
-                        item.attended ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-500 bg-slate-800'
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        item.attended ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' : 'text-slate-600 bg-slate-100'
                       }`}>
                         {item.attended ? 'Attended' : 'Registered'}
                       </span>
                     </td>
                     <td className="py-2.5 px-3">
                       {item.certificateIssued ? (
-                        <div className="flex items-center gap-1 font-mono text-[10px] text-emerald-400">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                        <div className="flex items-center gap-1 font-mono text-[10px] text-emerald-700 font-bold">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                           <span>{item.certificateId}</span>
                         </div>
                       ) : (
-                        <span className="text-slate-500 text-[10px]">Pending Evaluation</span>
+                        <span className="text-slate-400 text-[10px]">Pending Evaluation</span>
                       )}
                     </td>
                     <td className="py-2.5 px-3 text-right">
@@ -1040,7 +1040,7 @@ export function WorkshopRosterModal({
                         {!item.certificateIssued && item.paymentStatus === 'captured' && (
                           <button
                             onClick={() => onIssueCertificate(workshop.id, item.farmerId)}
-                            className="px-2 py-1 bg-emerald-950/60 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/30 rounded text-[10px] transition-colors"
+                            className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[10px] font-bold transition-colors"
                           >
                             Issue Cert
                           </button>
@@ -1048,7 +1048,7 @@ export function WorkshopRosterModal({
                         {item.paymentStatus === 'captured' && (
                           <button
                             onClick={() => onRefund(workshop.id, item)}
-                            className="px-2 py-1 bg-rose-950/40 hover:bg-rose-900 text-rose-300 border border-rose-500/20 rounded text-[10px] transition-colors"
+                            className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[10px] font-bold transition-colors"
                           >
                             Refund
                           </button>
@@ -1062,11 +1062,11 @@ export function WorkshopRosterModal({
           </table>
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
-          <span className="text-slate-500">FastAPI Endpoint: <span className="font-mono text-emerald-400">GET /v1/admin/workshops/{workshop.id}/roster</span></span>
+        <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+          <span className="text-slate-500">FastAPI Endpoint: <span className="font-mono text-emerald-700 font-bold">GET /v1/admin/workshops/{workshop.id}/roster</span></span>
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium transition-colors"
+            className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors"
           >
             Close Roster
           </button>
@@ -1109,97 +1109,97 @@ export function ScheduleExpertTalkModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h3 className="text-base font-bold text-white">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
+          <h3 className="text-base font-bold text-slate-900">
             {initialData ? 'Edit Expert Scientist Talk' : 'Schedule Ask-the-Scientist Talk'}
           </h3>
-          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-white">
+          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3 text-xs">
-          {error && <div className="p-2 rounded bg-rose-500/10 text-rose-400 border border-rose-500/30">{error}</div>}
+          {error && <div className="p-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 font-medium">{error}</div>}
 
           <div>
-            <label className="block text-slate-300 font-medium mb-1">Talk Topic / Headline *</label>
+            <label className="block text-slate-700 font-bold mb-1">Talk Topic / Headline *</label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="e.g. Pest Resistance Management in Bt Cotton & Pink Bollworm Tactics"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 font-medium mb-1">Lead Scientist Name *</label>
+              <label className="block text-slate-700 font-bold mb-1">Lead Scientist Name *</label>
               <input
                 type="text"
                 value={formData.scientistName}
                 onChange={(e) => setFormData({ ...formData, scientistName: e.target.value })}
                 placeholder="e.g. Dr. Hemantrao B. Borase"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               />
             </div>
             <div>
-              <label className="block text-slate-300 font-medium mb-1">Specialization</label>
+              <label className="block text-slate-700 font-bold mb-1">Specialization</label>
               <input
                 type="text"
                 value={formData.specialization}
                 onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
                 placeholder="e.g. Plant Pathology, Soil Science"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-slate-300 font-medium mb-1">KVK / ICAR / University Institute</label>
+            <label className="block text-slate-700 font-bold mb-1">KVK / ICAR / University Institute</label>
             <input
               type="text"
               value={formData.kvkOrInstitute}
               onChange={(e) => setFormData({ ...formData, kvkOrInstitute: e.target.value })}
               placeholder="e.g. MPKV Rahuri / ICAR-IARI"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 font-medium mb-1">Date & Time</label>
+              <label className="block text-slate-700 font-bold mb-1">Date & Time</label>
               <input
                 type="datetime-local"
                 value={formData.dateScheduled.slice(0, 16)}
                 onChange={(e) => setFormData({ ...formData, dateScheduled: new Date(e.target.value).toISOString() })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               />
             </div>
             <div>
-              <label className="block text-slate-300 font-medium mb-1">Duration (Minutes)</label>
+              <label className="block text-slate-700 font-bold mb-1">Duration (Minutes)</label>
               <input
                 type="number"
                 value={formData.durationMinutes}
                 onChange={(e) => setFormData({ ...formData, durationMinutes: Number(e.target.value) })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-bold"
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-slate-400 hover:text-white"
+              className="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-semibold"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium"
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs active:scale-95 transition-all"
             >
               {initialData ? 'Save Changes' : 'Schedule Talk'}
             </button>
@@ -1224,14 +1224,14 @@ export function TriageQuestionsModal({
   const questions = talk.farmerQuestions || []
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
           <div>
-            <h3 className="text-base font-bold text-white">Triage Farmer Questions Queue</h3>
-            <span className="text-[11px] font-mono text-amber-400">{talk.title}</span>
+            <h3 className="text-base font-bold text-slate-900">Triage Farmer Questions Queue</h3>
+            <span className="text-[11px] font-mono text-amber-700 font-bold">{talk.title}</span>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-white">
+          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -1247,36 +1247,36 @@ export function TriageQuestionsModal({
                 key={q.id}
                 className={`p-3.5 rounded-xl border text-xs space-y-2 ${
                   q.status === 'approved'
-                    ? 'bg-emerald-950/20 border-emerald-500/30'
+                    ? 'bg-emerald-50/50 border-emerald-200'
                     : q.status === 'rejected'
-                    ? 'bg-slate-950/40 border-slate-800/60 opacity-60'
-                    : 'bg-slate-950/60 border-slate-800'
+                    ? 'bg-slate-50 border-slate-200 opacity-60'
+                    : 'bg-white border-slate-200 shadow-2xs'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-200">{q.farmerName}</span>
+                    <span className="font-bold text-slate-900">{q.farmerName}</span>
                     <span className="text-slate-500 font-mono text-[10px]">({q.farmerLocation})</span>
                     {q.priority === 'high' && (
-                      <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-bold">
+                      <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold">
                         High Priority
                       </span>
                     )}
                   </div>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
                     q.status === 'approved'
-                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                       : q.status === 'answered'
-                      ? 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+                      ? 'bg-teal-50 text-teal-700 border-teal-200'
                       : q.status === 'rejected'
-                      ? 'bg-slate-800 text-slate-400 border-slate-700'
-                      : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                      ? 'bg-slate-100 text-slate-600 border-slate-200'
+                      : 'bg-amber-50 text-amber-700 border-amber-200'
                   }`}>
                     {q.status}
                   </span>
                 </div>
 
-                <p className="text-slate-300 leading-relaxed text-[11px] bg-slate-900/80 p-2.5 rounded border border-slate-800/60">
+                <p className="text-slate-700 leading-relaxed text-[11px] bg-slate-50 p-2.5 rounded-lg border border-slate-200">
                   {q.question}
                 </p>
 
@@ -1284,7 +1284,7 @@ export function TriageQuestionsModal({
                   {q.status !== 'approved' && (
                     <button
                       onClick={() => onTriageQuestion(talk.id, q.id, 'approved', 'high', 'Approved for live scientist broadcast')}
-                      className="px-2.5 py-1 bg-emerald-950/60 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/30 rounded-lg text-[11px] transition-colors"
+                      className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold transition-colors"
                     >
                       Approve for Live
                     </button>
@@ -1292,7 +1292,7 @@ export function TriageQuestionsModal({
                   {q.status !== 'answered' && (
                     <button
                       onClick={() => onTriageQuestion(talk.id, q.id, 'answered', 'normal', 'Answered on webinar')}
-                      className="px-2.5 py-1 bg-blue-950/60 hover:bg-blue-900 text-blue-300 border border-blue-500/30 rounded-lg text-[11px] transition-colors"
+                      className="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-lg text-[11px] font-bold transition-colors"
                     >
                       Mark Answered
                     </button>
@@ -1300,7 +1300,7 @@ export function TriageQuestionsModal({
                   {q.status !== 'rejected' && (
                     <button
                       onClick={() => onTriageQuestion(talk.id, q.id, 'rejected', 'normal', 'Irrelevant or duplicate inquiry')}
-                      className="px-2.5 py-1 bg-rose-950/40 hover:bg-rose-900 text-rose-300 border border-rose-500/20 rounded-lg text-[11px] transition-colors"
+                      className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold transition-colors"
                     >
                       Reject
                     </button>
@@ -1311,10 +1311,10 @@ export function TriageQuestionsModal({
           )}
         </div>
 
-        <div className="pt-3 border-t border-slate-800 flex justify-end">
+        <div className="pt-3 border-t border-slate-100 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs bg-slate-800 hover:bg-slate-700 text-white font-medium"
+            className="px-4 py-2 rounded-xl text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
           >
             Close Triage
           </button>
@@ -1367,38 +1367,38 @@ export function CreateEditVideoGuideModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h3 className="text-base font-bold text-white">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
+          <h3 className="text-base font-bold text-slate-900">
             {initialData ? 'Edit Video Guide' : 'Publish Agronomy Video Guide'}
           </h3>
-          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-white">
+          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3 text-xs">
-          {error && <div className="p-2 rounded bg-rose-500/10 text-rose-400 border border-rose-500/30">{error}</div>}
+          {error && <div className="p-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 font-medium">{error}</div>}
 
           <div>
-            <label className="block text-slate-300 font-medium mb-1">Video Title *</label>
+            <label className="block text-slate-700 font-bold mb-1">Video Title *</label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="e.g. Precision Micro-Sprinkler Installation for Garlic & Onion"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 font-medium mb-1">Category</label>
+              <label className="block text-slate-700 font-bold mb-1">Category</label>
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               >
                 <option value="Crop Protection">Crop Protection</option>
                 <option value="Soil Health">Soil Health</option>
@@ -1408,59 +1408,59 @@ export function CreateEditVideoGuideModal({
               </select>
             </div>
             <div>
-              <label className="block text-slate-300 font-medium mb-1">Duration (Seconds)</label>
+              <label className="block text-slate-700 font-bold mb-1">Duration (Seconds)</label>
               <input
                 type="number"
                 value={formData.durationSeconds}
                 onChange={(e) => setFormData({ ...formData, durationSeconds: Number(e.target.value) })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-bold"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-slate-300 font-medium mb-1">Video Streaming URL (MP4 / HLS) *</label>
+            <label className="block text-slate-700 font-bold mb-1">Video Streaming URL (MP4 / HLS) *</label>
             <input
               type="url"
               value={formData.videoUrl}
               onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
               placeholder="https://cdn.agrovercity.in/videos/tutorials/guide.mp4"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
 
           <div>
-            <label className="block text-slate-300 font-medium mb-1">Tags (Comma Separated)</label>
+            <label className="block text-slate-700 font-bold mb-1">Tags (Comma Separated)</label>
             <input
               type="text"
               value={formData.tags}
               onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
               placeholder="Micro Irrigation, Onion, Water Saving"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
 
           <div>
-            <label className="block text-slate-300 font-medium mb-1">Description</label>
+            <label className="block text-slate-700 font-bold mb-1">Description</label>
             <textarea
               rows={3}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-slate-400 hover:text-white"
+              className="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-semibold"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium"
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs active:scale-95 transition-all"
             >
               {initialData ? 'Save Changes' : 'Publish Video'}
             </button>
@@ -1511,37 +1511,37 @@ export function CreateEditBlogModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h3 className="text-base font-bold text-white">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
+          <h3 className="text-base font-bold text-slate-900">
             {initialData ? 'Edit Knowledge Blog Article' : 'Publish Knowledge Blog Article'}
           </h3>
-          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-white">
+          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3 text-xs">
-          {error && <div className="p-2 rounded bg-rose-500/10 text-rose-400 border border-rose-500/30">{error}</div>}
+          {error && <div className="p-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 font-medium">{error}</div>}
 
           <div>
-            <label className="block text-slate-300 font-medium mb-1">Article Title *</label>
+            <label className="block text-slate-700 font-bold mb-1">Article Title *</label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-slate-300 font-medium mb-1">Category</label>
+              <label className="block text-slate-700 font-bold mb-1">Category</label>
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               >
                 <option value="Success Stories">Success Stories</option>
                 <option value="Policy & Subsidies">Policy & Subsidies</option>
@@ -1550,58 +1550,58 @@ export function CreateEditBlogModal({
               </select>
             </div>
             <div>
-              <label className="block text-slate-300 font-medium mb-1">Author Name</label>
+              <label className="block text-slate-700 font-bold mb-1">Author Name</label>
               <input
                 type="text"
                 value={formData.authorName}
                 onChange={(e) => setFormData({ ...formData, authorName: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               />
             </div>
             <div>
-              <label className="block text-slate-300 font-medium mb-1">Read Time (Mins)</label>
+              <label className="block text-slate-700 font-bold mb-1">Read Time (Mins)</label>
               <input
                 type="number"
                 value={formData.readTimeMinutes}
                 onChange={(e) => setFormData({ ...formData, readTimeMinutes: Number(e.target.value) })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 font-mono"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-bold"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-slate-300 font-medium mb-1">Executive Excerpt *</label>
+            <label className="block text-slate-700 font-bold mb-1">Executive Excerpt *</label>
             <textarea
               rows={2}
               value={formData.excerpt}
               onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
 
           <div>
-            <label className="block text-slate-300 font-medium mb-1">Article Content (Markdown)</label>
+            <label className="block text-slate-700 font-bold mb-1">Article Content (Markdown)</label>
             <textarea
               rows={4}
               value={formData.contentMarkdown}
               onChange={(e) => setFormData({ ...formData, contentMarkdown: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 font-mono text-[11px]"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 font-mono text-[11px] focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-slate-400 hover:text-white"
+              className="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-semibold"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium"
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs active:scale-95 transition-all"
             >
-              {initialData ? 'Save Changes' : 'Publish Article'}
+              {initialData ? 'Save Changes' : 'Publish Blog'}
             </button>
           </div>
         </form>

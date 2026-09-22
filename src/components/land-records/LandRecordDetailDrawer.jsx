@@ -60,23 +60,23 @@ export default function LandRecordDetailDrawer({
       onClose={onClose}
     >
       {/* Top Navigation Tabs */}
-      <div className="flex items-center gap-1 border-b border-slate-800 pb-2 mb-4 overflow-x-auto text-xs">
+      <div className="flex items-center gap-1.5 border-b border-emerald-100 pb-2 mb-4 overflow-x-auto text-xs">
         <button
           onClick={() => setActiveTab('overview')}
-          className={`px-2.5 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
+          className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors ${
             activeTab === 'overview'
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-emerald-50/60'
           }`}
         >
           Overview & Rights
         </button>
         <button
           onClick={() => setActiveTab('pdf')}
-          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
+          className={`flex items-center gap-1 px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors ${
             activeTab === 'pdf'
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-emerald-50/60'
           }`}
         >
           <FileText className="w-3.5 h-3.5" />
@@ -84,10 +84,10 @@ export default function LandRecordDetailDrawer({
         </button>
         <button
           onClick={() => setActiveTab('encumbrances')}
-          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
+          className={`flex items-center gap-1 px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors ${
             activeTab === 'encumbrances'
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-emerald-50/60'
           }`}
         >
           <Lock className="w-3.5 h-3.5" />
@@ -95,20 +95,20 @@ export default function LandRecordDetailDrawer({
         </button>
         <button
           onClick={() => setActiveTab('audit')}
-          className={`px-2.5 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
+          className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors ${
             activeTab === 'audit'
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-emerald-50/60'
           }`}
         >
           Audit & Cache
         </button>
         <button
           onClick={() => setActiveTab('json')}
-          className={`px-2.5 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
+          className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors ${
             activeTab === 'json'
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-emerald-50/60'
           }`}
         >
           Raw JSON
@@ -119,22 +119,22 @@ export default function LandRecordDetailDrawer({
       {activeTab === 'overview' && (
         <div className="space-y-4 text-xs">
           {/* Status & Portal Banner */}
-          <div className="p-3.5 rounded-xl border border-slate-800 bg-slate-900/60 space-y-2">
+          <div className="p-3.5 rounded-xl border border-emerald-100 bg-emerald-50/40 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-slate-400">Registry Gateway Ingestion State</span>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Registry Gateway Ingestion State</span>
               <StatusBadge status={record.status} />
             </div>
-            <div className="flex items-center justify-between text-slate-300 font-mono text-[11px]">
+            <div className="flex items-center justify-between text-slate-700 font-mono text-[11px] font-semibold">
               <span>Source: {record.sourcePortal}</span>
-              <span className="text-emerald-400">OCR Confidence: {record.parsingConfidence}%</span>
+              <span className="text-emerald-700 font-bold">OCR Confidence: {record.parsingConfidence}%</span>
             </div>
 
             {record.discrepancyDetails && (
-              <div className="p-2.5 rounded-lg bg-amber-950/40 border border-amber-500/40 text-amber-300 text-xs mt-2 flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs mt-2 flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
                 <div>
                   <span className="font-bold">Flagged Discrepancy Note:</span>
-                  <p className="text-[11px] mt-0.5 text-slate-200">{record.discrepancyDetails}</p>
+                  <p className="text-[11px] mt-0.5 text-slate-700 font-medium">{record.discrepancyDetails}</p>
                 </div>
               </div>
             )}
@@ -142,7 +142,7 @@ export default function LandRecordDetailDrawer({
 
           {/* Khatadar (Land Owner) Information */}
           <DrawerSection title="Owner / Khatadar Particulars (खातेदार तपशील)">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-3 divide-y divide-slate-800/60 text-xs">
+            <div className="rounded-xl border border-slate-200/80 bg-white p-3 divide-y divide-slate-100 text-xs shadow-2xs">
               <KeyValue k="Owner Name (Marathi)" v={record.vernacularOwnerName} />
               <KeyValue k="Owner Name (English)" v={record.ownerName} />
               <KeyValue k="Khata Number" v={record.khataNumber} mono />
@@ -154,7 +154,7 @@ export default function LandRecordDetailDrawer({
 
           {/* Area & Land Classification */}
           <DrawerSection title="Land Area & Classification (क्षेत्र व वर्ग)">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-3 divide-y divide-slate-800/60 text-xs">
+            <div className="rounded-xl border border-slate-200/80 bg-white p-3 divide-y divide-slate-100 text-xs shadow-2xs">
               <KeyValue k="Total Area in Acres" v={`${record.totalAreaAcres} Acres`} mono />
               <KeyValue k="Total Area in Hectares" v={`${record.totalAreaHectares} Hectares`} mono />
               <KeyValue k="Pot Kharaba (Uncultivable)" v={`${record.potKharabaHectares || 0} Hectares`} mono />
@@ -168,11 +168,11 @@ export default function LandRecordDetailDrawer({
           {/* Co-Sharers (हिस्सेदार) */}
           {record.coSharers && record.coSharers.length > 0 && (
             <DrawerSection title={`Registered Co-Sharers (${record.coSharers.length} हिस्सेदार)`}>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-3 divide-y divide-slate-800/60 text-xs">
+              <div className="rounded-xl border border-slate-200/80 bg-white p-3 divide-y divide-slate-100 text-xs shadow-2xs">
                 {record.coSharers.map((cs, idx) => (
                   <div key={idx} className="py-2 flex items-center justify-between">
-                    <span className="text-slate-200 font-medium">{cs.name}</span>
-                    <span className="font-mono text-emerald-400 font-bold text-[11px]">
+                    <span className="text-slate-900 font-bold">{cs.name}</span>
+                    <span className="font-mono text-emerald-700 font-bold text-[11px]">
                       Share: {cs.shareFraction}
                     </span>
                   </div>
@@ -186,12 +186,12 @@ export default function LandRecordDetailDrawer({
       {/* 2. OFFICIAL EXTRACT PDF TAB */}
       {activeTab === 'pdf' && (
         <div className="space-y-4 text-xs">
-          <div className="p-3.5 rounded-xl border border-slate-800 bg-slate-900/60 flex items-center justify-between">
+          <div className="p-3.5 rounded-xl border border-emerald-100 bg-white shadow-2xs flex items-center justify-between">
             <div>
-              <span className="font-bold text-slate-200 block">
+              <span className="font-bold text-slate-900 block">
                 Digital Maharashtra Aaple Sarkar / Mahabhulekh Extract
               </span>
-              <span className="text-[11px] text-slate-400 font-mono">
+              <span className="text-[11px] text-slate-500 font-mono">
                 Digital Signature Algorithm (SHA-256 with e-Sign)
               </span>
             </div>
@@ -199,7 +199,7 @@ export default function LandRecordDetailDrawer({
               href={record.pdfUrl}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition-colors shadow-sm"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors shadow-xs"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Download PDF</span>
@@ -207,8 +207,8 @@ export default function LandRecordDetailDrawer({
           </div>
 
           {/* Mock PDF Document Preview Container */}
-          <div className="rounded-xl border border-slate-800 bg-white p-6 text-slate-900 shadow-2xl min-h-[420px] font-serif space-y-4">
-            <div className="text-center border-b pb-3 border-slate-300">
+          <div className="rounded-xl border border-slate-200 bg-white p-6 text-slate-900 shadow-lg min-h-[420px] font-serif space-y-4">
+            <div className="text-center border-b pb-3 border-slate-200">
               <div className="text-xs uppercase font-bold tracking-wider text-slate-600">
                 महाराष्ट्र शासन महसूल विभाग (Government of Maharashtra Revenue Department)
               </div>
@@ -220,7 +220,7 @@ export default function LandRecordDetailDrawer({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-xs border border-slate-300 p-3 bg-slate-50">
+            <div className="grid grid-cols-2 gap-4 text-xs border border-slate-200 p-3 bg-slate-50 rounded-lg">
               <div>
                 <span className="font-bold block text-slate-700">भूमापन क्रमांक / गट क्रमांक:</span>
                 <span className="text-base font-bold text-emerald-800 font-mono">{record.gatNumber}</span>
@@ -245,20 +245,20 @@ export default function LandRecordDetailDrawer({
                 </div>
                 <div>
                   <span className="font-bold text-slate-700">जमिनीचे स्वरूप (Class):</span>
-                  <span className="block text-slate-800">{record.landClass}</span>
+                  <span className="block text-slate-800 font-medium">{record.landClass}</span>
                 </div>
               </div>
             </div>
 
-            <div className="border-t border-slate-300 pt-3 text-xs">
+            <div className="border-t border-slate-200 pt-3 text-xs">
               <span className="font-bold text-slate-700">इतर हक्क व बोजा (Encumbrances & Other Rights):</span>
-              <div className="mt-1 p-2 rounded bg-amber-50 border border-amber-200 text-amber-900 font-mono text-[11px]">
+              <div className="mt-1 p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 font-mono text-[11px] font-semibold">
                 {record.encumbrances}
               </div>
-              <p className="text-[11px] text-slate-600 mt-1">{record.otherRights}</p>
+              <p className="text-[11px] text-slate-600 mt-1 font-medium">{record.otherRights}</p>
             </div>
 
-            <div className="border-t border-slate-300 pt-3 flex items-center justify-between text-[10px] text-slate-500 font-mono">
+            <div className="border-t border-slate-200 pt-3 flex items-center justify-between text-[10px] text-slate-500 font-mono">
               <span>e-Mahabhulekh QR Code: Verified</span>
               <span>डिजिटल स्वाक्षरी: तहसीलदार कार्यालय</span>
             </div>
@@ -272,17 +272,17 @@ export default function LandRecordDetailDrawer({
           <div
             className={`p-3.5 rounded-xl border ${
               hasBankCharge
-                ? 'bg-amber-950/30 border-amber-500/40 text-amber-300'
-                : 'bg-emerald-950/30 border-emerald-500/40 text-emerald-300'
+                ? 'bg-amber-50 border-amber-200 text-amber-800'
+                : 'bg-emerald-50 border-emerald-200 text-emerald-800'
             }`}
           >
             <div className="flex items-center gap-2">
-              {hasBankCharge ? <Lock className="w-5 h-5 shrink-0" /> : <CheckCircle2 className="w-5 h-5 shrink-0" />}
+              {hasBankCharge ? <Lock className="w-5 h-5 shrink-0 text-amber-600" /> : <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />}
               <div>
                 <span className="font-bold text-sm">
                   {hasBankCharge ? 'Active Bank Encumbrance / Charge Recorded' : 'Clean Title (बोझा निरंक)'}
                 </span>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className="text-[11px] text-slate-600 mt-0.5 font-medium">
                   {hasBankCharge
                     ? 'Land parcel is mortgaged or hypothecated against institutional credit.'
                     : 'No pending bank loan hypothecation or court encumbrance registered in revenue ledger.'}
@@ -292,18 +292,18 @@ export default function LandRecordDetailDrawer({
           </div>
 
           <DrawerSection title="Institutional Charge Details (बोजा तपशील)">
-            <div className="p-3 rounded-xl border border-slate-800 bg-slate-900/40 space-y-2 font-mono text-xs">
-              <div className="text-slate-300 leading-relaxed font-semibold">
+            <div className="p-3.5 rounded-xl border border-slate-200 bg-white shadow-2xs space-y-2 font-mono text-xs">
+              <div className="text-slate-900 leading-relaxed font-bold">
                 {record.encumbrances}
               </div>
-              <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-800/80">
+              <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100 font-sans">
                 Lender verification status: Confirmed via state bank charge sub-register.
               </div>
             </div>
           </DrawerSection>
 
           <DrawerSection title="Other Registered Rights (इतर हक्क)">
-            <div className="p-3 rounded-xl border border-slate-800 bg-slate-900/40 text-slate-300 text-xs leading-relaxed">
+            <div className="p-3.5 rounded-xl border border-slate-200 bg-white shadow-2xs text-slate-700 text-xs leading-relaxed font-medium">
               {record.otherRights || 'No other customary rights registered.'}
             </div>
           </DrawerSection>
@@ -314,7 +314,7 @@ export default function LandRecordDetailDrawer({
       {activeTab === 'audit' && (
         <div className="space-y-4 text-xs">
           <DrawerSection title="Cache & Gateway Ingestion Telemetry">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-3 divide-y divide-slate-800/60 font-mono text-xs">
+            <div className="rounded-xl border border-slate-200/80 bg-white p-3 divide-y divide-slate-100 font-mono text-xs shadow-2xs">
               <KeyValue k="Source Revenue Portal" v={record.sourcePortal} />
               <KeyValue k="Last Fetched Timestamp" v={new Date(record.lastFetchedAt).toLocaleString('en-IN')} />
               <KeyValue k="Redis L2 Cache TTL" v={`${record.cacheTtlHours} Hours`} />
@@ -328,18 +328,18 @@ export default function LandRecordDetailDrawer({
               {record.auditLogs?.map((log) => (
                 <div
                   key={log.id}
-                  className="p-2.5 rounded-lg border border-slate-800 bg-slate-900/60 font-mono text-[11px] space-y-1"
+                  className="p-3 rounded-xl border border-slate-200 bg-white font-mono text-[11px] space-y-1 shadow-2xs"
                 >
-                  <div className="flex items-center justify-between text-slate-400">
+                  <div className="flex items-center justify-between text-slate-500">
                     <span>Admin: {log.adminUid}</span>
                     <span>IP: {log.ipAddress}</span>
                   </div>
-                  <div className="text-slate-200">
-                    Transition: <span className="text-amber-400">{log.previousState}</span> &rarr;{' '}
-                    <span className="text-emerald-400">{log.newState}</span>
+                  <div className="text-slate-900 font-bold">
+                    Transition: <span className="text-amber-700">{log.previousState}</span> &rarr;{' '}
+                    <span className="text-emerald-700">{log.newState}</span>
                   </div>
-                  <p className="text-slate-400 font-sans text-xs">{log.reason}</p>
-                  <span className="text-[10px] text-slate-500 block">
+                  <p className="text-slate-600 font-sans text-xs">{log.reason}</p>
+                  <span className="text-[10px] text-slate-400 block">
                     {new Date(log.timestamp).toLocaleString('en-IN')}
                   </span>
                 </div>
@@ -355,9 +355,9 @@ export default function LandRecordDetailDrawer({
           <div className="flex justify-end">
             <button
               onClick={handleCopyId}
-              className="flex items-center gap-1 text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-900 border border-slate-800"
+              className="flex items-center gap-1 text-xs text-slate-700 hover:text-slate-900 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 font-semibold transition"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copied ? 'Copied' : 'Copy JSON'}</span>
             </button>
           </div>
@@ -366,12 +366,12 @@ export default function LandRecordDetailDrawer({
       )}
 
       {/* Drawer Action Footer */}
-      <div className="pt-4 mt-6 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
+      <div className="pt-4 mt-6 border-t border-emerald-100 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
             <span>{refreshing ? 'Querying...' : 'Re-sync from Portal'}</span>
@@ -380,7 +380,7 @@ export default function LandRecordDetailDrawer({
           {record.status === 'flagged_discrepancy' && (
             <button
               onClick={() => onResolveDiscrepancy(record)}
-              className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold shadow-sm transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs transition"
             >
               Resolve Discrepancy
             </button>
@@ -390,7 +390,7 @@ export default function LandRecordDetailDrawer({
             href={record.pdfUrl}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold shadow-2xs transition"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             <span>Official Portal URL</span>
@@ -399,7 +399,7 @@ export default function LandRecordDetailDrawer({
 
         <button
           onClick={onClose}
-          className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-colors"
+          className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
         >
           Close
         </button>

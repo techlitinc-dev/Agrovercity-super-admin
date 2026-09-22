@@ -59,44 +59,44 @@ export function UpdateCanalScheduleModal({ open, canal, onClose, onConfirm }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="relative w-full max-w-lg rounded-xl border border-slate-800 bg-slate-950 p-6 shadow-2xl my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 overflow-y-auto">
+      <div className="relative w-full max-w-lg rounded-2xl border border-emerald-100/90 bg-white p-6 shadow-2xl my-8">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-slate-400 hover:text-white"
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-700"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-2.5 text-cyan-400 mb-3">
+        <div className="flex items-center gap-2.5 text-cyan-600 mb-3">
           <Waves className="w-5 h-5" />
-          <h3 className="text-base font-bold text-slate-100">
+          <h3 className="text-base font-bold text-slate-900">
             Update Canal Rotation Timetable (SOP-17 §3)
           </h3>
         </div>
 
-        <p className="text-xs text-slate-400 mb-4">
-          Adjust water release timetable and flow discharge rate for <span className="font-semibold text-slate-200">{canal.canalName}</span> ({canal.division}).
+        <p className="text-xs text-slate-500 mb-4">
+          Adjust water release timetable and flow discharge rate for <span className="font-semibold text-slate-900">{canal.canalName}</span> ({canal.division}).
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Discharge Rate (Cusecs)</label>
+              <label className="block text-slate-700 font-semibold mb-1">Discharge Rate (Cusecs)</label>
               <input
                 type="number"
                 value={dischargeCusecs}
                 onChange={(e) => setDischargeCusecs(e.target.value)}
                 required
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono font-bold focus:outline-none focus:border-cyan-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Operational Status</label>
+              <label className="block text-slate-700 font-semibold mb-1">Operational Status</label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               >
                 <option value="active_rotation">Active Flow Release</option>
                 <option value="scheduled">Scheduled Release</option>
@@ -108,46 +108,46 @@ export function UpdateCanalScheduleModal({ open, canal, onClose, onConfirm }) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Release Start Date/Time</label>
+              <label className="block text-slate-700 font-semibold mb-1">Release Start Date/Time</label>
               <input
                 type="datetime-local"
                 value={rotationStartDate}
                 onChange={(e) => setRotationStartDate(e.target.value)}
                 required
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Release End Date/Time</label>
+              <label className="block text-slate-700 font-semibold mb-1">Release End Date/Time</label>
               <input
                 type="datetime-local"
                 value={rotationEndDate}
                 onChange={(e) => setRotationEndDate(e.target.value)}
                 required
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Field Maintenance / Inspection Notes</label>
+            <label className="block text-slate-700 font-semibold mb-1">Field Maintenance / Inspection Notes</label>
             <input
               type="text"
               value={maintenanceNotes}
               onChange={(e) => setMaintenanceNotes(e.target.value)}
               placeholder="e.g. Siphon desilted; tail-end minor gates inspected"
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Administrative Audit Justification (Mandatory)</label>
+            <label className="block text-slate-700 font-semibold mb-1">Administrative Audit Justification (Mandatory)</label>
             <textarea
               rows={2}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               required
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-cyan-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
@@ -155,14 +155,14 @@ export function UpdateCanalScheduleModal({ open, canal, onClose, onConfirm }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-slate-900 text-slate-300 hover:bg-slate-800 font-medium"
+              className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-medium transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={busy}
-              className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-xs disabled:opacity-50 transition active:scale-95"
             >
               {busy ? 'Saving...' : 'Apply Timetable Changes'}
             </button>
@@ -198,33 +198,33 @@ export function SyncCgwbStationModal({ open, onClose, onConfirm }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-md rounded-xl border border-slate-800 bg-slate-950 p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+      <div className="relative w-full max-w-md rounded-2xl border border-emerald-100/90 bg-white p-6 shadow-2xl">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-slate-400 hover:text-white"
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-700"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-2.5 text-cyan-400 mb-3">
-          <RefreshCw className="w-5 h-5 animate-spin" />
-          <h3 className="text-base font-bold text-slate-100">
+        <div className="flex items-center gap-2.5 text-cyan-600 mb-3">
+          <RefreshCw className="w-5 h-5 animate-spin text-cyan-600" />
+          <h3 className="text-base font-bold text-slate-900">
             Batch Sync CGWB Stations (SOP-17 §3)
           </h3>
         </div>
 
-        <p className="text-xs text-slate-400 mb-4">
+        <p className="text-xs text-slate-500 mb-4">
           Poll Central Ground Water Board (CGWB) telemetry API to ingest real-time hydrological piezometer readings across all monitoring stations.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Target District</label>
+            <label className="block text-slate-700 font-semibold mb-1">Target District</label>
             <select
               value={district}
               onChange={(e) => setDistrict(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             >
               <option value="All Districts">All Monitored Districts (Maharashtra &amp; MP)</option>
               <option value="Nashik">Nashik</option>
@@ -236,13 +236,13 @@ export function SyncCgwbStationModal({ open, onClose, onConfirm }) {
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Audit Justification</label>
+            <label className="block text-slate-700 font-semibold mb-1">Audit Justification</label>
             <textarea
               rows={2}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               required
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-cyan-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
@@ -250,14 +250,14 @@ export function SyncCgwbStationModal({ open, onClose, onConfirm }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-slate-900 text-slate-300 hover:bg-slate-800 font-medium"
+              className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-medium transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={busy}
-              className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-semibold shadow-xs disabled:opacity-50 transition active:scale-95"
             >
               {busy ? 'Syncing...' : 'Poll CGWB Gateway'}
             </button>
@@ -311,30 +311,30 @@ export function ConfigurePmksyRulesModal({ open, rules, onClose, onConfirm }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-lg rounded-xl border border-slate-800 bg-slate-950 p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+      <div className="relative w-full max-w-lg rounded-2xl border border-emerald-100/90 bg-white p-6 shadow-2xl">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-slate-400 hover:text-white"
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-700"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-2.5 text-cyan-400 mb-3">
+        <div className="flex items-center gap-2.5 text-emerald-700 mb-3">
           <SlidersHorizontal className="w-5 h-5" />
-          <h3 className="text-base font-bold text-slate-100">
+          <h3 className="text-base font-bold text-slate-900">
             Configure PMKSY Subsidy Parameters (SOP-17 §3)
           </h3>
         </div>
 
-        <p className="text-xs text-slate-400 mb-4">
+        <p className="text-xs text-slate-500 mb-4">
           Update subsidy calculation ratios, per-hectare ceiling caps, and Mahadbt state top-up allowances for Per Drop More Crop (PDMC).
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Small / Marginal Farmer Subsidy (%)</label>
+              <label className="block text-slate-700 font-semibold mb-1">Small / Marginal Farmer Subsidy (%)</label>
               <input
                 type="number"
                 value={smallMarginalSubsidyPct}
@@ -342,11 +342,11 @@ export function ConfigurePmksyRulesModal({ open, rules, onClose, onConfirm }) {
                 min="10"
                 max="90"
                 required
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono font-bold focus:outline-none focus:border-cyan-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Other Farmers Subsidy (%)</label>
+              <label className="block text-slate-700 font-semibold mb-1">Other Farmers Subsidy (%)</label>
               <input
                 type="number"
                 value={otherFarmerSubsidyPct}
@@ -354,52 +354,52 @@ export function ConfigurePmksyRulesModal({ open, rules, onClose, onConfirm }) {
                 min="10"
                 max="80"
                 required
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono font-bold focus:outline-none focus:border-cyan-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Drip Ceiling (₹ / Hectare)</label>
+              <label className="block text-slate-700 font-semibold mb-1">Drip Ceiling (₹ / Hectare)</label>
               <input
                 type="number"
                 value={dripCeilingPerHaInr}
                 onChange={(e) => setDripCeilingPerHaInr(e.target.value)}
                 required
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Sprinkler Ceiling (₹ / Hectare)</label>
+              <label className="block text-slate-700 font-semibold mb-1">Sprinkler Ceiling (₹ / Hectare)</label>
               <input
                 type="number"
                 value={sprinklerCeilingPerHaInr}
                 onChange={(e) => setSprinklerCeilingPerHaInr(e.target.value)}
                 required
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Additional State Top-Up (%) for SC/ST/Women</label>
+            <label className="block text-slate-700 font-semibold mb-1">Additional State Top-Up (%) for SC/ST/Women</label>
             <input
               type="number"
               value={additionalStateTopUpPct}
               onChange={(e) => setAdditionalStateTopUpPct(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Policy Rationale for Audit Log</label>
+            <label className="block text-slate-700 font-semibold mb-1">Policy Rationale for Audit Log</label>
             <textarea
               rows={2}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               required
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-cyan-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
@@ -407,14 +407,14 @@ export function ConfigurePmksyRulesModal({ open, rules, onClose, onConfirm }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-slate-900 text-slate-300 hover:bg-slate-800 font-medium"
+              className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-medium transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={busy}
-              className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-xs disabled:opacity-50 transition active:scale-95"
             >
               {busy ? 'Saving...' : 'Update Subsidy Rules'}
             </button>
@@ -466,34 +466,34 @@ export function IssueDroughtAlertModal({ open, onClose, onConfirm }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="relative w-full max-w-lg rounded-xl border border-slate-800 bg-slate-950 p-6 shadow-2xl my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 overflow-y-auto">
+      <div className="relative w-full max-w-lg rounded-2xl border border-emerald-100/90 bg-white p-6 shadow-2xl my-8">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-slate-400 hover:text-white"
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-700"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-2.5 text-rose-400 mb-3">
+        <div className="flex items-center gap-2.5 text-rose-600 mb-3">
           <BellRing className="w-5 h-5" />
-          <h3 className="text-base font-bold text-slate-100">
+          <h3 className="text-base font-bold text-slate-900">
             Broadcast Emergency Drought &amp; Low-Water Alert (SOP-17 §3)
           </h3>
         </div>
 
-        <p className="text-xs text-slate-400 mb-4">
+        <p className="text-xs text-slate-500 mb-4">
           Issues high-priority SMS broadcast and app notifications with water conservation directives to farmers in affected tehsils.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Target District</label>
+              <label className="block text-slate-700 font-semibold mb-1">Target District</label>
               <select
                 value={district}
                 onChange={(e) => setDistrict(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-rose-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               >
                 <option value="Beed">Beed</option>
                 <option value="Latur">Latur</option>
@@ -504,11 +504,11 @@ export function IssueDroughtAlertModal({ open, onClose, onConfirm }) {
               </select>
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Alert Severity Level</label>
+              <label className="block text-slate-700 font-semibold mb-1">Alert Severity Level</label>
               <select
                 value={alertLevel}
                 onChange={(e) => setAlertLevel(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-rose-500 font-mono"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-mono"
               >
                 <option value="SEVERE_DROUGHT">Severe Drought (गंभीर दुष्काळ)</option>
                 <option value="MODERATE_WATER_DEFICIT">Moderate Water Deficit</option>
@@ -518,69 +518,69 @@ export function IssueDroughtAlertModal({ open, onClose, onConfirm }) {
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Affected Tehsils (Comma Separated)</label>
+            <label className="block text-slate-700 font-semibold mb-1">Affected Tehsils (Comma Separated)</label>
             <input
               type="text"
               value={tehsilsText}
               onChange={(e) => setTehsilsText(e.target.value)}
               required
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-rose-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Alert Headline (Vernacular / English)</label>
+            <label className="block text-slate-700 font-semibold mb-1">Alert Headline (Vernacular / English)</label>
             <input
               type="text"
               value={headline}
               onChange={(e) => setHeadline(e.target.value)}
               required
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-bold focus:outline-none focus:border-rose-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Conservation Advisory Message</label>
+            <label className="block text-slate-700 font-semibold mb-1">Conservation Advisory Message</label>
             <textarea
               rows={2}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               required
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-rose-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Target Water Saving (%)</label>
+              <label className="block text-slate-700 font-semibold mb-1">Target Water Saving (%)</label>
               <input
                 type="number"
                 value={waterSavingTargetPct}
                 onChange={(e) => setWaterSavingTargetPct(e.target.value)}
                 min="5"
                 max="80"
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono font-bold focus:outline-none focus:border-rose-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Estimated SMS Broadcast</label>
+              <label className="block text-slate-700 font-semibold mb-1">Estimated SMS Broadcast</label>
               <input
                 type="number"
                 value={estimatedRecipients}
                 onChange={(e) => setEstimatedRecipients(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-rose-500"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Administrative Audit Justification</label>
+            <label className="block text-slate-700 font-semibold mb-1">Administrative Audit Justification</label>
             <textarea
               rows={2}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               required
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-rose-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
@@ -588,14 +588,14 @@ export function IssueDroughtAlertModal({ open, onClose, onConfirm }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-slate-900 text-slate-300 hover:bg-slate-800 font-medium"
+              className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-medium transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={busy}
-              className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-xs disabled:opacity-50 transition active:scale-95"
             >
               {busy ? 'Broadcasting...' : 'Broadcast Drought Alert'}
             </button>
@@ -632,55 +632,55 @@ export function ApprovePmksySubsidyModal({ open, application, onClose, onConfirm
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-md rounded-xl border border-slate-800 bg-slate-950 p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+      <div className="relative w-full max-w-md rounded-2xl border border-emerald-100/90 bg-white p-6 shadow-2xl">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-slate-400 hover:text-white"
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-700"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-2.5 text-emerald-400 mb-3">
+        <div className="flex items-center gap-2.5 text-emerald-700 mb-3">
           <ShieldCheck className="w-5 h-5" />
-          <h3 className="text-base font-bold text-slate-100">
+          <h3 className="text-base font-bold text-slate-900">
             Approve PMKSY Subsidy Disbursal
           </h3>
         </div>
 
-        <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs mb-4 space-y-1 font-mono">
+        <div className="p-3.5 rounded-xl bg-emerald-50/40 border border-emerald-100/90 text-xs mb-4 space-y-1.5 font-mono">
           <div className="flex justify-between">
-            <span className="text-slate-400">Application:</span>
-            <span className="text-cyan-400 font-bold">{application.applicationNumber}</span>
+            <span className="text-slate-500">Application:</span>
+            <span className="text-emerald-700 font-bold">{application.applicationNumber}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-400">Farmer:</span>
-            <span className="text-slate-200">{application.farmerName}</span>
+            <span className="text-slate-500">Farmer:</span>
+            <span className="text-slate-900 font-medium">{application.farmerName}</span>
           </div>
-          <div className="flex justify-between pt-1 border-t border-slate-800">
-            <span className="text-slate-400">Subsidy Amount:</span>
-            <span className="text-emerald-400 font-bold text-sm">
+          <div className="flex justify-between pt-1.5 border-t border-emerald-100">
+            <span className="text-slate-500">Subsidy Amount:</span>
+            <span className="text-emerald-700 font-bold text-sm">
               ₹{application.calculatedSubsidyInr?.toLocaleString('en-IN')}
             </span>
           </div>
         </div>
 
         {exceedsDualThreshold && (
-          <div className="p-3 rounded-lg bg-purple-950/40 border border-purple-500/40 text-purple-300 text-xs mb-4 flex items-center gap-2">
-            <Clock className="w-4 h-4 shrink-0 text-purple-400" />
+          <div className="p-3 rounded-xl bg-purple-50 border border-purple-200 text-purple-800 text-xs mb-4 flex items-center gap-2">
+            <Clock className="w-4 h-4 shrink-0 text-purple-600" />
             <span>Amount exceeds ₹50,000 threshold: Dual Admin Sign-Off rule applied per SOP-17 §6.3.</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Administrative Approval Justification</label>
+            <label className="block text-slate-700 font-semibold mb-1">Administrative Approval Justification</label>
             <textarea
               rows={3}
               value={dualSignOffNotes}
               onChange={(e) => setDualSignOffNotes(e.target.value)}
               required
-              className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-emerald-500"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
 
@@ -688,14 +688,14 @@ export function ApprovePmksySubsidyModal({ open, application, onClose, onConfirm
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-slate-900 text-slate-300 hover:bg-slate-800 font-medium"
+              className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-medium transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={busy}
-              className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-xs disabled:opacity-50 transition active:scale-95"
             >
               {busy ? 'Approving...' : 'Confirm Subsidy Approval'}
             </button>

@@ -49,9 +49,9 @@ export default function ProductFormModal({ open, product, onClose, onSubmit }) {
   const title = product ? `Edit product ${product.id}` : 'Add product SKU'
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <form key={key} onSubmit={submit} className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-slate-800 bg-slate-900 p-5 shadow-2xl">
-        <h2 className="mb-4 text-base font-bold text-slate-100">{title}</h2>
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-md" onClick={onClose} />
+      <form key={key} onSubmit={submit} className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-emerald-200/90 bg-white/95 p-6 shadow-2xl backdrop-blur-2xl">
+        <h2 className="mb-4 text-base font-bold text-slate-900">{title}</h2>
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2"><Field label="Title"><Input required value={form.title} onChange={set('title')} /></Field></div>
           <div className="col-span-2"><Field label="Vernacular title"><Input value={form.vernacularTitle} onChange={set('vernacularTitle')} /></Field></div>
@@ -65,15 +65,15 @@ export default function ProductFormModal({ open, product, onClose, onSubmit }) {
           <Field label="Certifier"><Select options={CERTIFIERS} value={form.certifier} onChange={set('certifier')} /></Field>
           <Field label="Certificate number"><Input value={form.certificateNo} onChange={set('certificateNo')} /></Field>
           <div className="col-span-2 flex gap-6 pt-1">
-            <label className="flex items-center gap-2 text-sm text-slate-300">
-              <input type="checkbox" checked={form.bnplAvailable} onChange={set('bnplAvailable')} className="h-4 w-4 accent-emerald-500" /> BNPL available
+            <label className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+              <input type="checkbox" checked={form.bnplAvailable} onChange={set('bnplAvailable')} className="h-4 w-4 accent-emerald-600 rounded" /> BNPL available
             </label>
-            <label className="flex items-center gap-2 text-sm text-slate-300">
-              <input type="checkbox" checked={form.certificateValid} onChange={set('certificateValid')} className="h-4 w-4 accent-emerald-500" /> Certificate valid
+            <label className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+              <input type="checkbox" checked={form.certificateValid} onChange={set('certificateValid')} className="h-4 w-4 accent-emerald-600 rounded" /> Certificate valid
             </label>
           </div>
         </div>
-        <div className="mt-5 flex justify-end gap-2">
+        <div className="mt-6 flex justify-end gap-2.5">
           <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
           <Button type="submit">{product ? 'Save changes' : 'Add SKU'}</Button>
         </div>

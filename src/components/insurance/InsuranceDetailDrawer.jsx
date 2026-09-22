@@ -61,23 +61,23 @@ export default function InsuranceDetailDrawer({
       onClose={onClose}
     >
       {/* Drawer Top Navigation Tabs */}
-      <div className="flex items-center gap-1 border-b border-slate-800 pb-2 mb-4 overflow-x-auto text-xs">
+      <div className="flex items-center gap-1.5 border-b border-emerald-100 pb-2 mb-4 overflow-x-auto text-xs">
         <button
           onClick={() => setActiveTab('overview')}
-          className={`px-2.5 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
+          className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors ${
             activeTab === 'overview'
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-emerald-50/60'
           }`}
         >
           Overview
         </button>
         <button
           onClick={() => setActiveTab('photos')}
-          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
+          className={`flex items-center gap-1 px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors ${
             activeTab === 'photos'
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-emerald-50/60'
           }`}
         >
           <Camera className="w-3.5 h-3.5" />
@@ -85,40 +85,40 @@ export default function InsuranceDetailDrawer({
         </button>
         <button
           onClick={() => setActiveTab('surveyor')}
-          className={`px-2.5 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
+          className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors ${
             activeTab === 'surveyor'
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-emerald-50/60'
           }`}
         >
           Surveyor Findings
         </button>
         <button
           onClick={() => setActiveTab('financial')}
-          className={`px-2.5 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
+          className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors ${
             activeTab === 'financial'
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-emerald-50/60'
           }`}
         >
           Financial & DBT
         </button>
         <button
           onClick={() => setActiveTab('audit')}
-          className={`px-2.5 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
+          className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors ${
             activeTab === 'audit'
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-emerald-50/60'
           }`}
         >
           Audit Trail
         </button>
         <button
           onClick={() => setActiveTab('json')}
-          className={`px-2.5 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
+          className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors ${
             activeTab === 'json'
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-emerald-50/60'
           }`}
         >
           Raw JSON
@@ -129,33 +129,33 @@ export default function InsuranceDetailDrawer({
       {activeTab === 'overview' && (
         <div className="space-y-4">
           {/* Header Status & Intimation Card */}
-          <div className="p-3.5 rounded-xl border border-slate-800 bg-slate-900/60 space-y-2">
+          <div className="p-3.5 rounded-xl border border-emerald-100 bg-emerald-50/40 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-400">Claim Lifecycle State</span>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Claim Lifecycle State</span>
               <StatusBadge status={claim.status} />
             </div>
-            <div className="text-xs text-slate-300 font-medium">{claim.statusText}</div>
+            <div className="text-xs text-slate-700 font-semibold">{claim.statusText}</div>
 
             {/* 72-Hour Calamity Intimation Guardrail Banner */}
             <div
-              className={`p-2.5 rounded-lg border flex items-center justify-between text-xs ${
+              className={`p-2.5 rounded-xl border flex items-center justify-between text-xs ${
                 isLate
-                  ? 'bg-rose-950/40 border-rose-500/40 text-rose-300'
-                  : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
+                  ? 'bg-rose-50 border-rose-200 text-rose-800'
+                  : 'bg-emerald-50 border-emerald-200 text-emerald-800'
               }`}
             >
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 shrink-0" />
                 <div>
-                  <span className="font-semibold">
+                  <span className="font-bold">
                     {isLate ? 'Flagged: Late Calamity Intimation' : 'Compliant: 72h Window Met'}
                   </span>
-                  <p className="text-[11px] opacity-80">
+                  <p className="text-[11px] opacity-80 font-medium">
                     Logged in {claim.intimationElapsedHours?.toFixed(1)}h from damage event
                   </p>
                 </div>
               </div>
-              <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-black/40">
+              <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded-md bg-white border border-current shadow-2xs">
                 {isLate ? 'EXCEEDED 72H' : 'PASSED'}
               </span>
             </div>
@@ -163,13 +163,13 @@ export default function InsuranceDetailDrawer({
 
           {/* Farmer & Land Particulars */}
           <DrawerSection title="Farmer & Plot Information">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-3 divide-y divide-slate-800/60 text-xs">
+            <div className="rounded-xl border border-slate-200/80 bg-white p-3 divide-y divide-slate-100 text-xs shadow-2xs">
               <KeyValue k="Farmer Name" v={claim.farmerName} />
               <KeyValue k="Phone Number" v={claim.farmerPhone} mono />
               <KeyValue
                 k="Aadhaar (DPDP Masked)"
                 v={
-                  <span className="text-emerald-400 font-mono font-bold">
+                  <span className="text-emerald-700 font-mono font-bold">
                     {claim.aadhaarMasked}
                   </span>
                 }
@@ -180,7 +180,7 @@ export default function InsuranceDetailDrawer({
                 k="GPS Coordinates"
                 v={
                   claim.gpsCoordinates ? (
-                    <span className="font-mono text-slate-300">
+                    <span className="font-mono text-slate-700">
                       {claim.gpsCoordinates.lat.toFixed(4)}° N, {claim.gpsCoordinates.lng.toFixed(4)}° E (±{claim.gpsCoordinates.accuracyMeters}m)
                     </span>
                   ) : (
@@ -193,7 +193,7 @@ export default function InsuranceDetailDrawer({
 
           {/* PMFBY Policy Linked */}
           <DrawerSection title="Associated Crop Insurance Policy">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-3 divide-y divide-slate-800/60 text-xs">
+            <div className="rounded-xl border border-slate-200/80 bg-white p-3 divide-y divide-slate-100 text-xs shadow-2xs">
               <KeyValue k="Policy Number" v={claim.policyNumber} mono />
               <KeyValue k="Insurance Scheme" v={`${claim.schemeName} (${claim.vernacularSchemeName || 'PMFBY'})`} />
               <KeyValue k="Notified Crop" v={`${claim.cropName} (${claim.vernacularCropName})`} />
@@ -206,7 +206,7 @@ export default function InsuranceDetailDrawer({
 
           {/* Calamity Intimation Details */}
           <DrawerSection title="Calamity & Loss Intimation">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-3 divide-y divide-slate-800/60 text-xs">
+            <div className="rounded-xl border border-slate-200/80 bg-white p-3 divide-y divide-slate-100 text-xs shadow-2xs">
               <KeyValue k="Calamity Type" v={claim.calamityType} />
               <KeyValue
                 k="Date of Damage Event"
@@ -220,15 +220,15 @@ export default function InsuranceDetailDrawer({
               <KeyValue k="Farmer Estimated Loss" v={`${claim.estimatedLossPercent}%`} mono />
               <KeyValue k="Requested Compensation" v={fmtINR(claim.requestedAmount)} mono />
               {claim.rejectionReason && (
-                <div className="py-2 text-rose-400">
-                  <span className="font-semibold block">Rejection Audit Reason:</span>
-                  <span className="text-slate-300">{claim.rejectionReason}</span>
+                <div className="py-2 text-rose-700">
+                  <span className="font-bold block">Rejection Audit Reason:</span>
+                  <span className="text-slate-600">{claim.rejectionReason}</span>
                 </div>
               )}
               {claim.appealCount > 0 && (
-                <div className="py-2 text-blue-400">
-                  <span className="font-semibold block">Appeal Round #{claim.appealCount}:</span>
-                  <span className="text-slate-300">{claim.appealReason}</span>
+                <div className="py-2 text-sky-700">
+                  <span className="font-bold block">Appeal Round #{claim.appealCount}:</span>
+                  <span className="text-slate-600">{claim.appealReason}</span>
                 </div>
               )}
             </div>
@@ -239,11 +239,11 @@ export default function InsuranceDetailDrawer({
       {/* 2. GEOTAGGED PHOTOS & MAP TAB */}
       {activeTab === 'photos' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between text-xs text-slate-400 bg-slate-900/50 p-2.5 rounded-lg border border-slate-800">
+          <div className="flex items-center justify-between text-xs text-slate-600 bg-emerald-50/50 p-3 rounded-xl border border-emerald-100 font-medium">
             <span>
               Geotagged Damage Photos ({claim.damagePhotos?.length || 0} Uploaded)
             </span>
-            <span className="font-mono text-emerald-400">GPS Timestamp Locked</span>
+            <span className="font-mono text-emerald-700 font-bold">GPS Timestamp Locked</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -251,7 +251,7 @@ export default function InsuranceDetailDrawer({
               <div
                 key={idx}
                 onClick={() => setEnlargedPhoto(photoUrl)}
-                className="group relative rounded-xl border border-slate-800 bg-slate-900 overflow-hidden cursor-pointer hover:border-emerald-500/50 transition-all shadow-md"
+                className="group relative rounded-xl border border-slate-200 bg-slate-900 overflow-hidden cursor-pointer hover:border-emerald-500 transition-all shadow-md"
               >
                 <img
                   src={photoUrl}
@@ -259,16 +259,16 @@ export default function InsuranceDetailDrawer({
                   className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent p-3 flex flex-col justify-end text-xs">
-                  <div className="font-medium text-slate-100 flex items-center gap-1">
+                  <div className="font-bold text-white flex items-center gap-1">
                     <Camera className="w-3.5 h-3.5 text-emerald-400" />
                     <span>Evidence #{idx + 1}</span>
                   </div>
                   {claim.photoCaptions && claim.photoCaptions[idx] && (
-                    <p className="text-[11px] text-slate-300 truncate mt-0.5">
+                    <p className="text-[11px] text-slate-200 truncate mt-0.5">
                       {claim.photoCaptions[idx]}
                     </p>
                   )}
-                  <div className="text-[10px] font-mono text-emerald-400 mt-1 flex items-center gap-2">
+                  <div className="text-[10px] font-mono text-emerald-300 mt-1 flex items-center gap-2">
                     <span>
                       {claim.gpsCoordinates?.lat.toFixed(4)}° N, {claim.gpsCoordinates?.lng.toFixed(4)}° E
                     </span>
@@ -281,26 +281,26 @@ export default function InsuranceDetailDrawer({
           </div>
 
           {/* GPS Coordinates & Map Card */}
-          <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/60 text-xs space-y-2">
-            <div className="flex items-center justify-between font-semibold text-slate-200">
+          <div className="p-4 rounded-xl border border-emerald-100 bg-white text-xs space-y-2 shadow-2xs">
+            <div className="flex items-center justify-between font-bold text-slate-900">
               <span className="flex items-center gap-1.5">
-                <Compass className="w-4 h-4 text-emerald-400" />
+                <Compass className="w-4 h-4 text-emerald-600" />
                 <span>Geospatial In-Field Satellite Coordinates</span>
               </span>
-              <span className="font-mono text-[11px] text-emerald-400">
+              <span className="font-mono text-[11px] text-emerald-700">
                 WGS-84 Cadastral Lock
               </span>
             </div>
-            <div className="p-2.5 rounded-lg bg-slate-950 font-mono text-[11px] text-slate-300 flex items-center justify-between">
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 font-mono text-[11px] text-slate-700 flex items-center justify-between">
               <div>
-                Latitude: <span className="text-emerald-400">{claim.gpsCoordinates?.lat || '19.8762'}</span> ·
-                Longitude: <span className="text-emerald-400">{claim.gpsCoordinates?.lng || '75.3433'}</span>
+                Latitude: <span className="text-emerald-700 font-bold">{claim.gpsCoordinates?.lat || '19.8762'}</span> ·
+                Longitude: <span className="text-emerald-700 font-bold">{claim.gpsCoordinates?.lng || '75.3433'}</span>
               </div>
               <a
                 href={`https://www.google.com/maps?q=${claim.gpsCoordinates?.lat},${claim.gpsCoordinates?.lng}`}
                 target="_blank"
                 rel="noreferrer"
-                className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1 underline"
+                className="text-emerald-700 hover:text-emerald-800 font-bold flex items-center gap-1 underline"
               >
                 <span>Google Maps</span>
                 <ExternalLink className="w-3 h-3" />
@@ -317,44 +317,44 @@ export default function InsuranceDetailDrawer({
       {activeTab === 'surveyor' && (
         <div className="space-y-4 text-xs">
           {claim.surveyorName ? (
-            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4 space-y-3">
+            <div className="rounded-xl border border-emerald-100 bg-white p-4 space-y-3 shadow-2xs">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="font-bold text-slate-100 text-sm">{claim.surveyorName}</span>
-                  <p className="text-[11px] text-slate-400">{claim.surveyorAgency}</p>
+                  <span className="font-extrabold text-slate-900 text-sm">{claim.surveyorName}</span>
+                  <p className="text-[11px] text-slate-500 font-medium">{claim.surveyorAgency}</p>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-500/40 text-[10px] font-mono">
+                <span className="px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-800 border border-sky-300 text-[10px] font-mono font-bold">
                   IRDAI Empaneled
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 font-mono text-[11px] pt-2 border-t border-slate-800/80">
+              <div className="grid grid-cols-2 gap-2 font-mono text-[11px] pt-2 border-t border-slate-100">
                 <div>
                   <span className="text-slate-500 block">Phone:</span>
-                  <span className="text-slate-200">{claim.surveyorPhone}</span>
+                  <span className="text-slate-800 font-bold">{claim.surveyorPhone}</span>
                 </div>
                 <div>
                   <span className="text-slate-500 block">Inspection Date:</span>
-                  <span className="text-slate-200">{claim.surveyorVisitDate || 'Scheduled'}</span>
+                  <span className="text-slate-800 font-bold">{claim.surveyorVisitDate || 'Scheduled'}</span>
                 </div>
               </div>
 
               {/* Loss comparison */}
-              <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-2">
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Damage Assessment Calibration</span>
-                  <span className="font-mono font-bold text-slate-200">
+                  <span className="text-slate-600 font-semibold">Damage Assessment Calibration</span>
+                  <span className="font-mono font-bold text-slate-900">
                     {claim.surveyorLossPercent !== null ? `${claim.surveyorLossPercent}% Verified` : 'Pending'}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-[11px]">
-                  <div className="p-2 rounded bg-slate-900 border border-slate-800">
+                  <div className="p-2 rounded-lg bg-white border border-slate-200">
                     <span className="text-slate-500 block">Farmer Claim:</span>
-                    <span className="text-slate-200 font-bold font-mono">{claim.estimatedLossPercent}%</span>
+                    <span className="text-slate-900 font-bold font-mono">{claim.estimatedLossPercent}%</span>
                   </div>
-                  <div className="p-2 rounded bg-slate-900 border border-purple-500/30">
-                    <span className="text-purple-400 block">Surveyor Assessed:</span>
-                    <span className="text-purple-300 font-bold font-mono">
+                  <div className="p-2 rounded-lg bg-purple-50 border border-purple-200">
+                    <span className="text-purple-700 block font-semibold">Surveyor Assessed:</span>
+                    <span className="text-purple-900 font-bold font-mono">
                       {claim.surveyorLossPercent !== null ? `${claim.surveyorLossPercent}%` : 'Awaiting Visit'}
                     </span>
                   </div>
@@ -363,22 +363,22 @@ export default function InsuranceDetailDrawer({
 
               {/* Field notes */}
               <div>
-                <span className="font-semibold text-slate-400 block mb-1">Field Inspection Report & Remarks:</span>
-                <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 leading-relaxed">
+                <span className="font-bold text-slate-700 block mb-1">Field Inspection Report & Remarks:</span>
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 leading-relaxed font-medium">
                   {claim.surveyorReportNotes || 'Survey inspection pending on designated date.'}
                 </div>
               </div>
             </div>
           ) : (
-            <div className="p-8 text-center rounded-xl border border-dashed border-slate-800 bg-slate-900/30 space-y-3">
-              <ShieldAlert className="w-10 h-10 text-amber-400/60 mx-auto" />
-              <p className="text-slate-300 font-medium">No Field Surveyor Assigned</p>
+            <div className="p-8 text-center rounded-2xl border border-dashed border-slate-300 bg-white space-y-3 shadow-2xs">
+              <ShieldAlert className="w-10 h-10 text-amber-500 mx-auto" />
+              <p className="text-slate-900 font-bold">No Field Surveyor Assigned</p>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
                 This claim is currently intimated and awaiting assignment from the insurance partner panel (AIC, HDFC ERGO, SBI General).
               </p>
               <button
                 onClick={() => onAssignSurveyor(claim)}
-                className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs shadow-sm transition-colors"
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition"
               >
                 Assign Field Surveyor Now
               </button>
@@ -392,87 +392,87 @@ export default function InsuranceDetailDrawer({
         <div className="space-y-4 text-xs">
           {/* Payout Summary Cards */}
           <div className="grid grid-cols-2 gap-2 font-mono">
-            <div className="p-3 rounded-xl border border-slate-800 bg-slate-900/60">
-              <span className="text-slate-400 text-[10px] block uppercase">Requested Amount</span>
-              <span className="text-base font-bold text-slate-200">{fmtINR(claim.requestedAmount)}</span>
+            <div className="p-3 rounded-xl border border-slate-200 bg-white shadow-2xs">
+              <span className="text-slate-500 text-[10px] block uppercase font-bold">Requested Amount</span>
+              <span className="text-base font-bold text-slate-900">{fmtINR(claim.requestedAmount)}</span>
             </div>
-            <div className="p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5">
-              <span className="text-emerald-400 text-[10px] block uppercase">Approved Compensation</span>
-              <span className="text-base font-bold text-emerald-300">
+            <div className="p-3 rounded-xl border border-emerald-200 bg-emerald-50/60 shadow-2xs">
+              <span className="text-emerald-800 text-[10px] block uppercase font-bold">Approved Compensation</span>
+              <span className="text-base font-bold text-emerald-800">
                 {claim.approvedAmount ? fmtINR(claim.approvedAmount) : 'Pending Approval'}
               </span>
             </div>
           </div>
 
           {/* Dual Admin Sign-Off Guardrail (SOP-15 §6.3) */}
-          <div className="p-3.5 rounded-xl border border-slate-800 bg-slate-900/40 space-y-2">
+          <div className="p-3.5 rounded-xl border border-emerald-100 bg-white space-y-2 shadow-2xs">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-slate-200 flex items-center gap-1.5">
-                <FileCheck className="w-4 h-4 text-emerald-400" />
+              <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                <FileCheck className="w-4 h-4 text-emerald-600" />
                 <span>Dual Admin Sign-Off Compliance (SOP-15 §6.3)</span>
               </span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
                 Threshold: &gt; ₹50,000
               </span>
             </div>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-500">
               Claims exceeding ₹50,000 mandate dual administrative authorization before DBT transfer can execute.
             </p>
 
             <div className="space-y-2 pt-2">
               {/* First Sign-off */}
-              <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex items-start justify-between">
+              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-start justify-between">
                 <div>
-                  <span className="text-[10px] font-mono text-slate-500 uppercase block">
+                  <span className="text-[10px] font-mono text-slate-500 uppercase font-bold block">
                     Primary Sign-Off (Risk Officer)
                   </span>
-                  <span className="font-semibold text-slate-200">
+                  <span className="font-bold text-slate-900">
                     {claim.firstSignOff?.adminName || 'Vikram Mehta (Chief Risk Officer)'}
                   </span>
                   {claim.firstSignOff?.notes && (
-                    <p className="text-[11px] text-slate-400 mt-0.5">{claim.firstSignOff.notes}</p>
+                    <p className="text-[11px] text-slate-600 mt-0.5">{claim.firstSignOff.notes}</p>
                   )}
                 </div>
                 {claim.firstSignOff ? (
-                  <span className="text-emerald-400 flex items-center gap-1 text-[11px] font-mono">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span className="text-emerald-700 font-bold flex items-center gap-1 text-[11px] font-mono">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                     <span>SIGNED</span>
                   </span>
                 ) : (
-                  <span className="text-amber-400 flex items-center gap-1 text-[11px] font-mono">
-                    <Clock className="w-3.5 h-3.5" />
+                  <span className="text-amber-700 font-bold flex items-center gap-1 text-[11px] font-mono">
+                    <Clock className="w-3.5 h-3.5 text-amber-600" />
                     <span>PENDING</span>
                   </span>
                 )}
               </div>
 
               {/* Second Sign-off */}
-              <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex items-start justify-between">
+              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-start justify-between">
                 <div>
-                  <span className="text-[10px] font-mono text-slate-500 uppercase block">
+                  <span className="text-[10px] font-mono text-slate-500 uppercase font-bold block">
                     Secondary Sign-Off (Finance Director)
                   </span>
-                  <span className="font-semibold text-slate-200">
+                  <span className="font-bold text-slate-900">
                     {claim.secondSignOff?.adminName || 'Ananya Deshmukh (Director Finance)'}
                   </span>
                   {claim.secondSignOff?.notes && (
-                    <p className="text-[11px] text-slate-400 mt-0.5">{claim.secondSignOff.notes}</p>
+                    <p className="text-[11px] text-slate-600 mt-0.5">{claim.secondSignOff.notes}</p>
                   )}
                 </div>
                 {claim.secondSignOff ? (
-                  <span className="text-emerald-400 flex items-center gap-1 text-[11px] font-mono">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span className="text-emerald-700 font-bold flex items-center gap-1 text-[11px] font-mono">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                     <span>SIGNED</span>
                   </span>
                 ) : pendingSecondSignOff ? (
                   <button
                     onClick={() => onSecondSignOff(claim)}
-                    className="px-2 py-1 rounded bg-amber-600 hover:bg-amber-500 text-white text-[11px] font-medium shadow-sm transition-colors"
+                    className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold shadow-2xs transition"
                   >
                     Execute Sign-Off
                   </button>
                 ) : (
-                  <span className="text-slate-500 text-[11px] font-mono">
+                  <span className="text-slate-500 text-[11px] font-mono font-medium">
                     {requiresDual ? 'AWAITING 1ST' : 'NOT REQUIRED (≤ ₹50K)'}
                   </span>
                 )}
@@ -482,7 +482,7 @@ export default function InsuranceDetailDrawer({
 
           {/* Farmer Bank Account for DBT */}
           <DrawerSection title="Beneficiary Bank Account (Aadhaar Bridge)">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-3 divide-y divide-slate-800/60 text-xs">
+            <div className="rounded-xl border border-slate-200/80 bg-white p-3 divide-y divide-slate-100 text-xs shadow-2xs">
               <KeyValue k="Bank Name" v={claim.bankName || 'State Bank of India'} />
               <KeyValue k="Bank IFSC Code" v={claim.ifsc || 'SBIN0001234'} mono />
               <KeyValue
@@ -494,11 +494,11 @@ export default function InsuranceDetailDrawer({
                 k="DBT UTR / Reference"
                 v={
                   claim.dbtTransactionId ? (
-                    <span className="text-emerald-400 font-mono font-bold">
+                    <span className="text-emerald-700 font-mono font-bold">
                       {claim.dbtTransactionId}
                     </span>
                   ) : (
-                    <span className="text-amber-400 font-mono">Awaiting Disbursal Batch</span>
+                    <span className="text-amber-700 font-mono font-semibold">Awaiting Disbursal Batch</span>
                   )
                 }
               />
@@ -512,22 +512,22 @@ export default function InsuranceDetailDrawer({
       {activeTab === 'audit' && (
         <div className="space-y-4 text-xs">
           <DrawerSection title="Claim State Transition Timeline">
-            <div className="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-800">
+            <div className="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
               {claim.timeline?.map((step, idx) => (
                 <div key={idx} className="relative">
-                  <div className="absolute -left-6 top-1 w-3.5 h-3.5 rounded-full bg-slate-900 border-2 border-emerald-500" />
-                  <div className="font-semibold text-slate-200 capitalize flex items-center justify-between">
+                  <div className="absolute -left-6 top-1 w-3.5 h-3.5 rounded-full bg-white border-2 border-emerald-600 shadow-2xs" />
+                  <div className="font-bold text-slate-900 capitalize flex items-center justify-between">
                     <span>{step.status}</span>
                     <span className="text-[10px] font-mono text-slate-500">
                       {step.at ? new Date(step.at).toLocaleString('en-IN') : '—'}
                     </span>
                   </div>
                   {step.actor && (
-                    <span className="text-[11px] text-emerald-400 font-mono block">
+                    <span className="text-[11px] text-emerald-700 font-mono font-semibold block">
                       By: {step.actor}
                     </span>
                   )}
-                  <p className="text-[11px] text-slate-400 mt-0.5">{step.note}</p>
+                  <p className="text-[11px] text-slate-600 mt-0.5">{step.note}</p>
                 </div>
               ))}
             </div>
@@ -538,18 +538,18 @@ export default function InsuranceDetailDrawer({
               {claim.auditLogs?.map((log) => (
                 <div
                   key={log.id}
-                  className="p-2.5 rounded-lg border border-slate-800 bg-slate-900/60 font-mono text-[11px] space-y-1"
+                  className="p-3 rounded-xl border border-slate-200 bg-white font-mono text-[11px] space-y-1 shadow-2xs"
                 >
-                  <div className="flex items-center justify-between text-slate-400">
+                  <div className="flex items-center justify-between text-slate-500">
                     <span>Admin: {log.adminUid}</span>
                     <span>IP: {log.ipAddress}</span>
                   </div>
-                  <div className="text-slate-200">
-                    Transition: <span className="text-amber-400">{log.previousState}</span> &rarr;{' '}
-                    <span className="text-emerald-400">{log.newState}</span>
+                  <div className="text-slate-900 font-bold">
+                    Transition: <span className="text-amber-700">{log.previousState}</span> &rarr;{' '}
+                    <span className="text-emerald-700">{log.newState}</span>
                   </div>
-                  <p className="text-slate-400 font-sans text-xs">{log.reason}</p>
-                  <span className="text-[10px] text-slate-500 block">
+                  <p className="text-slate-600 font-sans text-xs">{log.reason}</p>
+                  <span className="text-[10px] text-slate-400 block">
                     {new Date(log.timestamp).toLocaleString('en-IN')}
                   </span>
                 </div>
@@ -565,9 +565,9 @@ export default function InsuranceDetailDrawer({
           <div className="flex justify-end">
             <button
               onClick={handleCopyId}
-              className="flex items-center gap-1 text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-900 border border-slate-800"
+              className="flex items-center gap-1 text-xs text-slate-700 hover:text-slate-900 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 font-semibold transition"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copied ? 'Copied' : 'Copy JSON'}</span>
             </button>
           </div>
@@ -576,12 +576,12 @@ export default function InsuranceDetailDrawer({
       )}
 
       {/* Drawer Action Footer */}
-      <div className="pt-4 mt-6 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
+      <div className="pt-4 mt-6 border-t border-emerald-100 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           {claim.status === 'intimated' && (
             <button
               onClick={() => onAssignSurveyor(claim)}
-              className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-xs transition"
             >
               Assign Surveyor
             </button>
@@ -590,7 +590,7 @@ export default function InsuranceDetailDrawer({
           {claim.status === 'surveyorAssigned' && (
             <button
               onClick={() => onReviewAssessment(claim)}
-              className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-sm transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-xs transition"
             >
               Review Survey Findings
             </button>
@@ -599,7 +599,7 @@ export default function InsuranceDetailDrawer({
           {claim.status === 'fieldAssessed' && (
             <button
               onClick={() => onApproveDbt(claim)}
-              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition"
             >
               Authorize DBT Payout
             </button>
@@ -608,7 +608,7 @@ export default function InsuranceDetailDrawer({
           {pendingSecondSignOff && (
             <button
               onClick={() => onSecondSignOff(claim)}
-              className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold shadow-sm transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs transition"
             >
               Execute 2nd Sign-Off
             </button>
@@ -617,7 +617,7 @@ export default function InsuranceDetailDrawer({
           {['intimated', 'surveyorAssigned', 'fieldAssessed'].includes(claim.status) && (
             <button
               onClick={() => onRejectClaim(claim)}
-              className="px-3 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 border border-rose-500/30 text-xs font-medium transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 text-xs font-bold transition"
             >
               Reject Claim
             </button>
@@ -626,7 +626,7 @@ export default function InsuranceDetailDrawer({
 
         <button
           onClick={onClose}
-          className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-colors"
+          className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
         >
           Close
         </button>
@@ -635,20 +635,20 @@ export default function InsuranceDetailDrawer({
       {/* Enlarged Photo Modal */}
       {enlargedPhoto && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4"
           onClick={() => setEnlargedPhoto(null)}
         >
-          <div className="relative max-w-2xl w-full bg-slate-950 border border-slate-800 rounded-xl overflow-hidden p-2">
+          <div className="relative max-w-2xl w-full bg-white border border-emerald-100 rounded-2xl overflow-hidden p-3 shadow-2xl">
             <img
               src={enlargedPhoto}
               alt="Enlarged Damage In-Field View"
-              className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+              className="w-full h-auto max-h-[80vh] object-contain rounded-xl"
             />
-            <div className="p-3 flex items-center justify-between text-xs text-slate-300 font-mono">
+            <div className="p-3 flex items-center justify-between text-xs text-slate-700 font-mono font-semibold">
               <span>{claim.claimNumber} · Geotagged Damage Photo</span>
               <button
                 onClick={() => setEnlargedPhoto(null)}
-                className="px-2 py-1 rounded bg-slate-800 text-slate-200"
+                className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold"
               >
                 Close (ESC)
               </button>

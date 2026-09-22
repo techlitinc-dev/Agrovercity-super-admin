@@ -74,29 +74,29 @@ export function DisputeMediationModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="w-full max-w-xl bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 overflow-y-auto">
+      <div className="w-full max-w-xl bg-white border border-emerald-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-8">
         {/* Header */}
-        <div className="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+        <div className="px-6 py-4 bg-gradient-to-r from-emerald-100/70 via-emerald-50/80 to-emerald-100/50 border-b border-emerald-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <div className="w-10 h-10 rounded-xl bg-amber-600 flex items-center justify-center text-white shadow-xs">
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <span>Superadmin Dispute Arbitration Console</span>
-                <span className="text-[10px] font-mono bg-amber-950 text-amber-300 border border-amber-800 px-1.5 py-0.5 rounded">
+                <span className="text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-full shadow-xs">
                   SOP-05 Section 3
                 </span>
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Contract: <span className="font-mono text-slate-200 font-semibold">{dealId}</span> • Escrow: <span className="font-mono text-sky-400 font-bold">₹{totalEscrow.toLocaleString('en-IN')}</span>
+              <p className="text-xs text-slate-500 mt-0.5 font-medium">
+                Contract: <span className="font-mono text-slate-800 font-bold">{dealId}</span> • Escrow: <span className="font-mono text-teal-700 font-bold">₹{totalEscrow.toLocaleString('en-IN')}</span>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-emerald-100/60 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -104,42 +104,42 @@ export function DisputeMediationModal({
 
         {/* Dispute Summary Card */}
         <div className="p-6 space-y-4 text-xs">
-          <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 space-y-2">
+          <div className="bg-emerald-50/40 border border-emerald-100 rounded-2xl p-3.5 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <div>
-                <span className="text-slate-500 block text-[10px]">Farmer</span>
-                <span className="text-white font-bold">{farmerName}</span>
+                <span className="text-slate-500 block text-[10px] font-semibold">Farmer</span>
+                <span className="text-slate-900 font-bold">{farmerName}</span>
               </div>
               <div className="text-center font-mono">
-                <span className="text-slate-500 block text-[10px]">Agreed Lot</span>
-                <span className="text-slate-300">{quantityQtl} Qtl @ ₹{agreedPrice}/Qtl</span>
+                <span className="text-slate-500 block text-[10px] font-semibold">Agreed Lot</span>
+                <span className="text-slate-700 font-medium">{quantityQtl} Qtl @ ₹{agreedPrice}/Qtl</span>
               </div>
               <div className="text-right">
-                <span className="text-slate-500 block text-[10px]">Procuring Buyer</span>
-                <span className="text-sky-400 font-bold">{buyerFirm}</span>
+                <span className="text-slate-500 block text-[10px] font-semibold">Procuring Buyer</span>
+                <span className="text-teal-800 font-bold">{buyerFirm}</span>
               </div>
             </div>
 
-            <div className="pt-2 border-t border-slate-800/80">
-              <span className="text-[10px] uppercase font-bold text-amber-400 block mb-0.5">
+            <div className="pt-2 border-t border-emerald-100">
+              <span className="text-[10px] uppercase font-bold text-amber-800 block mb-0.5">
                 Dispute Claim & Investigation Summary:
               </span>
-              <p className="text-slate-300 text-xs leading-relaxed bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
+              <p className="text-slate-700 text-xs leading-relaxed bg-white p-2.5 rounded-xl border border-emerald-100 font-medium">
                 "{disputeClaim}"
               </p>
             </div>
           </div>
 
           {error && (
-            <div className="p-3 rounded-lg bg-rose-950/80 border border-rose-800 text-rose-300 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 shrink-0" />
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-2 font-medium">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
               <span>{error}</span>
             </div>
           )}
 
           {/* Arbitration Decisions Selection */}
           <div className="space-y-2">
-            <label className="block text-slate-300 font-semibold">
+            <label className="block text-slate-800 font-bold">
               Select Binding Superadmin Ruling:
             </label>
 
@@ -149,15 +149,15 @@ export function DisputeMediationModal({
                 onClick={() => setResolutionType('uphold_farmer')}
                 className={`p-3 rounded-xl border cursor-pointer transition-all ${
                   resolutionType === 'uphold_farmer'
-                    ? 'bg-emerald-950/50 border-emerald-500 text-white'
-                    : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                    ? 'bg-emerald-50 border-emerald-400 text-slate-900 shadow-xs ring-1 ring-emerald-400'
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                 }`}
               >
-                <div className="font-bold text-xs flex items-center gap-1 text-emerald-400">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+                <div className="font-bold text-xs flex items-center gap-1 text-emerald-800">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Uphold Farmer</span>
                 </div>
-                <div className="text-[10px] mt-1 text-slate-400">
+                <div className="text-[10px] mt-1 text-slate-500">
                   Release 100% escrow to farmer bank account.
                 </div>
               </div>
@@ -167,15 +167,15 @@ export function DisputeMediationModal({
                 onClick={() => setResolutionType('quality_docking')}
                 className={`p-3 rounded-xl border cursor-pointer transition-all ${
                   resolutionType === 'quality_docking'
-                    ? 'bg-amber-950/50 border-amber-500 text-white'
-                    : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                    ? 'bg-amber-50 border-amber-400 text-slate-900 shadow-xs ring-1 ring-amber-400'
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                 }`}
               >
-                <div className="font-bold text-xs flex items-center gap-1 text-amber-400">
-                  <Scale className="w-3.5 h-3.5" />
+                <div className="font-bold text-xs flex items-center gap-1 text-amber-800">
+                  <Scale className="w-3.5 h-3.5 text-amber-600" />
                   <span>Quality Docking</span>
                 </div>
-                <div className="text-[10px] mt-1 text-slate-400">
+                <div className="text-[10px] mt-1 text-slate-500">
                   Arbitrate docked price per official assay.
                 </div>
               </div>
@@ -185,15 +185,15 @@ export function DisputeMediationModal({
                 onClick={() => setResolutionType('cancel_and_refund')}
                 className={`p-3 rounded-xl border cursor-pointer transition-all ${
                   resolutionType === 'cancel_and_refund'
-                    ? 'bg-rose-950/50 border-rose-500 text-white'
-                    : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                    ? 'bg-rose-50 border-rose-400 text-slate-900 shadow-xs ring-1 ring-rose-400'
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                 }`}
               >
-                <div className="font-bold text-xs flex items-center gap-1 text-rose-400">
-                  <RotateCcw className="w-3.5 h-3.5" />
+                <div className="font-bold text-xs flex items-center gap-1 text-rose-800">
+                  <RotateCcw className="w-3.5 h-3.5 text-rose-600" />
                   <span>Cancel & Refund</span>
                 </div>
-                <div className="text-[10px] mt-1 text-slate-400">
+                <div className="text-[10px] mt-1 text-slate-500">
                   Refund buyer escrow; re-list lot.
                 </div>
               </div>
@@ -202,8 +202,8 @@ export function DisputeMediationModal({
 
           {/* Quality Docking Price Input (If selected) */}
           {resolutionType === 'quality_docking' && (
-            <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 space-y-2">
-              <label className="block text-slate-300 font-semibold">
+            <div className="bg-emerald-50/30 border border-emerald-100 rounded-2xl p-3.5 space-y-2">
+              <label className="block text-slate-700 font-bold">
                 Arbitrated Rate (₹/Qtl) — Original was ₹{agreedPrice}/Qtl:
               </label>
               <div className="flex items-center gap-3">
@@ -213,9 +213,9 @@ export function DisputeMediationModal({
                   onChange={(e) => setAdjustedPrice(e.target.value)}
                   min="100"
                   max={agreedPrice}
-                  className="w-44 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white font-mono text-sm font-bold focus:ring-1 focus:ring-amber-500 focus:outline-none"
+                  className="w-44 bg-white border border-emerald-200 rounded-xl px-3 py-1.5 text-slate-900 font-mono text-sm font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:outline-none"
                 />
-                <span className="text-[11px] font-mono text-rose-400">
+                <span className="text-[11px] font-mono text-rose-600 font-semibold">
                   Docking: -₹{agreedPrice - numAdjustedPrice}/Qtl ({(((agreedPrice - numAdjustedPrice) / agreedPrice) * 100).toFixed(1)}%)
                 </span>
               </div>
@@ -223,27 +223,27 @@ export function DisputeMediationModal({
           )}
 
           {/* Payout Distribution Preview */}
-          <div className="bg-slate-950/90 border border-slate-800 rounded-xl p-3.5 grid grid-cols-2 gap-3 font-mono">
-            <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
-              <span className="text-[10px] text-slate-500 block uppercase">Farmer Payout</span>
-              <span className="text-sm font-extrabold text-emerald-400">
+          <div className="bg-white border border-emerald-100/90 rounded-2xl p-3.5 grid grid-cols-2 gap-3 font-mono shadow-xs">
+            <div className="bg-emerald-50/40 p-2.5 rounded-xl border border-emerald-100">
+              <span className="text-[10px] text-slate-500 block uppercase font-bold">Farmer Payout</span>
+              <span className="text-sm font-extrabold text-emerald-800">
                 ₹{farmerPayout.toLocaleString('en-IN')}
               </span>
-              <span className="text-[10px] text-slate-500 block">Direct Bank Transfer</span>
+              <span className="text-[10px] text-slate-500 block font-sans font-medium">Direct Bank Transfer</span>
             </div>
-            <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
-              <span className="text-[10px] text-slate-500 block uppercase">Buyer Refund</span>
-              <span className="text-sm font-extrabold text-sky-400">
+            <div className="bg-teal-50/40 p-2.5 rounded-xl border border-teal-100">
+              <span className="text-[10px] text-slate-500 block uppercase font-bold">Buyer Refund</span>
+              <span className="text-sm font-extrabold text-teal-800">
                 ₹{buyerRefund.toLocaleString('en-IN')}
               </span>
-              <span className="text-[10px] text-slate-500 block">Returned from Escrow</span>
+              <span className="text-[10px] text-slate-500 block font-sans font-medium">Returned from Escrow</span>
             </div>
           </div>
 
           {/* Mandatory Arbitration Reasoning */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-slate-300 font-semibold">
+              <label className="text-slate-700 font-bold">
                 Formal Arbitration Rationale (Mandatory for Escrow Ledger) *
               </label>
               <span className="text-[10px] font-mono text-slate-500">
@@ -258,31 +258,31 @@ export function DisputeMediationModal({
                 if (error) setError('');
               }}
               placeholder="Detail laboratory moisture verification and justification for this ruling..."
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-xs placeholder-slate-500 focus:ring-1 focus:ring-amber-500 focus:outline-none"
+              className="w-full bg-emerald-50/30 border border-emerald-200 rounded-xl px-3 py-2 text-slate-900 text-xs placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:outline-none"
             />
           </div>
 
           {/* Compliance notice */}
-          <div className="flex items-start gap-2 text-[11px] text-slate-400 bg-slate-950/80 p-2.5 rounded-lg border border-slate-800">
-            <ShieldAlert className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2 text-[11px] text-slate-600 bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-100">
+            <ShieldAlert className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
             <span>
-              Per SOP-05 Rule 6.3, financial adjustments above ₹50,000 are recorded in immutable audit logs with admin <code className="text-amber-300 font-mono">{currentAdmin?.email || 'root@agrovercity'}</code> signature.
+              Per SOP-05 Rule 6.3, financial adjustments above ₹50,000 are recorded in immutable audit logs with admin <code className="text-emerald-950 font-bold font-mono">{currentAdmin?.email || 'root@agrovercity'}</code> signature.
             </span>
           </div>
 
           {/* Modal Actions */}
-          <div className="pt-3 border-t border-slate-800 flex items-center justify-end gap-3">
+          <div className="pt-3 border-t border-emerald-100 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium transition-colors"
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-colors shadow-xs"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
               disabled={loading || reason.trim().length < 8}
-              className="flex items-center gap-1.5 px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold shadow-lg shadow-amber-950/50 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold shadow-xs transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>

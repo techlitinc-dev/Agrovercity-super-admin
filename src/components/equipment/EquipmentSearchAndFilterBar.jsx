@@ -32,11 +32,11 @@ export function EquipmentSearchAndFilterBar({
   };
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-3.5 shadow-xs">
+    <div className="bg-white/90 backdrop-blur-xl border border-emerald-100/90 rounded-2xl p-4 space-y-3.5 shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
       {/* Top Row: Navigation Tabs & Export Buttons */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800/80">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-emerald-100/80">
         {/* 3 Core Tabs */}
-        <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl p-1 text-xs">
+        <div className="flex items-center bg-slate-100/80 border border-slate-200/80 rounded-xl p-1 text-xs">
           <button
             onClick={() => {
               setActiveTab('machines');
@@ -45,7 +45,7 @@ export function EquipmentSearchAndFilterBar({
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold transition-all ${
               activeTab === 'machines'
                 ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-400 hover:text-white'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Tractor className="w-3.5 h-3.5" />
@@ -60,7 +60,7 @@ export function EquipmentSearchAndFilterBar({
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold transition-all ${
               activeTab === 'slots'
                 ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-400 hover:text-white'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <CalendarClock className="w-3.5 h-3.5" />
@@ -75,7 +75,7 @@ export function EquipmentSearchAndFilterBar({
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold transition-all ${
               activeTab === 'bookings'
                 ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-400 hover:text-white'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <FileText className="w-3.5 h-3.5" />
@@ -87,29 +87,29 @@ export function EquipmentSearchAndFilterBar({
         <div className="flex items-center gap-2">
           <button
             onClick={onExportCsv}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-emerald-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-colors shadow-xs"
             title="Download active view as CSV"
           >
-            <Download className="w-3.5 h-3.5 text-emerald-400" />
+            <Download className="w-3.5 h-3.5 text-emerald-600" />
             <span>CSV</span>
           </button>
 
           <button
             onClick={onExportJson}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-emerald-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-colors shadow-xs"
             title="Export filtered records as JSON"
           >
-            <Download className="w-3.5 h-3.5 text-sky-400" />
+            <Download className="w-3.5 h-3.5 text-sky-600" />
             <span>JSON</span>
           </button>
 
           <button
             onClick={onRefresh}
             disabled={loading}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-emerald-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-colors shadow-xs disabled:opacity-50"
             title="Refresh database records"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-slate-600 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
         </div>
@@ -119,7 +119,7 @@ export function EquipmentSearchAndFilterBar({
       <div className="flex flex-col md:flex-row items-center justify-between gap-3">
         {/* Full-text Search Bar */}
         <div className="relative flex-1 w-full">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
@@ -131,12 +131,12 @@ export function EquipmentSearchAndFilterBar({
                 ? 'Search slot ID, machine, owner, date, booked-by farmer...'
                 : 'Search booking ID, farmer name, mobile, machine, date...'
             }
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl pl-10 pr-8 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -150,7 +150,7 @@ export function EquipmentSearchAndFilterBar({
               <select
                 value={ownerTypeFilter}
                 onChange={(e) => setOwnerTypeFilter(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-medium"
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-semibold"
               >
                 <option value="all">All Owner Types</option>
                 <option value="fpo">FPO Pool Machines</option>
@@ -163,7 +163,7 @@ export function EquipmentSearchAndFilterBar({
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-medium"
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-semibold"
             >
               {activeTab === 'machines' && (
                 <>
@@ -200,7 +200,7 @@ export function EquipmentSearchAndFilterBar({
           {hasActiveFilters && (
             <button
               onClick={handleClear}
-              className="px-2.5 py-1.5 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 rounded-lg transition-colors flex items-center gap-1 font-medium"
+              className="px-2.5 py-1.5 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1 font-semibold"
             >
               <X className="w-3.5 h-3.5" />
               <span>Reset</span>

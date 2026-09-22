@@ -393,11 +393,11 @@ export default function InsurancePage() {
       <div className="px-6 pt-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
-            <h1 className="text-xl font-bold text-slate-100 flex items-center gap-2.5">
-              <Shield className="w-6 h-6 text-emerald-400" />
+            <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2.5">
+              <Shield className="w-6 h-6 text-emerald-600" />
               <span>Crop Insurance (PMFBY) & Calamity Claims Desk</span>
             </h1>
-            <p className="text-xs text-slate-400 mt-0.5 font-mono">
+            <p className="text-xs text-slate-500 mt-0.5 font-medium">
               SOP-15 · PMFBY/RWBCIS Passbook · 72h Calamity Intimation · Geotagged Survey · Dual Sign-Off (&gt; ₹50k) · DBT Gateway
             </p>
           </div>
@@ -405,9 +405,9 @@ export default function InsurancePage() {
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleRunComplianceAudit}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-medium text-xs transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-xs shadow-2xs transition-colors"
             >
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>Audit Compliance</span>
             </button>
           </div>
@@ -513,19 +513,19 @@ export default function InsurancePage() {
 
       {/* 4. PRIMARY DATA GRID CONTENT */}
       <div className="px-6">
-        <div className="rounded-xl border border-slate-800 bg-slate-900/40 overflow-hidden shadow-xl">
+        <div className="rounded-2xl border border-emerald-100/90 bg-white/90 backdrop-blur-xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:border-emerald-300 transition-all">
           {loading ? (
-            <div className="p-16 text-center text-slate-400">
-              <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="text-xs font-mono">Loading PMFBY crop insurance database records...</p>
+            <div className="p-16 text-center text-slate-500">
+              <div className="w-8 h-8 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <p className="text-xs font-medium">Loading PMFBY crop insurance database records...</p>
             </div>
           ) : error ? (
-            <div className="p-12 text-center text-rose-400">
+            <div className="p-12 text-center text-rose-600">
               <AlertTriangle className="w-10 h-10 mx-auto mb-2 text-rose-500" />
-              <p className="font-semibold text-sm">{error}</p>
+              <p className="font-bold text-sm">{error}</p>
               <button
                 onClick={loadData}
-                className="mt-3 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 text-xs"
+                className="mt-3 px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-xs hover:bg-emerald-700 transition"
               >
                 Retry
               </button>

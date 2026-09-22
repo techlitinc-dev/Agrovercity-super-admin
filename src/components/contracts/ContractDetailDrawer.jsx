@@ -31,7 +31,7 @@ export default function ContractDetailDrawer({ contract, acceptances, acceptance
       subtitle={`${contract.buyerName} × ${contract.farmerName} · ${STATUS_LABELS[contract.status] || contract.status}`}
     >
       <DrawerSection title="Contract Terms">
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2">
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 px-3.5 py-2.5 shadow-2xs">
           <KeyValue k="Crop / Grade" v={`${contract.crop} · Grade ${contract.grade}`} />
           <KeyValue k="Quantity" v={`${contract.quantityQuintals} quintals`} />
           <KeyValue k="Locked Rate" v={`${fmtINR(contract.ratePerQuintal)} / quintal`} mono />
@@ -42,27 +42,27 @@ export default function ContractDetailDrawer({ contract, acceptances, acceptance
       </DrawerSection>
 
       <DrawerSection title="Escrow Account">
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2">
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 px-3.5 py-2.5 shadow-2xs">
           <KeyValue k="Total Locked" v={fmtINR(contract.escrowAmount)} mono />
           <KeyValue k="Released" v={fmtINR(contract.escrowReleased)} mono />
           <KeyValue k="Remaining" v={fmtINR(escrowRemaining)} mono />
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-800">
+          <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-emerald-100 border border-emerald-200">
             <div
-              className="h-full rounded-full bg-emerald-500 transition-all"
+              className="h-full rounded-full bg-emerald-600 transition-all"
               style={{ width: `${contract.escrowAmount ? Math.min(100, ((contract.escrowReleased || 0) / contract.escrowAmount) * 100) : 0}%` }}
             />
           </div>
-          <div className="mt-2 flex items-center gap-2 text-[11px] font-mono text-slate-500">
+          <div className="mt-2 flex items-center gap-2 text-[11px] font-mono text-emerald-800 font-semibold">
             {escrowRemaining > 0
-              ? <><Lock className="h-3 w-3" /> funds locked in buyer escrow</>
-              : <><Unlock className="h-3 w-3 text-emerald-400" /> escrow fully settled</>}
+              ? <><Lock className="h-3.5 w-3.5 text-amber-600" /> Funds locked in corporate escrow</>
+              : <><Unlock className="h-3.5 w-3.5 text-emerald-600" /> Escrow 100% settled</>}
           </div>
         </div>
       </DrawerSection>
 
       {contract.disputeReason && (
         <DrawerSection title="Dispute / Breach Reason">
-          <div className="rounded-lg border border-orange-500/30 bg-orange-500/10 px-3 py-2 text-sm text-orange-300">
+          <div className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs text-rose-900 font-medium">
             {contract.disputeReason}
           </div>
         </DrawerSection>
@@ -70,29 +70,34 @@ export default function ContractDetailDrawer({ contract, acceptances, acceptance
 
       <DrawerSection title="Farmer Acceptances (MPIN Signed)">
         {acceptancesLoading ? (
-          <div className="rounded-lg border border-slate-800 py-6 text-center text-xs text-slate-500">Loading acceptances…</div>
+          <div className="rounded-xl border border-emerald-100 py-6 text-center text-xs text-slate-500">Loading acceptances…</div>
         ) : acceptances.length === 0 ? (
           <EmptyState title="No signed acceptances yet" hint={`Farmers can accept until ${contract.acceptanceDeadline}`} />
         ) : (
-          <div className="overflow-hidden rounded-lg border border-slate-800">
+          <div className="overflow-hidden rounded-xl border border-emerald-100 shadow-2xs">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-slate-800 bg-slate-900/80 uppercase tracking-wider text-slate-500">
-                  <th className="px-3 py-2 font-semibold">Farmer</th>
-                  <th className="px-3 py-2 font-semibold">MPIN</th>
-                  <th className="px-3 py-2 font-semibold">Signed At</th>
+                <tr className="border-b border-emerald-200 bg-emerald-50/80 uppercase tracking-wider text-emerald-950 font-bold text-[10px]">
+                  <th className="px-3 py-2.5 font-bold">Farmer</th>
+                  <th className="px-3 py-2.5 font-bold">MPIN</th>
+                  <th className="px-3 py-2.5 font-bold">Signed At</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-emerald-50 bg-white">
                 {acceptances.map((a) => (
-                  <tr key={a.id} className="border-b border-slate-800/60 last:border-0">
-                    <td className="px-3 py-2 text-slate-200">{a.farmerName}<span className="ml-1.5 font-mono text-[10px] text-slate-500">{a.farmerPhone.replace(/^(\+91\d{2})\d{4}(\d{2})/, '$1••••$2')}</span></td>
+                  <tr key={a.id} className="hover:bg-emerald-50/50 transition-colors">
+                    <td className="px-3 py-2 text-slate-800 font-medium">
+                      {a.farmerName}
+                      <span className="ml-1.5 font-mono text-[10px] text-slate-400 font-normal">
+                        {a.farmerPhone.replace(/^(\+91\d{2})\d{4}(\d{2})/, '$1••••$2')}
+                      </span>
+                    </td>
                     <td className="px-3 py-2">
-                      <span className={`rounded px-1.5 py-0.5 font-mono text-[10px] ${a.mpinVerified ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                      <span className={`rounded-full px-2 py-0.5 font-mono text-[10px] font-bold border ${a.mpinVerified ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'}`}>
                         {a.mpinVerified ? 'VERIFIED' : 'FAILED'}
                       </span>
                     </td>
-                    <td className="px-3 py-2 font-mono text-slate-400">{a.signedAt?.slice(0, 10)}</td>
+                    <td className="px-3 py-2 font-mono text-slate-500 text-[11px]">{a.signedAt?.slice(0, 10)}</td>
                   </tr>
                 ))}
               </tbody>

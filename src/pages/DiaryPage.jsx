@@ -463,9 +463,9 @@ export default function DiaryPage() {
           {tab === 'entries' && (
             <button
               onClick={() => setCalcModalOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-300 hover:border-emerald-500 hover:text-emerald-400"
+              className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50/80 px-3 py-2 text-xs font-semibold text-emerald-900 hover:bg-emerald-100/80 transition-colors shadow-2xs"
             >
-              <Calculator className="h-4 w-4 text-emerald-400" /> Break-Even Calc
+              <Calculator className="h-4 w-4 text-emerald-700" /> Break-Even Calc
             </button>
           )}
         </FiltersBar>
@@ -473,7 +473,7 @@ export default function DiaryPage() {
 
       {/* Main Content Area */}
       {loading ? (
-        <div className="rounded-xl border border-slate-800 py-16 text-center text-slate-500">
+        <div className="rounded-2xl border border-emerald-100 bg-white/90 py-16 text-center text-xs text-slate-500 shadow-xs">
           Loading farm bookkeeping and financial records…
         </div>
       ) : tab === 'entries' ? (

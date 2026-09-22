@@ -168,14 +168,14 @@ export default function ChatbotPage() {
 
       <FiltersBar q={q} setQ={(v) => { setPage(1); setQ(v) }} status={status} setStatus={(v) => { setPage(1); setStatus(v) }} statuses={STATUS_KEYS[tab]} dateRange={dateRange} setDateRange={(v) => { setPage(1); setDateRange(v) }} onExport={handleExport}>
         {promptConfig && (
-          <button className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-300 hover:border-emerald-500 hover:text-emerald-400" onClick={() => setPromptModalOpen(true)} title={promptConfig.systemPrompt}>
-            <Bot className="h-4 w-4 text-emerald-400" /> Prompt Config v{promptConfig.version}
+          <button className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50/80 px-3 py-2 text-xs font-semibold text-emerald-900 hover:bg-emerald-100/80 transition-colors shadow-2xs" onClick={() => setPromptModalOpen(true)} title={promptConfig.systemPrompt}>
+            <Bot className="h-4 w-4 text-emerald-700" /> Prompt Config v{promptConfig.version}
           </button>
         )}
       </FiltersBar>
 
       {loading ? (
-        <div className="rounded-xl border border-slate-800 py-16 text-center text-slate-500">Loading chatbot data…</div>
+        <div className="rounded-2xl border border-emerald-100 bg-white/90 py-16 text-center text-xs text-slate-500 shadow-xs">Loading chatbot data…</div>
       ) : tab === 'transcripts' ? (
         <TranscriptsTable sessions={sorted} sort={sort} onSort={(key) => setSort((s) => ({ key, dir: s.key === key && s.dir === 'asc' ? 'desc' : 'asc' }))} onView={(doc) => setSelected({ type: 'transcripts', doc })} />
       ) : (

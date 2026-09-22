@@ -16,33 +16,33 @@ export default function OrdersView({ rows, onRefresh, refundOrder }) {
   const refundable = (o) => o.status === 'cancelled' && o.paymentStatus === 'paid' && o.refundStatus !== 'refunded'
 
   const columns = [
-    { key: 'orderId', label: 'Order ID', value: (r) => r.orderId, mono: true, cls: 'text-slate-400' },
+    { key: 'orderId', label: 'Order ID', value: (r) => r.orderId, mono: true, cls: 'text-emerald-800 font-bold' },
     { key: 'buyer', label: 'Buyer', value: (r) => (
         <div>
-          <p className="font-medium text-slate-100">{r.userName || r.userId}</p>
+          <p className="font-semibold text-slate-900">{r.userName || r.userId}</p>
           <p className="font-mono text-xs text-slate-500">{r.userId}</p>
         </div>
       ) },
     { key: 'items', label: 'Items', value: (r) => (
-        <span className="text-xs text-slate-400">{r.items.map((it) => `${it.quantity}× ${it.title}`).join(', ')}</span>
+        <span className="text-xs font-medium text-slate-700">{r.items.map((it) => `${it.quantity}× ${it.title}`).join(', ')}</span>
       ) },
-    { key: 'total', label: 'Total', value: (r) => fmtRupees(r.total), mono: true },
+    { key: 'total', label: 'Total', value: (r) => <span className="font-mono font-bold text-slate-900">{fmtRupees(r.total)}</span>, mono: true },
     { key: 'payment', label: 'Payment', value: (r) => (
         <div className="flex items-center gap-2">
           <Badge value={r.paymentStatus} />
-          <span className="text-xs uppercase text-slate-500">{r.paymentMethod}</span>
+          <span className="text-xs uppercase font-semibold text-slate-600">{r.paymentMethod}</span>
         </div>
       ) },
     { key: 'refund', label: 'Refund', value: (r) => (
         r.refundStatus && r.refundStatus !== 'notApplicable'
           ? <Badge value={r.refundStatus} />
-          : <span className="text-xs text-slate-600">—</span>
+          : <span className="text-xs text-slate-400">—</span>
       ) },
     { key: 'status', label: 'Order Status', value: (r) => <Badge value={r.status} /> },
-    { key: 'createdAt', label: 'Placed', value: (r) => fmtDate(r.createdAt), cls: 'text-slate-400' },
+    { key: 'createdAt', label: 'Placed', value: (r) => fmtDate(r.createdAt), cls: 'text-slate-500' },
     { key: 'actions', label: 'Actions', value: (r) => (
         refundable(r)
-          ? <Button variant="danger" className="px-2 py-1 text-xs" onClick={(e) => { e.stopPropagation(); setRefunding(r) }}>
+          ? <Button variant="danger" className="px-2.5 py-1 text-xs" onClick={(e) => { e.stopPropagation(); setRefunding(r) }}>
               <RotateCcw className="h-3.5 w-3.5" /> Refund
             </Button>
           : null
@@ -65,22 +65,22 @@ export default function OrdersView({ rows, onRefresh, refundOrder }) {
 
   return (
     <div className="space-y-3">
-      {lastError && <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm text-rose-300">{lastError}</div>}
-      <p className="text-sm text-slate-400">{rows.length} orders in range</p>
+      {lastError && <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-800 font-semibold">{lastError}</div>}
+      <p className="text-sm font-medium text-slate-600">{rows.length} orders in range</p>
 
-      <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60">
+      <div className="overflow-hidden rounded-2xl border border-emerald-200/80 bg-white/90 backdrop-blur-xl shadow-[0_8px_30px_rgb(16,185,129,0.04)] ring-1 ring-emerald-900/[0.02]">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-900/80 text-xs uppercase tracking-wide text-slate-500">
-                {columns.map((c) => <th key={c.key} className="whitespace-nowrap px-4 py-3 font-semibold">{c.label}</th>)}
+              <tr className="border-b border-emerald-200/80 bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 text-[11px] uppercase tracking-wider text-emerald-950 font-bold">
+                {columns.map((c) => <th key={c.key} className="whitespace-nowrap px-4 py-3.5 font-bold">{c.label}</th>)}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-emerald-100/60">
               {rows.map((r) => (
-                <tr key={r.id || r.orderId} onClick={() => setDetail(r)} className="cursor-pointer border-b border-slate-800/60 last:border-0 hover:bg-slate-800/40">
+                <tr key={r.id || r.orderId} onClick={() => setDetail(r)} className="cursor-pointer transition-colors hover:bg-emerald-50/60">
                   {columns.map((c) => (
-                    <td key={c.key} className={`max-w-[260px] truncate whitespace-nowrap px-4 py-3 ${c.mono ? 'font-mono text-xs' : ''} ${c.cls || 'text-slate-300'}`}>
+                    <td key={c.key} className={`max-w-[260px] truncate whitespace-nowrap px-4 py-3 ${c.mono ? 'font-mono text-xs' : ''} ${c.cls || 'text-slate-800'}`}>
                       {c.value(r)}
                     </td>
                   ))}

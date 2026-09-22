@@ -39,55 +39,55 @@ export function fmtINR(val) {
 export function StatusBadge({ status, type = 'default' }) {
   const map = {
     // Vets
-    verified_active: { label: 'Verified & Active', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    pending_verification: { label: 'Pending Verification', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-    suspended: { label: 'Suspended', bg: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
-    rejected: { label: 'Rejected', bg: 'bg-slate-500/10 text-slate-400 border-slate-500/30' },
+    verified_active: { label: 'Verified & Active', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    pending_verification: { label: 'Pending Verification', bg: 'bg-amber-50 text-amber-700 border-amber-200' },
+    suspended: { label: 'Suspended', bg: 'bg-rose-50 text-rose-700 border-rose-200' },
+    rejected: { label: 'Rejected', bg: 'bg-slate-100 text-slate-600 border-slate-200' },
 
     // Gaushalas
-    certified_active: { label: 'Certified Compliant', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    pending_audit: { label: 'Pending Audit', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-    flagged: { label: 'Flagged Anomaly', bg: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
+    certified_active: { label: 'Certified Compliant', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    pending_audit: { label: 'Pending Audit', bg: 'bg-amber-50 text-amber-700 border-amber-200' },
+    flagged: { label: 'Flagged Anomaly', bg: 'bg-rose-50 text-rose-700 border-rose-200' },
 
     // Nurseries
-    approved: { label: 'Govt Empaneled', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    pending_inspection: { label: 'Pending Inspection', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
+    approved: { label: 'Govt Empaneled', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    pending_inspection: { label: 'Pending Inspection', bg: 'bg-amber-50 text-amber-700 border-amber-200' },
 
     // Dairy
-    active: { label: 'Lab Cleared Active', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    pending_lab_clearance: { label: 'Awaiting Lab NABL', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-    recalled: { label: 'Product Recalled', bg: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
-    out_of_stock: { label: 'Out of Stock', bg: 'bg-slate-500/10 text-slate-400 border-slate-500/30' },
+    active: { label: 'Lab Cleared Active', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    pending_lab_clearance: { label: 'Awaiting Lab NABL', bg: 'bg-amber-50 text-amber-700 border-amber-200' },
+    recalled: { label: 'Product Recalled', bg: 'bg-rose-50 text-rose-700 border-rose-200' },
+    out_of_stock: { label: 'Out of Stock', bg: 'bg-slate-100 text-slate-600 border-slate-200' },
 
     // Bookings
-    emergency_dispatched: { label: 'Emergency Dispatched', bg: 'bg-purple-500/15 text-purple-300 border-purple-500/40 animate-pulse' },
-    in_progress: { label: 'In Progress', bg: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
-    confirmed: { label: 'Confirmed', bg: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' },
-    completed: { label: 'Completed', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    dispute_mediation: { label: 'Dispute / Mediated', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-    cancelled_farmer: { label: 'Cancelled', bg: 'bg-slate-500/10 text-slate-400 border-slate-500/30' },
+    emergency_dispatched: { label: 'Emergency Dispatched', bg: 'bg-purple-50 text-purple-700 border-purple-200 animate-pulse' },
+    in_progress: { label: 'In Progress', bg: 'bg-blue-50 text-blue-700 border-blue-200' },
+    confirmed: { label: 'Confirmed', bg: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
+    completed: { label: 'Completed', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    dispute_mediation: { label: 'Dispute / Mediated', bg: 'bg-amber-50 text-amber-700 border-amber-200' },
+    cancelled_farmer: { label: 'Cancelled', bg: 'bg-slate-100 text-slate-600 border-slate-200' },
 
     // Manure Orders
-    in_transit: { label: 'In Transit', bg: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
-    loading_at_gaushala: { label: 'Loading at Yard', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-    delivered: { label: 'Delivered (OTP Verified)', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    pending_dual_signoff: { label: 'Pending Dual Sign-off', bg: 'bg-purple-500/15 text-purple-300 border-purple-500/40' },
-    order_placed: { label: 'Order Placed', bg: 'bg-slate-500/10 text-slate-400 border-slate-500/30' },
+    in_transit: { label: 'In Transit', bg: 'bg-blue-50 text-blue-700 border-blue-200' },
+    loading_at_gaushala: { label: 'Loading at Yard', bg: 'bg-amber-50 text-amber-700 border-amber-200' },
+    delivered: { label: 'Delivered (OTP Verified)', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    pending_dual_signoff: { label: 'Pending Dual Sign-off', bg: 'bg-purple-50 text-purple-700 border-purple-200' },
+    order_placed: { label: 'Order Placed', bg: 'bg-slate-100 text-slate-600 border-slate-200' },
 
     // Fallbacks
-    paid_escrow: { label: 'Escrow Secured', bg: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30' },
-    released_to_vet: { label: 'Settled to Vet', bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' },
-    refunded: { label: 'Refunded', bg: 'bg-rose-500/10 text-rose-400 border-rose-500/30' }
+    paid_escrow: { label: 'Escrow Secured', bg: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+    released_to_vet: { label: 'Settled to Vet', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    refunded: { label: 'Refunded', bg: 'bg-rose-50 text-rose-700 border-rose-200' }
   }
 
   const badge = map[status] || {
     label: (status || 'unknown').replace(/_/g, ' '),
-    bg: 'bg-slate-700/30 text-slate-300 border-slate-600'
+    bg: 'bg-slate-100 text-slate-700 border-slate-200'
   }
 
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium border ${badge.bg}`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${badge.bg}`}
     >
       {badge.label}
     </span>
@@ -96,25 +96,25 @@ export function StatusBadge({ status, type = 'default' }) {
 
 export function MetricCard({ title, value, subtitle, icon: Icon, color = 'emerald', alert = false }) {
   const colors = {
-    emerald: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
-    blue: 'bg-blue-500/10 border-blue-500/20 text-blue-400',
-    amber: 'bg-amber-500/10 border-amber-500/20 text-amber-400',
-    purple: 'bg-purple-500/10 border-purple-500/20 text-purple-400',
-    rose: 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+    emerald: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+    blue: 'bg-blue-50 text-blue-600 border-blue-200',
+    amber: 'bg-amber-50 text-amber-600 border-amber-200',
+    purple: 'bg-purple-50 text-purple-600 border-purple-200',
+    rose: 'bg-rose-50 text-rose-600 border-rose-200'
   }
 
   return (
     <div
-      className={`p-3.5 rounded-xl border bg-slate-900/70 backdrop-blur-sm flex items-start justify-between relative overflow-hidden transition-all ${
-        alert ? 'border-amber-500/40 ring-1 ring-amber-500/20' : 'border-slate-800'
+      className={`p-4 rounded-2xl border bg-white/90 shadow-[0_8px_30px_rgb(0,0,0,0.03)] backdrop-blur-xl flex items-start justify-between relative overflow-hidden transition-all hover:border-emerald-300 ${
+        alert ? 'border-amber-300 ring-2 ring-amber-400/40' : 'border-emerald-100/90'
       }`}
     >
       <div>
-        <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">{title}</p>
-        <p className="text-xl font-bold text-white mt-1 tracking-tight">{value}</p>
-        {subtitle && <p className="text-[11px] text-slate-400 mt-1">{subtitle}</p>}
+        <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{title}</p>
+        <p className="text-2xl font-bold text-slate-900 mt-1 tracking-tight font-mono">{value}</p>
+        {subtitle && <p className="text-[11px] text-slate-500 mt-1">{subtitle}</p>}
       </div>
-      <div className={`p-2 rounded-lg border ${colors[color] || colors.emerald}`}>
+      <div className={`p-2.5 rounded-xl border ${colors[color] || colors.emerald}`}>
         <Icon className="w-5 h-5" />
       </div>
     </div>
@@ -133,7 +133,7 @@ export function TabSwitch({ activeTab, onTabChange, counts = {} }) {
   ]
 
   return (
-    <div className="flex border-b border-slate-800 space-x-1 overflow-x-auto scrollbar-thin">
+    <div className="flex border-b border-emerald-100/80 px-6 bg-white/50 backdrop-blur-xs space-x-1 overflow-x-auto scrollbar-thin">
       {tabs.map((tab) => {
         const Icon = tab.icon
         const isActive = activeTab === tab.id
@@ -141,22 +141,22 @@ export function TabSwitch({ activeTab, onTabChange, counts = {} }) {
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`flex items-center gap-2 py-3 px-3 text-xs font-medium border-b-2 whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 whitespace-nowrap transition-all -mb-px ${
               isActive
-                ? 'border-emerald-500 text-emerald-400 bg-emerald-500/5'
-                : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                ? 'border-emerald-600 text-emerald-800 bg-emerald-50/80 rounded-t-xl'
+                : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-emerald-50/30'
             }`}
           >
-            <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-400' : 'text-slate-400'}`} />
+            <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-700' : 'text-slate-400'}`} />
             <span>{tab.label}</span>
             {tab.count !== undefined && (
               <span
-                className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${
+                className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono font-semibold ${
                   tab.alert
-                    ? 'bg-rose-500/20 text-rose-300 font-bold animate-pulse'
+                    ? 'bg-rose-100 text-rose-800 animate-pulse border border-rose-300'
                     : isActive
-                    ? 'bg-emerald-500/20 text-emerald-300'
-                    : 'bg-slate-800 text-slate-400'
+                    ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                    : 'bg-slate-100 text-slate-600 border border-slate-200'
                 }`}
               >
                 {tab.count}
@@ -182,17 +182,17 @@ export function FiltersBar({
   loading
 }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-900/50 rounded-xl border border-slate-800">
+    <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-emerald-50/40 border-b border-emerald-100/90 text-xs">
       <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
         {/* Search */}
         <div className="relative flex-1 min-w-[200px] max-w-md">
-          <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
+          <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
           <input
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by ID, name, mobile, district..."
-            className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+            className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors shadow-xs"
           />
         </div>
 
@@ -200,12 +200,12 @@ export function FiltersBar({
         <select
           value={statusFilter}
           onChange={(e) => onStatusChange(e.target.value)}
-          className="px-2.5 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
+          className="px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
         >
           <option value="all">All Statuses</option>
           {activeTab === 'vets' && (
             <>
-              <option value="verified_active">Verified & Active</option>
+              <option value="verified_active">Verified &amp; Active</option>
               <option value="pending_verification">Pending Verification</option>
               <option value="suspended">Suspended</option>
             </>
@@ -254,7 +254,7 @@ export function FiltersBar({
           <select
             value={extraFilter}
             onChange={(e) => onExtraFilterChange(e.target.value)}
-            className="px-2.5 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
+            className="px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
           >
             <option value="all">All Districts</option>
             <option value="Pune">Pune</option>
@@ -273,7 +273,7 @@ export function FiltersBar({
           <select
             value={extraFilter}
             onChange={(e) => onExtraFilterChange(e.target.value)}
-            className="px-2.5 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
+            className="px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
           >
             <option value="all">All Dairy Categories</option>
             <option value="Desi Ghee">Desi Ghee</option>
@@ -289,7 +289,7 @@ export function FiltersBar({
           <select
             value={extraFilter}
             onChange={(e) => onExtraFilterChange(e.target.value)}
-            className="px-2.5 py-1.5 text-xs bg-slate-950 border border-slate-800 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
+            className="px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
           >
             <option value="all">All Orders</option>
             <option value="required">Dual Sign-off Required (&gt; ₹50,000)</option>
@@ -303,14 +303,14 @@ export function FiltersBar({
         <button
           onClick={onRefresh}
           disabled={loading}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-xs transition disabled:opacity-50"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           <span>Refresh</span>
         </button>
         <button
           onClick={onExport}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 shadow-xs transition"
         >
           <Download className="w-3.5 h-3.5" />
           <span>Export CSV</span>
@@ -327,76 +327,76 @@ export function VetsTable({ rows, onView, onVerify, onSuspend }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-xs text-slate-300">
-        <thead className="bg-slate-950/60 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
-            <th className="py-3 px-3">Doctor & Degree</th>
-            <th className="py-3 px-3">State Council Reg</th>
-            <th className="py-3 px-3">Clinic & District</th>
-            <th className="py-3 px-3">Emergency 24x7 / Fees</th>
-            <th className="py-3 px-3">Cases / Rating</th>
-            <th className="py-3 px-3">Status</th>
-            <th className="py-3 px-3 text-right">Actions</th>
+            <th className="py-3 px-4">Doctor &amp; Degree</th>
+            <th className="py-3 px-4">State Council Reg</th>
+            <th className="py-3 px-4">Clinic &amp; District</th>
+            <th className="py-3 px-4">Emergency 24x7 / Fees</th>
+            <th className="py-3 px-4">Cases / Rating</th>
+            <th className="py-3 px-4 text-center">Status</th>
+            <th className="py-3 px-4 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60 font-mono">
+        <tbody className="divide-y divide-slate-100/80 font-mono">
           {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-slate-800/30 transition-colors">
-              <td className="py-3 px-3 font-sans">
-                <div className="font-semibold text-slate-100 flex items-center gap-1.5">
-                  <Stethoscope className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                  <Stethoscope className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                   <span>{row.name}</span>
                 </div>
-                <div className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">{row.degree}</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">{row.mobile}</div>
+                <div className="text-[11px] text-slate-600 mt-0.5 line-clamp-1">{row.degree}</div>
+                <div className="text-[11px] text-slate-500 font-mono mt-0.5">{row.mobile}</div>
               </td>
-              <td className="py-3 px-3">
-                <div className="font-semibold text-slate-200">{row.councilRegNo}</div>
-                <div className="text-[11px] text-slate-400">Exp: {row.regExpiryDate}</div>
-                <div className="text-[10px] text-slate-500">{row.councilState}</div>
+              <td className="py-3.5 px-4">
+                <div className="font-bold text-slate-900">{row.councilRegNo}</div>
+                <div className="text-[11px] text-slate-500">Exp: {row.regExpiryDate}</div>
+                <div className="text-[10px] text-emerald-700 font-semibold">{row.councilState}</div>
               </td>
-              <td className="py-3 px-3 font-sans">
-                <div className="font-medium text-slate-200">{row.clinicName}</div>
-                <div className="text-[11px] text-slate-400 flex items-center gap-1">
-                  <MapPin className="w-3 h-3 text-slate-500" />
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-medium text-slate-900">{row.clinicName}</div>
+                <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                  <MapPin className="w-3 h-3 text-slate-400" />
                   {row.taluka}, {row.district}
                 </div>
               </td>
-              <td className="py-3 px-3">
+              <td className="py-3.5 px-4">
                 <div className="flex items-center gap-1">
                   {row.emergencyCallout24x7 ? (
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
                       24x7 On-Call
                     </span>
                   ) : (
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600 font-medium">
                       Day OPD Only
                     </span>
                   )}
                 </div>
-                <div className="text-[11px] text-slate-300 mt-1">
+                <div className="text-[11px] text-slate-700 mt-1">
                   OPD: {fmtINR(row.consultationFee)} | Night: {fmtINR(row.emergencyNightFee)}
                 </div>
               </td>
-              <td className="py-3 px-3">
-                <div className="font-bold text-slate-100">★ {row.averageRating}</div>
-                <div className="text-[11px] text-slate-400">{row.totalCasesAttended} cases</div>
+              <td className="py-3.5 px-4">
+                <div className="font-bold text-amber-600">★ {row.averageRating}</div>
+                <div className="text-[11px] text-slate-500">{row.totalCasesAttended} cases</div>
               </td>
-              <td className="py-3 px-3">
+              <td className="py-3.5 px-4 text-center">
                 <StatusBadge status={row.status} />
               </td>
-              <td className="py-3 px-3 text-right font-sans">
+              <td className="py-3.5 px-4 text-right font-sans">
                 <div className="flex items-center justify-end gap-1.5">
                   <button
                     onClick={() => onView(row)}
-                    className="px-2 py-1 rounded text-[11px] font-medium bg-slate-800 text-slate-200 hover:bg-slate-700 transition-colors"
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition"
                   >
                     View
                   </button>
                   {row.status === 'pending_verification' && (
                     <button
                       onClick={() => onVerify(row)}
-                      className="px-2 py-1 rounded text-[11px] font-medium bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 transition-colors"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition active:scale-95"
                     >
                       Verify
                     </button>
@@ -404,7 +404,7 @@ export function VetsTable({ rows, onView, onVerify, onSuspend }) {
                   {row.status === 'verified_active' && (
                     <button
                       onClick={() => onSuspend(row)}
-                      className="px-2 py-1 rounded text-[11px] font-medium bg-rose-500/15 text-rose-300 hover:bg-rose-500/25 border border-rose-500/30 transition-colors"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition"
                     >
                       Suspend
                     </button>
@@ -426,88 +426,88 @@ export function GaushalasTable({ rows, onView, onAudit }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-xs text-slate-300">
-        <thead className="bg-slate-950/60 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
-            <th className="py-3 px-3">Gaushala & Trust</th>
-            <th className="py-3 px-3">Registration & 80G</th>
-            <th className="py-3 px-3">Cattle Census & Breeds</th>
-            <th className="py-3 px-3">Manure MT / Biogas</th>
-            <th className="py-3 px-3">Welfare Audit</th>
-            <th className="py-3 px-3">Status</th>
-            <th className="py-3 px-3 text-right">Actions</th>
+            <th className="py-3 px-4">Gaushala &amp; Trust</th>
+            <th className="py-3 px-4">Registration &amp; 80G</th>
+            <th className="py-3 px-4">Cattle Census &amp; Breeds</th>
+            <th className="py-3 px-4">Manure MT / Biogas</th>
+            <th className="py-3 px-4">Welfare Audit</th>
+            <th className="py-3 px-4 text-center">Status</th>
+            <th className="py-3 px-4 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60 font-mono">
+        <tbody className="divide-y divide-slate-100/80 font-mono">
           {rows.map((row) => {
             const breeds = Object.entries(row.indigenousBreeds || {})
               .map(([b, c]) => `${b.toUpperCase()}: ${c}`)
               .join(', ')
 
             return (
-              <tr key={row.id} className="hover:bg-slate-800/30 transition-colors">
-                <td className="py-3 px-3 font-sans">
-                  <div className="font-semibold text-slate-100 flex items-center gap-1.5">
-                    <HeartPulse className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+              <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
+                <td className="py-3.5 px-4 font-sans">
+                  <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <HeartPulse className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                     <span>{row.name}</span>
                   </div>
-                  <div className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
-                    <MapPin className="w-3 h-3 text-slate-500" />
+                  <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                    <MapPin className="w-3 h-3 text-slate-400" />
                     {row.district}, {row.state} • Ph: {row.contactPhone}
                   </div>
-                  <div className="text-[10px] text-slate-500 mt-0.5">Founder: {row.founderName}</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">Founder: {row.founderName}</div>
                 </td>
-                <td className="py-3 px-3">
-                  <div className="font-semibold text-slate-200">{row.charityCommissionNo}</div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">
+                <td className="py-3.5 px-4">
+                  <div className="font-bold text-slate-900">{row.charityCommissionNo}</div>
+                  <div className="text-[11px] text-slate-600 mt-0.5">
                     {row.taxExempt80G ? (
-                      <span className="text-emerald-400 font-sans font-medium">80G Certified ({row.tax80GCertNo})</span>
+                      <span className="text-emerald-700 font-sans font-semibold">80G Certified ({row.tax80GCertNo})</span>
                     ) : (
-                      <span className="text-amber-400 font-sans font-medium">80G Not Active</span>
+                      <span className="text-amber-700 font-sans font-semibold">80G Not Active</span>
                     )}
                   </div>
                   <div className="text-[10px] text-slate-500">Org Cert: {row.organicCertNo}</div>
                 </td>
-                <td className="py-3 px-3">
-                  <div className="font-bold text-slate-100">{row.totalCattleHead} Heads</div>
-                  <div className="text-[11px] text-slate-400 mt-0.5 max-w-[200px] truncate" title={breeds}>
+                <td className="py-3.5 px-4">
+                  <div className="font-bold text-slate-900">{row.totalCattleHead} Heads</div>
+                  <div className="text-[11px] text-slate-500 mt-0.5 max-w-[200px] truncate" title={breeds}>
                     {breeds}
                   </div>
                 </td>
-                <td className="py-3 px-3">
-                  <div className="font-semibold text-emerald-400">{row.monthlyManureCapacityMT} MT/Month</div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">Biogas: {row.biogasCapacityKwhPerDay} kWh/day</div>
+                <td className="py-3.5 px-4">
+                  <div className="font-bold text-emerald-700">{row.monthlyManureCapacityMT} MT/Month</div>
+                  <div className="text-[11px] text-slate-500 mt-0.5">Biogas: {row.biogasCapacityKwhPerDay} kWh/day</div>
                 </td>
-                <td className="py-3 px-3 font-sans">
+                <td className="py-3.5 px-4 font-sans">
                   <div className="flex items-center gap-1.5">
                     <div
-                      className={`text-sm font-bold ${
+                      className={`text-sm font-bold font-mono ${
                         row.welfareAuditScore >= 90
-                          ? 'text-emerald-400'
+                          ? 'text-emerald-700'
                           : row.welfareAuditScore >= 75
-                          ? 'text-amber-400'
-                          : 'text-rose-400'
+                          ? 'text-amber-700'
+                          : 'text-rose-700'
                       }`}
                     >
                       {row.welfareAuditScore} / 100
                     </div>
                   </div>
-                  <div className="text-[10px] text-slate-500">Insp: {row.vetInspectionDate}</div>
+                  <div className="text-[10px] text-slate-400">Insp: {row.vetInspectionDate}</div>
                 </td>
-                <td className="py-3 px-3">
+                <td className="py-3.5 px-4 text-center">
                   <StatusBadge status={row.status} />
                 </td>
-                <td className="py-3 px-3 text-right font-sans">
+                <td className="py-3.5 px-4 text-right font-sans">
                   <div className="flex items-center justify-end gap-1.5">
                     <button
                       onClick={() => onView(row)}
-                      className="px-2 py-1 rounded text-[11px] font-medium bg-slate-800 text-slate-200 hover:bg-slate-700 transition-colors"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition"
                     >
                       View
                     </button>
                     <button
                       onClick={() => onAudit(row)}
-                      className="px-2 py-1 rounded text-[11px] font-medium bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 transition-colors"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition active:scale-95"
                     >
                       Audit
                     </button>
@@ -529,72 +529,72 @@ export function NurseriesTable({ rows, onView, onApprove }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-xs text-slate-300">
-        <thead className="bg-slate-950/60 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
-            <th className="py-3 px-3">Nursery & Proprietor</th>
-            <th className="py-3 px-3">NHB Reg & Accreditation</th>
-            <th className="py-3 px-3">Stock & Capacity</th>
-            <th className="py-3 px-3">Specialization Varieties</th>
-            <th className="py-3 px-3">Govt Subsidy</th>
-            <th className="py-3 px-3">Status</th>
-            <th className="py-3 px-3 text-right">Actions</th>
+            <th className="py-3 px-4">Nursery &amp; Proprietor</th>
+            <th className="py-3 px-4">NHB Reg &amp; Accreditation</th>
+            <th className="py-3 px-4">Stock &amp; Capacity</th>
+            <th className="py-3 px-4">Specialization Varieties</th>
+            <th className="py-3 px-4">Govt Subsidy</th>
+            <th className="py-3 px-4 text-center">Status</th>
+            <th className="py-3 px-4 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60 font-mono">
+        <tbody className="divide-y divide-slate-100/80 font-mono">
           {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-slate-800/30 transition-colors">
-              <td className="py-3 px-3 font-sans">
-                <div className="font-semibold text-slate-100 flex items-center gap-1.5">
-                  <Trees className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                  <Trees className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                   <span>{row.name}</span>
                 </div>
-                <div className="text-[11px] text-slate-400 mt-0.5">Prop: {row.ownerName} • {row.phone}</div>
-                <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
-                  <MapPin className="w-3 h-3" />
+                <div className="text-[11px] text-slate-500 mt-0.5">Prop: {row.ownerName} • {row.phone}</div>
+                <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+                  <MapPin className="w-3 h-3 text-slate-400" />
                   {row.district}, {row.state} ({row.nurseryAreaAcres} Acres, {row.polyhousesCount} Polyhouses)
                 </div>
               </td>
-              <td className="py-3 px-3">
-                <div className="font-semibold text-slate-200">{row.nhbRegistrationNo}</div>
-                <div className="text-[11px] text-emerald-400 font-sans mt-0.5">{row.nhbRating}</div>
-                <div className="text-[10px] text-slate-400">Grade: {row.inspectionGrade} ({row.inspectionScore}/100)</div>
+              <td className="py-3.5 px-4">
+                <div className="font-bold text-slate-900">{row.nhbRegistrationNo}</div>
+                <div className="text-[11px] text-emerald-700 font-sans font-semibold mt-0.5">{row.nhbRating}</div>
+                <div className="text-[10px] text-slate-500">Grade: {row.inspectionGrade} ({row.inspectionScore}/100)</div>
               </td>
-              <td className="py-3 px-3">
-                <div className="font-bold text-slate-100">{(row.totalStockAvailable || 0).toLocaleString()} plants</div>
-                <div className="text-[11px] text-slate-400">Annual: {(row.annualSaplingCapacity || 0).toLocaleString()}</div>
+              <td className="py-3.5 px-4">
+                <div className="font-bold text-slate-900">{(row.totalStockAvailable || 0).toLocaleString()} plants</div>
+                <div className="text-[11px] text-slate-500">Annual: {(row.annualSaplingCapacity || 0).toLocaleString()}</div>
               </td>
-              <td className="py-3 px-3 font-sans">
-                <div className="text-[11px] text-slate-300 line-clamp-2 max-w-[240px]">
+              <td className="py-3.5 px-4 font-sans">
+                <div className="text-[11px] text-slate-700 line-clamp-2 max-w-[240px]">
                   {(row.specialization || []).join(', ')}
                 </div>
               </td>
-              <td className="py-3 px-3 font-sans">
+              <td className="py-3.5 px-4 font-sans">
                 {row.subsidyEligible ? (
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                     Subsidy Eligible (MIDH)
                   </span>
                 ) : (
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600">
                     Non-Subsidized
                   </span>
                 )}
               </td>
-              <td className="py-3 px-3">
+              <td className="py-3.5 px-4 text-center">
                 <StatusBadge status={row.status} />
               </td>
-              <td className="py-3 px-3 text-right font-sans">
+              <td className="py-3.5 px-4 text-right font-sans">
                 <div className="flex items-center justify-end gap-1.5">
                   <button
                     onClick={() => onView(row)}
-                    className="px-2 py-1 rounded text-[11px] font-medium bg-slate-800 text-slate-200 hover:bg-slate-700 transition-colors"
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition"
                   >
                     View
                   </button>
                   {row.status === 'pending_inspection' && (
                     <button
                       onClick={() => onApprove(row)}
-                      className="px-2 py-1 rounded text-[11px] font-medium bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 transition-colors"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition active:scale-95"
                     >
                       Approve
                     </button>
@@ -616,77 +616,77 @@ export function DairyProductsTable({ rows, onView, onRecall, onClearLab }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-xs text-slate-300">
-        <thead className="bg-slate-950/60 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
-            <th className="py-3 px-3">Product & Gaushala</th>
-            <th className="py-3 px-3">Batch & FSSAI</th>
-            <th className="py-3 px-3">NABL Purity & Lab</th>
-            <th className="py-3 px-3">Fat % / SNF / Temp</th>
-            <th className="py-3 px-3">Price & Stock</th>
-            <th className="py-3 px-3">Status</th>
-            <th className="py-3 px-3 text-right">Actions</th>
+            <th className="py-3 px-4">Product &amp; Gaushala</th>
+            <th className="py-3 px-4">Batch &amp; FSSAI</th>
+            <th className="py-3 px-4">NABL Purity &amp; Lab</th>
+            <th className="py-3 px-4">Fat % / SNF / Temp</th>
+            <th className="py-3 px-4">Price &amp; Stock</th>
+            <th className="py-3 px-4 text-center">Status</th>
+            <th className="py-3 px-4 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60 font-mono">
+        <tbody className="divide-y divide-slate-100/80 font-mono">
           {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-slate-800/30 transition-colors">
-              <td className="py-3 px-3 font-sans">
-                <div className="font-semibold text-slate-100 flex items-center gap-1.5">
-                  <Milk className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+            <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                  <Milk className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
                   <span>{row.name}</span>
                 </div>
-                <div className="text-[11px] text-slate-400 mt-0.5">{row.brandOrGaushala}</div>
-                <div className="text-[10px] text-slate-500">Pack: {row.packSize}</div>
+                <div className="text-[11px] text-slate-500 mt-0.5">{row.brandOrGaushala}</div>
+                <div className="text-[10px] text-slate-400">Pack: {row.packSize}</div>
               </td>
-              <td className="py-3 px-3">
-                <div className="font-semibold text-slate-200">{row.batchNo}</div>
-                <div className="text-[11px] text-slate-400">FSSAI: {row.fssaiLicenseNo}</div>
+              <td className="py-3.5 px-4">
+                <div className="font-bold text-slate-900">{row.batchNo}</div>
+                <div className="text-[11px] text-slate-500">FSSAI: {row.fssaiLicenseNo}</div>
               </td>
-              <td className="py-3 px-3">
+              <td className="py-3.5 px-4">
                 <div className="flex items-center gap-1">
                   <span
                     className={`font-bold ${
                       row.a2BetaCaseinPurity >= 98
-                        ? 'text-emerald-400'
+                        ? 'text-emerald-700'
                         : row.a2BetaCaseinPurity > 0
-                        ? 'text-rose-400'
-                        : 'text-amber-400'
+                        ? 'text-rose-700'
+                        : 'text-amber-700'
                     }`}
                   >
                     A2: {row.a2BetaCaseinPurity ? `${row.a2BetaCaseinPurity}%` : 'Pending'}
                   </span>
                   {row.antibioticResidueFree ? (
-                    <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-1 rounded">AB-Free</span>
+                    <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-full font-semibold">AB-Free</span>
                   ) : (
-                    <span className="text-[10px] text-rose-400 bg-rose-500/10 px-1 rounded">Residue Flagged</span>
+                    <span className="text-[10px] text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.2 rounded-full font-semibold">Residue Flagged</span>
                   )}
                 </div>
-                <div className="text-[10px] text-slate-500 mt-0.5">{row.labReportId}</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">{row.labReportId}</div>
               </td>
-              <td className="py-3 px-3 font-sans">
-                <div className="text-[11px] text-slate-200">Fat: {row.fatPercentage}% | SNF: {row.snfPercentage}%</div>
+              <td className="py-3.5 px-4 font-sans">
+                <div className="text-[11px] text-slate-800 font-semibold">Fat: {row.fatPercentage}% | SNF: {row.snfPercentage}%</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">{row.storageTemp}</div>
               </td>
-              <td className="py-3 px-3">
-                <div className="font-bold text-slate-100">{fmtINR(row.priceINR)}</div>
-                <div className="text-[11px] text-slate-400">Stock: {row.stockAvailable} units</div>
+              <td className="py-3.5 px-4">
+                <div className="font-bold text-slate-900">{fmtINR(row.priceINR)}</div>
+                <div className="text-[11px] text-slate-500">Stock: {row.stockAvailable} units</div>
               </td>
-              <td className="py-3 px-3">
+              <td className="py-3.5 px-4 text-center">
                 <StatusBadge status={row.status} />
               </td>
-              <td className="py-3 px-3 text-right font-sans">
+              <td className="py-3.5 px-4 text-right font-sans">
                 <div className="flex items-center justify-end gap-1.5">
                   <button
                     onClick={() => onView(row)}
-                    className="px-2 py-1 rounded text-[11px] font-medium bg-slate-800 text-slate-200 hover:bg-slate-700 transition-colors"
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition"
                   >
                     View
                   </button>
                   {row.status === 'pending_lab_clearance' && (
                     <button
                       onClick={() => onClearLab(row)}
-                      className="px-2 py-1 rounded text-[11px] font-medium bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 transition-colors"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition active:scale-95"
                     >
                       Clear Lab
                     </button>
@@ -694,7 +694,7 @@ export function DairyProductsTable({ rows, onView, onRecall, onClearLab }) {
                   {row.status === 'active' && (
                     <button
                       onClick={() => onRecall(row)}
-                      className="px-2 py-1 rounded text-[11px] font-medium bg-rose-500/15 text-rose-300 hover:bg-rose-500/25 border border-rose-500/30 transition-colors"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition"
                     >
                       Recall
                     </button>
@@ -716,77 +716,77 @@ export function VetBookingsTable({ rows, onView, onMediate }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-xs text-slate-300">
-        <thead className="bg-slate-950/60 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
-            <th className="py-3 px-3">Booking ID & Date</th>
-            <th className="py-3 px-3">Farmer & Location</th>
-            <th className="py-3 px-3">Animal & Clinical Issue</th>
-            <th className="py-3 px-3">Assigned Vet & ETA</th>
-            <th className="py-3 px-3">Amount & Escrow</th>
-            <th className="py-3 px-3">Status</th>
-            <th className="py-3 px-3 text-right">Actions</th>
+            <th className="py-3 px-4">Booking ID &amp; Date</th>
+            <th className="py-3 px-4">Farmer &amp; Location</th>
+            <th className="py-3 px-4">Animal &amp; Clinical Issue</th>
+            <th className="py-3 px-4">Assigned Vet &amp; ETA</th>
+            <th className="py-3 px-4">Amount &amp; Escrow</th>
+            <th className="py-3 px-4 text-center">Status</th>
+            <th className="py-3 px-4 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60 font-mono">
+        <tbody className="divide-y divide-slate-100/80 font-mono">
           {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-slate-800/30 transition-colors">
-              <td className="py-3 px-3">
-                <div className="font-semibold text-slate-100 flex items-center gap-1">
+            <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
+              <td className="py-3.5 px-4">
+                <div className="font-bold text-slate-900 flex items-center gap-1">
                   <span>{row.bookingNumber}</span>
                   {row.urgencyLevel === 'critical_emergency' && (
                     <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" title="Critical Emergency" />
                   )}
                 </div>
-                <div className="text-[11px] text-slate-400">{new Date(row.bookedAt).toLocaleString('en-IN')}</div>
+                <div className="text-[11px] text-slate-500">{new Date(row.bookedAt).toLocaleString('en-IN')}</div>
               </td>
-              <td className="py-3 px-3 font-sans">
-                <div className="font-medium text-slate-200">{row.farmerName}</div>
-                <div className="text-[11px] text-slate-400 font-mono">
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-bold text-slate-900">{row.farmerName}</div>
+                <div className="text-[11px] text-slate-500 font-mono">
                   {row.farmerPhone} • {row.maskedAadhaar}
                 </div>
-                <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
-                  <MapPin className="w-3 h-3" />
+                <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+                  <MapPin className="w-3 h-3 text-slate-400" />
                   {row.village}, {row.taluka}, {row.district}
                 </div>
               </td>
-              <td className="py-3 px-3 font-sans">
-                <div className="font-semibold text-slate-200">{row.animalType}</div>
-                <div className="text-[11px] text-slate-300 line-clamp-2 max-w-[260px] mt-0.5">
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-semibold text-slate-900">{row.animalType}</div>
+                <div className="text-[11px] text-slate-600 line-clamp-2 max-w-[260px] mt-0.5">
                   {row.symptomsDescription}
                 </div>
               </td>
-              <td className="py-3 px-3 font-sans">
-                <div className="font-medium text-emerald-400">{row.assignedVetName}</div>
-                <div className="text-[11px] text-slate-400 font-mono">{row.vetPhone}</div>
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-bold text-emerald-700">{row.assignedVetName}</div>
+                <div className="text-[11px] text-slate-500 font-mono">{row.vetPhone}</div>
                 {row.dispatchEtaMinutes > 0 && (
-                  <div className="text-[11px] text-purple-300 flex items-center gap-1 mt-0.5">
+                  <div className="text-[11px] text-purple-700 font-semibold flex items-center gap-1 mt-0.5">
                     <Clock className="w-3 h-3" />
                     ETA: {row.dispatchEtaMinutes} mins
                   </div>
                 )}
               </td>
-              <td className="py-3 px-3">
-                <div className="font-bold text-slate-100">{fmtINR(row.totalAmount)}</div>
-                <div className="text-[11px] text-slate-400">
+              <td className="py-3.5 px-4">
+                <div className="font-bold text-slate-900">{fmtINR(row.totalAmount)}</div>
+                <div className="text-[11px] text-slate-500">
                   <StatusBadge status={row.paymentStatus} />
                 </div>
               </td>
-              <td className="py-3 px-3">
+              <td className="py-3.5 px-4 text-center">
                 <StatusBadge status={row.bookingStatus} />
               </td>
-              <td className="py-3 px-3 text-right font-sans">
+              <td className="py-3.5 px-4 text-right font-sans">
                 <div className="flex items-center justify-end gap-1.5">
                   <button
                     onClick={() => onView(row)}
-                    className="px-2 py-1 rounded text-[11px] font-medium bg-slate-800 text-slate-200 hover:bg-slate-700 transition-colors"
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition"
                   >
                     View
                   </button>
                   {(row.bookingStatus === 'dispute_mediation' || row.bookingStatus === 'emergency_dispatched') && (
                     <button
                       onClick={() => onMediate(row)}
-                      className="px-2 py-1 rounded text-[11px] font-medium bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30 transition-colors"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 shadow-xs transition"
                     >
                       Mediate
                     </button>
@@ -808,78 +808,78 @@ export function ManureOrdersTable({ rows, onView, onSignOff }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-xs text-slate-300">
-        <thead className="bg-slate-950/60 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
-            <th className="py-3 px-3">Order Number & Date</th>
-            <th className="py-3 px-3">Buyer & Destination</th>
-            <th className="py-3 px-3">Gaushala Source & Product</th>
-            <th className="py-3 px-3">Quantity & Vehicle</th>
-            <th className="py-3 px-3">Total & Dual Sign-off</th>
-            <th className="py-3 px-3">Delivery Status</th>
-            <th className="py-3 px-3 text-right">Actions</th>
+            <th className="py-3 px-4">Order Number &amp; Date</th>
+            <th className="py-3 px-4">Buyer &amp; Destination</th>
+            <th className="py-3 px-4">Gaushala Source &amp; Product</th>
+            <th className="py-3 px-4">Quantity &amp; Vehicle</th>
+            <th className="py-3 px-4">Total &amp; Dual Sign-off</th>
+            <th className="py-3 px-4 text-center">Delivery Status</th>
+            <th className="py-3 px-4 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60 font-mono">
+        <tbody className="divide-y divide-slate-100/80 font-mono">
           {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-slate-800/30 transition-colors">
-              <td className="py-3 px-3">
-                <div className="font-semibold text-slate-100">{row.orderNumber}</div>
-                <div className="text-[11px] text-slate-400">{new Date(row.orderDate).toLocaleString('en-IN')}</div>
+            <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
+              <td className="py-3.5 px-4">
+                <div className="font-bold text-slate-900">{row.orderNumber}</div>
+                <div className="text-[11px] text-slate-500">{new Date(row.orderDate).toLocaleString('en-IN')}</div>
               </td>
-              <td className="py-3 px-3 font-sans">
-                <div className="font-medium text-slate-200">{row.buyerName}</div>
-                <div className="text-[11px] text-slate-400 font-mono">
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-bold text-slate-900">{row.buyerName}</div>
+                <div className="text-[11px] text-slate-500 font-mono">
                   {row.buyerPhone} • {row.maskedAadhaar}
                 </div>
-                <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
-                  <MapPin className="w-3 h-3" />
+                <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+                  <MapPin className="w-3 h-3 text-slate-400" />
                   {row.deliveryDestination}
                 </div>
               </td>
-              <td className="py-3 px-3 font-sans">
-                <div className="font-medium text-emerald-400">{row.gaushalaName}</div>
-                <div className="text-[11px] text-slate-300 mt-0.5">{row.productName}</div>
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-bold text-emerald-700">{row.gaushalaName}</div>
+                <div className="text-[11px] text-slate-600 mt-0.5">{row.productName}</div>
               </td>
-              <td className="py-3 px-3">
-                <div className="font-bold text-slate-100">{row.quantityMT} MT</div>
-                <div className="text-[11px] text-slate-400 mt-0.5 font-sans">{row.vehicleNumber}</div>
+              <td className="py-3.5 px-4">
+                <div className="font-bold text-slate-900">{row.quantityMT} MT</div>
+                <div className="text-[11px] text-slate-500 mt-0.5 font-sans">{row.vehicleNumber}</div>
               </td>
-              <td className="py-3 px-3">
-                <div className="font-bold text-slate-100">{fmtINR(row.totalAmountINR)}</div>
+              <td className="py-3.5 px-4">
+                <div className="font-bold text-slate-900">{fmtINR(row.totalAmountINR)}</div>
                 <div className="mt-1">
                   {row.dualSignOffRequired ? (
                     row.dualSignOffCompleted ? (
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                         Dual Signed (CRO &amp; Fin)
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/15 text-rose-300 border border-rose-500/30 animate-pulse">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 animate-pulse">
                         Sign-off Pending
                       </span>
                     )
                   ) : (
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600">
                       Standard Limit (&lt;₹50k)
                     </span>
                   )}
                 </div>
               </td>
-              <td className="py-3 px-3">
+              <td className="py-3.5 px-4 text-center">
                 <StatusBadge status={row.deliveryStatus} />
               </td>
-              <td className="py-3 px-3 text-right font-sans">
+              <td className="py-3.5 px-4 text-right font-sans">
                 <div className="flex items-center justify-end gap-1.5">
                   <button
                     onClick={() => onView(row)}
-                    className="px-2 py-1 rounded text-[11px] font-medium bg-slate-800 text-slate-200 hover:bg-slate-700 transition-colors"
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition"
                   >
                     View
                   </button>
                   {row.dualSignOffRequired && !row.dualSignOffCompleted && (
                     <button
                       onClick={() => onSignOff(row)}
-                      className="px-2 py-1 rounded text-[11px] font-medium bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 border border-purple-500/30 transition-colors"
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-purple-600 text-white hover:bg-purple-700 shadow-xs transition active:scale-95"
                     >
                       Sign Off
                     </button>
@@ -901,44 +901,44 @@ export function AuditLogTable({ rows }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-xs text-slate-300">
-        <thead className="bg-slate-950/60 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
-            <th className="py-3 px-3">Timestamp</th>
-            <th className="py-3 px-3">Action Type</th>
-            <th className="py-3 px-3">Target Entity</th>
-            <th className="py-3 px-3">Admin Operator &amp; IP</th>
-            <th className="py-3 px-3">State Transition</th>
-            <th className="py-3 px-3">Reason / Justification</th>
+            <th className="py-3 px-4">Timestamp</th>
+            <th className="py-3 px-4">Action Type</th>
+            <th className="py-3 px-4">Target Entity</th>
+            <th className="py-3 px-4">Admin Operator &amp; IP</th>
+            <th className="py-3 px-4">State Transition</th>
+            <th className="py-3 px-4">Reason / Justification</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60 font-mono">
+        <tbody className="divide-y divide-slate-100/80 font-mono">
           {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-slate-800/30 transition-colors">
-              <td className="py-3 px-3 text-slate-400">
+            <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
+              <td className="py-3.5 px-4 text-slate-600 font-sans">
                 {new Date(row.timestamp).toLocaleString('en-IN')}
               </td>
-              <td className="py-3 px-3">
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+              <td className="py-3.5 px-4">
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                   {row.actionType}
                 </span>
               </td>
-              <td className="py-3 px-3 font-sans">
-                <div className="font-semibold text-slate-200">{row.entityName}</div>
-                <div className="text-[10px] text-slate-500 font-mono">{row.entityId}</div>
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-bold text-slate-900">{row.entityName}</div>
+                <div className="text-[10px] text-slate-400 font-mono">{row.entityId}</div>
               </td>
-              <td className="py-3 px-3 font-sans">
-                <div className="font-medium text-slate-200">{row.adminName}</div>
-                <div className="text-[10px] text-slate-500 font-mono">{row.ipAddress}</div>
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-medium text-slate-900">{row.adminName}</div>
+                <div className="text-[10px] text-slate-400 font-mono">{row.ipAddress}</div>
               </td>
-              <td className="py-3 px-3">
+              <td className="py-3.5 px-4">
                 <div className="flex items-center gap-1 text-[11px]">
-                  <span className="text-slate-400">{row.previousState || 'none'}</span>
-                  <span className="text-slate-500">&rarr;</span>
-                  <span className="text-emerald-400 font-bold">{row.newState}</span>
+                  <span className="text-slate-500">{row.previousState || 'none'}</span>
+                  <span className="text-slate-400">&rarr;</span>
+                  <span className="text-emerald-700 font-bold">{row.newState}</span>
                 </div>
               </td>
-              <td className="py-3 px-3 font-sans text-slate-300 max-w-[280px]">
+              <td className="py-3.5 px-4 font-sans text-slate-700 max-w-[280px]">
                 {row.reason}
               </td>
             </tr>
@@ -955,27 +955,27 @@ export function Pagination({ page, pageSize, total, onPageChange }) {
   const end = Math.min(total, page * pageSize)
 
   return (
-    <div className="flex items-center justify-between px-3 py-3 border-t border-slate-800 text-xs text-slate-400">
+    <div className="flex items-center justify-between px-6 py-3 border-t border-emerald-100/90 text-xs text-slate-600 bg-white/60">
       <div>
-        Showing <span className="font-semibold text-slate-200">{total > 0 ? start : 0}</span> to{' '}
-        <span className="font-semibold text-slate-200">{end}</span> of{' '}
-        <span className="font-semibold text-slate-200">{total}</span> records
+        Showing <span className="font-bold text-slate-900 font-mono">{total > 0 ? start : 0}</span> to{' '}
+        <span className="font-bold text-slate-900 font-mono">{end}</span> of{' '}
+        <span className="font-bold text-slate-900 font-mono">{total}</span> records
       </div>
       <div className="flex items-center gap-1.5">
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-          className="p-1 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="p-1 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed shadow-xs transition"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <span className="px-2 text-slate-300 font-medium">
+        <span className="px-2 text-slate-800 font-bold font-mono">
           {page} / {totalPages}
         </span>
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-          className="p-1 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="p-1 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed shadow-xs transition"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
@@ -986,9 +986,9 @@ export function Pagination({ page, pageSize, total, onPageChange }) {
 
 function EmptyPlaceholder({ message }) {
   return (
-    <div className="p-12 text-center">
-      <HelpCircle className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-      <p className="text-sm font-medium text-slate-400">{message}</p>
+    <div className="p-12 text-center text-slate-400">
+      <HelpCircle className="w-8 h-8 text-slate-400 mx-auto mb-2 opacity-40" />
+      <p className="text-sm font-medium text-slate-600">{message}</p>
     </div>
   )
 }

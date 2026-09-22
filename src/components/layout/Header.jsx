@@ -36,20 +36,21 @@ export function Header({ activeModuleId = '26', onDataRefreshed }) {
 
   const mod = getModuleById(activeModuleId);
   const group = getGroupById(mod.groupId);
-  const IconComponent = mod.icon;
 
   return (
     <header className="sticky top-0 z-30 bg-white/85 backdrop-blur-xl border-b border-emerald-200/70 shadow-[0_4px_20px_-4px_rgba(16,185,129,0.05)]">
       {/* Top wireframe banner */}
       <div className="px-4 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
         {/* Brand & Module Identification */}
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${mod.gradient || 'from-emerald-600 to-teal-700'} flex items-center justify-center shadow-md shadow-emerald-600/20 border border-emerald-400/30`}>
-            <IconComponent className="w-5 h-5 text-white" />
-          </div>
+        <div className="flex items-center gap-3.5">
+          <img
+            src="/logo.png"
+            alt="Agrovercity"
+            className="h-11 w-auto max-w-[46px] rounded-xl object-contain bg-white border border-emerald-200/90 shadow-sm shadow-emerald-700/10 p-0.5 shrink-0"
+          />
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-extrabold tracking-wider text-xs text-emerald-800 uppercase flex items-center gap-1.5">
+              <span className="font-extrabold tracking-wider text-xs text-emerald-900 uppercase flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 Agrovercity Superadmin
               </span>

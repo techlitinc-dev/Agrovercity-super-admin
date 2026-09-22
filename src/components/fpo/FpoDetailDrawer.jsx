@@ -48,13 +48,13 @@ export default function FpoDetailDrawer({
         onClose={onClose}
       >
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-1 border-b border-slate-800 pb-2 mb-4 overflow-x-auto text-xs">
+        <div className="flex items-center gap-1 border-b border-emerald-100 pb-2 mb-4 overflow-x-auto text-xs">
           <button
             onClick={() => setActiveTab('overview')}
             className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
               activeTab === 'overview'
-                ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             Overview &amp; ROC
@@ -63,8 +63,8 @@ export default function FpoDetailDrawer({
             onClick={() => setActiveTab('financials')}
             className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
               activeTab === 'financials'
-                ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             Turnover &amp; Bank
@@ -73,8 +73,8 @@ export default function FpoDetailDrawer({
             onClick={() => setActiveTab('documents')}
             className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
               activeTab === 'documents'
-                ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             Certificates &amp; KYC
@@ -83,8 +83,8 @@ export default function FpoDetailDrawer({
             onClick={() => setActiveTab('json')}
             className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
               activeTab === 'json'
-                ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             Raw JSON
@@ -93,15 +93,15 @@ export default function FpoDetailDrawer({
 
         {activeTab === 'overview' && (
           <div className="space-y-4 text-xs">
-            <div className="p-3 rounded-xl border border-slate-800 bg-slate-900/60 flex items-center justify-between">
+            <div className="p-3 rounded-xl border border-emerald-100/90 bg-emerald-50/40 flex items-center justify-between">
               <StatusBadge status={item.verificationStatus} type="fpo" />
-              <span className="font-mono text-emerald-400 font-bold">
+              <span className="font-mono text-emerald-700 font-bold">
                 {item.totalShareholders.toLocaleString('en-IN')} Farmer Members
               </span>
             </div>
 
             <DrawerSection title="Registration & Statutory Identifiers">
-              <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800">
+              <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80">
                 <KeyValue label="Corporate ID (CIN)" value={item.cin} />
                 <KeyValue label="NABARD Empanelment" value={item.nabardEmpanelmentNo} />
                 <KeyValue label="SFAC Recognition" value={item.sfacRegistration} />
@@ -111,7 +111,7 @@ export default function FpoDetailDrawer({
             </DrawerSection>
 
             <DrawerSection title="Executive Leadership">
-              <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800">
+              <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80">
                 <KeyValue label="Chief Executive Officer" value={item.ceoName} />
                 <KeyValue label="CEO Contact" value={item.ceoPhone} />
                 <KeyValue label="Chairman of the Board" value={item.chairmanName} />
@@ -123,7 +123,7 @@ export default function FpoDetailDrawer({
               <div className="pt-2">
                 <button
                   onClick={() => onVerifyFpo(item)}
-                  className="w-full py-2 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-sm transition-colors"
+                  className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-xs active:scale-95 transition"
                 >
                   Approve FPO Registration Verification
                 </button>
@@ -135,18 +135,18 @@ export default function FpoDetailDrawer({
         {activeTab === 'financials' && (
           <div className="space-y-4 text-xs">
             <div className="grid grid-cols-2 gap-3 font-mono">
-              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800">
+              <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100">
                 <span className="text-slate-500 block text-[10px]">Annual Turnover</span>
-                <span className="text-lg font-bold text-emerald-400">{fmtINR(item.annualTurnoverInr)}</span>
+                <span className="text-lg font-bold text-emerald-700">{fmtINR(item.annualTurnoverInr)}</span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800">
+              <div className="p-3 rounded-xl bg-cyan-50/60 border border-cyan-100">
                 <span className="text-slate-500 block text-[10px]">Patronage Dividend</span>
-                <span className="text-lg font-bold text-cyan-400">{fmtINR(item.patronageDividendDistributedInr)}</span>
+                <span className="text-lg font-bold text-cyan-700">{fmtINR(item.patronageDividendDistributedInr)}</span>
               </div>
             </div>
 
             <DrawerSection title="Share Capital Structure">
-              <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800">
+              <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80">
                 <KeyValue label="Authorized Share Capital" value={fmtINR(item.authorizedCapitalInr)} />
                 <KeyValue label="Paid-Up Capital" value={fmtINR(item.paidUpCapitalInr)} />
                 <KeyValue label="Active Group Buy Pools" value={`${item.activePoolsCount} Pools`} />
@@ -155,7 +155,7 @@ export default function FpoDetailDrawer({
             </DrawerSection>
 
             <DrawerSection title="Bank Account & Penny-Drop Attestation">
-              <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800">
+              <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80">
                 <KeyValue label="Bank Name" value={item.bankDetails?.bankName} />
                 <KeyValue label="Account Ending" value={`****${item.bankDetails?.accountLast4}`} />
                 <KeyValue label="IFSC Code" value={item.bankDetails?.ifsc} />
@@ -167,48 +167,48 @@ export default function FpoDetailDrawer({
 
         {activeTab === 'documents' && (
           <div className="space-y-3 text-xs">
-            <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80 flex items-center justify-between">
               <div>
-                <span className="font-semibold text-slate-200 block">Certificate of Incorporation (ROC)</span>
+                <span className="font-semibold text-slate-900 block">Certificate of Incorporation (ROC)</span>
                 <span className="text-[11px] text-slate-500 font-mono">Ministry of Corporate Affairs</span>
               </div>
               <a
                 href={item.documents?.rocCertificate}
                 target="_blank"
                 rel="noreferrer"
-                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-mono text-[11px] flex items-center gap-1"
+                className="px-3 py-1 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-mono text-[11px] flex items-center gap-1 shadow-xs transition"
               >
                 <span>View PDF</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
             </div>
 
-            <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80 flex items-center justify-between">
               <div>
-                <span className="font-semibold text-slate-200 block">NABARD Empanelment Letter</span>
+                <span className="font-semibold text-slate-900 block">NABARD Empanelment Letter</span>
                 <span className="text-[11px] text-slate-500 font-mono">National Bank for Agriculture &amp; Rural Dev</span>
               </div>
               <a
                 href={item.documents?.nabardApprovalLetter}
                 target="_blank"
                 rel="noreferrer"
-                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-mono text-[11px] flex items-center gap-1"
+                className="px-3 py-1 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-mono text-[11px] flex items-center gap-1 shadow-xs transition"
               >
                 <span>View PDF</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
             </div>
 
-            <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80 flex items-center justify-between">
               <div>
-                <span className="font-semibold text-slate-200 block">Board Resolution for Platform Trading</span>
+                <span className="font-semibold text-slate-900 block">Board Resolution for Platform Trading</span>
                 <span className="text-[11px] text-slate-500 font-mono">Signed by 5 Directors</span>
               </div>
               <a
                 href={item.documents?.boardResolution}
                 target="_blank"
                 rel="noreferrer"
-                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-mono text-[11px] flex items-center gap-1"
+                className="px-3 py-1 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-mono text-[11px] flex items-center gap-1 shadow-xs transition"
               >
                 <span>View PDF</span>
                 <ExternalLink className="w-3 h-3" />
@@ -232,15 +232,15 @@ export default function FpoDetailDrawer({
         onClose={onClose}
       >
         <div className="space-y-4 text-xs">
-          <div className="p-3 rounded-xl border border-slate-800 bg-slate-900/60 flex items-center justify-between">
+          <div className="p-3 rounded-xl border border-emerald-100/90 bg-emerald-50/40 flex items-center justify-between">
             <StatusBadge status={item.status} type="pool" />
-            <span className="font-mono text-emerald-400 font-bold">
+            <span className="font-mono text-emerald-700 font-bold">
               {fmtINR(item.totalPoolValueInr)} Value
             </span>
           </div>
 
           <DrawerSection title="Pledge Volume & Progress">
-            <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800 font-mono">
+            <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80 font-mono">
               <KeyValue label="Target Volume" value={`${item.targetQuantity} ${item.quantityUnit}`} />
               <KeyValue label="Pledged So Far" value={`${item.pledgedQuantity} ${item.quantityUnit}`} />
               <KeyValue label="Participating Farmers" value={`${item.participatingFarmersCount} Pledges`} />
@@ -250,7 +250,7 @@ export default function FpoDetailDrawer({
           </DrawerSection>
 
           <DrawerSection title="Supplier & Delivery Log">
-            <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800">
+            <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80">
               <KeyValue label="Apex Supplier" value={item.supplierName} />
               <KeyValue label="Pickup Depot / Hub" value={item.deliveryHub} />
               <KeyValue label="Deadline" value={new Date(item.deadline).toLocaleString('en-IN')} />
@@ -262,7 +262,7 @@ export default function FpoDetailDrawer({
             <div className="pt-2">
               <button
                 onClick={() => onClosePool(item)}
-                className="w-full py-2 px-4 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-semibold transition-colors"
+                className="w-full py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold shadow-xs active:scale-95 transition"
               >
                 Close Pool &amp; Trigger Supplier Purchase Order
               </button>
@@ -285,15 +285,15 @@ export default function FpoDetailDrawer({
         onClose={onClose}
       >
         <div className="space-y-4 text-xs">
-          <div className="p-3 rounded-xl border border-slate-800 bg-slate-900/60 flex items-center justify-between">
+          <div className="p-3 rounded-xl border border-emerald-100/90 bg-emerald-50/40 flex items-center justify-between">
             <StatusBadge status={item.status} type="machinery" />
-            <span className="font-mono text-emerald-400 font-bold">
+            <span className="font-mono text-emerald-700 font-bold">
               ₹{item.rentalRatePerHour} / Hour
             </span>
           </div>
 
           <DrawerSection title="Machinery & Custom Hiring Center (CHC)">
-            <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800">
+            <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80">
               <KeyValue label="Managing FPO" value={item.fpoName} />
               <KeyValue label="Equipment Category" value={item.category} />
               <KeyValue label="Location / Depot" value={item.currentLocation} />
@@ -302,7 +302,7 @@ export default function FpoDetailDrawer({
           </DrawerSection>
 
           <DrawerSection title="Financials & Subsidies">
-            <div className="space-y-1.5 bg-slate-900/40 p-3 rounded-lg border border-slate-800 font-mono">
+            <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-xl border border-slate-200/80 font-mono">
               <KeyValue label="Capital Cost" value={fmtINR(item.capitalCostInr)} />
               <KeyValue label="SMAM Govt. Subsidy" value={fmtINR(item.subsidyReceivedInr)} />
               <KeyValue label="Hours Booked This Season" value={`${item.totalHoursBookedThisSeason} Hours`} />
