@@ -11,17 +11,26 @@ import {
   listUserBlocks,
   unbanUser,
   listUserConsents,
-  getSystemConfigAuditLogs
+  getSystemConfigAuditLogs,
+  listExpertTickets,
+  resolveExpertTicket,
+  assignExpertTicket,
+  batchResolveReports,
+  batchUnbanUsers,
+  batchResolveExpertTickets,
+  resetToDefaultSeed
 } from '../api/systemConfigApi'
 import {
   SystemConfigMetricBar,
   SystemConfigTabSwitch,
   SystemConfigFiltersBar,
+  BatchActionBar,
   SystemHealthView,
   RemoteConfigView,
   BroadcastsTable,
   UserReportsTable,
   UserBlocksTable,
+  ExpertTicketsTable,
   UserConsentsTable,
   SystemConfigAuditLogsTable,
   ContentPagination
@@ -32,7 +41,11 @@ import {
   DualSignOffModal,
   SendBroadcastModal,
   UpdateVersionGateModal,
-  ResolveReportModal
+  ResolveReportModal,
+  ResolveExpertTicketModal,
+  AssignAgronomistModal,
+  BatchActionModal,
+  ResetSeedModal
 } from '../components/system-config/SystemConfigModals'
 import { useNotification } from '../context/NotificationContext'
 import { useAuthAdmin } from '../context/AuthAdminContext'
@@ -64,15 +77,20 @@ export default function SystemConfigPage() {
   const { addToast } = useNotification() || { addToast: () => {} }
   const { currentAdmin } = useAuthAdmin() || { currentAdmin: { name: 'Super Admin' } }
 
-  const [activeTab, setActiveTab] = useState('health') // 'health', 'remote_config', 'broadcasts', 'moderation', 'blocks', 'dpdp_consents', 'audit'
+  const [activeTab, setActiveTab] = useState('health') // 'health', 'remote_config', 'broadcasts', 'moderation', 'expert_tickets', 'blocks', 'dpdp_consents', 'audit'
   const [summary, setSummary] = useState(null)
   const [health, setHealth] = useState(null)
   const [appConfig, setAppConfig] = useState(null)
   const [loading, setLoading] = useState(false)
 
+  // Selection for Batch Actions
+  const [selectedIds, setSelectedIds] = useState([])
+
   // Filters & Pagination
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [personaFilter, setPersonaFilter] = useState('all')
+  const [dateRange, setDateRange] = useState('all')
   const [page, setPage] = useState(1)
 
   // Table Data
@@ -87,6 +105,10 @@ export default function SystemConfigPage() {
   const [broadcastModalOpen, setBroadcastModalOpen] = useState(false)
   const [versionGateModalOpen, setVersionGateModalOpen] = useState(false)
   const [resolveReportModal, setResolveReportModal] = useState({ open: false, report: null })
+  const [resolveTicketModal, setResolveTicketModal] = useState({ open: false, ticket: null })
+  const [assignAgronomistModal, setAssignAgronomistModal] = useState({ open: false, ticket: null })
+  const [batchModal, setBatchModal] = useState({ open: false, action: '', title: '', label: '', count: 0 })
+  const [resetSeedModalOpen, setResetSeedModalOpen] = useState(false)
 
   // Confirmation & Dual Sign-off
   const [confirmDialog, setConfirmDialog] = useState({
@@ -103,6 +125,8 @@ export default function SystemConfigPage() {
     impactDetails: '',
     onConfirm: null
   })
+
+  const canMutate = true
 
   // Load KPI Summary, System Health, and App Config
   const fetchSummaryAndConfig = useCallback(async () => {
@@ -133,7 +157,9 @@ export default function SystemConfigPage() {
         page,
         pageSize: PAGE_SIZE,
         search,
-        status: statusFilter
+        status: statusFilter,
+        persona: personaFilter,
+        dateRange
       }
 
       switch (activeTab) {
@@ -142,6 +168,9 @@ export default function SystemConfigPage() {
           break
         case 'moderation':
           res = await listUserReports(query)
+          break
+        case 'expert_tickets':
+          res = await listExpertTickets(query)
           break
         case 'blocks':
           res = await listUserBlocks(query)
@@ -161,7 +190,7 @@ export default function SystemConfigPage() {
     } finally {
       setLoading(false)
     }
-  }, [activeTab, page, search, statusFilter, addToast])
+  }, [activeTab, page, search, statusFilter, personaFilter, dateRange, addToast])
 
   useEffect(() => {
     fetchSummaryAndConfig()
@@ -176,6 +205,27 @@ export default function SystemConfigPage() {
     setPage(1)
     setSearch('')
     setStatusFilter('all')
+    setPersonaFilter('all')
+    setDateRange('all')
+    setSelectedIds([])
+  }
+
+  const handleToggleSelect = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    )
+  }
+
+  const handleSelectAll = (checked) => {
+    if (checked && tableData.data) {
+      setSelectedIds(tableData.data.map((r) => r.id))
+    } else {
+      setSelectedIds([])
+    }
+  }
+
+  const handleClearSelection = () => {
+    setSelectedIds([])
   }
 
   const handleSelectRow = (row, type) => {
@@ -369,6 +419,143 @@ export default function SystemConfigPage() {
     })
   }
 
+  // --- Handlers for Agronomist Consultation Tickets ---
+  const handleOpenResolveTicket = (ticket) => {
+    setResolveTicketModal({ open: true, ticket })
+  }
+
+  const handleConfirmResolveTicket = async ({ resolutionNotes, prescribedTreatment }) => {
+    const tkt = resolveTicketModal.ticket
+    if (!tkt) return
+    try {
+      await resolveExpertTicket(tkt.id, resolutionNotes, prescribedTreatment, currentAdmin?.name)
+      addToast?.(`Ticket ${tkt.ticketNumber} resolved with prescribed advisory`, 'success')
+      setResolveTicketModal({ open: false, ticket: null })
+      fetchData()
+      fetchSummaryAndConfig()
+      if (drawerOpen && selectedEntity?.id === tkt.id) {
+        setSelectedEntity((prev) => ({
+          ...prev,
+          status: 'resolved',
+          resolutionNotes,
+          prescribedTreatment,
+          slaRemainingHours: 0
+        }))
+      }
+    } catch (err) {
+      addToast?.('Failed to resolve advisory ticket: ' + err.message, 'error')
+    }
+  }
+
+  const handleOpenAssignTicket = (ticket) => {
+    setAssignAgronomistModal({ open: true, ticket })
+  }
+
+  const handleConfirmAssignTicket = async ({ assignedAgronomist, reason }) => {
+    const tkt = assignAgronomistModal.ticket
+    if (!tkt) return
+    try {
+      await assignExpertTicket(tkt.id, assignedAgronomist, reason, currentAdmin?.name)
+      addToast?.(`Ticket ${tkt.ticketNumber} assigned to ${assignedAgronomist}`, 'success')
+      setAssignAgronomistModal({ open: false, ticket: null })
+      fetchData()
+      fetchSummaryAndConfig()
+      if (drawerOpen && selectedEntity?.id === tkt.id) {
+        setSelectedEntity((prev) => ({
+          ...prev,
+          assignedAgronomist,
+          status: prev.status === 'open' ? 'in_progress' : prev.status
+        }))
+      }
+    } catch (err) {
+      addToast?.('Failed to assign agronomist: ' + err.message, 'error')
+    }
+  }
+
+  // --- Handlers for Batch Operations ---
+  const handleBatchAction = (actionType) => {
+    if (actionType === 'export_selected') {
+      const selectedRows = (tableData.data || []).filter((r) => selectedIds.includes(r.id))
+      if (selectedRows.length === 0) return
+      const csvContent = toCsv(selectedRows)
+      downloadBlob(csvContent, `system_config_${activeTab}_selected_${Date.now()}.csv`)
+      addToast?.(`Exported ${selectedRows.length} selected records to CSV`, 'success')
+      return
+    }
+
+    const titles = {
+      batch_resolve_warning: 'Issue Strike 1 Warnings in Bulk',
+      batch_dismiss: 'Dismiss Selected Moderation Reports',
+      batch_ban: 'Dual Sign-Off Permanent User Bans',
+      batch_resolve_tickets: 'Resolve Selected Agronomist Tickets',
+      batch_unban: 'Reinstate Selected Accounts'
+    }
+
+    const labels = {
+      batch_resolve_warning: 'Issue Warnings',
+      batch_dismiss: 'Dismiss Reports',
+      batch_ban: 'Permanently Ban Users',
+      batch_resolve_tickets: 'Resolve Advisory',
+      batch_unban: 'Reinstate Accounts'
+    }
+
+    setBatchModal({
+      open: true,
+      action: actionType,
+      title: titles[actionType] || 'Execute Batch Action',
+      label: labels[actionType] || 'Confirm',
+      count: selectedIds.length
+    })
+  }
+
+  const handleConfirmBatchAction = async ({ reason, coAdmin }) => {
+    const action = batchModal.action
+    try {
+      if (action === 'batch_resolve_warning' || action === 'batch_dismiss' || action === 'batch_ban') {
+        const resolutionMap = {
+          batch_resolve_warning: 'resolved_warning',
+          batch_dismiss: 'dismissed',
+          batch_ban: 'resolved_banned'
+        }
+        const resolution = resolutionMap[action]
+        const finalReason = coAdmin ? `${reason} (Co-authorized by: ${coAdmin})` : reason
+        await batchResolveReports(selectedIds, resolution, finalReason, currentAdmin?.name)
+        addToast?.(`Successfully executed batch action across ${selectedIds.length} reports`, 'success')
+      } else if (action === 'batch_resolve_tickets') {
+        await batchResolveExpertTickets(
+          selectedIds,
+          reason,
+          'Standard integrated disease & pest protocol prescribed in bulk',
+          currentAdmin?.name
+        )
+        addToast?.(`Resolved ${selectedIds.length} agronomist consultation tickets`, 'success')
+      } else if (action === 'batch_unban') {
+        await batchUnbanUsers(selectedIds, reason, currentAdmin?.name)
+        addToast?.(`Reinstated ${selectedIds.length} user accounts`, 'success')
+      }
+      setBatchModal({ open: false, action: '', title: '', label: '', count: 0 })
+      setSelectedIds([])
+      fetchData()
+      fetchSummaryAndConfig()
+    } catch (err) {
+      addToast?.('Batch operation failed: ' + err.message, 'error')
+    }
+  }
+
+  // --- Reset Benchmark Seed Handler ---
+  const handleResetSeedConfirm = async (reason) => {
+    try {
+      await resetToDefaultSeed(reason, currentAdmin?.name)
+      addToast?.('Module 26 system configuration reset to benchmark seed', 'success')
+      setResetSeedModalOpen(false)
+      setSelectedIds([])
+      fetchSummaryAndConfig()
+      fetchData()
+    } catch (err) {
+      addToast?.('Failed to reset seed state: ' + err.message, 'error')
+    }
+  }
+
   // --- CSV Export ---
   const handleExportCsv = () => {
     if (!tableData.data || tableData.data.length === 0) {
@@ -392,6 +579,7 @@ export default function SystemConfigPage() {
         counts={{
           broadcasts: summary?.broadcastsDeliveredThisMonth ? 'Live' : undefined,
           reports: summary?.pendingModerationReports,
+          tickets: summary?.openExpertTickets,
           blocks: summary?.totalBannedUsers
         }}
       />
@@ -402,6 +590,10 @@ export default function SystemConfigPage() {
         onSearchChange={setSearch}
         statusFilter={statusFilter}
         onStatusChange={setStatusFilter}
+        personaFilter={personaFilter}
+        onPersonaChange={setPersonaFilter}
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
         activeTab={activeTab}
         onRefresh={() => {
           fetchData()
@@ -410,6 +602,17 @@ export default function SystemConfigPage() {
         onExportCsv={handleExportCsv}
         onOpenBroadcastModal={() => setBroadcastModalOpen(true)}
         onOpenConfigModal={() => setVersionGateModalOpen(true)}
+        onResetSeed={() => setResetSeedModalOpen(true)}
+        canMutate={canMutate}
+      />
+
+      {/* Batch Action Bar */}
+      <BatchActionBar
+        selectedCount={selectedIds.length}
+        activeTab={activeTab}
+        onBatchAction={handleBatchAction}
+        onClearSelection={handleClearSelection}
+        canMutate={canMutate}
       />
 
       {/* Primary Views */}
@@ -431,6 +634,9 @@ export default function SystemConfigPage() {
       {activeTab === 'broadcasts' && (
         <BroadcastsTable
           data={tableData.data}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onSelectAll={handleSelectAll}
           onSelectRow={(row) => handleSelectRow(row, 'broadcast')}
         />
       )}
@@ -438,15 +644,36 @@ export default function SystemConfigPage() {
       {activeTab === 'moderation' && (
         <UserReportsTable
           data={tableData.data}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onSelectAll={handleSelectAll}
           onSelectRow={(row) => handleSelectRow(row, 'report')}
           onResolveReport={handleOpenResolveReport}
+          canMutate={canMutate}
+        />
+      )}
+
+      {activeTab === 'expert_tickets' && (
+        <ExpertTicketsTable
+          data={tableData.data}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onSelectAll={handleSelectAll}
+          onSelectRow={(row) => handleSelectRow(row, 'expert_ticket')}
+          onResolveTicket={handleOpenResolveTicket}
+          onAssignTicket={handleOpenAssignTicket}
+          canMutate={canMutate}
         />
       )}
 
       {activeTab === 'blocks' && (
         <UserBlocksTable
           data={tableData.data}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onSelectAll={handleSelectAll}
           onUnbanUser={handleUnbanUser}
+          canMutate={canMutate}
         />
       )}
 
@@ -480,6 +707,9 @@ export default function SystemConfigPage() {
         onClose={() => setDrawerOpen(false)}
         onResolveReport={handleOpenResolveReport}
         onUnbanUser={handleUnbanUser}
+        onResolveTicket={handleOpenResolveTicket}
+        onAssignTicket={handleOpenAssignTicket}
+        canMutate={canMutate}
       />
 
       {/* Targeted FCM Broadcast Modal */}
@@ -503,6 +733,40 @@ export default function SystemConfigPage() {
         report={resolveReportModal.report}
         onClose={() => setResolveReportModal({ open: false, report: null })}
         onConfirm={handleConfirmResolveReport}
+      />
+
+      {/* Resolve Expert Ticket Modal */}
+      <ResolveExpertTicketModal
+        isOpen={resolveTicketModal.open}
+        ticket={resolveTicketModal.ticket}
+        onClose={() => setResolveTicketModal({ open: false, ticket: null })}
+        onConfirm={handleConfirmResolveTicket}
+      />
+
+      {/* Assign Specialized Agronomist Modal */}
+      <AssignAgronomistModal
+        isOpen={assignAgronomistModal.open}
+        ticket={assignAgronomistModal.ticket}
+        onClose={() => setAssignAgronomistModal({ open: false, ticket: null })}
+        onConfirm={handleConfirmAssignTicket}
+      />
+
+      {/* Batch Action Modal */}
+      <BatchActionModal
+        isOpen={batchModal.open}
+        title={batchModal.title}
+        label={batchModal.label}
+        count={batchModal.count}
+        action={batchModal.action}
+        onClose={() => setBatchModal({ open: false, action: '', title: '', label: '', count: 0 })}
+        onConfirm={handleConfirmBatchAction}
+      />
+
+      {/* Reset Benchmark Seed Modal */}
+      <ResetSeedModal
+        isOpen={resetSeedModalOpen}
+        onClose={() => setResetSeedModalOpen(false)}
+        onConfirm={handleResetSeedConfirm}
       />
 
       {/* Audit Confirmation Modal */}

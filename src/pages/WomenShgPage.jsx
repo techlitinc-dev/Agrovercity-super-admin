@@ -4,22 +4,33 @@ import {
   listWomenShgs,
   verifyWomenShg,
   suspendWomenShg,
+  batchVerifyShgs,
+  batchSuspendShgs,
   listShgDeposits,
   recordShgDeposit,
+  batchClearDeposits,
   listHomeEnterprises,
   curateEnterpriseProduct,
+  batchCurateProducts,
   listShgSubsidies,
   disburseSubventionSubsidy,
-  getWomenAuditLogs
+  batchDisburseSubsidies,
+  listDistrictAdoption,
+  updateDistrictStatus,
+  getWomenAuditLogs,
+  resetWomenShgSeedData
 } from '../api/womenShgApi'
 import {
   WomenMetricBar,
   WomenShgTabSwitch,
   WomenShgFiltersBar,
+  BatchActionBar,
   WomenShgsTable,
   ShgDepositsTable,
   HomeEnterprisesTable,
   ShgSubsidiesTable,
+  DistrictAdoptionTable,
+  WomenModeSimulationBanner,
   WomenAuditLogsTable,
   ContentPagination
 } from './womenShgWidgets'
@@ -29,10 +40,13 @@ import {
   DualSignOffModal,
   VerifyShgModal,
   CurateProductModal,
-  RecordDepositModal
+  RecordDepositModal,
+  BatchActionModal,
+  ResetSeedModal
 } from '../components/women-shg/WomenShgModals'
 import { useNotification } from '../context/NotificationContext'
 import { useAuthAdmin } from '../context/AuthAdminContext'
+import { ShieldAlert, Smartphone } from 'lucide-react'
 
 const PAGE_SIZE = 20
 
@@ -59,20 +73,31 @@ function downloadBlob(content, filename, type = 'text/csv;charset=utf-8;') {
 
 export default function WomenShgPage() {
   const { addToast } = useNotification() || { addToast: () => {} }
-  const { currentAdmin } = useAuthAdmin() || { currentAdmin: { name: 'Super Admin' } }
+  const { currentAdmin, hasPermission } = useAuthAdmin() || {
+    currentAdmin: { name: 'Super Admin', role: 'SUPER_ADMIN' },
+    hasPermission: () => true
+  }
 
-  const [activeTab, setActiveTab] = useState('shgs') // 'shgs', 'deposits', 'enterprises', 'subsidies', 'audit'
+  const role = currentAdmin?.role || 'SUPER_ADMIN'
+  const isFinancialAuditor = role === 'FINANCIAL_AUDITOR'
+  const canMutate = hasPermission('women_shg.manage') && !isFinancialAuditor
+
+  const [activeTab, setActiveTab] = useState('shgs') // 'shgs', 'deposits', 'enterprises', 'subsidies', 'districts', 'audit'
   const [summary, setSummary] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [isWomenModePreview, setIsWomenModePreview] = useState(false)
 
   // Filters & Pagination
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [subFilter, setSubFilter] = useState('all')
+  const [dateRange, setDateRange] = useState('all')
+  const [persona, setPersona] = useState('all')
   const [page, setPage] = useState(1)
 
-  // Table Data
+  // Table Data & Multi-row Selection
   const [tableData, setTableData] = useState({ data: [], total: 0 })
+  const [selectedIds, setSelectedIds] = useState([])
 
   // Drawer
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -82,6 +107,8 @@ export default function WomenShgPage() {
   const [verifyModal, setVerifyModal] = useState({ open: false, shg: null })
   const [curateModal, setCurateModal] = useState({ open: false, product: null })
   const [depositModal, setDepositModal] = useState({ open: false })
+  const [batchModal, setBatchModal] = useState({ open: false, action: '', title: '', count: 0, label: '' })
+  const [resetModalOpen, setResetModalOpen] = useState(false)
 
   // Confirmation & Dual Sign-off
   const [confirmDialog, setConfirmDialog] = useState({
@@ -119,7 +146,9 @@ export default function WomenShgPage() {
         page,
         pageSize: PAGE_SIZE,
         search,
-        status: statusFilter
+        status: statusFilter,
+        dateRange,
+        persona
       }
 
       switch (activeTab) {
@@ -138,6 +167,9 @@ export default function WomenShgPage() {
         case 'subsidies':
           res = await listShgSubsidies(query)
           break
+        case 'districts':
+          res = await listDistrictAdoption(query)
+          break
         case 'audit':
           res = await getWomenAuditLogs(query)
           break
@@ -150,7 +182,7 @@ export default function WomenShgPage() {
     } finally {
       setLoading(false)
     }
-  }, [activeTab, page, search, statusFilter, subFilter, addToast])
+  }, [activeTab, page, search, statusFilter, subFilter, dateRange, persona, addToast])
 
   useEffect(() => {
     fetchSummary()
@@ -160,17 +192,127 @@ export default function WomenShgPage() {
     fetchData()
   }, [fetchData])
 
+  // Reset page & selection when switching tabs or filters
   const handleTabChange = (tabId) => {
     setActiveTab(tabId)
     setPage(1)
     setSearch('')
     setStatusFilter('all')
     setSubFilter('all')
+    setDateRange('all')
+    setPersona('all')
+    setSelectedIds([])
   }
 
+  // Row selection for drawer
   const handleSelectRow = (row) => {
     setSelectedEntity(row)
     setDrawerOpen(true)
+  }
+
+  // Multi-row Selection Handlers
+  const handleToggleSelect = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    )
+  }
+
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      const allIds = tableData.data.map((r) => r.id)
+      setSelectedIds(allIds)
+    } else {
+      setSelectedIds([])
+    }
+  }
+
+  const handleClearSelection = () => {
+    setSelectedIds([])
+  }
+
+  // --- Batch Actions Handler ---
+  const handleBatchAction = (action) => {
+    if (selectedIds.length === 0) return
+
+    if (action === 'export_selected') {
+      const rows = tableData.data.filter((r) => selectedIds.includes(r.id))
+      const csv = toCsv(rows)
+      downloadBlob(csv, `women_shg_${activeTab}_selected_${Date.now()}.csv`)
+      addToast?.(`Exported ${rows.length} selected records to CSV`, 'success')
+      return
+    }
+
+    const actionMap = {
+      verify_shgs: { title: 'Batch Verify Self Help Groups', label: 'Verify SHGs' },
+      suspend_shgs: { title: 'Batch Suspend SHGs', label: 'Suspend SHGs' },
+      clear_deposits: { title: 'Batch Reconcile Recurring Deposits', label: 'Clear Deposits' },
+      approve_products: { title: 'Approve Cottage Enterprise SKUs', label: 'Approve for Storefront' },
+      request_changes: { title: 'Request QC & FSSAI Changes', label: 'Request Changes' },
+      delist_products: { title: 'Delist Products from Storefront', label: 'Delist SKUs' },
+      disburse_subsidies: { title: 'Batch Disburse Sanctioned Grants', label: 'Disburse Grants' }
+    }
+
+    const conf = actionMap[action] || { title: 'Execute Batch Action', label: 'Confirm' }
+    setBatchModal({
+      open: true,
+      action,
+      title: conf.title,
+      count: selectedIds.length,
+      label: conf.label
+    })
+  }
+
+  const handleConfirmBatchAction = async (reason) => {
+    try {
+      const adminUid = currentAdmin?.id || 'usr_admin_root'
+      const adminName = currentAdmin?.name || 'Super Admin'
+      const { action } = batchModal
+
+      if (action === 'verify_shgs') {
+        await batchVerifyShgs(selectedIds, 'eligible', reason, adminUid, adminName)
+        addToast?.(`Verified ${selectedIds.length} Self Help Groups`, 'success')
+      } else if (action === 'suspend_shgs') {
+        await batchSuspendShgs(selectedIds, reason, adminUid, adminName)
+        addToast?.(`Suspended ${selectedIds.length} SHGs`, 'success')
+      } else if (action === 'clear_deposits') {
+        await batchClearDeposits(selectedIds, reason, adminUid, adminName)
+        addToast?.(`Cleared & reconciled ${selectedIds.length} deposits`, 'success')
+      } else if (action === 'approve_products') {
+        await batchCurateProducts(selectedIds, 'approved', reason, adminUid, adminName)
+        addToast?.(`Approved ${selectedIds.length} marketplace products`, 'success')
+      } else if (action === 'request_changes') {
+        await batchCurateProducts(selectedIds, 'changes_requested', reason, adminUid, adminName)
+        addToast?.(`Requested changes for ${selectedIds.length} products`, 'success')
+      } else if (action === 'delist_products') {
+        await batchCurateProducts(selectedIds, 'delisted', reason, adminUid, adminName)
+        addToast?.(`Delisted ${selectedIds.length} products`, 'success')
+      } else if (action === 'disburse_subsidies') {
+        await batchDisburseSubsidies(selectedIds, reason, adminUid, adminName)
+        addToast?.(`Disbursed subsidies across ${selectedIds.length} grants`, 'success')
+      }
+
+      setBatchModal({ open: false, action: '', title: '', count: 0, label: '' })
+      setSelectedIds([])
+      fetchData()
+      fetchSummary()
+    } catch (err) {
+      addToast?.('Batch operation failed: ' + err.message, 'error')
+    }
+  }
+
+  // --- Reset Benchmark Seed Handler ---
+  const handleResetSeedConfirm = async (reason) => {
+    try {
+      const adminUid = currentAdmin?.id || 'usr_admin_root'
+      const adminName = currentAdmin?.name || 'Super Admin'
+      await resetWomenShgSeedData(reason, adminUid, adminName)
+      addToast?.('SOP-24 Women in Agriculture benchmark datasets restored successfully.', 'success')
+      setSelectedIds([])
+      fetchData()
+      fetchSummary()
+    } catch (err) {
+      addToast?.('Seed reset failed: ' + err.message, 'error')
+    }
   }
 
   // --- Handlers for SHG Actions ---
@@ -180,17 +322,15 @@ export default function WomenShgPage() {
 
   const handleConfirmVerifyShg = async ({ grantEligibility, reason }) => {
     try {
-      await verifyWomenShg(verifyModal.shg.id, grantEligibility, reason, currentAdmin?.name)
-      addToast?.(`SHG ${verifyModal.shg.shgName} verified and eligibility set`, 'success')
+      const adminUid = currentAdmin?.id || 'usr_admin_root'
+      const adminName = currentAdmin?.name || 'Super Admin'
+      await verifyWomenShg(verifyModal.shg.id, grantEligibility, reason, adminUid, adminName)
+      addToast?.(`SHG "${verifyModal.shg.shgName}" verified and eligible for subvention`, 'success')
       setVerifyModal({ open: false, shg: null })
       fetchData()
       fetchSummary()
       if (drawerOpen && selectedEntity?.id === verifyModal.shg.id) {
-        setSelectedEntity((prev) => ({
-          ...prev,
-          status: 'verified',
-          subventionEligibility: grantEligibility
-        }))
+        setSelectedEntity((prev) => ({ ...prev, status: 'verified', subventionEligibility: grantEligibility }))
       }
     } catch (err) {
       addToast?.('Verification failed: ' + err.message, 'error')
@@ -201,12 +341,14 @@ export default function WomenShgPage() {
     setConfirmDialog({
       open: true,
       title: `Suspend SHG: ${shg.shgName}`,
-      message: `Are you sure you want to suspend "${shg.shgName}" (${shg.village}, ${shg.district})? Subvention eligibility and internal lending permissions will be frozen. Administrative reason is required.`,
+      message: `Are you sure you want to suspend this SHG? Internal loan activities and interest subvention eligibility will be halted immediately.`,
       confirmLabel: 'Suspend SHG',
       confirmVariant: 'rose',
       onConfirm: async (reason) => {
         try {
-          await suspendWomenShg(shg.id, reason, currentAdmin?.name)
+          const adminUid = currentAdmin?.id || 'usr_admin_root'
+          const adminName = currentAdmin?.name || 'Super Admin'
+          await suspendWomenShg(shg.id, reason, adminUid, adminName)
           addToast?.(`SHG ${shg.shgName} suspended`, 'success')
           setConfirmDialog({ open: false })
           fetchData()
@@ -221,15 +363,39 @@ export default function WomenShgPage() {
     })
   }
 
-  // --- Handlers for Product Curation ---
+  // --- Handlers for Deposit Actions ---
+  const handleSaveDeposit = async (payload) => {
+    try {
+      const adminUid = currentAdmin?.id || 'usr_admin_root'
+      const adminName = currentAdmin?.name || 'Super Admin'
+      await recordShgDeposit(payload, adminUid, adminName)
+      addToast?.(`Deposit recorded for ${payload.memberName || 'member'} (${payload.depositMonth})`, 'success')
+      setDepositModal({ open: false })
+      fetchData()
+      fetchSummary()
+    } catch (err) {
+      addToast?.('Deposit entry failed: ' + err.message, 'error')
+    }
+  }
+
+  // --- Handlers for Home Enterprise Storefront Actions ---
   const handleCurateProduct = (product) => {
     setCurateModal({ open: true, product })
   }
 
   const handleConfirmCurateProduct = async ({ status, curationNotes, reason }) => {
     try {
-      await curateEnterpriseProduct(curateModal.product.id, status, curationNotes, reason, currentAdmin?.name)
-      addToast?.(`Product status updated to ${status}`, 'success')
+      const adminUid = currentAdmin?.id || 'usr_admin_root'
+      const adminName = currentAdmin?.name || 'Super Admin'
+      await curateEnterpriseProduct(
+        curateModal.product.id,
+        status,
+        curationNotes,
+        reason,
+        adminUid,
+        adminName
+      )
+      addToast?.(`Product status updated to "${status}"`, 'success')
       setCurateModal({ open: false, product: null })
       fetchData()
       fetchSummary()
@@ -237,32 +403,32 @@ export default function WomenShgPage() {
         setSelectedEntity((prev) => ({ ...prev, status, curationNotes }))
       }
     } catch (err) {
-      addToast?.('Curation failed: ' + err.message, 'error')
+      addToast?.('Product curation failed: ' + err.message, 'error')
     }
   }
 
-  // --- Handlers for Subvention Grants ---
+  // --- Handlers for Subsidy & NRLM Grant Actions ---
   const handleDisburseSubsidy = (subsidy) => {
     const isDualSignOff = subsidy.amountInr > 50000
 
     if (isDualSignOff) {
       setDualSignOffDialog({
         open: true,
-        title: `Authorize NRLM Grant Disbursement: ${subsidy.shgName}`,
+        title: `Authorize Subvention Grant: ${subsidy.shgName}`,
         amount: subsidy.amountInr,
-        details: `Disbursing ${subsidy.schemeName} to ${subsidy.shgName} Bank Account. Mandates dual institutional co-authorizer sign-off.`,
+        details: `${subsidy.schemeName} (${subsidy.grantType}). Sanction amount ₹${subsidy.amountInr.toLocaleString()} requires dual-admin sign-off before NEFT bank credit.`,
         onConfirm: async (coAdminData) => {
           try {
+            const adminUid = currentAdmin?.id || 'usr_admin_root'
+            const adminName = currentAdmin?.name || 'Super Admin'
             await disburseSubventionSubsidy(
               subsidy.id,
               coAdminData.reason,
               coAdminData,
-              currentAdmin?.name
+              adminUid,
+              adminName
             )
-            addToast?.(
-              `Grant of ₹${subsidy.amountInr.toLocaleString()} successfully credited with dual sign-off`,
-              'success'
-            )
+            addToast?.(`Grant of ₹${subsidy.amountInr.toLocaleString()} disbursed with dual sign-off`, 'success')
             setDualSignOffDialog({ open: false })
             fetchData()
             fetchSummary()
@@ -278,12 +444,14 @@ export default function WomenShgPage() {
       setConfirmDialog({
         open: true,
         title: `Disburse Subsidy to ${subsidy.shgName}`,
-        message: `Disburse ${subsidy.schemeName} of ₹${subsidy.amountInr.toLocaleString()} to beneficiary SHG bank account?`,
+        message: `Confirm direct credit of ₹${subsidy.amountInr.toLocaleString()} under scheme "${subsidy.schemeName}" to SHG designated bank account?`,
         confirmLabel: 'Disburse Grant',
         confirmVariant: 'emerald',
         onConfirm: async (reason) => {
           try {
-            await disburseSubventionSubsidy(subsidy.id, reason, null, currentAdmin?.name)
+            const adminUid = currentAdmin?.id || 'usr_admin_root'
+            const adminName = currentAdmin?.name || 'Super Admin'
+            await disburseSubventionSubsidy(subsidy.id, reason, null, adminUid, adminName)
             addToast?.('Subsidy disbursed successfully', 'success')
             setConfirmDialog({ open: false })
             fetchData()
@@ -299,31 +467,7 @@ export default function WomenShgPage() {
     }
   }
 
-  // --- Handlers for Manual Deposit Post ---
-  const handleSaveDeposit = async (payload) => {
-    try {
-      await recordShgDeposit(payload, currentAdmin?.name)
-      addToast?.('Monthly micro-savings deposit recorded into SHG ledger', 'success')
-      setDepositModal({ open: false })
-      fetchData()
-      fetchSummary()
-    } catch (err) {
-      addToast?.('Deposit failed: ' + err.message, 'error')
-    }
-  }
-
-  // --- CSV Export ---
-  const handleExportCsv = () => {
-    if (!tableData.data || tableData.data.length === 0) {
-      addToast?.('No data to export', 'info')
-      return
-    }
-    const csvContent = toCsv(tableData.data)
-    downloadBlob(csvContent, `women_shg_${activeTab}_export_${Date.now()}.csv`)
-    addToast?.(`Exported ${tableData.data.length} records to CSV`, 'success')
-  }
-
-  // Sub-filter options per tab
+  // --- Sub-filter options per tab ---
   const getSubFilterConfig = () => {
     switch (activeTab) {
       case 'shgs':
@@ -334,10 +478,8 @@ export default function WomenShgPage() {
             { label: 'Nashik', value: 'nashik' },
             { label: 'Solapur', value: 'solapur' },
             { label: 'Jalgaon', value: 'jalgaon' },
-            { label: 'Sangli', value: 'sangli' },
             { label: 'Pune', value: 'pune' },
-            { label: 'Chhatrapati Sambhajinagar', value: 'chhatrapati sambhajinagar' },
-            { label: 'Nagpur', value: 'nagpur' }
+            { label: 'Kolhapur', value: 'kolhapur' }
           ]
         }
       case 'enterprises':
@@ -345,11 +487,35 @@ export default function WomenShgPage() {
           label: 'Category',
           options: [
             { label: 'Pickles & Chutneys', value: 'pickles & chutneys' },
-            { label: 'Papad & Snacks', value: 'papad & snacks' },
-            { label: 'Spices & Masalas', value: 'spices & masalas' },
-            { label: 'Cold-Pressed Oils', value: 'cold-pressed oils' },
-            { label: 'Organic Millets & Flours', value: 'organic millets & flours' },
-            { label: 'Handlooms & Handicrafts', value: 'handlooms & handicrafts' }
+            { label: 'Flour & Millets', value: 'flour & millets' },
+            { label: 'Organic Spices', value: 'organic spices' },
+            { label: 'Dehydrated Fruits', value: 'dehydrated fruits' },
+            { label: 'Snacks & Papads', value: 'snacks & papads' },
+            { label: 'Handloom & Crafts', value: 'handloom & crafts' }
+          ]
+        }
+      case 'deposits':
+        return {
+          label: 'SHG Cluster',
+          options: [
+            { label: 'Savitribai Phule Bachat Gat', value: 'shg_01' },
+            { label: 'Jijamata Krishi Bachat Gat', value: 'shg_02' },
+            { label: 'Ahilyabai Holkar Sangh', value: 'shg_03' },
+            { label: 'Kranti Jyoti Savitri Gat', value: 'shg_04' }
+          ]
+        }
+      case 'districts':
+        return {
+          label: 'District Filter',
+          options: [
+            { label: 'Ahmednagar', value: 'ahmednagar' },
+            { label: 'Nashik', value: 'nashik' },
+            { label: 'Pune', value: 'pune' },
+            { label: 'Satara', value: 'satara' },
+            { label: 'Kolhapur', value: 'kolhapur' },
+            { label: 'Solapur', value: 'solapur' },
+            { label: 'Chhatrapati Sambhajinagar', value: 'chhatrapati sambhajinagar' },
+            { label: 'Nagpur', value: 'nagpur' }
           ]
         }
       default:
@@ -359,10 +525,37 @@ export default function WomenShgPage() {
 
   const subConfig = getSubFilterConfig()
 
+  // CSV export handler
+  const handleExportCsv = () => {
+    if (!tableData.data || tableData.data.length === 0) {
+      addToast?.('No data to export', 'info')
+      return
+    }
+    const csvContent = toCsv(tableData.data)
+    downloadBlob(csvContent, `women_shg_${activeTab}_export_${Date.now()}.csv`)
+    addToast?.(`Exported ${tableData.data.length} records to CSV`, 'success')
+  }
+
   return (
     <div className="space-y-6">
+      {/* Financial Auditor Compliance Banner */}
+      {isFinancialAuditor && (
+        <div className="p-3.5 bg-amber-50 border border-amber-200/80 rounded-2xl flex items-center gap-3 text-xs text-amber-900 shadow-xs">
+          <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0" />
+          <div>
+            <span className="font-bold">Statutory Compliance Mode Active:</span> You are accessing the Women in Agriculture & Self Help Groups module under <strong>Financial Auditor</strong> policy controls. SHG verifications, suspension, product curation, and subsidy disbursements are strictly read-only.
+          </div>
+        </div>
+      )}
+
       {/* Top Metric Bar */}
       <WomenMetricBar summary={summary} loading={loading && !summary} />
+
+      {/* Women Mode Simulation Banner */}
+      <WomenModeSimulationBanner
+        isEnabled={isWomenModePreview}
+        onToggle={() => setIsWomenModePreview(!isWomenModePreview)}
+      />
 
       {/* Tab Navigation */}
       <WomenShgTabSwitch
@@ -371,7 +564,8 @@ export default function WomenShgPage() {
         counts={{
           shgs: summary?.totalActiveShgs,
           enterprises: summary?.activeStorefrontProducts,
-          subsidies: summary?.pendingVerificationShgs > 0 ? `${summary?.pendingVerificationShgs} Queue` : undefined
+          subsidies: summary?.flaggedAuditAlerts > 0 ? `${summary?.flaggedAuditAlerts} Flag` : undefined,
+          districts: summary?.womenModeStats?.districtsCovered || 8
         }}
       />
 
@@ -385,17 +579,32 @@ export default function WomenShgPage() {
         onSubFilterChange={setSubFilter}
         subFilterOptions={subConfig.options}
         subFilterLabel={subConfig.label}
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
+        persona={persona}
+        onPersonaChange={setPersona}
         activeTab={activeTab}
         onRefresh={() => {
           fetchData()
           fetchSummary()
         }}
         onExportCsv={handleExportCsv}
+        onResetSeed={() => setResetModalOpen(true)}
+        canMutate={canMutate}
         onAddNew={
-          activeTab === 'deposits'
+          activeTab === 'deposits' && canMutate
             ? () => setDepositModal({ open: true })
             : null
         }
+      />
+
+      {/* Batch Action Bar */}
+      <BatchActionBar
+        selectedCount={selectedIds.length}
+        activeTab={activeTab}
+        onBatchAction={handleBatchAction}
+        onClearSelection={handleClearSelection}
+        canMutate={canMutate}
       />
 
       {/* Primary Data Grid */}
@@ -405,6 +614,10 @@ export default function WomenShgPage() {
           onSelectRow={handleSelectRow}
           onVerifyShg={handleVerifyShg}
           onSuspendShg={handleSuspendShg}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onSelectAll={handleSelectAll}
+          canMutate={canMutate}
         />
       )}
 
@@ -412,6 +625,10 @@ export default function WomenShgPage() {
         <ShgDepositsTable
           data={tableData.data}
           onSelectRow={handleSelectRow}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onSelectAll={handleSelectAll}
+          canMutate={canMutate}
         />
       )}
 
@@ -420,6 +637,10 @@ export default function WomenShgPage() {
           data={tableData.data}
           onSelectRow={handleSelectRow}
           onCurateProduct={handleCurateProduct}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onSelectAll={handleSelectAll}
+          canMutate={canMutate}
         />
       )}
 
@@ -428,6 +649,22 @@ export default function WomenShgPage() {
           data={tableData.data}
           onSelectRow={handleSelectRow}
           onDisburseSubsidy={handleDisburseSubsidy}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onSelectAll={handleSelectAll}
+          canMutate={canMutate}
+        />
+      )}
+
+      {activeTab === 'districts' && (
+        <DistrictAdoptionTable
+          data={tableData.data}
+          loading={loading}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onSelectAll={handleSelectAll}
+          onViewDistrict={handleSelectRow}
+          canMutate={canMutate}
         />
       )}
 
@@ -453,9 +690,11 @@ export default function WomenShgPage() {
         onSuspendShg={handleSuspendShg}
         onCurateProduct={handleCurateProduct}
         onDisburseSubsidy={handleDisburseSubsidy}
+        canMutate={canMutate}
+        role={role}
       />
 
-      {/* Modals */}
+      {/* Action Modals */}
       <VerifyShgModal
         isOpen={verifyModal.open}
         shg={verifyModal.shg}
@@ -472,7 +711,6 @@ export default function WomenShgPage() {
 
       <RecordDepositModal
         isOpen={depositModal.open}
-        shgs={tableData.data?.filter?.((item) => item.shgName) || []}
         onClose={() => setDepositModal({ open: false })}
         onSave={handleSaveDeposit}
       />
@@ -494,6 +732,21 @@ export default function WomenShgPage() {
         details={dualSignOffDialog.details}
         onClose={() => setDualSignOffDialog({ open: false })}
         onConfirm={dualSignOffDialog.onConfirm}
+      />
+
+      <BatchActionModal
+        isOpen={batchModal.open}
+        title={batchModal.title}
+        count={batchModal.count}
+        actionLabel={batchModal.label}
+        onClose={() => setBatchModal({ open: false, action: '', title: '', count: 0, label: '' })}
+        onConfirm={handleConfirmBatchAction}
+      />
+
+      <ResetSeedModal
+        isOpen={resetModalOpen}
+        onClose={() => setResetModalOpen(false)}
+        onConfirm={handleResetSeedConfirm}
       />
     </div>
   )

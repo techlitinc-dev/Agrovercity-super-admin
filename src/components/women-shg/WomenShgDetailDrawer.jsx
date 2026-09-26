@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   X,
   Copy,
@@ -14,9 +14,15 @@ import {
   Lock,
   Landmark,
   CheckCircle2,
-  Users
+  Users,
+  History,
+  ShieldAlert,
+  Smartphone,
+  Mic,
+  Radio
 } from 'lucide-react'
 import { StatusBadge, EligibilityBadge, fmtINR, formatDate } from '../../pages/womenShgWidgets'
+import { getEntityAuditLogs } from '../../api/womenShgApi'
 
 export default function WomenShgDetailDrawer({
   entity,
@@ -26,10 +32,23 @@ export default function WomenShgDetailDrawer({
   onVerifyShg,
   onSuspendShg,
   onCurateProduct,
-  onDisburseSubsidy
+  onDisburseSubsidy,
+  canMutate = true,
+  role = 'SUPER_ADMIN'
 }) {
   const [activeTab, setActiveTab] = useState('overview')
   const [copied, setCopied] = useState(false)
+  const [entityLogs, setEntityLogs] = useState([])
+
+  useEffect(() => {
+    if (entity?.id) {
+      getEntityAuditLogs(entity.id)
+        .then((logs) => setEntityLogs(logs || []))
+        .catch(() => setEntityLogs([]))
+    } else {
+      setEntityLogs([])
+    }
+  }, [entity?.id])
 
   if (!isOpen || !entity) return null
 
@@ -49,6 +68,8 @@ export default function WomenShgDetailDrawer({
         return Store
       case 'subsidies':
         return Coins
+      case 'districts':
+        return Smartphone
       default:
         return HandHeart
     }
@@ -68,12 +89,12 @@ export default function WomenShgDetailDrawer({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-slate-900 tracking-tight">
-                  {entity.shgName || entity.productTitle || entity.memberName || entity.schemeName || entity.id}
+                  {entity.shgName || entity.productTitle || entity.memberName || entity.schemeName || (entity.district ? `${entity.district} District Telemetry` : entity.id)}
                 </h2>
                 <StatusBadge status={entity.status} />
               </div>
               <p className="text-[11px] font-mono text-slate-500 mt-0.5">
-                ID: {entity.id} · Updated: {formatDate(entity.updatedAt || entity.createdAt)}
+                ID: {entity.id} · Updated: {formatDate(entity.updatedAt || entity.createdAt || entity.lastSyncAt)}
               </p>
             </div>
           </div>
@@ -116,6 +137,17 @@ export default function WomenShgDetailDrawer({
             }`}
           >
             Raw Document JSON
+          </button>
+          <button
+            onClick={() => setActiveTab('audit')}
+            className={`py-2.5 font-bold border-b-2 transition-colors flex items-center gap-1.5 ${
+              activeTab === 'audit'
+                ? 'border-emerald-600 text-emerald-800'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <History className="w-3.5 h-3.5" />
+            <span>Audit History ({entityLogs.length})</span>
           </button>
         </div>
 
@@ -336,6 +368,73 @@ export default function WomenShgDetailDrawer({
                   )}
                 </>
               )}
+
+              {/* District Telemetry View */}
+              {type === 'districts' && (
+                <>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Active Women Users</span>
+                      <div className="text-base font-bold text-slate-900 mt-0.5">
+                        {entity.activeWomenModeUsers?.toLocaleString('en-IN') || 0}
+                      </div>
+                    </div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">SHG Linkage</span>
+                      <div className="text-base font-bold text-emerald-700 mt-0.5">
+                        {entity.shgLinkageRatePct || 0}%
+                      </div>
+                    </div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Voice Interface</span>
+                      <div className="text-base font-bold text-slate-900 mt-0.5">
+                        {entity.voiceInterfacePct || 0}%
+                      </div>
+                    </div>
+                    <div className="bg-slate-50/80 border border-emerald-100/80 rounded-xl p-3 shadow-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Audio Passbooks</span>
+                      <div className="text-base font-bold text-slate-900 mt-0.5">
+                        {entity.audioPassbookSessions?.toLocaleString('en-IN') || 0}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-emerald-50/30 border border-emerald-100/80 rounded-xl p-4 space-y-3">
+                    <h3 className="font-bold text-slate-900 flex items-center gap-2">
+                      <Smartphone className="w-4 h-4 text-emerald-700" />
+                      <span>District NRLM Liaison & Telemetry Pipeline</span>
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <span className="text-slate-500">District / State:</span>
+                        <div className="font-bold text-slate-900">{entity.district}, {entity.state}</div>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">NRLM Cluster Officer:</span>
+                        <div className="font-bold text-slate-900">{entity.nrlmClusterOfficer}</div>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Officer Contact:</span>
+                        <div className="font-mono text-emerald-700 font-bold">{entity.officerPhone}</div>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Last Telemetry Sync:</span>
+                        <div className="font-mono text-slate-700">{formatDate(entity.lastSyncAt)}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-50 border border-emerald-100/80 rounded-xl p-3 text-xs space-y-1">
+                    <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                      <Mic className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Voice Interface Dialect Support</span>
+                    </div>
+                    <div className="text-[11px] text-slate-600">
+                      Standard Marathi, Ahirani, Khandeshi & Varhadi dialect speech recognition active. Illiterate members can query deposit balances and pending loan dues using voice commands.
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
@@ -382,53 +481,114 @@ export default function WomenShgDetailDrawer({
               </pre>
             </div>
           )}
+
+          {activeTab === 'audit' && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between pb-1 border-b border-emerald-100/80">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Immutable Audit Trail for Entity {entity.id}
+                </span>
+                <span className="text-[11px] font-mono text-slate-500">
+                  {entityLogs.length} events logged
+                </span>
+              </div>
+              {entityLogs.length === 0 ? (
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center text-slate-500 text-xs">
+                  No audit events recorded for this entity yet.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {entityLogs.map((log) => (
+                    <div key={log.id} className="p-3 bg-white border border-emerald-100/90 rounded-xl space-y-1.5 shadow-2xs">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                          {log.actionType}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          {formatDate(log.timestamp)}
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-800 font-medium">
+                        {log.reason || 'No description provided.'}
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-100">
+                        <span>Admin: <strong className="text-slate-700">{log.adminName}</strong> ({log.adminUid})</span>
+                        {log.newState && (
+                          <span className="font-mono text-emerald-700">State: {log.previousState || 'init'} → {log.newState}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-emerald-100/80 bg-slate-50/80 flex items-center justify-between">
-          <div className="text-[11px] text-slate-500 font-medium">
-            SOP-24 Compliant · Rural Inclusion Gate
-          </div>
-          <div className="flex items-center gap-2">
-            {type === 'shgs' && entity.status === 'pending_verification' && onVerifyShg && (
+        <div className="p-4 border-t border-emerald-100/80 bg-slate-50/80 flex items-center justify-between gap-2">
+          {!canMutate || role === 'FINANCIAL_AUDITOR' ? (
+            <div className="flex items-center justify-between w-full gap-2">
+              <div className="flex items-center gap-2 text-xs text-amber-800 bg-amber-50 border border-amber-200/80 rounded-xl px-3 py-2 flex-1">
+                <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
+                <span className="text-[11px]">
+                  <strong>Auditor Mode:</strong> Read-only access enabled under statutory governance policies. SHG verifications, suspension, product curation, and subsidy disbursements are locked.
+                </span>
+              </div>
               <button
-                onClick={() => onVerifyShg(entity)}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs"
+                onClick={onClose}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs shrink-0"
               >
-                Verify SHG
+                Close
               </button>
-            )}
-            {type === 'shgs' && entity.status === 'verified' && onSuspendShg && (
-              <button
-                onClick={() => onSuspendShg(entity)}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white transition-all shadow-xs"
-              >
-                Suspend
-              </button>
-            )}
-            {type === 'enterprises' && onCurateProduct && (
-              <button
-                onClick={() => onCurateProduct(entity)}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white transition-all shadow-xs"
-              >
-                Curate SKU
-              </button>
-            )}
-            {type === 'subsidies' && (entity.status === 'pending_approval' || entity.status === 'dual_signoff_pending') && onDisburseSubsidy && (
-              <button
-                onClick={() => onDisburseSubsidy(entity)}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs"
-              >
-                Disburse Subsidy
-              </button>
-            )}
-            <button
-              onClick={onClose}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
-            >
-              Close
-            </button>
-          </div>
+            </div>
+          ) : (
+            <>
+              <div className="text-[11px] text-slate-500 font-medium hidden sm:block">
+                SOP-24 Compliant · Rural Inclusion Gate
+              </div>
+              <div className="flex items-center gap-2">
+                {type === 'shgs' && entity.status === 'pending_verification' && onVerifyShg && (
+                  <button
+                    onClick={() => onVerifyShg(entity)}
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs"
+                  >
+                    Verify SHG
+                  </button>
+                )}
+                {type === 'shgs' && entity.status === 'verified' && onSuspendShg && (
+                  <button
+                    onClick={() => onSuspendShg(entity)}
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white transition-all shadow-xs"
+                  >
+                    Suspend
+                  </button>
+                )}
+                {type === 'enterprises' && onCurateProduct && (
+                  <button
+                    onClick={() => onCurateProduct(entity)}
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white transition-all shadow-xs"
+                  >
+                    Curate SKU
+                  </button>
+                )}
+                {type === 'subsidies' && (entity.status === 'pending_approval' || entity.status === 'dual_signoff_pending') && onDisburseSubsidy && (
+                  <button
+                    onClick={() => onDisburseSubsidy(entity)}
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs"
+                  >
+                    Disburse Subsidy
+                  </button>
+                )}
+                <button
+                  onClick={onClose}
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
+                >
+                  Close
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

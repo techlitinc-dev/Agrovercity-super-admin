@@ -25,7 +25,8 @@ import {
   ExternalLink,
   Flame,
   Radio,
-  FileText
+  FileText,
+  RotateCcw
 } from 'lucide-react'
 
 export function fmtINR(val) {
@@ -72,7 +73,13 @@ export function StatusBadge({ status }) {
 
     // Consents
     granted: { label: 'Consent Granted', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold' },
-    revoked: { label: 'Consent Revoked', bg: 'bg-rose-50 text-rose-700 border-rose-200 font-semibold' }
+    revoked: { label: 'Consent Revoked', bg: 'bg-rose-50 text-rose-700 border-rose-200 font-semibold' },
+
+    // Expert Consultation Tickets
+    open: { label: 'Open (Awaiting Agronomist)', bg: 'bg-amber-50 text-amber-700 border-amber-200 font-semibold animate-pulse' },
+    in_progress: { label: 'In Progress (Field Review)', bg: 'bg-blue-50 text-blue-700 border-blue-200 font-semibold' },
+    resolved: { label: 'Resolved (Prescribed)', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold' },
+    escalated: { label: 'Escalated to University', bg: 'bg-purple-50 text-purple-700 border-purple-200 font-semibold' }
   }
 
   const badge = map[status] || { label: status || 'Unknown', bg: 'bg-slate-100 text-slate-600 border-slate-200' }
@@ -80,6 +87,21 @@ export function StatusBadge({ status }) {
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${badge.bg}`}>
       {badge.label}
+    </span>
+  )
+}
+
+export function PriorityBadge({ priority }) {
+  const map = {
+    urgent: { label: 'Urgent SLA', bg: 'bg-rose-50 text-rose-700 border-rose-200 font-bold animate-pulse' },
+    high: { label: 'High Priority', bg: 'bg-amber-50 text-amber-700 border-amber-200 font-semibold' },
+    normal: { label: 'Standard', bg: 'bg-blue-50 text-blue-700 border-blue-200 font-semibold' },
+    low: { label: 'Low', bg: 'bg-slate-100 text-slate-600 border-slate-200' }
+  }
+  const badge = map[priority] || { label: priority || 'Normal', bg: 'bg-slate-100 text-slate-600 border-slate-200' }
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono border ${badge.bg}`}>
+      <span>{badge.label}</span>
     </span>
   )
 }
@@ -186,6 +208,7 @@ export function SystemConfigTabSwitch({ activeTab, onSelectTab, counts = {} }) {
     { id: 'remote_config', label: 'Remote Config & Feature Flags', icon: Sliders },
     { id: 'broadcasts', label: 'Targeted FCM Broadcasts', icon: Bell, count: counts.broadcasts },
     { id: 'moderation', label: 'User Reports & Moderation', icon: AlertOctagon, count: counts.reports },
+    { id: 'expert_tickets', label: 'Agronomist Consultation Desk', icon: Sparkles, count: counts.tickets },
     { id: 'blocks', label: 'Banned Accounts Registry', icon: Ban, count: counts.blocks },
     { id: 'dpdp_consents', label: 'DPDP Consent Audit', icon: ShieldCheck },
     { id: 'audit', label: 'Platform Audit Logs', icon: FileText, count: counts.audit }
@@ -229,96 +252,297 @@ export function SystemConfigFiltersBar({
   onSearchChange,
   statusFilter,
   onStatusChange,
+  personaFilter = 'all',
+  onPersonaChange,
+  dateRange = 'all',
+  onDateRangeChange,
   activeTab,
   onRefresh,
   onExportCsv,
   onOpenBroadcastModal,
-  onOpenConfigModal
+  onOpenConfigModal,
+  onResetSeed,
+  canMutate = true
 }) {
   return (
-    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-4 bg-white/90 backdrop-blur-xl p-3.5 rounded-2xl border border-emerald-100/90 shadow-xs">
-      <div className="flex flex-1 items-center gap-2 flex-wrap sm:flex-nowrap">
-        {/* Search */}
-        {activeTab !== 'health' && (
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder={
-                activeTab === 'broadcasts'
-                  ? 'Search by broadcast title, ID, or district...'
-                  : activeTab === 'moderation'
-                  ? 'Search by reported user, ID, phone, or reporter...'
-                  : activeTab === 'blocks'
-                  ? 'Search by banned user, Aadhaar, or reason...'
-                  : activeTab === 'dpdp_consents'
-                  ? 'Search consents by user, version, or purpose...'
-                  : activeTab === 'audit'
-                  ? 'Search audit logs by admin, IP, action...'
-                  : 'Search platform records...'
-              }
-              value={search}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-            />
-          </div>
-        )}
+    <div className="flex flex-col gap-3 mb-4 bg-white/90 backdrop-blur-xl p-3.5 rounded-2xl border border-emerald-100/90 shadow-xs">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+        <div className="flex flex-1 items-center gap-2 flex-wrap sm:flex-nowrap">
+          {/* Search */}
+          {activeTab !== 'health' && (
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder={
+                  activeTab === 'broadcasts'
+                    ? 'Search by broadcast title, ID, or district...'
+                    : activeTab === 'moderation'
+                    ? 'Search by reported user, ID, phone, or reporter...'
+                    : activeTab === 'expert_tickets'
+                    ? 'Search tickets by number, farmer, crop, symptoms...'
+                    : activeTab === 'blocks'
+                    ? 'Search by banned user, Aadhaar, or reason...'
+                    : activeTab === 'dpdp_consents'
+                    ? 'Search consents by user, version, or purpose...'
+                    : activeTab === 'audit'
+                    ? 'Search audit logs by admin, IP, action...'
+                    : 'Search platform records...'
+                }
+                value={search}
+                onChange={(e) => onSearchChange(e.target.value)}
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              />
+            </div>
+          )}
 
-        {/* Status Dropdown for Moderation */}
-        {activeTab === 'moderation' && (
-          <select
-            value={statusFilter}
-            onChange={(e) => onStatusChange(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+          {/* Status Dropdown for Moderation */}
+          {activeTab === 'moderation' && (
+            <select
+              value={statusFilter}
+              onChange={(e) => onStatusChange(e.target.value)}
+              className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            >
+              <option value="all">All Moderation Statuses</option>
+              <option value="pending">Pending Review</option>
+              <option value="investigating">Under Investigation</option>
+              <option value="resolved_warning">Warning Issued</option>
+              <option value="resolved_banned">Permanently Banned</option>
+              <option value="dismissed">Dismissed (No Violation)</option>
+            </select>
+          )}
+
+          {/* Status Dropdown for Expert Tickets */}
+          {activeTab === 'expert_tickets' && (
+            <select
+              value={statusFilter}
+              onChange={(e) => onStatusChange(e.target.value)}
+              className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            >
+              <option value="all">All Ticket Statuses</option>
+              <option value="open">Open (Awaiting Agronomist)</option>
+              <option value="in_progress">In Progress</option>
+              <option value="resolved">Resolved & Prescribed</option>
+              <option value="escalated">Escalated to University</option>
+            </select>
+          )}
+
+          {/* Persona Filter */}
+          {(activeTab === 'broadcasts' || activeTab === 'moderation' || activeTab === 'blocks') && onPersonaChange && (
+            <select
+              value={personaFilter}
+              onChange={(e) => onPersonaChange(e.target.value)}
+              className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            >
+              <option value="all">All Personas</option>
+              <option value="farmers">Farmers & Sellers</option>
+              <option value="transporters">Transporters</option>
+              <option value="equipment_owners">Equipment Rental CHC</option>
+              <option value="buyers">Buyers & Corporates</option>
+              <option value="women_shg">Women SHG Members</option>
+            </select>
+          )}
+
+          {/* Date Range Dropdown */}
+          {activeTab !== 'health' && onDateRangeChange && (
+            <select
+              value={dateRange}
+              onChange={(e) => onDateRangeChange(e.target.value)}
+              className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            >
+              <option value="all">Date: All Time</option>
+              <option value="today">Today</option>
+              <option value="last_7_days">Last 7 Days</option>
+              <option value="last_30_days">Last 30 Days</option>
+              <option value="this_quarter">This Quarter</option>
+            </select>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 self-end md:self-auto">
+          <button
+            onClick={onRefresh}
+            title="Refresh Data"
+            className="p-2 rounded-xl text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
           >
-            <option value="all">All Moderation Statuses</option>
-            <option value="pending">Pending Review</option>
-            <option value="investigating">Under Investigation</option>
-            <option value="resolved_warning">Warning Issued</option>
-            <option value="resolved_banned">Permanently Banned</option>
-            <option value="dismissed">Dismissed (No Violation)</option>
-          </select>
-        )}
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+
+          {activeTab !== 'health' && (
+            <button
+              onClick={onExportCsv}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
+            >
+              <Download className="w-3.5 h-3.5 text-slate-500" />
+              <span>Export CSV</span>
+            </button>
+          )}
+
+          {onResetSeed && canMutate && (
+            <button
+              onClick={onResetSeed}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
+              title="Reset Module 26 to benchmark seed data"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+              <span className="hidden sm:inline">Reset Seed</span>
+            </button>
+          )}
+
+          {activeTab === 'broadcasts' && onOpenBroadcastModal && canMutate && (
+            <button
+              onClick={onOpenBroadcastModal}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>+ Compose FCM Broadcast</span>
+            </button>
+          )}
+
+          {activeTab === 'remote_config' && onOpenConfigModal && canMutate && (
+            <button
+              onClick={onOpenConfigModal}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs"
+            >
+              <Sliders className="w-3.5 h-3.5" />
+              <span>Edit Version Gates & Maintenance</span>
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="flex items-center gap-2 self-end md:self-auto">
+      {/* Quick Filter Chips */}
+      {activeTab === 'moderation' && (
+        <div className="flex items-center gap-1.5 pt-2 border-t border-slate-100 flex-wrap text-[11px]">
+          <span className="text-slate-400 font-semibold mr-1">Quick Filter:</span>
+          {[
+            { id: 'all', label: 'All Reports' },
+            { id: 'pending', label: 'Pending Review' },
+            { id: 'investigating', label: 'Investigating' },
+            { id: 'resolved_warning', label: 'Warnings' },
+            { id: 'resolved_banned', label: 'Banned Accounts' }
+          ].map((chip) => (
+            <button
+              key={chip.id}
+              type="button"
+              onClick={() => onStatusChange(chip.id)}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
+                statusFilter === chip.id
+                  ? 'bg-emerald-600 text-white font-bold shadow-xs'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {activeTab === 'expert_tickets' && (
+        <div className="flex items-center gap-1.5 pt-2 border-t border-slate-100 flex-wrap text-[11px]">
+          <span className="text-slate-400 font-semibold mr-1">Quick Filter:</span>
+          {[
+            { id: 'all', label: 'All Tickets' },
+            { id: 'open', label: 'Open (Awaiting Expert)' },
+            { id: 'in_progress', label: 'In Progress' },
+            { id: 'resolved', label: 'Resolved' },
+            { id: 'escalated', label: 'Escalated' }
+          ].map((chip) => (
+            <button
+              key={chip.id}
+              type="button"
+              onClick={() => onStatusChange(chip.id)}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
+                statusFilter === chip.id
+                  ? 'bg-emerald-600 text-white font-bold shadow-xs'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// -------------------------------------------------------------
+// BATCH ACTION BAR
+// -------------------------------------------------------------
+export function BatchActionBar({
+  selectedCount = 0,
+  activeTab = 'moderation',
+  onBatchAction,
+  onClearSelection,
+  canMutate = true
+}) {
+  if (selectedCount === 0) return null
+
+  return (
+    <div className="flex items-center justify-between gap-3 p-3 mb-4 rounded-2xl bg-slate-900 text-white shadow-xl border border-slate-800 animate-in fade-in slide-in-from-top-2 duration-200">
+      <div className="flex items-center gap-2.5 px-2">
+        <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+        <span className="text-xs font-bold font-mono">
+          {selectedCount} item{selectedCount > 1 ? 's' : ''} selected
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2 flex-wrap">
+        {canMutate && activeTab === 'moderation' && (
+          <>
+            <button
+              onClick={() => onBatchAction('batch_resolve_warning')}
+              className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition-colors"
+            >
+              Issue Strike 1 Warning
+            </button>
+            <button
+              onClick={() => onBatchAction('batch_dismiss')}
+              className="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold transition-colors"
+            >
+              Dismiss Reports
+            </button>
+            <button
+              onClick={() => onBatchAction('batch_ban')}
+              className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-colors shadow-xs"
+            >
+              Dual Sign Permanent Ban
+            </button>
+          </>
+        )}
+
+        {canMutate && activeTab === 'expert_tickets' && (
+          <button
+            onClick={() => onBatchAction('batch_resolve_tickets')}
+            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors shadow-xs"
+          >
+            Resolve Selected Advisory
+          </button>
+        )}
+
+        {canMutate && activeTab === 'blocks' && (
+          <button
+            onClick={() => onBatchAction('batch_unban')}
+            className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors shadow-xs"
+          >
+            Reinstate Selected Accounts
+          </button>
+        )}
+
         <button
-          onClick={onRefresh}
-          title="Refresh Data"
-          className="p-2 rounded-xl text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
+          onClick={() => onBatchAction('export_selected')}
+          className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-colors"
         >
-          <RefreshCw className="w-3.5 h-3.5" />
+          Export CSV
         </button>
 
-        {activeTab !== 'health' && (
-          <button
-            onClick={onExportCsv}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
-          >
-            <Download className="w-3.5 h-3.5 text-slate-500" />
-            <span>Export CSV</span>
-          </button>
-        )}
-
-        {activeTab === 'broadcasts' && onOpenBroadcastModal && (
-          <button
-            onClick={onOpenBroadcastModal}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs"
-          >
-            <Send className="w-3.5 h-3.5" />
-            <span>+ Compose FCM Broadcast</span>
-          </button>
-        )}
-
-        {activeTab === 'remote_config' && onOpenConfigModal && (
-          <button
-            onClick={onOpenConfigModal}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs"
-          >
-            <Sliders className="w-3.5 h-3.5" />
-            <span>Edit Version Gates & Maintenance</span>
-          </button>
-        )}
+        <button
+          onClick={onClearSelection}
+          className="px-2.5 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 text-xs transition-colors"
+        >
+          Clear
+        </button>
       </div>
     </div>
   )
@@ -473,7 +697,13 @@ export function RemoteConfigView({ config, onEditConfig, onToggleFlag }) {
 }
 
 // 3. Broadcasts Table
-export function BroadcastsTable({ data, onSelectRow }) {
+export function BroadcastsTable({
+  data,
+  selectedIds = [],
+  onToggleSelect,
+  onSelectAll,
+  onSelectRow
+}) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-xs">
@@ -482,11 +712,23 @@ export function BroadcastsTable({ data, onSelectRow }) {
     )
   }
 
+  const allSelected = data.length > 0 && selectedIds.length === data.length
+
   return (
     <div className="overflow-x-auto rounded-2xl border border-emerald-100/90 bg-white/90 shadow-xs">
       <table className="w-full text-left text-xs">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 font-bold uppercase tracking-wider text-[10px]">
           <tr>
+            {onToggleSelect && (
+              <th className="px-3 py-3 w-10 text-center">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={(e) => onSelectAll?.(e.target.checked)}
+                  className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/20"
+                />
+              </th>
+            )}
             <th className="px-4 py-3">Title & Broadcast ID</th>
             <th className="px-4 py-3">Urgency</th>
             <th className="px-4 py-3">Target Audience & Region</th>
@@ -501,8 +743,20 @@ export function BroadcastsTable({ data, onSelectRow }) {
             <tr
               key={row.id}
               onClick={() => onSelectRow(row)}
-              className="hover:bg-emerald-50/60 cursor-pointer transition-colors"
+              className={`hover:bg-emerald-50/60 cursor-pointer transition-colors ${
+                selectedIds.includes(row.id) ? 'bg-emerald-50/40' : ''
+              }`}
             >
+              {onToggleSelect && (
+                <td className="px-3 py-3.5 text-center" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(row.id)}
+                    onChange={() => onToggleSelect(row.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/20"
+                  />
+                </td>
+              )}
               <td className="px-4 py-3.5">
                 <div className="font-bold text-slate-900">{row.title}</div>
                 <div className="text-[11px] font-mono text-slate-500">{row.id}</div>
@@ -542,7 +796,15 @@ export function BroadcastsTable({ data, onSelectRow }) {
 }
 
 // 4. User Moderation Reports Table
-export function UserReportsTable({ data, onSelectRow, onResolveReport }) {
+export function UserReportsTable({
+  data,
+  selectedIds = [],
+  onToggleSelect,
+  onSelectAll,
+  onSelectRow,
+  onResolveReport,
+  canMutate = true
+}) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-xs">
@@ -551,11 +813,23 @@ export function UserReportsTable({ data, onSelectRow, onResolveReport }) {
     )
   }
 
+  const allSelected = data.length > 0 && selectedIds.length === data.length
+
   return (
     <div className="overflow-x-auto rounded-2xl border border-emerald-100/90 bg-white/90 shadow-xs">
       <table className="w-full text-left text-xs">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 font-bold uppercase tracking-wider text-[10px]">
           <tr>
+            {onToggleSelect && (
+              <th className="px-3 py-3 w-10 text-center">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={(e) => onSelectAll?.(e.target.checked)}
+                  className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/20"
+                />
+              </th>
+            )}
             <th className="px-4 py-3">Reported User & Accused ID</th>
             <th className="px-4 py-3">Category & Severity</th>
             <th className="px-4 py-3">Reporter & Evidence</th>
@@ -569,8 +843,20 @@ export function UserReportsTable({ data, onSelectRow, onResolveReport }) {
             <tr
               key={row.id}
               onClick={() => onSelectRow(row)}
-              className="hover:bg-emerald-50/60 cursor-pointer transition-colors"
+              className={`hover:bg-emerald-50/60 cursor-pointer transition-colors ${
+                selectedIds.includes(row.id) ? 'bg-emerald-50/40' : ''
+              }`}
             >
+              {onToggleSelect && (
+                <td className="px-3 py-3.5 text-center" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(row.id)}
+                    onChange={() => onToggleSelect(row.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/20"
+                  />
+                </td>
+              )}
               <td className="px-4 py-3.5">
                 <div className="font-bold text-slate-900">{row.reportedUserName}</div>
                 <div className="text-[11px] font-mono text-slate-500">
@@ -594,7 +880,7 @@ export function UserReportsTable({ data, onSelectRow, onResolveReport }) {
                 {formatDate(row.createdAt)}
               </td>
               <td className="px-4 py-3.5 text-right space-x-1" onClick={(e) => e.stopPropagation()}>
-                {row.status !== 'resolved_banned' && row.status !== 'dismissed' && (
+                {canMutate && row.status !== 'resolved_banned' && row.status !== 'dismissed' && (
                   <button
                     onClick={() => onResolveReport(row)}
                     className="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-[11px] font-bold transition-colors shadow-xs"
@@ -618,7 +904,14 @@ export function UserReportsTable({ data, onSelectRow, onResolveReport }) {
 }
 
 // 5. User Blocks / Blacklist Table
-export function UserBlocksTable({ data, onUnbanUser }) {
+export function UserBlocksTable({
+  data,
+  selectedIds = [],
+  onToggleSelect,
+  onSelectAll,
+  onUnbanUser,
+  canMutate = true
+}) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-xs">
@@ -627,11 +920,23 @@ export function UserBlocksTable({ data, onUnbanUser }) {
     )
   }
 
+  const allSelected = data.length > 0 && selectedIds.length === data.length
+
   return (
     <div className="overflow-x-auto rounded-2xl border border-emerald-100/90 bg-white/90 shadow-xs">
       <table className="w-full text-left text-xs">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 font-bold uppercase tracking-wider text-[10px]">
           <tr>
+            {onToggleSelect && (
+              <th className="px-3 py-3 w-10 text-center">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={(e) => onSelectAll?.(e.target.checked)}
+                  className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/20"
+                />
+              </th>
+            )}
             <th className="px-4 py-3">User & ID</th>
             <th className="px-4 py-3">Phone & Masked Aadhaar</th>
             <th className="px-4 py-3">Persona & District</th>
@@ -642,7 +947,22 @@ export function UserBlocksTable({ data, onUnbanUser }) {
         </thead>
         <tbody className="divide-y divide-slate-100/80 text-slate-700">
           {data.map((row) => (
-            <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
+            <tr
+              key={row.id}
+              className={`hover:bg-emerald-50/60 transition-colors ${
+                selectedIds.includes(row.id) ? 'bg-emerald-50/40' : ''
+              }`}
+            >
+              {onToggleSelect && (
+                <td className="px-3 py-3.5 text-center" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(row.id)}
+                    onChange={() => onToggleSelect(row.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/20"
+                  />
+                </td>
+              )}
               <td className="px-4 py-3.5">
                 <div className="font-bold text-rose-700">{row.userName}</div>
                 <div className="text-[11px] font-mono text-slate-500">{row.userId}</div>
@@ -660,11 +980,147 @@ export function UserBlocksTable({ data, onUnbanUser }) {
                 {formatDate(row.bannedAt)}
               </td>
               <td className="px-4 py-3.5 text-right">
+                {canMutate && (
+                  <button
+                    onClick={() => onUnbanUser(row)}
+                    className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-[11px] font-bold transition-colors shadow-xs"
+                  >
+                    Unban
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+// 6. Agronomist Consultation Desk (Expert Tickets Table)
+export function ExpertTicketsTable({
+  data,
+  selectedIds = [],
+  onToggleSelect,
+  onSelectAll,
+  onSelectRow,
+  onResolveTicket,
+  onAssignTicket,
+  canMutate = true
+}) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-xs">
+        No agronomist consultation tickets in queue.
+      </div>
+    )
+  }
+
+  const allSelected = data.length > 0 && selectedIds.length === data.length
+
+  return (
+    <div className="overflow-x-auto rounded-2xl border border-emerald-100/90 bg-white/90 shadow-xs">
+      <table className="w-full text-left text-xs">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 font-bold uppercase tracking-wider text-[10px]">
+          <tr>
+            {onToggleSelect && (
+              <th className="px-3 py-3 w-10 text-center">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={(e) => onSelectAll?.(e.target.checked)}
+                  className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/20"
+                />
+              </th>
+            )}
+            <th className="px-4 py-3">Ticket & Crop</th>
+            <th className="px-4 py-3">Farmer & Location</th>
+            <th className="px-4 py-3">Symptoms / Diagnosis</th>
+            <th className="px-4 py-3">Assigned Agronomist</th>
+            <th className="px-4 py-3">Status & SLA</th>
+            <th className="px-4 py-3">Timestamp</th>
+            <th className="px-4 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100/80 text-slate-700">
+          {data.map((row) => (
+            <tr
+              key={row.id}
+              onClick={() => onSelectRow(row)}
+              className={`hover:bg-emerald-50/60 cursor-pointer transition-colors ${
+                selectedIds.includes(row.id) ? 'bg-emerald-50/40' : ''
+              }`}
+            >
+              {onToggleSelect && (
+                <td className="px-3 py-3.5 text-center" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(row.id)}
+                    onChange={() => onToggleSelect(row.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/20"
+                  />
+                </td>
+              )}
+              <td className="px-4 py-3.5">
+                <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                  <span>{row.ticketNumber}</span>
+                  <PriorityBadge priority={row.priority} />
+                </div>
+                <div className="text-[11px] font-semibold text-emerald-700 mt-0.5">
+                  {row.crop}
+                </div>
+              </td>
+              <td className="px-4 py-3.5">
+                <div className="font-bold text-slate-900">{row.farmerName}</div>
+                <div className="text-[11px] font-mono text-slate-500">
+                  {row.district} · {row.farmerPhone}
+                </div>
+              </td>
+              <td className="px-4 py-3.5 max-w-xs">
+                <div className="text-slate-900 font-semibold line-clamp-1">{row.title}</div>
+                <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">{row.description}</div>
+              </td>
+              <td className="px-4 py-3.5">
+                <div className="font-medium text-slate-900">
+                  {row.assignedAgronomist || (
+                    <span className="text-amber-600 italic">Unassigned</span>
+                  )}
+                </div>
+                <div className="text-[10px] text-slate-500 mt-0.5">{row.issueCategory}</div>
+              </td>
+              <td className="px-4 py-3.5">
+                <StatusBadge status={row.status} />
+                {row.status !== 'resolved' && row.slaRemainingHours > 0 && (
+                  <div className="text-[10px] font-mono text-amber-700 font-bold mt-1">
+                    ⏱ {row.slaRemainingHours}h SLA remaining
+                  </div>
+                )}
+              </td>
+              <td className="px-4 py-3.5 font-mono text-slate-600 text-[11px]">
+                {formatDate(row.createdAt)}
+              </td>
+              <td className="px-4 py-3.5 text-right space-x-1" onClick={(e) => e.stopPropagation()}>
+                {canMutate && row.status !== 'resolved' && onResolveTicket && (
+                  <button
+                    onClick={() => onResolveTicket(row)}
+                    className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-[11px] font-bold transition-colors shadow-xs"
+                  >
+                    Resolve
+                  </button>
+                )}
+                {canMutate && onAssignTicket && (
+                  <button
+                    onClick={() => onAssignTicket(row)}
+                    className="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-[11px] font-semibold transition-colors"
+                  >
+                    Assign
+                  </button>
+                )}
                 <button
-                  onClick={() => onUnbanUser(row)}
-                  className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-[11px] font-bold transition-colors shadow-xs"
+                  onClick={() => onSelectRow(row)}
+                  className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[11px] font-semibold text-slate-700 transition-colors"
                 >
-                  Unban
+                  Inspect
                 </button>
               </td>
             </tr>

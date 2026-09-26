@@ -345,6 +345,93 @@ export const mockSystemConfigAuditLogs = [
   }
 ]
 
+export const mockExpertTickets = [
+  {
+    id: 'tkt_exp_101',
+    ticketNumber: 'EXP-202609-081',
+    farmerId: 'usr_fm_512',
+    farmerName: 'Kisanrao Madhavrao Deshmukh',
+    farmerPhone: '+91 94XXX XX332',
+    district: 'Solapur',
+    crop: 'Onion (Bhima Super)',
+    issueCategory: 'Pest & Fungal Infestation',
+    title: 'Purple blotch fungal infection spreading rapidly across 4 acres post unseasonal rainfall',
+    description: 'Noticed small, water-soaked lesions on leaves which rapidly turned brown-purple with concentric rings. Approximately 35% foliage showing yellowing and tip necrosis. Humidity has remained above 85% for the last 48 hours.',
+    imageUrl: 'https://images.unsplash.com/photo-1592417817098-8f3d6910985b?w=400',
+    status: 'open', // 'open', 'in_progress', 'resolved', 'escalated'
+    priority: 'urgent',
+    assignedAgronomist: 'Dr. Nilesh Gaikwad (Sr. Plant Pathologist)',
+    slaRemainingHours: 2.5,
+    resolutionNotes: null,
+    prescribedTreatment: null,
+    createdAt: '2026-09-20T08:15:00Z',
+    updatedAt: '2026-09-20T08:15:00Z'
+  },
+  {
+    id: 'tkt_exp_102',
+    ticketNumber: 'EXP-202609-082',
+    farmerId: 'usr_fm_201',
+    farmerName: 'Balasaheb Patwardhan',
+    farmerPhone: '+91 97XXX XX819',
+    district: 'Nashik',
+    crop: 'Table Grapes (Thomson Seedless)',
+    issueCategory: 'Disease Diagnosis & Foliar Care',
+    title: 'Downy mildew symptoms and berry cracking during late cluster development',
+    description: 'Oil spots visible on upper leaf surfaces with white downy growth on the underside. Several bunches showing berry mummification. Need immediate systemic fungicide guidance compliant with export MRL standards.',
+    imageUrl: 'https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=400',
+    status: 'in_progress',
+    priority: 'high',
+    assignedAgronomist: 'Dr. Suhas Deshmukh (Viticulture Specialist)',
+    slaRemainingHours: 6.0,
+    resolutionNotes: 'Field agronomist dispatched for leaf tissue inspection; MRL compliant spray schedule pending formulation review.',
+    prescribedTreatment: null,
+    createdAt: '2026-09-19T14:30:00Z',
+    updatedAt: '2026-09-20T09:00:00Z'
+  },
+  {
+    id: 'tkt_exp_103',
+    ticketNumber: 'EXP-202609-083',
+    farmerId: 'usr_shg_01',
+    farmerName: 'Sunita Shantaram Ghadge',
+    farmerPhone: '+91 96XXX XX148',
+    district: 'Ahmednagar',
+    crop: 'Pomegranate (Bhagwa)',
+    issueCategory: 'Bacterial Blight Management',
+    title: 'Bacterial blight (Telya disease) dark oily spots observed on fruit rind',
+    description: 'Oily angular lesions on foliage and typical Y-shaped cracks on fruit rinds. Requesting biocontrol and sanitization advisory for SHG community orchard.',
+    imageUrl: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400',
+    status: 'resolved',
+    priority: 'normal',
+    assignedAgronomist: 'Dr. Archana More (Entomologist)',
+    slaRemainingHours: 0,
+    resolutionNotes: 'Recommended prompt pruning of infected branches followed by application of Bordeaux mixture (1%) and Copper Oxychloride with Streptocycline (50 ppm).',
+    prescribedTreatment: 'Copper Oxychloride (0.25%) + Streptocycline (0.05g/L) foliar spray at 10-day intervals',
+    createdAt: '2026-09-18T10:00:00Z',
+    updatedAt: '2026-09-19T16:45:00Z'
+  },
+  {
+    id: 'tkt_exp_104',
+    ticketNumber: 'EXP-202609-084',
+    farmerId: 'usr_fm_534',
+    farmerName: 'Eknath Namdevrao Kadam',
+    farmerPhone: '+91 97XXX XX614',
+    district: 'Nashik',
+    crop: 'Tomato (Abhinav)',
+    issueCategory: 'Viral Vector Control',
+    title: 'Severe Tomato Leaf Curl Virus (ToLCV) stunting seedling growth',
+    description: 'Upward curling of leaves with severe chlorosis and bushy appearance. Heavy whitefly vector population observed under canopy.',
+    imageUrl: 'https://images.unsplash.com/photo-1592841200221-a6898f307baa?w=400',
+    status: 'escalated',
+    priority: 'urgent',
+    assignedAgronomist: 'Head of Agronomy & Crop Protection',
+    slaRemainingHours: 0,
+    resolutionNotes: 'Escalated to university research station due to vector insecticide resistance in the niphad belt.',
+    prescribedTreatment: 'Immediate vector containment with yellow sticky traps (15/acre) and Diafenthiuron 50% WP spray',
+    createdAt: '2026-09-17T11:20:00Z',
+    updatedAt: '2026-09-18T09:10:00Z'
+  }
+]
+
 export const mockSystemConfigSummary = {
   totalPlatformModules: 26,
   activeServicesHealthy: 26,
@@ -353,6 +440,7 @@ export const mockSystemConfigSummary = {
   latestAppVersion: '2.6.2',
   broadcastsDeliveredThisMonth: 124800,
   pendingModerationReports: 2,
+  openExpertTickets: 3,
   totalBannedUsers: 3,
   dpdpConsentCompliancePct: 100,
   activeFeatureFlagCount: 8

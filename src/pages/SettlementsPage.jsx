@@ -5,6 +5,10 @@ import {
   markSettlementPaid,
   setSettlementHold,
   releaseSettlementHold,
+  batchApproveSettlements,
+  batchMarkPaidSettlements,
+  batchPlaceHoldSettlements,
+  batchReleaseHoldSettlements,
   listTransporterPayouts,
   listSellerPayouts,
   getCommissionConfig,
@@ -12,12 +16,14 @@ import {
   triggerSettlementRun,
   listCronJobLogs,
   triggerCronJob,
-  getSettlementsAuditLogs
+  getSettlementsAuditLogs,
+  resetSettlementsSeedData
 } from '../api/settlementsApi'
 import {
   SettlementsMetricBar,
   SettlementsTabSwitch,
   SettlementsFiltersBar,
+  BatchActionBar,
   SettlementsTable,
   TransporterPayoutsTable,
   SellerPayoutsTable,
@@ -32,10 +38,13 @@ import {
   DualSignOffModal,
   MarkPaidModal,
   TriggerBatchRunModal,
-  UpdateCommissionsModal
+  UpdateCommissionsModal,
+  BatchActionModal,
+  ResetSeedModal
 } from '../components/settlements/SettlementsModals'
 import { useNotification } from '../context/NotificationContext'
 import { useAuthAdmin } from '../context/AuthAdminContext'
+import { ShieldAlert } from 'lucide-react'
 
 const PAGE_SIZE = 20
 
@@ -62,7 +71,14 @@ function downloadBlob(content, filename, type = 'text/csv;charset=utf-8;') {
 
 export default function SettlementsPage() {
   const { addToast } = useNotification() || { addToast: () => {} }
-  const { currentAdmin } = useAuthAdmin() || { currentAdmin: { name: 'Super Admin' } }
+  const { currentAdmin, hasPermission } = useAuthAdmin() || {
+    currentAdmin: { name: 'Super Admin', role: 'SUPER_ADMIN' },
+    hasPermission: () => true
+  }
+
+  const role = currentAdmin?.role || 'SUPER_ADMIN'
+  const isFinancialAuditor = role === 'FINANCIAL_AUDITOR'
+  const canMutate = hasPermission('settlements.manage') && !isFinancialAuditor
 
   const [activeTab, setActiveTab] = useState('settlements') // 'settlements', 'transporters', 'sellers', 'config', 'cron', 'audit'
   const [summary, setSummary] = useState(null)
@@ -73,10 +89,12 @@ export default function SettlementsPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [personaFilter, setPersonaFilter] = useState('all')
+  const [dateRange, setDateRange] = useState('all')
   const [page, setPage] = useState(1)
 
-  // Table Data
+  // Table Data & Multi-row Selection
   const [tableData, setTableData] = useState({ data: [], total: 0 })
+  const [selectedIds, setSelectedIds] = useState([])
 
   // Drawer
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -86,6 +104,8 @@ export default function SettlementsPage() {
   const [markPaidModal, setMarkPaidModal] = useState({ open: false, settlement: null })
   const [batchRunModal, setBatchRunModal] = useState({ open: false })
   const [commissionModal, setCommissionModal] = useState({ open: false })
+  const [batchModal, setBatchModal] = useState({ open: false, action: '', title: '', count: 0, label: '' })
+  const [resetModalOpen, setResetModalOpen] = useState(false)
 
   // Confirmation & Dual Sign-off
   const [confirmDialog, setConfirmDialog] = useState({
@@ -127,7 +147,9 @@ export default function SettlementsPage() {
         page,
         pageSize: PAGE_SIZE,
         search,
-        status: statusFilter
+        status: statusFilter,
+        dateRange,
+        persona: personaFilter
       }
 
       switch (activeTab) {
@@ -159,7 +181,7 @@ export default function SettlementsPage() {
     } finally {
       setLoading(false)
     }
-  }, [activeTab, page, search, statusFilter, personaFilter, addToast])
+  }, [activeTab, page, search, statusFilter, personaFilter, dateRange, addToast])
 
   useEffect(() => {
     fetchSummaryAndConfig()
@@ -175,6 +197,8 @@ export default function SettlementsPage() {
     setSearch('')
     setStatusFilter('all')
     setPersonaFilter('all')
+    setDateRange('all')
+    setSelectedIds([])
   }
 
   const handleSelectRow = (row) => {
@@ -182,25 +206,108 @@ export default function SettlementsPage() {
     setDrawerOpen(true)
   }
 
-  // --- Handlers for Settlement Actions ---
-  const handleOpenMarkPaid = (settlement) => {
-    const isDualSignOff = settlement.netPayoutInr > 50000
+  // Multi-row Selection Handlers
+  const handleToggleSelect = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    )
+  }
 
-    if (isDualSignOff) {
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      const allIds = tableData.data.map((r) => r.id)
+      setSelectedIds(allIds)
+    } else {
+      setSelectedIds([])
+    }
+  }
+
+  const handleClearSelection = () => {
+    setSelectedIds([])
+  }
+
+  // --- Batch Actions Handler ---
+  const handleBatchAction = (action) => {
+    if (selectedIds.length === 0) return
+
+    if (action === 'export_selected') {
+      const rows = tableData.data.filter((r) => selectedIds.includes(r.id))
+      const csv = toCsv(rows)
+      downloadBlob(csv, `settlements_${activeTab}_selected_${Date.now()}.csv`)
+      addToast?.(`Exported ${rows.length} selected records to CSV`, 'success')
+      return
+    }
+
+    const actionMap = {
+      batch_approve: { title: 'Batch Approve Settlement Batches', label: 'Approve Selected' },
+      batch_mark_paid: { title: 'Batch Mark Paid with Bank UTR Numbers', label: 'Disburse Payouts' },
+      batch_hold: { title: 'Place Legal Settlement Hold on Selected', label: 'Hold Selected' },
+      batch_release_hold: { title: 'Release Settlement Hold on Selected', label: 'Release Selected' }
+    }
+
+    const conf = actionMap[action] || { title: 'Execute Batch Action', label: 'Confirm' }
+    setBatchModal({
+      open: true,
+      action,
+      title: conf.title,
+      count: selectedIds.length,
+      label: conf.label
+    })
+  }
+
+  const handleConfirmBatchAction = async ({ reason, coAdmin, paymentRefPrefix }) => {
+    try {
+      const adminUid = currentAdmin?.id || 'usr_admin_root'
+      const adminName = currentAdmin?.name || 'Super Admin'
+
+      switch (batchModal.action) {
+        case 'batch_approve':
+          await batchApproveSettlements(selectedIds, reason, adminUid, adminName)
+          addToast?.(`Successfully approved ${selectedIds.length} settlement batches`, 'success')
+          break
+        case 'batch_mark_paid':
+          await batchMarkPaidSettlements(selectedIds, reason, paymentRefPrefix, coAdmin, adminUid, adminName)
+          addToast?.(`Successfully marked ${selectedIds.length} settlement batches as paid`, 'success')
+          break
+        case 'batch_hold':
+          await batchPlaceHoldSettlements(selectedIds, reason, adminUid, adminName)
+          addToast?.(`Placed legal hold on ${selectedIds.length} settlement records`, 'success')
+          break
+        case 'batch_release_hold':
+          await batchReleaseHoldSettlements(selectedIds, reason, adminUid, adminName)
+          addToast?.(`Released hold on ${selectedIds.length} settlement records`, 'success')
+          break
+        default:
+          break
+      }
+
+      setBatchModal({ open: false, action: '', title: '', count: 0, label: '' })
+      setSelectedIds([])
+      fetchData()
+      fetchSummaryAndConfig()
+    } catch (err) {
+      addToast?.('Batch action failed: ' + (err.message || 'Server error'), 'error')
+    }
+  }
+
+  // --- Single Record Action Handlers ---
+  const handleOpenMarkPaid = (settlement) => {
+    if (settlement.netPayoutInr > 50000 && !settlement.signOffAdmin2) {
       setDualSignOffDialog({
         open: true,
-        title: `Authorize Settlement Payout: ${settlement.beneficiaryName}`,
+        title: `Authorize Settlement Payout: ${settlement.batchId}`,
         amount: settlement.netPayoutInr,
-        details: `Batch #${settlement.batchId} (${settlement.beneficiaryName}). Net payable ₹${settlement.netPayoutInr.toLocaleString()} after ${settlement.commissionRatePct}% platform fee, TDS, and GST deductions.`,
+        details: `Beneficiary: ${settlement.beneficiaryName} (${settlement.bankName} - ${settlement.accountNumberMasked}). Since the disbursement exceeds ₹50,000, institutional co-authorizer sign-off is required under SOP-25.`,
         onConfirm: async (coAdminData) => {
           try {
-            const utr = `NEFT2609${Math.floor(100000 + Math.random() * 900000)}`
+            const utr = `SBIN${Date.now().toString().slice(-10)}`
             await markSettlementPaid(
               settlement.id,
               utr,
               coAdminData.reason,
-              coAdminData,
-              currentAdmin?.name
+              coAdminData.secondAdminEmail || 'auditor.finance@agrovercity.in',
+              currentAdmin?.id || 'usr_admin_root',
+              currentAdmin?.name || 'Super Admin'
             )
             addToast?.(`Batch #${settlement.batchId} marked paid with dual sign-off authorization`, 'success')
             setDualSignOffDialog({ open: false })
@@ -231,7 +338,8 @@ export default function SettlementsPage() {
         paymentReferenceUtr,
         reason,
         null,
-        currentAdmin?.name
+        currentAdmin?.id || 'usr_admin_root',
+        currentAdmin?.name || 'Super Admin'
       )
       addToast?.(`Settlement batch marked paid (UTR: ${paymentReferenceUtr})`, 'success')
       setMarkPaidModal({ open: false, settlement: null })
@@ -259,7 +367,13 @@ export default function SettlementsPage() {
       confirmVariant: 'rose',
       onConfirm: async (reason) => {
         try {
-          await setSettlementHold(settlement.id, reason, currentAdmin?.name)
+          await setSettlementHold(
+            settlement.id,
+            reason,
+            '',
+            currentAdmin?.id || 'usr_admin_root',
+            currentAdmin?.name || 'Super Admin'
+          )
           addToast?.(`Settlement #${settlement.batchId} placed on legal hold`, 'success')
           setConfirmDialog({ open: false })
           fetchData()
@@ -283,7 +397,12 @@ export default function SettlementsPage() {
       confirmVariant: 'emerald',
       onConfirm: async (reason) => {
         try {
-          await releaseSettlementHold(settlement.id, reason, currentAdmin?.name)
+          await releaseSettlementHold(
+            settlement.id,
+            reason,
+            currentAdmin?.id || 'usr_admin_root',
+            currentAdmin?.name || 'Super Admin'
+          )
           addToast?.(`Hold released for Batch #${settlement.batchId}`, 'success')
           setConfirmDialog({ open: false })
           fetchData()
@@ -299,9 +418,13 @@ export default function SettlementsPage() {
   }
 
   // --- Handlers for Batch Run & Config ---
-  const handleConfirmBatchRun = async ({ entityType, dateRange, reason }) => {
+  const handleConfirmBatchRun = async (params) => {
     try {
-      await triggerSettlementRun({ entityType, dateRange }, reason, currentAdmin?.name)
+      await triggerSettlementRun(
+        params,
+        currentAdmin?.id || 'usr_admin_root',
+        currentAdmin?.name || 'Super Admin'
+      )
       addToast?.('On-demand settlement calculation run executed successfully', 'success')
       setBatchRunModal({ open: false })
       fetchData()
@@ -313,7 +436,12 @@ export default function SettlementsPage() {
 
   const handleSaveCommissionConfig = async (newConfig, reason) => {
     try {
-      const updated = await updateCommissionConfig(newConfig, reason, currentAdmin?.name)
+      const updated = await updateCommissionConfig(
+        newConfig,
+        reason,
+        currentAdmin?.id || 'usr_admin_root',
+        currentAdmin?.name || 'Super Admin'
+      )
       setCommissionConfig(updated)
       addToast?.('Platform commission rates & tax parameters updated', 'success')
       setCommissionModal({ open: false })
@@ -326,12 +454,29 @@ export default function SettlementsPage() {
   // --- Handlers for Cron Jobs ---
   const handleTriggerCron = async (cronJob) => {
     try {
-      await triggerCronJob(cronJob.jobName, 'Manual run triggered by superadmin', currentAdmin?.name)
+      await triggerCronJob(cronJob.id, 'Manual run triggered by superadmin', currentAdmin?.id || 'usr_admin_root', currentAdmin?.name || 'Super Admin')
       addToast?.(`Scheduled job "${cronJob.jobName}" triggered successfully`, 'success')
       fetchData()
       fetchSummaryAndConfig()
     } catch (err) {
       addToast?.('Cron trigger failed: ' + err.message, 'error')
+    }
+  }
+
+  // --- Reset Benchmark Seed Handler ---
+  const handleConfirmResetSeed = async (reason) => {
+    try {
+      await resetSettlementsSeedData(
+        reason,
+        currentAdmin?.id || 'usr_admin_root',
+        currentAdmin?.name || 'Super Admin'
+      )
+      addToast?.('SOP-25 benchmark dataset successfully restored', 'success')
+      setResetModalOpen(false)
+      fetchData()
+      fetchSummaryAndConfig()
+    } catch (err) {
+      addToast?.('Failed to reset seed data: ' + err.message, 'error')
     }
   }
 
@@ -348,6 +493,16 @@ export default function SettlementsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Financial Auditor Compliance Banner */}
+      {isFinancialAuditor && (
+        <div className="p-3.5 bg-amber-50 border border-amber-200/80 rounded-2xl flex items-center gap-3 text-xs text-amber-900 shadow-xs">
+          <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0" />
+          <div>
+            <span className="font-bold">Statutory Compliance Mode Active:</span> You are accessing the Financial Settlements & Automated Jobs module under <strong>Financial Auditor</strong> policy controls. Payout disbursements, holds, releases, and job triggers are strictly read-only.
+          </div>
+        </div>
+      )}
+
       {/* Top Metric Bar */}
       <SettlementsMetricBar summary={summary} loading={loading && !summary} />
 
@@ -370,19 +525,32 @@ export default function SettlementsPage() {
           onStatusChange={setStatusFilter}
           personaFilter={personaFilter}
           onPersonaChange={setPersonaFilter}
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
           activeTab={activeTab}
           onRefresh={() => {
             fetchData()
             fetchSummaryAndConfig()
           }}
           onExportCsv={handleExportCsv}
+          onResetSeed={() => setResetModalOpen(true)}
+          canMutate={canMutate}
           onTriggerBatchRun={
-            activeTab === 'settlements'
+            activeTab === 'settlements' && canMutate
               ? () => setBatchRunModal({ open: true })
               : null
           }
         />
       )}
+
+      {/* Batch Action Bar */}
+      <BatchActionBar
+        selectedCount={selectedIds.length}
+        activeTab={activeTab}
+        onBatchAction={handleBatchAction}
+        onClearSelection={handleClearSelection}
+        canMutate={canMutate}
+      />
 
       {/* Primary Views */}
       {activeTab === 'settlements' && (
@@ -392,6 +560,10 @@ export default function SettlementsPage() {
           onMarkPaid={handleOpenMarkPaid}
           onHold={handleHoldSettlement}
           onReleaseHold={handleReleaseSettlementHold}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onSelectAll={handleSelectAll}
+          canMutate={canMutate}
         />
       )}
 
@@ -399,6 +571,9 @@ export default function SettlementsPage() {
         <TransporterPayoutsTable
           data={tableData.data}
           onSelectRow={handleSelectRow}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onSelectAll={handleSelectAll}
         />
       )}
 
@@ -406,20 +581,23 @@ export default function SettlementsPage() {
         <SellerPayoutsTable
           data={tableData.data}
           onSelectRow={handleSelectRow}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onSelectAll={handleSelectAll}
         />
       )}
 
       {activeTab === 'config' && (
         <PlatformCommissionsView
           config={commissionConfig}
-          onEditConfig={() => setCommissionModal({ open: true })}
+          onEditConfig={canMutate ? () => setCommissionModal({ open: true }) : null}
         />
       )}
 
       {activeTab === 'cron' && (
         <CronJobLogsTable
           data={tableData.data}
-          onTriggerCron={handleTriggerCron}
+          onTriggerCron={canMutate ? handleTriggerCron : null}
         />
       )}
 
@@ -447,6 +625,8 @@ export default function SettlementsPage() {
         onHold={handleHoldSettlement}
         onReleaseHold={handleReleaseSettlementHold}
         onTriggerCron={handleTriggerCron}
+        canMutate={canMutate}
+        role={role}
       />
 
       {/* Modals */}
@@ -468,6 +648,22 @@ export default function SettlementsPage() {
         currentConfig={commissionConfig || {}}
         onClose={() => setCommissionModal({ open: false })}
         onSave={handleSaveCommissionConfig}
+      />
+
+      <BatchActionModal
+        isOpen={batchModal.open}
+        title={batchModal.title}
+        label={batchModal.label}
+        count={batchModal.count}
+        action={batchModal.action}
+        onClose={() => setBatchModal({ open: false, action: '', title: '', count: 0, label: '' })}
+        onConfirm={handleConfirmBatchAction}
+      />
+
+      <ResetSeedModal
+        isOpen={resetModalOpen}
+        onClose={() => setResetModalOpen(false)}
+        onConfirm={handleConfirmResetSeed}
       />
 
       <AuditReasonModal

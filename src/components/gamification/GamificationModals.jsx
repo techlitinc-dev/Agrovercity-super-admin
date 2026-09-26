@@ -8,7 +8,10 @@ import {
   Star,
   CheckCircle2,
   Trash2,
-  Ban
+  Ban,
+  RotateCcw,
+  Layers,
+  Sliders
 } from 'lucide-react'
 import { fmtINR } from '../../pages/gamificationWidgets'
 
@@ -467,3 +470,270 @@ export function CreateEditCouponModal({
     </div>
   )
 }
+
+// 5. CONFIGURE ACTIVITY EARN RATES MODAL (SOP-22 Section 3)
+export function ConfigureEarnRatesModal({
+  isOpen,
+  initialRates,
+  onClose,
+  onSave
+}) {
+  const [rates, setRates] = useState(initialRates || {})
+  const [reason, setReason] = useState('Quarterly adjustment of app activity AgriCoins earn incentives.')
+  const [error, setError] = useState('')
+
+  if (!isOpen) return null
+
+  const handleUpdate = (id, field, val) => {
+    setRates((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        [field]: Number(val)
+      }
+    }))
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!reason.trim()) {
+      setError('Administrative justification is required for updating economy earn rates.')
+      return
+    }
+    onSave(rates, reason)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-emerald-100/80 pb-3">
+          <div className="flex items-center gap-2">
+            <Sliders className="w-5 h-5 text-emerald-700" />
+            <div>
+              <h3 className="text-base font-bold text-slate-900">Configure AgriCoins Activity Earn Rates</h3>
+              <p className="text-[11px] text-slate-500 font-mono">SOP-22 App Virality & Engagement Incentive Engine</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+          {error && <div className="p-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 font-medium">{error}</div>}
+
+          <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+            {Object.entries(rates).map(([key, item]) => (
+              <div key={key} className="p-3 bg-emerald-50/30 border border-emerald-100/80 rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-900">{item.label}</span>
+                  <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                    {item.category || 'App Activity'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] text-slate-600 font-semibold mb-1">Coins Awarded / Event</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="1000"
+                      value={item.coins}
+                      onChange={(e) => handleUpdate(key, 'coins', e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 font-mono font-bold text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-600 font-semibold mb-1">Daily Cap (Max Coins)</label>
+                    <input
+                      type="number"
+                      min="10"
+                      max="5000"
+                      value={item.maxDaily}
+                      onChange={(e) => handleUpdate(key, 'maxDaily', e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 font-mono font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <label className="block text-slate-700 font-bold mb-1">Administrative Justification *</label>
+            <textarea
+              rows={2}
+              value={reason}
+              onChange={(e) => {
+                setReason(e.target.value)
+                if (error) setError('')
+              }}
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-semibold">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs active:scale-95 transition-all"
+            >
+              Save Earn Rates
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// 6. BATCH ACTION MODAL
+export function BatchActionModal({
+  isOpen,
+  title,
+  count,
+  actionLabel,
+  onClose,
+  onConfirm
+}) {
+  const [reason, setReason] = useState('')
+  const [error, setError] = useState('')
+
+  if (!isOpen) return null
+
+  const handleConfirm = () => {
+    if (!reason.trim()) {
+      setError('Administrative justification is required for batch state modifications.')
+      return
+    }
+    onConfirm(reason)
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-3 text-emerald-700">
+          <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200">
+            <Layers className="w-5 h-5 text-emerald-700" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-900">{title}</h3>
+            <span className="text-[11px] font-mono text-emerald-700 font-bold">Affecting {count} selected records</span>
+          </div>
+        </div>
+
+        <p className="text-xs text-slate-600 leading-relaxed">
+          You are executing a bulk operation across <strong className="text-slate-900">{count}</strong> records. This batch action will be permanently recorded in the immutable audit trail.
+        </p>
+
+        <div>
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            Audit Reason <span className="text-rose-500">*</span>
+          </label>
+          <textarea
+            value={reason}
+            onChange={(e) => {
+              setReason(e.target.value)
+              if (error) setError('')
+            }}
+            placeholder="Enter reason for batch state change..."
+            rows={3}
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+          />
+          {error && <p className="text-[11px] text-rose-600 mt-1 font-medium">{error}</p>}
+        </div>
+
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleConfirm}
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs transition-colors active:scale-95"
+          >
+            {actionLabel || 'Apply Batch Action'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// 7. RESET BENCHMARK SEED DATA MODAL
+export function ResetSeedModal({
+  isOpen,
+  onClose,
+  onConfirm
+}) {
+  const [reason, setReason] = useState('Restoring SOP-22 Gamification & Economy benchmark dataset for verification.')
+  const [error, setError] = useState('')
+
+  if (!isOpen) return null
+
+  const handleConfirm = () => {
+    if (!reason.trim()) {
+      setError('Administrative justification is required to reset benchmark data.')
+      return
+    }
+    onConfirm(reason)
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-rose-200 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-3 text-rose-600">
+          <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200">
+            <RotateCcw className="w-5 h-5 text-rose-600" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-900">Reset Gamification Benchmark Data</h3>
+            <span className="text-[11px] font-mono text-rose-600 font-bold">SOP-22 Target Collections Reset</span>
+          </div>
+        </div>
+
+        <p className="text-xs text-slate-600 leading-relaxed">
+          This will restore all 5 Gamification collections (<code className="bg-slate-100 px-1 py-0.5 rounded font-mono">gamification_status</code>, <code className="bg-slate-100 px-1 py-0.5 rounded font-mono">agri_coins_ledger</code>, <code className="bg-slate-100 px-1 py-0.5 rounded font-mono">reward_coupons</code>, <code className="bg-slate-100 px-1 py-0.5 rounded font-mono">referrals</code>, <code className="bg-slate-100 px-1 py-0.5 rounded font-mono">ratings</code>) and earn rates to the official SOP-22 benchmark dataset.
+        </p>
+
+        <div>
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            Administrative Justification <span className="text-rose-500">*</span>
+          </label>
+          <textarea
+            value={reason}
+            onChange={(e) => {
+              setReason(e.target.value)
+              if (error) setError('')
+            }}
+            rows={3}
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+          />
+          {error && <p className="text-[11px] text-rose-600 mt-1 font-medium">{error}</p>}
+        </div>
+
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleConfirm}
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-xs transition-colors active:scale-95"
+          >
+            Confirm Reset
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+

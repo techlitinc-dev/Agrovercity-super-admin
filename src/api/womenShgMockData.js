@@ -757,6 +757,113 @@ export const mockWomenAuditLogs = [
   }
 ]
 
+export const mockWomenDistrictAdoption = [
+  {
+    id: 'dist_01',
+    district: 'Ahmednagar',
+    state: 'Maharashtra',
+    activeWomenModeUsers: 2840,
+    shgLinkageRatePct: 92.4,
+    voiceInterfacePct: 91.2,
+    audioPassbookSessions: 6120,
+    nrlmClusterOfficer: 'Smt. Anjali Gaikwad',
+    officerPhone: '+91 94XXX XX112',
+    status: 'optimal',
+    lastSyncAt: '2026-09-26T06:15:00Z'
+  },
+  {
+    id: 'dist_02',
+    district: 'Nashik',
+    state: 'Maharashtra',
+    activeWomenModeUsers: 3120,
+    shgLinkageRatePct: 94.0,
+    voiceInterfacePct: 89.5,
+    audioPassbookSessions: 7200,
+    nrlmClusterOfficer: 'Smt. Vandana Sonawane',
+    officerPhone: '+91 98XXX XX443',
+    status: 'optimal',
+    lastSyncAt: '2026-09-26T06:20:00Z'
+  },
+  {
+    id: 'dist_03',
+    district: 'Pune',
+    state: 'Maharashtra',
+    activeWomenModeUsers: 2450,
+    shgLinkageRatePct: 88.6,
+    voiceInterfacePct: 85.0,
+    audioPassbookSessions: 4890,
+    nrlmClusterOfficer: 'Dr. Pratibha More',
+    officerPhone: '+91 99XXX XX881',
+    status: 'optimal',
+    lastSyncAt: '2026-09-26T06:10:00Z'
+  },
+  {
+    id: 'dist_04',
+    district: 'Satara',
+    state: 'Maharashtra',
+    activeWomenModeUsers: 1980,
+    shgLinkageRatePct: 96.1,
+    voiceInterfacePct: 93.4,
+    audioPassbookSessions: 3980,
+    nrlmClusterOfficer: 'Smt. Rekha Bhosale',
+    officerPhone: '+91 91XXX XX229',
+    status: 'optimal',
+    lastSyncAt: '2026-09-26T05:55:00Z'
+  },
+  {
+    id: 'dist_05',
+    district: 'Kolhapur',
+    state: 'Maharashtra',
+    activeWomenModeUsers: 2650,
+    shgLinkageRatePct: 95.8,
+    voiceInterfacePct: 87.2,
+    audioPassbookSessions: 5410,
+    nrlmClusterOfficer: 'Smt. Shailaja Patil',
+    officerPhone: '+91 97XXX XX654',
+    status: 'optimal',
+    lastSyncAt: '2026-09-26T06:05:00Z'
+  },
+  {
+    id: 'dist_06',
+    district: 'Solapur',
+    state: 'Maharashtra',
+    activeWomenModeUsers: 1890,
+    shgLinkageRatePct: 86.4,
+    voiceInterfacePct: 88.0,
+    audioPassbookSessions: 3150,
+    nrlmClusterOfficer: 'Smt. Rohini Mane',
+    officerPhone: '+91 96XXX XX772',
+    status: 'expanding',
+    lastSyncAt: '2026-09-26T05:40:00Z'
+  },
+  {
+    id: 'dist_07',
+    district: 'Chhatrapati Sambhajinagar',
+    state: 'Maharashtra',
+    activeWomenModeUsers: 1740,
+    shgLinkageRatePct: 90.2,
+    voiceInterfacePct: 86.5,
+    audioPassbookSessions: 2840,
+    nrlmClusterOfficer: 'Smt. Kaveri Jagtap',
+    officerPhone: '+91 93XXX XX318',
+    status: 'expanding',
+    lastSyncAt: '2026-09-26T05:30:00Z'
+  },
+  {
+    id: 'dist_08',
+    district: 'Nagpur',
+    state: 'Maharashtra',
+    activeWomenModeUsers: 1750,
+    shgLinkageRatePct: 85.0,
+    voiceInterfacePct: 84.1,
+    audioPassbookSessions: 2530,
+    nrlmClusterOfficer: 'Smt. Swati Tembhurne',
+    officerPhone: '+91 95XXX XX990',
+    status: 'expanding',
+    lastSyncAt: '2026-09-26T05:15:00Z'
+  }
+]
+
 export const mockWomenSummary = {
   totalActiveShgs: 8,
   totalMahilaKisanMembers: 115,
@@ -765,5 +872,12 @@ export const mockWomenSummary = {
   activeStorefrontProducts: 6,
   totalEnterpriseRevenueInr: 912850,
   pendingVerificationShgs: 2,
-  flaggedAuditAlerts: 1
+  flaggedAuditAlerts: 1,
+  womenModeStats: {
+    activeUsersCount: 18420,
+    districtsCovered: 8,
+    voiceInterfacePct: 88.4,
+    audioPassbookInquiries: 36090,
+    emergencySosActive: 0
+  }
 }

@@ -8,7 +8,9 @@ import {
   Sliders,
   CheckCircle2,
   DollarSign,
-  FileText
+  FileText,
+  RotateCcw,
+  Layers
 } from 'lucide-react'
 import { fmtINR } from '../../pages/settlementsWidgets'
 
@@ -195,9 +197,23 @@ export function MarkPaidModal({
   onClose,
   onConfirm
 }) {
-  const [utr, setUtr] = useState(`NEFT2609${Math.floor(100000 + Math.random() * 900000)}`)
-  const [reason, setReason] = useState('Direct bank transfer executed via RazorpayX / Corporate Internet Banking')
+  const [paymentChannel, setPaymentChannel] = useState('razorpayx')
+  const [utr, setUtr] = useState(`RZPX2609${Math.floor(100000 + Math.random() * 900000)}`)
+  const [reason, setReason] = useState('Disbursed via RazorpayX instant bulk payout gateway')
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (paymentChannel === 'razorpayx') {
+      setUtr(`RZPX2609${Math.floor(100000 + Math.random() * 900000)}`)
+      setReason('Disbursed via RazorpayX instant payout gateway')
+    } else if (paymentChannel === 'neft') {
+      setUtr(`NEFT2609${Math.floor(100000 + Math.random() * 900000)}`)
+      setReason('Disbursed via Corporate Bank NEFT / RTGS Host-to-Host transfer')
+    } else {
+      setUtr(`CORP2609${Math.floor(100000 + Math.random() * 900000)}`)
+      setReason('Direct corporate treasury internet banking transfer')
+    }
+  }, [paymentChannel])
 
   if (!isOpen || !settlement) return null
 
@@ -206,7 +222,7 @@ export function MarkPaidModal({
       setError('Bank reference / UTR number is mandatory.')
       return
     }
-    onConfirm({ paymentReferenceUtr: utr, reason })
+    onConfirm({ paymentReferenceUtr: utr, reason, paymentChannel })
   }
 
   return (
@@ -238,12 +254,25 @@ export function MarkPaidModal({
 
         <div className="space-y-3 text-xs">
           <div>
+            <label className="block font-bold text-slate-700 mb-1">Disbursement Channel / Gateway</label>
+            <select
+              value={paymentChannel}
+              onChange={(e) => setPaymentChannel(e.target.value)}
+              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            >
+              <option value="razorpayx">RazorpayX Instant IMPS / Corporate API</option>
+              <option value="neft">Direct Bank NEFT / RTGS (Host-to-Host)</option>
+              <option value="corporate_netbanking">Corporate Treasury Internet Banking</option>
+            </select>
+          </div>
+
+          <div>
             <label className="block font-bold text-slate-700 mb-1">Bank Reference / UTR Number *</label>
             <input
               type="text"
               value={utr}
               onChange={(e) => setUtr(e.target.value)}
-              placeholder="e.g. SBIN260920881923"
+              placeholder="e.g. RZPX260920881923"
               className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
@@ -280,69 +309,185 @@ export function MarkPaidModal({
   )
 }
 
-// 4. TRIGGER MANUAL BATCH RUN MODAL
+// 4. TRIGGER MANUAL BATCH RUN MODAL (WITH CUSTOM START/END PERIODS)
 export function TriggerBatchRunModal({
   isOpen,
   onClose,
   onConfirm
 }) {
-  const [entityType, setEntityType] = useState('transporter')
-  const [dateRange, setDateRange] = useState('2026-09-19 to 2026-09-20')
-  const [reason, setReason] = useState('Nightly T+1 settlement batch re-run')
+  const [periodPreset, setPeriodPreset] = useState('weekly')
+  const [startDate, setStartDate] = useState('2026-09-14')
+  const [endDate, setEndDate] = useState('2026-09-20')
+  const [entityType, setEntityType] = useState('all')
+  const [recomputationMode, setRecomputationMode] = useState('recompute')
+  const [reason, setReason] = useState('Superadmin triggered on-demand weekly settlement aggregation re-run')
   const [error, setError] = useState('')
+
+  const handlePresetChange = (preset) => {
+    setPeriodPreset(preset)
+    const today = new Date().toISOString().split('T')[0]
+    if (preset === 'weekly') {
+      const d = new Date()
+      d.setDate(d.getDate() - 7)
+      setStartDate(d.toISOString().split('T')[0])
+      setEndDate(today)
+    } else if (preset === 't1') {
+      const d = new Date()
+      d.setDate(d.getDate() - 1)
+      setStartDate(d.toISOString().split('T')[0])
+      setEndDate(today)
+    } else if (preset === 'biweekly') {
+      const d = new Date()
+      d.setDate(d.getDate() - 14)
+      setStartDate(d.toISOString().split('T')[0])
+      setEndDate(today)
+    }
+  }
 
   if (!isOpen) return null
 
   const handleConfirm = () => {
     if (!reason.trim()) {
-      setError('Audit reason for manual job invocation is mandatory.')
+      setError('Audit justification for manual batch re-run invocation is mandatory.')
       return
     }
-    onConfirm({ entityType, dateRange, reason })
+    if (!startDate || !endDate) {
+      setError('Custom start date and end date must both be specified.')
+      return
+    }
+    if (new Date(startDate) > new Date(endDate)) {
+      setError('Start date cannot be after end date.')
+      return
+    }
+    const periodDescription = `${startDate} to ${endDate}`
+    onConfirm({
+      entityType,
+      startDate,
+      endDate,
+      periodDescription,
+      recomputationMode,
+      reason
+    })
   }
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
         <div className="flex items-center gap-2 text-slate-900 font-bold">
           <Play className="w-5 h-5 text-emerald-600" />
-          <span>Trigger Manual Settlement Calculation Run</span>
+          <span>Manual Settlement Batch Re-computation</span>
         </div>
         <p className="text-xs text-slate-600 leading-relaxed">
-          Aggregates completed trips, equipment hires, and marketplace lots; calculates commissions and generates payable settlement batches.
+          Aggregates completed transport trips (10%), equipment rentals (12%), broker deals (2%), and produce lots; recalculates platform commissions, statutory GST, and TDS.
         </p>
 
         <div className="space-y-3 text-xs">
+          {/* Preset Selector */}
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Target Persona / Domain</label>
-            <select
-              value={entityType}
-              onChange={(e) => setEntityType(e.target.value)}
-              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-            >
-              <option value="transporter">Transporters (10% Commission, 194C TDS)</option>
-              <option value="seller">Produce Sellers (2.5% Commission, Mandi Cess)</option>
-              <option value="equipment_owner">Equipment Rental CHC (12% Commission)</option>
-              <option value="broker">Mandi Brokers (2% Commission, 194H TDS)</option>
-            </select>
+            <label className="block font-bold text-slate-700 mb-1">Period Selection Preset</label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => handlePresetChange('weekly')}
+                className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold border transition-all text-center ${
+                  periodPreset === 'weekly'
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                Weekly Aggregation
+              </button>
+              <button
+                type="button"
+                onClick={() => handlePresetChange('t1')}
+                className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold border transition-all text-center ${
+                  periodPreset === 't1'
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                T+1 Daily Cycle
+              </button>
+              <button
+                type="button"
+                onClick={() => setPeriodPreset('custom')}
+                className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold border transition-all text-center ${
+                  periodPreset === 'custom'
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                Custom Range
+              </button>
+            </div>
           </div>
 
-          <div>
-            <label className="block font-bold text-slate-700 mb-1">Settlement Period Range</label>
-            <input
-              type="text"
-              value={dateRange}
-              onChange={(e) => setDateRange(e.target.value)}
-              className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-            />
+          {/* Custom Date Pickers */}
+          <div className="grid grid-cols-2 gap-3 bg-emerald-50/20 p-3 rounded-xl border border-emerald-100/60">
+            <div>
+              <label className="block font-bold text-slate-700 mb-1">Custom Start Date *</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value)
+                  setPeriodPreset('custom')
+                }}
+                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              />
+            </div>
+            <div>
+              <label className="block font-bold text-slate-700 mb-1">Custom End Date *</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value)
+                  setPeriodPreset('custom')
+                }}
+                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block font-bold text-slate-700 mb-1">Target Persona / Domain</label>
+              <select
+                value={entityType}
+                onChange={(e) => setEntityType(e.target.value)}
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              >
+                <option value="all">All Domains (Unified Reconciliation)</option>
+                <option value="transporter">Transporters (10% Commission, 194C TDS)</option>
+                <option value="equipment_owner">Equipment Rental CHC (12% Commission)</option>
+                <option value="broker">Mandi Brokers (2% Commission, 194H TDS)</option>
+                <option value="seller">Produce Sellers (2.5% Commission)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block font-bold text-slate-700 mb-1">Recomputation Mode</label>
+              <select
+                value={recomputationMode}
+                onChange={(e) => setRecomputationMode(e.target.value)}
+                className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              >
+                <option value="recompute">Re-calculate Pending Balances</option>
+                <option value="aggregate_new">Aggregate & Form New Batch</option>
+              </select>
+            </div>
           </div>
 
           <div>
             <label className="block font-bold text-slate-700 mb-1">Audit Justification *</label>
             <textarea
               value={reason}
-              onChange={(e) => setReason(e.target.value)}
+              onChange={(e) => {
+                setReason(e.target.value)
+                if (error) setError('')
+              }}
               rows={2}
+              placeholder="Rationale for manual batch re-run and bank cycle alignment..."
               className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
@@ -539,6 +684,211 @@ export function UpdateCommissionsModal({
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  )
+}
+
+// 6. BATCH ACTION MODAL
+export function BatchActionModal({
+  isOpen,
+  title,
+  label = 'Confirm Batch Action',
+  count = 0,
+  action = '',
+  onClose,
+  onConfirm
+}) {
+  const [reason, setReason] = useState('')
+  const [coAdmin, setCoAdmin] = useState('')
+  const [paymentChannel, setPaymentChannel] = useState('razorpayx')
+  const [paymentRefPrefix, setPaymentRefPrefix] = useState('RZPX2609-')
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (paymentChannel === 'razorpayx') {
+      setPaymentRefPrefix('RZPX2609-')
+    } else if (paymentChannel === 'neft') {
+      setPaymentRefPrefix('NEFT2609-')
+    } else {
+      setPaymentRefPrefix('AGRO-UTR-')
+    }
+  }, [paymentChannel])
+
+  if (!isOpen) return null
+
+  const handleConfirm = () => {
+    if (!reason.trim()) {
+      setError('Audit justification is required for bulk financial settlements actions.')
+      return
+    }
+    onConfirm({ reason, coAdmin, paymentRefPrefix, paymentChannel })
+    setReason('')
+    setCoAdmin('')
+    setError('')
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <Layers className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-900">{title}</h3>
+            <p className="text-xs text-slate-500 font-mono mt-0.5">
+              Targeting {count} selected settlement items
+            </p>
+          </div>
+        </div>
+
+        {action === 'batch_mark_paid' && (
+          <div className="space-y-3 p-3.5 bg-emerald-50/50 border border-emerald-100 rounded-xl text-xs">
+            <div>
+              <label className="block font-bold text-slate-700 mb-1">
+                Disbursement Gateway / Transfer Method
+              </label>
+              <select
+                value={paymentChannel}
+                onChange={(e) => setPaymentChannel(e.target.value)}
+                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              >
+                <option value="razorpayx">RazorpayX Bulk Payouts (Corporate API / Instant IMPS)</option>
+                <option value="neft">Direct Bank NEFT / RTGS (Host-to-Host Batch)</option>
+                <option value="treasury">Corporate Treasury Manual Clearance</option>
+              </select>
+            </div>
+            <div>
+              <label className="block font-bold text-slate-700 mb-1">
+                Bank Payout Reference Prefix
+              </label>
+              <input
+                type="text"
+                value={paymentRefPrefix}
+                onChange={(e) => setPaymentRefPrefix(e.target.value)}
+                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              />
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block font-bold text-slate-700">
+                  Co-Authorizer Email
+                </label>
+                <span className="text-[10px] text-purple-700 font-bold font-mono">Mandatory if &gt; ₹50,000</span>
+              </div>
+              <input
+                type="email"
+                placeholder="auditor.finance@agrovercity.in"
+                value={coAdmin}
+                onChange={(e) => setCoAdmin(e.target.value)}
+                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              />
+            </div>
+          </div>
+        )}
+
+        <div>
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            Administrative Audit Justification <span className="text-rose-500">*</span>
+          </label>
+          <textarea
+            value={reason}
+            onChange={(e) => {
+              setReason(e.target.value)
+              if (error) setError('')
+            }}
+            placeholder="Document rationale, banking approval reference, or dispute disposition..."
+            rows={3}
+            className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+          />
+          {error && <p className="text-[11px] text-rose-600 font-semibold mt-1">{error}</p>}
+        </div>
+
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleConfirm}
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs"
+          >
+            {label}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// 7. RESET BENCHMARK SEED MODAL
+export function ResetSeedModal({ isOpen, onClose, onConfirm }) {
+  const [reason, setReason] = useState('')
+  const [error, setError] = useState('')
+
+  if (!isOpen) return null
+
+  const handleConfirm = () => {
+    if (!reason.trim()) {
+      setError('Audit justification is required prior to resetting module benchmark state.')
+      return
+    }
+    onConfirm(reason)
+    setReason('')
+    setError('')
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-emerald-100/90 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-rose-50 text-rose-600 border border-rose-200">
+            <RotateCcw className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-900">Reset Benchmark Seed Data</h3>
+            <p className="text-xs text-slate-500">Module 25: Financial Settlements & Scheduled Jobs</p>
+          </div>
+        </div>
+
+        <p className="text-xs text-slate-600 leading-relaxed">
+          This operation will restore all settlements, transporter payouts, seller payouts, commission matrices, and cron execution logs to their pristine SOP-25 benchmark state.
+        </p>
+
+        <div>
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            Audit Reason for Reset <span className="text-rose-500">*</span>
+          </label>
+          <textarea
+            value={reason}
+            onChange={(e) => {
+              setReason(e.target.value)
+              if (error) setError('')
+            }}
+            placeholder="e.g. End-of-cycle benchmark test reset or automated testing baseline restoration..."
+            rows={3}
+            className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+          />
+          {error && <p className="text-[11px] text-rose-600 font-semibold mt-1">{error}</p>}
+        </div>
+
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleConfirm}
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition-all shadow-xs"
+          >
+            Reset Seed Data
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   X,
   Copy,
@@ -13,9 +13,12 @@ import {
   Lock,
   AlertTriangle,
   CheckCircle2,
-  DollarSign
+  DollarSign,
+  History,
+  ShieldAlert
 } from 'lucide-react'
 import { StatusBadge, PersonaBadge, fmtINR, formatDate } from '../../pages/settlementsWidgets'
+import { getEntityAuditLogs } from '../../api/settlementsApi'
 
 export default function SettlementsDetailDrawer({
   entity,
@@ -25,10 +28,23 @@ export default function SettlementsDetailDrawer({
   onMarkPaid,
   onHold,
   onReleaseHold,
-  onTriggerCron
+  onTriggerCron,
+  canMutate = true,
+  role = 'SUPER_ADMIN'
 }) {
   const [activeTab, setActiveTab] = useState('overview')
   const [copied, setCopied] = useState(false)
+  const [entityLogs, setEntityLogs] = useState([])
+
+  useEffect(() => {
+    if (entity?.id) {
+      getEntityAuditLogs(entity.id)
+        .then((logs) => setEntityLogs(logs || []))
+        .catch(() => setEntityLogs([]))
+    } else {
+      setEntityLogs([])
+    }
+  }, [entity?.id])
 
   if (!isOpen || !entity) return null
 
@@ -115,6 +131,17 @@ export default function SettlementsDetailDrawer({
             }`}
           >
             Raw Document JSON
+          </button>
+          <button
+            onClick={() => setActiveTab('audit')}
+            className={`py-2.5 font-bold border-b-2 transition-colors flex items-center gap-1.5 ${
+              activeTab === 'audit'
+                ? 'border-emerald-600 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <History className="w-3.5 h-3.5" />
+            <span>Audit History ({entityLogs.length})</span>
           </button>
         </div>
 
@@ -358,53 +385,114 @@ export default function SettlementsDetailDrawer({
               </pre>
             </div>
           )}
+
+          {activeTab === 'audit' && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between pb-1 border-b border-emerald-100/80">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Immutable Audit Trail for Entity {entity.id}
+                </span>
+                <span className="text-[11px] font-mono text-slate-500">
+                  {entityLogs.length} events logged
+                </span>
+              </div>
+              {entityLogs.length === 0 ? (
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center text-slate-500 text-xs">
+                  No audit events recorded for this entity yet.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {entityLogs.map((log) => (
+                    <div key={log.id} className="p-3 bg-white border border-emerald-100/90 rounded-xl space-y-1.5 shadow-2xs">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                          {log.actionType}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          {formatDate(log.timestamp)}
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-800 font-medium">
+                        {log.reason || 'No description provided.'}
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-100">
+                        <span>Admin: <strong className="text-slate-700">{log.adminName}</strong> ({log.adminUid})</span>
+                        {log.newState && (
+                          <span className="font-mono text-emerald-700">State: {log.previousState || 'init'} → {log.newState}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-emerald-100/80 bg-slate-50/80 flex items-center justify-between">
-          <div className="text-[11px] text-slate-500">
-            SOP-25 Compliant · Automated Reconciliation Gate
-          </div>
-          <div className="flex items-center gap-2">
-            {type === 'settlements' && entity.status === 'approved' && onMarkPaid && (
+        <div className="p-4 border-t border-emerald-100/80 bg-slate-50/80 flex items-center justify-between gap-2">
+          {!canMutate || role === 'FINANCIAL_AUDITOR' ? (
+            <div className="flex items-center justify-between w-full gap-2">
+              <div className="flex items-center gap-2 text-xs text-amber-800 bg-amber-50 border border-amber-200/80 rounded-xl px-3 py-2 flex-1">
+                <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
+                <span className="text-[11px]">
+                  <strong>Auditor Mode:</strong> Read-only access enabled under statutory financial audit controls. Payout disbursements, holds, releases, and job executions are locked.
+                </span>
+              </div>
               <button
-                onClick={() => onMarkPaid(entity)}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-xs"
+                onClick={onClose}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs shrink-0"
               >
-                Mark Paid
+                Close
               </button>
-            )}
-            {type === 'settlements' && entity.status !== 'on_hold' && entity.status !== 'paid' && onHold && (
-              <button
-                onClick={() => onHold(entity)}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white transition-colors shadow-xs"
-              >
-                Put on Legal Hold
-              </button>
-            )}
-            {type === 'settlements' && entity.status === 'on_hold' && onReleaseHold && (
-              <button
-                onClick={() => onReleaseHold(entity)}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-xs"
-              >
-                Release Hold
-              </button>
-            )}
-            {type === 'cron' && onTriggerCron && (
-              <button
-                onClick={() => onTriggerCron(entity)}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-xs"
-              >
-                Run Now
-              </button>
-            )}
-            <button
-              onClick={onClose}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200"
-            >
-              Close
-            </button>
-          </div>
+            </div>
+          ) : (
+            <>
+              <div className="text-[11px] text-slate-500">
+                SOP-25 Compliant · Automated Reconciliation Gate
+              </div>
+              <div className="flex items-center gap-2">
+                {type === 'settlements' && entity.status === 'approved' && onMarkPaid && (
+                  <button
+                    onClick={() => onMarkPaid(entity)}
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-xs"
+                  >
+                    Mark Paid
+                  </button>
+                )}
+                {type === 'settlements' && entity.status !== 'on_hold' && entity.status !== 'paid' && onHold && (
+                  <button
+                    onClick={() => onHold(entity)}
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white transition-colors shadow-xs"
+                  >
+                    Put on Legal Hold
+                  </button>
+                )}
+                {type === 'settlements' && entity.status === 'on_hold' && onReleaseHold && (
+                  <button
+                    onClick={() => onReleaseHold(entity)}
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-xs"
+                  >
+                    Release Hold
+                  </button>
+                )}
+                {type === 'cron' && onTriggerCron && (
+                  <button
+                    onClick={() => onTriggerCron(entity)}
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-xs"
+                  >
+                    Run Now
+                  </button>
+                )}
+                <button
+                  onClick={onClose}
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200"
+                >
+                  Close
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

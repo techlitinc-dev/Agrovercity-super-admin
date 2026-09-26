@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   X,
   Copy,
@@ -16,20 +16,48 @@ import {
   MapPin,
   Clock,
   Radio,
-  ExternalLink
+  ExternalLink,
+  Sparkles,
+  UserCheck
 } from 'lucide-react'
-import { StatusBadge, UrgencyBadge, formatDate } from '../../pages/systemConfigWidgets'
+import { StatusBadge, UrgencyBadge, PriorityBadge, formatDate } from '../../pages/systemConfigWidgets'
+import { getEntityAuditLogs } from '../../api/systemConfigApi'
 
 export default function SystemConfigDetailDrawer({
   entity,
-  type = 'report', // 'broadcast', 'report', 'block', 'consent', 'audit'
+  type = 'report', // 'broadcast', 'report', 'block', 'consent', 'audit', 'expert_ticket'
   isOpen,
   onClose,
   onResolveReport,
-  onUnbanUser
+  onUnbanUser,
+  onResolveTicket,
+  onAssignTicket,
+  canMutate = true
 }) {
   const [activeTab, setActiveTab] = useState('overview')
   const [copied, setCopied] = useState(false)
+  const [entityAuditLogs, setEntityAuditLogs] = useState([])
+  const [loadingAudit, setLoadingAudit] = useState(false)
+
+  useEffect(() => {
+    if (isOpen && entity?.id) {
+      let isMounted = true
+      setLoadingAudit(true)
+      getEntityAuditLogs(entity.id || entity.ticketNumber || entity.userId)
+        .then((logs) => {
+          if (isMounted) setEntityAuditLogs(logs || [])
+        })
+        .catch(() => {
+          if (isMounted) setEntityAuditLogs([])
+        })
+        .finally(() => {
+          if (isMounted) setLoadingAudit(false)
+        })
+      return () => {
+        isMounted = false
+      }
+    }
+  }, [isOpen, entity])
 
   if (!isOpen || !entity) return null
 
@@ -49,6 +77,8 @@ export default function SystemConfigDetailDrawer({
         return Ban
       case 'consent':
         return ShieldCheck
+      case 'expert_ticket':
+        return Sparkles
       case 'audit':
         return FileText
       default:
@@ -63,7 +93,8 @@ export default function SystemConfigDetailDrawer({
     if (type === 'report') return `Complaint #${entity.id} - ${entity.category}`
     if (type === 'block') return `Blacklisted User: ${entity.userName}`
     if (type === 'consent') return `DPDP Consent - ${entity.userName}`
-    if (type === 'audit') return `Audit: ${entity.action}`
+    if (type === 'expert_ticket') return `Advisory Ticket #${entity.ticketNumber || entity.id} - ${entity.crop}`
+    if (type === 'audit') return `Audit: ${entity.action || entity.actionType}`
     return entity.id
   }
 
@@ -83,9 +114,10 @@ export default function SystemConfigDetailDrawer({
                 </h2>
                 {entity.status && <StatusBadge status={entity.status} />}
                 {entity.urgency && <UrgencyBadge urgency={entity.urgency} />}
+                {entity.priority && <PriorityBadge priority={entity.priority} />}
               </div>
               <p className="text-[11px] font-mono text-slate-500 mt-0.5">
-                Entity ID: {entity.id} · Timestamp: {formatDate(entity.sentAt || entity.createdAt || entity.bannedAt || entity.timestamp)}
+                Entity ID: {entity.id || entity.ticketNumber} · Timestamp: {formatDate(entity.sentAt || entity.createdAt || entity.bannedAt || entity.timestamp)}
               </p>
             </div>
           </div>
@@ -118,6 +150,21 @@ export default function SystemConfigDetailDrawer({
             }`}
           >
             DPDP & Security
+          </button>
+          <button
+            onClick={() => setActiveTab('audit_history')}
+            className={`py-2.5 font-bold border-b-2 transition-colors flex items-center gap-1.5 ${
+              activeTab === 'audit_history'
+                ? 'border-emerald-600 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <span>Audit History</span>
+            {entityAuditLogs.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-mono font-bold">
+                {entityAuditLogs.length}
+              </span>
+            )}
           </button>
           <button
             onClick={() => setActiveTab('json')}
@@ -280,6 +327,117 @@ export default function SystemConfigDetailDrawer({
                 </>
               )}
 
+              {/* Type: Expert Consultation Ticket */}
+              {type === 'expert_ticket' && (
+                <>
+                  <div className="bg-white border border-emerald-100/80 rounded-xl p-4 space-y-3 shadow-xs">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                        Farmer & Crop Profile
+                      </h3>
+                      <PriorityBadge priority={entity.priority} />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 bg-emerald-50/20 p-3 rounded-xl border border-emerald-100/80">
+                      <div>
+                        <div className="text-slate-500 text-[11px]">Farmer Name:</div>
+                        <div className="font-bold text-slate-900 text-sm">{entity.farmerName}</div>
+                      </div>
+                      <div>
+                        <div className="text-slate-500 text-[11px]">Crop / Variety:</div>
+                        <div className="font-bold text-emerald-700">{entity.crop}</div>
+                      </div>
+                      <div>
+                        <div className="text-slate-500 text-[11px]">Farmer UID:</div>
+                        <div className="font-mono text-slate-800 text-[11px] font-medium">{entity.farmerId}</div>
+                      </div>
+                      <div>
+                        <div className="text-slate-500 text-[11px]">Location & Phone:</div>
+                        <div className="font-mono text-slate-800 text-[11px] font-medium">
+                          {entity.district} · {entity.farmerPhone}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-emerald-100/80 rounded-xl p-4 space-y-2.5 shadow-xs">
+                    <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                      Pathological Symptoms & Field Observations
+                    </h3>
+                    <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                      <div className="font-bold text-slate-900 text-xs">{entity.title}</div>
+                      <p className="text-xs text-slate-700 leading-relaxed bg-white p-2.5 rounded-lg border border-slate-200">
+                        {entity.description}
+                      </p>
+                      {entity.imageUrl && (
+                        <div className="pt-2">
+                          <span className="text-[11px] text-slate-500 block mb-1.5 font-semibold">
+                            Field Inspection Imagery:
+                          </span>
+                          <div className="relative rounded-xl overflow-hidden border border-emerald-200 bg-slate-100 max-w-sm">
+                            <img
+                              src={entity.imageUrl}
+                              alt={entity.crop}
+                              className="w-full h-44 object-cover hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-slate-900/80 text-white text-[10px] font-mono">
+                              Geo-tagged Field Capture
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-emerald-100/80 rounded-xl p-4 space-y-2.5 shadow-xs">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                        Agronomist Assignment & SLA
+                      </h3>
+                      {entity.status !== 'resolved' && entity.slaRemainingHours > 0 && (
+                        <span className="text-[10px] font-mono text-amber-700 font-bold px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200">
+                          ⏱ {entity.slaRemainingHours}h remaining
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-[11px]">
+                      <div className="p-2.5 rounded-lg bg-emerald-50/20 border border-emerald-100/80">
+                        <span className="text-slate-500">Assigned Domain Expert:</span>
+                        <div className="font-bold text-slate-900 mt-0.5">
+                          {entity.assignedAgronomist || 'Unassigned'}
+                        </div>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-emerald-50/20 border border-emerald-100/80">
+                        <span className="text-slate-500">Advisory Category:</span>
+                        <div className="font-bold text-emerald-700 mt-0.5">{entity.issueCategory}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {entity.resolutionNotes && (
+                    <div className="bg-white border border-emerald-100/80 rounded-xl p-4 space-y-2 shadow-xs">
+                      <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                        Clinical Advisory & Prescribed Treatment
+                      </h3>
+                      <div className="p-3 bg-emerald-50/40 border border-emerald-200 rounded-xl space-y-2">
+                        <div>
+                          <span className="text-[11px] font-semibold text-slate-500">Diagnosis:</span>
+                          <p className="text-xs text-slate-900 leading-relaxed mt-0.5">{entity.resolutionNotes}</p>
+                        </div>
+                        {entity.prescribedTreatment && (
+                          <div className="pt-2 border-t border-emerald-200/60">
+                            <span className="text-[11px] font-semibold text-emerald-800">Prescription:</span>
+                            <div className="font-mono text-xs font-bold text-emerald-900 mt-0.5 bg-white p-2 rounded-lg border border-emerald-200">
+                              {entity.prescribedTreatment}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
               {/* Type: User Block */}
               {type === 'block' && (
                 <>
@@ -397,6 +555,59 @@ export default function SystemConfigDetailDrawer({
             </div>
           )}
 
+          {activeTab === 'audit_history' && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-emerald-100">
+                <span className="text-xs font-bold text-slate-900">Entity Audit Trail (Immutable WORM Logs)</span>
+                <span className="text-[11px] font-mono text-slate-500">
+                  {entityAuditLogs.length} event{entityAuditLogs.length === 1 ? '' : 's'}
+                </span>
+              </div>
+
+              {loadingAudit ? (
+                <div className="p-6 text-center text-xs text-slate-500 animate-pulse">
+                  Querying immutable audit logs...
+                </div>
+              ) : entityAuditLogs.length === 0 ? (
+                <div className="p-6 text-center text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl">
+                  No administrative state modifications logged for this entity.
+                </div>
+              ) : (
+                <div className="space-y-2.5">
+                  {entityAuditLogs.map((log) => (
+                    <div
+                      key={log.id}
+                      className="p-3 bg-white border border-emerald-100/80 rounded-xl shadow-xs text-xs space-y-1.5"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono font-bold text-emerald-700 px-2 py-0.5 bg-emerald-50 rounded border border-emerald-200 text-[10px]">
+                          {log.actionType}
+                        </span>
+                        <span className="font-mono text-slate-400 text-[11px]">
+                          {formatDate(log.timestamp)}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-600">
+                        Admin: <strong className="text-slate-900">{log.adminName}</strong> ({log.ipAddress})
+                      </div>
+                      <div className="p-2 bg-slate-50 rounded-lg font-mono text-[11px] text-slate-700 space-y-0.5">
+                        {log.previousState && (
+                          <div className="text-slate-500">Prev: {log.previousState}</div>
+                        )}
+                        <div className="text-emerald-700 font-semibold">New: {log.newState}</div>
+                      </div>
+                      {log.reason && (
+                        <div className="text-[11px] text-slate-700 italic">
+                          "{log.reason}"
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {activeTab === 'json' && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -426,7 +637,36 @@ export default function SystemConfigDetailDrawer({
           </button>
 
           <div className="flex items-center gap-2">
-            {type === 'report' && entity.status !== 'resolved_banned' && entity.status !== 'dismissed' && onResolveReport && (
+            {type === 'expert_ticket' && (
+              <>
+                {canMutate && entity.status !== 'resolved' && onResolveTicket && (
+                  <button
+                    onClick={() => {
+                      onClose()
+                      onResolveTicket(entity)
+                    }}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>Resolve & Prescribe</span>
+                  </button>
+                )}
+                {canMutate && onAssignTicket && (
+                  <button
+                    onClick={() => {
+                      onClose()
+                      onAssignTicket(entity)
+                    }}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition-colors shadow-xs"
+                  >
+                    <UserCheck className="w-4 h-4 text-emerald-600" />
+                    <span>Assign Agronomist</span>
+                  </button>
+                )}
+              </>
+            )}
+
+            {type === 'report' && entity.status !== 'resolved_banned' && entity.status !== 'dismissed' && onResolveReport && canMutate && (
               <button
                 onClick={() => {
                   onClose()
@@ -439,7 +679,7 @@ export default function SystemConfigDetailDrawer({
               </button>
             )}
 
-            {type === 'block' && onUnbanUser && (
+            {type === 'block' && onUnbanUser && canMutate && (
               <button
                 onClick={() => {
                   onClose()

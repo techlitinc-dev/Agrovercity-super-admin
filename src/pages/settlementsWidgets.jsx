@@ -23,7 +23,10 @@ import {
   FileText,
   FileCheck,
   Pause,
-  ExternalLink
+  ExternalLink,
+  RotateCcw,
+  FileSpreadsheet,
+  ShieldAlert
 } from 'lucide-react'
 
 export function fmtINR(val) {
@@ -234,10 +237,14 @@ export function SettlementsFiltersBar({
   onStatusChange,
   personaFilter,
   onPersonaChange,
+  dateRange = 'all',
+  onDateRangeChange,
   activeTab,
   onRefresh,
   onExportCsv,
-  onTriggerBatchRun
+  onTriggerBatchRun,
+  onResetSeed,
+  canMutate = true
 }) {
   return (
     <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-4 bg-white/90 backdrop-blur-xl p-3.5 rounded-2xl border border-emerald-100/90 shadow-xs">
@@ -268,6 +275,29 @@ export function SettlementsFiltersBar({
             <option value="on_hold">On Legal Hold</option>
           </select>
         )}
+        {activeTab === 'transporters' && (
+          <select
+            value={statusFilter}
+            onChange={(e) => onStatusChange(e.target.value)}
+            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+          >
+            <option value="all">All Trip Statuses</option>
+            <option value="settled">Settled</option>
+            <option value="pending_batch">Pending T+1 Batch</option>
+            <option value="dispute_hold">Dispute Hold</option>
+          </select>
+        )}
+        {activeTab === 'sellers' && (
+          <select
+            value={statusFilter}
+            onChange={(e) => onStatusChange(e.target.value)}
+            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+          >
+            <option value="all">All Escrow Statuses</option>
+            <option value="released">Escrow Released</option>
+            <option value="pending_release">Awaiting Maturity</option>
+          </select>
+        )}
 
         {/* Persona Dropdown */}
         {activeTab === 'settlements' && (
@@ -281,6 +311,21 @@ export function SettlementsFiltersBar({
             <option value="seller">Produce Seller</option>
             <option value="equipment_owner">Equipment Rental</option>
             <option value="broker">Mandi Broker</option>
+          </select>
+        )}
+
+        {/* Date Range Dropdown */}
+        {onDateRangeChange && (
+          <select
+            value={dateRange}
+            onChange={(e) => onDateRangeChange(e.target.value)}
+            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+          >
+            <option value="all">Date: All Time</option>
+            <option value="today">Today</option>
+            <option value="last_7_days">Last 7 Days</option>
+            <option value="last_30_days">Last 30 Days</option>
+            <option value="this_quarter">This Quarter</option>
           </select>
         )}
       </div>
@@ -301,7 +346,17 @@ export function SettlementsFiltersBar({
           <Download className="w-3.5 h-3.5 text-slate-500" />
           <span className="hidden sm:inline">Export CSV</span>
         </button>
-        {onTriggerBatchRun && (
+        {onResetSeed && (
+          <button
+            onClick={onResetSeed}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
+            title="Reset to benchmark seed data"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+            <span className="hidden sm:inline">Reset Seed</span>
+          </button>
+        )}
+        {onTriggerBatchRun && canMutate && (
           <button
             onClick={onTriggerBatchRun}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xs"
@@ -311,12 +366,133 @@ export function SettlementsFiltersBar({
           </button>
         )}
       </div>
+
+      {/* Quick Filter Chips for Master Settlements Ledger */}
+      {activeTab === 'settlements' && (
+        <div className="w-full flex items-center gap-1.5 pt-2.5 border-t border-slate-100 flex-wrap text-[11px]">
+          <span className="text-slate-400 font-semibold mr-1">Quick Filter:</span>
+          {[
+            { id: 'all', label: 'All Personas' },
+            { id: 'transporter', label: 'Transporters (10%)' },
+            { id: 'equipment_owner', label: 'Equipment CHC (12%)' },
+            { id: 'broker', label: 'Mandi Brokers (2%)' },
+            { id: 'seller', label: 'Produce Sellers (2.5%)' }
+          ].map((chip) => (
+            <button
+              key={chip.id}
+              type="button"
+              onClick={() => onPersonaChange && onPersonaChange(chip.id)}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
+                personaFilter === chip.id
+                  ? 'bg-emerald-600 text-white font-bold shadow-xs'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              {chip.label}
+            </button>
+          ))}
+          <span className="text-slate-300 mx-1">|</span>
+          <button
+            type="button"
+            onClick={() => onStatusChange && onStatusChange(statusFilter === 'on_hold' ? 'all' : 'on_hold')}
+            className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
+              statusFilter === 'on_hold'
+                ? 'bg-rose-600 text-white font-bold shadow-xs'
+                : 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200/60'
+            }`}
+          >
+            Dispute Holds
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// -------------------------------------------------------------
+// BATCH ACTION BAR
+// -------------------------------------------------------------
+export function BatchActionBar({
+  selectedCount = 0,
+  activeTab = 'settlements',
+  onBatchAction,
+  onClearSelection,
+  canMutate = true
+}) {
+  if (selectedCount === 0) return null
+
+  return (
+    <div className="bg-emerald-950 text-white px-4 py-2.5 rounded-2xl mb-4 flex flex-wrap items-center justify-between gap-3 shadow-xl border border-emerald-800 animate-in slide-in-from-top duration-200">
+      <div className="flex items-center gap-3">
+        <span className="font-mono text-xs font-bold bg-emerald-800 text-emerald-100 px-2.5 py-0.5 rounded-lg border border-emerald-700">
+          {selectedCount} selected
+        </span>
+        <span className="text-xs text-emerald-200 hidden sm:inline">
+          Batch bulk actions for <span className="font-bold text-white uppercase">{activeTab}</span>:
+        </span>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 text-xs">
+        {canMutate && activeTab === 'settlements' && (
+          <>
+            <button
+              onClick={() => onBatchAction('batch_approve')}
+              className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 rounded-xl font-semibold shadow-xs transition"
+            >
+              Approve Selected
+            </button>
+            <button
+              onClick={() => onBatchAction('batch_mark_paid')}
+              className="px-3 py-1 bg-teal-600 hover:bg-teal-500 rounded-xl font-semibold shadow-xs transition"
+            >
+              Mark Paid (Bulk UTR)
+            </button>
+            <button
+              onClick={() => onBatchAction('batch_hold')}
+              className="px-3 py-1 bg-amber-600 hover:bg-amber-500 rounded-xl font-semibold shadow-xs transition text-white"
+            >
+              Legal Hold
+            </button>
+            <button
+              onClick={() => onBatchAction('batch_release_hold')}
+              className="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold shadow-xs transition text-white"
+            >
+              Release Hold
+            </button>
+          </>
+        )}
+
+        <button
+          onClick={() => onBatchAction('export_selected')}
+          className="flex items-center gap-1.5 px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-semibold border border-slate-700 transition"
+        >
+          <FileSpreadsheet className="w-3.5 h-3.5" />
+          <span>Export Selected</span>
+        </button>
+
+        <button
+          onClick={onClearSelection}
+          className="px-2.5 py-1 text-slate-400 hover:text-white text-xs font-medium transition"
+        >
+          Clear
+        </button>
+      </div>
     </div>
   )
 }
 
 // 1. Master Settlements Table
-export function SettlementsTable({ data, onSelectRow, onMarkPaid, onHold, onReleaseHold }) {
+export function SettlementsTable({
+  data,
+  onSelectRow,
+  onMarkPaid,
+  onHold,
+  onReleaseHold,
+  selectedIds = [],
+  onToggleSelect,
+  onSelectAll,
+  canMutate = true
+}) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-xs">
@@ -325,11 +501,21 @@ export function SettlementsTable({ data, onSelectRow, onMarkPaid, onHold, onRele
     )
   }
 
+  const allSelected = data.length > 0 && data.every((row) => selectedIds.includes(row.id))
+
   return (
     <div className="overflow-x-auto rounded-2xl border border-emerald-100/90 bg-white/90 shadow-xs">
       <table className="w-full text-left text-xs">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 font-bold uppercase tracking-wider text-[10px]">
           <tr>
+            <th className="px-3.5 py-3 w-8">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={onSelectAll}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              />
+            </th>
             <th className="px-4 py-3">Batch ID & Period</th>
             <th className="px-4 py-3">Beneficiary & Persona</th>
             <th className="px-4 py-3">Gross Deal (₹)</th>
@@ -341,80 +527,91 @@ export function SettlementsTable({ data, onSelectRow, onMarkPaid, onHold, onRele
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100/80 text-slate-700">
-          {data.map((row) => (
-            <tr
-              key={row.id}
-              onClick={() => onSelectRow(row)}
-              className="hover:bg-emerald-50/60 cursor-pointer transition-colors"
-            >
-              <td className="px-4 py-3.5 font-mono">
-                <div className="font-bold text-slate-900">{row.batchId}</div>
-                <div className="text-[10px] text-slate-500">{row.settlementPeriod}</div>
-              </td>
-              <td className="px-4 py-3.5">
-                <div className="font-bold text-slate-900">{row.beneficiaryName}</div>
-                <div className="mt-0.5">
-                  <PersonaBadge type={row.entityType} />
-                </div>
-              </td>
-              <td className="px-4 py-3.5 font-mono text-slate-800">
-                {fmtINR(row.grossAmountInr)}
-                <div className="text-[10px] text-slate-500">({row.ordersCount} items)</div>
-              </td>
-              <td className="px-4 py-3.5 font-mono text-[11px]">
-                <div className="text-purple-700 font-semibold">Fee: {fmtINR(row.platformFeeInr)} ({row.commissionRatePct}%)</div>
-                <div className="text-slate-500">GST: {fmtINR(row.gstOnFeeInr)} · TDS: {fmtINR(row.tdsDeductedInr)}</div>
-              </td>
-              <td className="px-4 py-3.5 font-mono">
-                <div className="text-emerald-700 font-bold text-sm">{fmtINR(row.netPayoutInr)}</div>
-              </td>
-              <td className="px-4 py-3.5 font-mono text-[11px]">
-                <div className="text-slate-800 font-medium">{row.paymentReferenceUtr || 'Pending Transfer'}</div>
-                <div className="text-slate-500">{row.bankName} ({row.accountNumberMasked})</div>
-              </td>
-              <td className="px-4 py-3.5">
-                <StatusBadge status={row.status} />
-                {row.netPayoutInr > 50000 && (
-                  <div className="text-[10px] text-purple-700 font-mono font-semibold mt-1 flex items-center gap-1">
-                    <Lock className="w-2.5 h-2.5" />
-                    <span>Dual Sign &gt; ₹50k</span>
+          {data.map((row) => {
+            const isSelected = selectedIds.includes(row.id)
+            return (
+              <tr
+                key={row.id}
+                onClick={() => onSelectRow(row)}
+                className={`hover:bg-emerald-50/60 cursor-pointer transition-colors ${isSelected ? 'bg-emerald-50/40' : ''}`}
+              >
+                <td className="px-3.5 py-3.5" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleSelect && onToggleSelect(row.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                </td>
+                <td className="px-4 py-3.5 font-mono">
+                  <div className="font-bold text-slate-900">{row.batchId}</div>
+                  <div className="text-[10px] text-slate-500">{row.settlementPeriod}</div>
+                </td>
+                <td className="px-4 py-3.5">
+                  <div className="font-bold text-slate-900">{row.beneficiaryName}</div>
+                  <div className="mt-0.5">
+                    <PersonaBadge type={row.entityType} />
                   </div>
-                )}
-              </td>
-              <td className="px-4 py-3.5 text-right space-x-1" onClick={(e) => e.stopPropagation()}>
-                {row.status === 'approved' && (
+                </td>
+                <td className="px-4 py-3.5 font-mono text-slate-800">
+                  {fmtINR(row.grossAmountInr)}
+                  <div className="text-[10px] text-slate-500">({row.ordersCount} items)</div>
+                </td>
+                <td className="px-4 py-3.5 font-mono text-[11px]">
+                  <div className="text-purple-700 font-semibold">Fee: {fmtINR(row.platformFeeInr)} ({row.commissionRatePct}%)</div>
+                  <div className="text-slate-500">GST: {fmtINR(row.gstOnFeeInr)} · TDS: {fmtINR(row.tdsDeductedInr)}</div>
+                </td>
+                <td className="px-4 py-3.5 font-mono">
+                  <div className="text-emerald-700 font-bold text-sm">{fmtINR(row.netPayoutInr)}</div>
+                </td>
+                <td className="px-4 py-3.5 font-mono text-[11px]">
+                  <div className="text-slate-800 font-medium">{row.paymentReferenceUtr || 'Pending Transfer'}</div>
+                  <div className="text-slate-500">{row.bankName} ({row.accountNumberMasked})</div>
+                </td>
+                <td className="px-4 py-3.5">
+                  <StatusBadge status={row.status} />
+                  {row.netPayoutInr > 50000 && (
+                    <div className="text-[10px] text-purple-700 font-mono font-semibold mt-1 flex items-center gap-1">
+                      <Lock className="w-2.5 h-2.5" />
+                      <span>Dual Sign &gt; ₹50k</span>
+                    </div>
+                  )}
+                </td>
+                <td className="px-4 py-3.5 text-right space-x-1" onClick={(e) => e.stopPropagation()}>
+                  {canMutate && row.status === 'approved' && onMarkPaid && (
+                    <button
+                      onClick={() => onMarkPaid(row)}
+                      className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-[11px] font-bold transition-colors shadow-xs"
+                    >
+                      Mark Paid
+                    </button>
+                  )}
+                  {canMutate && row.status !== 'on_hold' && row.status !== 'paid' && onHold && (
+                    <button
+                      onClick={() => onHold(row)}
+                      className="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-[11px] font-bold transition-colors shadow-xs"
+                    >
+                      Hold
+                    </button>
+                  )}
+                  {canMutate && row.status === 'on_hold' && onReleaseHold && (
+                    <button
+                      onClick={() => onReleaseHold(row)}
+                      className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-[11px] font-bold transition-colors shadow-xs"
+                    >
+                      Release
+                    </button>
+                  )}
                   <button
-                    onClick={() => onMarkPaid(row)}
-                    className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-[11px] font-bold transition-colors shadow-xs"
+                    onClick={() => onSelectRow(row)}
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[11px] font-semibold text-slate-700 transition-colors"
                   >
-                    Mark Paid
+                    View
                   </button>
-                )}
-                {row.status !== 'on_hold' && row.status !== 'paid' && (
-                  <button
-                    onClick={() => onHold(row)}
-                    className="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-[11px] font-bold transition-colors shadow-xs"
-                  >
-                    Hold
-                  </button>
-                )}
-                {row.status === 'on_hold' && (
-                  <button
-                    onClick={() => onReleaseHold(row)}
-                    className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-[11px] font-bold transition-colors shadow-xs"
-                  >
-                    Release
-                  </button>
-                )}
-                <button
-                  onClick={() => onSelectRow(row)}
-                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[11px] font-semibold text-slate-700 transition-colors"
-                >
-                  View
-                </button>
-              </td>
-            </tr>
-          ))}
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
@@ -422,7 +619,13 @@ export function SettlementsTable({ data, onSelectRow, onMarkPaid, onHold, onRele
 }
 
 // 2. Transporter Payouts Table
-export function TransporterPayoutsTable({ data, onSelectRow }) {
+export function TransporterPayoutsTable({
+  data,
+  onSelectRow,
+  selectedIds = [],
+  onToggleSelect,
+  onSelectAll
+}) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-xs">
@@ -431,11 +634,21 @@ export function TransporterPayoutsTable({ data, onSelectRow }) {
     )
   }
 
+  const allSelected = data.length > 0 && data.every((row) => selectedIds.includes(row.id))
+
   return (
     <div className="overflow-x-auto rounded-2xl border border-emerald-100/90 bg-white/90 shadow-xs">
       <table className="w-full text-left text-xs">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 font-bold uppercase tracking-wider text-[10px]">
           <tr>
+            <th className="px-3.5 py-3 w-8">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={onSelectAll}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              />
+            </th>
             <th className="px-4 py-3">Trip ID & Vehicle</th>
             <th className="px-4 py-3">Transporter Name</th>
             <th className="px-4 py-3">Route & Consignment</th>
@@ -446,41 +659,52 @@ export function TransporterPayoutsTable({ data, onSelectRow }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100/80 text-slate-700">
-          {data.map((row) => (
-            <tr
-              key={row.id}
-              onClick={() => onSelectRow(row)}
-              className="hover:bg-emerald-50/60 cursor-pointer transition-colors"
-            >
-              <td className="px-4 py-3.5 font-mono">
-                <div className="font-bold text-slate-900">{row.tripId}</div>
-                <div className="text-[11px] text-slate-500">{row.vehicleNo}</div>
-              </td>
-              <td className="px-4 py-3.5">
-                <div className="text-slate-900 font-bold">{row.transporterName}</div>
-                <div className="text-[11px] text-slate-500 font-mono">{row.transporterPhone}</div>
-              </td>
-              <td className="px-4 py-3.5">
-                <div className="text-slate-800 font-medium">{row.route}</div>
-                <div className="text-[11px] text-emerald-700 font-mono font-semibold">
-                  {row.consignmentCrop} · {row.distanceKm} km
-                </div>
-              </td>
-              <td className="px-4 py-3.5 font-mono text-slate-900 font-bold">
-                {fmtINR(row.grossFreightInr)}
-              </td>
-              <td className="px-4 py-3.5 font-mono text-purple-700 font-semibold">
-                {fmtINR(row.platformFeeInr)}
-                <div className="text-[10px] text-slate-500">TDS: {fmtINR(row.tdsInr)}</div>
-              </td>
-              <td className="px-4 py-3.5 font-mono text-emerald-700 font-bold">
-                {fmtINR(row.netFreightInr)}
-              </td>
-              <td className="px-4 py-3.5">
-                <StatusBadge status={row.status} />
-              </td>
-            </tr>
-          ))}
+          {data.map((row) => {
+            const isSelected = selectedIds.includes(row.id)
+            return (
+              <tr
+                key={row.id}
+                onClick={() => onSelectRow(row)}
+                className={`hover:bg-emerald-50/60 cursor-pointer transition-colors ${isSelected ? 'bg-emerald-50/40' : ''}`}
+              >
+                <td className="px-3.5 py-3.5" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleSelect && onToggleSelect(row.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                </td>
+                <td className="px-4 py-3.5 font-mono">
+                  <div className="font-bold text-slate-900">{row.tripId}</div>
+                  <div className="text-[11px] text-slate-500">{row.vehicleNo}</div>
+                </td>
+                <td className="px-4 py-3.5">
+                  <div className="text-slate-900 font-bold">{row.transporterName}</div>
+                  <div className="text-[11px] text-slate-500 font-mono">{row.transporterPhone}</div>
+                </td>
+                <td className="px-4 py-3.5">
+                  <div className="text-slate-800 font-medium">{row.route}</div>
+                  <div className="text-[11px] text-emerald-700 font-mono font-semibold">
+                    {row.consignmentCrop} · {row.distanceKm} km
+                  </div>
+                </td>
+                <td className="px-4 py-3.5 font-mono text-slate-900 font-bold">
+                  {fmtINR(row.grossFreightInr)}
+                </td>
+                <td className="px-4 py-3.5 font-mono text-purple-700 font-semibold">
+                  {fmtINR(row.platformFeeInr)}
+                  <div className="text-[10px] text-slate-500">TDS: {fmtINR(row.tdsInr)}</div>
+                </td>
+                <td className="px-4 py-3.5 font-mono text-emerald-700 font-bold">
+                  {fmtINR(row.netFreightInr)}
+                </td>
+                <td className="px-4 py-3.5">
+                  <StatusBadge status={row.status} />
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
@@ -488,7 +712,13 @@ export function TransporterPayoutsTable({ data, onSelectRow }) {
 }
 
 // 3. Seller Payouts Table
-export function SellerPayoutsTable({ data, onSelectRow }) {
+export function SellerPayoutsTable({
+  data,
+  onSelectRow,
+  selectedIds = [],
+  onToggleSelect,
+  onSelectAll
+}) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white/90 border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-xs">
@@ -497,11 +727,21 @@ export function SellerPayoutsTable({ data, onSelectRow }) {
     )
   }
 
+  const allSelected = data.length > 0 && data.every((row) => selectedIds.includes(row.id))
+
   return (
     <div className="overflow-x-auto rounded-2xl border border-emerald-100/90 bg-white/90 shadow-xs">
       <table className="w-full text-left text-xs">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 font-bold uppercase tracking-wider text-[10px]">
           <tr>
+            <th className="px-3.5 py-3 w-8">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={onSelectAll}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              />
+            </th>
             <th className="px-4 py-3">Lot ID & Commodity</th>
             <th className="px-4 py-3">Seller / Farmer</th>
             <th className="px-4 py-3">Buyer Corporate</th>
@@ -512,40 +752,51 @@ export function SellerPayoutsTable({ data, onSelectRow }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100/80 text-slate-700">
-          {data.map((row) => (
-            <tr
-              key={row.id}
-              onClick={() => onSelectRow(row)}
-              className="hover:bg-emerald-50/60 cursor-pointer transition-colors"
-            >
-              <td className="px-4 py-3.5 font-mono">
-                <div className="font-bold text-slate-900">{row.lotId}</div>
-                <div className="text-[11px] text-emerald-700 font-semibold">
-                  {row.commodity} ({row.quantityQuintals} Qtl)
-                </div>
-              </td>
-              <td className="px-4 py-3.5">
-                <div className="text-slate-900 font-bold">{row.sellerName}</div>
-                <div className="text-[11px] text-slate-500 font-mono">{row.sellerPhone}</div>
-              </td>
-              <td className="px-4 py-3.5 text-slate-800 font-medium">
-                {row.buyerName}
-              </td>
-              <td className="px-4 py-3.5 font-mono text-slate-900 font-bold">
-                {fmtINR(row.escrowDepositInr)}
-              </td>
-              <td className="px-4 py-3.5 font-mono text-[11px]">
-                <div className="text-purple-700 font-semibold">Fee (2.5%): {fmtINR(row.platformFeeInr)}</div>
-                <div className="text-slate-500">Cess: {fmtINR(row.mandiCessInr)}</div>
-              </td>
-              <td className="px-4 py-3.5 font-mono text-emerald-700 font-bold">
-                {fmtINR(row.netSellerPayoutInr)}
-              </td>
-              <td className="px-4 py-3.5">
-                <StatusBadge status={row.escrowReleaseStatus} />
-              </td>
-            </tr>
-          ))}
+          {data.map((row) => {
+            const isSelected = selectedIds.includes(row.id)
+            return (
+              <tr
+                key={row.id}
+                onClick={() => onSelectRow(row)}
+                className={`hover:bg-emerald-50/60 cursor-pointer transition-colors ${isSelected ? 'bg-emerald-50/40' : ''}`}
+              >
+                <td className="px-3.5 py-3.5" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleSelect && onToggleSelect(row.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                </td>
+                <td className="px-4 py-3.5 font-mono">
+                  <div className="font-bold text-slate-900">{row.lotId}</div>
+                  <div className="text-[11px] text-emerald-700 font-semibold">
+                    {row.commodity} ({row.quantityQuintals} Qtl)
+                  </div>
+                </td>
+                <td className="px-4 py-3.5">
+                  <div className="text-slate-900 font-bold">{row.sellerName}</div>
+                  <div className="text-[11px] text-slate-500 font-mono">{row.sellerPhone}</div>
+                </td>
+                <td className="px-4 py-3.5 text-slate-800 font-medium">
+                  {row.buyerName}
+                </td>
+                <td className="px-4 py-3.5 font-mono text-slate-900 font-bold">
+                  {fmtINR(row.escrowDepositInr)}
+                </td>
+                <td className="px-4 py-3.5 font-mono text-[11px]">
+                  <div className="text-purple-700 font-semibold">Fee (2.5%): {fmtINR(row.platformFeeInr)}</div>
+                  <div className="text-slate-500">Cess: {fmtINR(row.mandiCessInr)}</div>
+                </td>
+                <td className="px-4 py-3.5 font-mono text-emerald-700 font-bold">
+                  {fmtINR(row.netSellerPayoutInr)}
+                </td>
+                <td className="px-4 py-3.5">
+                  <StatusBadge status={row.escrowReleaseStatus} />
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>

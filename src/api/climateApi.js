@@ -1,543 +1,327 @@
 import { request } from './client'
-import {
-  mockColdStorages,
-  mockColdStorageBookings,
-  mockClimateVarieties,
-  mockCarbonAudits,
-  mockProduceGradings,
-  mockClimateAuditLogs,
-  mockClimateSummary
-} from './climateMockData'
+import * as adminClimateService from '../services/adminClimateService'
 
-let mockMode = false
+let apiDisabled = false
 
-function paginate(list, page = 1, pageSize = 20) {
-  const start = (page - 1) * pageSize
-  return {
-    data: list.slice(start, start + pageSize),
-    page,
-    pageSize,
-    total: list.length
-  }
-}
-
-// In-memory state for mutations
-let storagesState = JSON.parse(JSON.stringify(mockColdStorages))
-let bookingsState = JSON.parse(JSON.stringify(mockColdStorageBookings))
-let varietiesState = JSON.parse(JSON.stringify(mockClimateVarieties))
-let carbonState = JSON.parse(JSON.stringify(mockCarbonAudits))
-let gradingsState = JSON.parse(JSON.stringify(mockProduceGradings))
-let auditLogsState = JSON.parse(JSON.stringify(mockClimateAuditLogs))
-
-function recordAudit({ actionType, entityId, entityName, collection, previousState, newState, reason, adminName = 'Super Admin' }) {
-  const logEntry = {
-    id: `aud_clm_${Date.now()}`,
-    adminUid: 'usr_admin_root',
-    adminName,
-    timestamp: new Date().toISOString(),
-    ipAddress: '10.0.4.15',
-    actionType,
-    entityId,
-    entityName,
-    collection,
-    previousState,
-    newState,
-    reason: reason || 'Routine climate module administrative action'
-  }
-  auditLogsState.unshift(logEntry)
-  return logEntry
+function toQueryString(params = {}) {
+  const q = new URLSearchParams()
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && v !== '') {
+      q.append(k, String(v))
+    }
+  })
+  const str = q.toString()
+  return str ? `?${str}` : ''
 }
 
 // --- 1. KPI Summary ---
 export async function getClimateSummary() {
-  if (!mockMode) {
-    try {
-      return await request('GET', '/v1/admin/climate/summary')
-    } catch {
-      mockMode = true
-    }
+  if (apiDisabled) {
+    return adminClimateService.getClimateSummary()
   }
-
-  const totalCap = storagesState.reduce((acc, s) => acc + (s.totalCapacityMt || 0), 0)
-  const availCap = storagesState.reduce((acc, s) => acc + (s.availableCapacityMt || 0), 0)
-  const util = totalCap > 0 ? Math.round(((totalCap - availCap) / totalCap) * 1000) / 10 : 0
-  const activeBookings = bookingsState.filter((b) => b.status === 'active' || b.status === 'confirmed').length
-  const carbonMt = carbonState.reduce((acc, c) => acc + (c.estimatedCreditsMtCo2e || 0), 0)
-  const carbonPayout = carbonState.reduce((acc, c) => acc + (c.netPayoutInr || 0), 0)
-  const flaggedAudits = carbonState.filter((c) => c.status === 'audit_flagged').length
-
-  return {
-    totalCapacityMt: totalCap,
-    availableCapacityMt: availCap,
-    utilizationRatePct: util,
-    activeFacilitiesCount: storagesState.filter((s) => s.status === 'active').length,
-    activeBookingsCount: activeBookings,
-    totalBookingsGrossInr: bookingsState.reduce((acc, b) => acc + (b.totalFee || 0), 0),
-    certifiedVarietiesCount: varietiesState.filter((v) => v.status === 'certified').length,
-    carbonCreditsCertifiedMt: Math.round(carbonMt * 10) / 10,
-    carbonPayoutTotalInr: carbonPayout,
-    flaggedCarbonAudits: flaggedAudits,
-    aiGradingChecksToday: 48,
-    aiGradingAccuracyPct: 96.8
+  try {
+    const res = await request('GET', '/v1/admin/climate/summary')
+    return res?.data || adminClimateService.getClimateSummary()
+  } catch {
+    apiDisabled = true
+    return adminClimateService.getClimateSummary()
   }
 }
 
 // --- 2. Cold Storage Facilities ---
 export async function listColdStorages(query = {}) {
-  const { page = 1, pageSize = 20, search = '', status = 'all', district = 'all' } = query
-  if (!mockMode) {
-    try {
-      return await request('GET', '/v1/admin/cold-storage/facilities', { params: query })
-    } catch {
-      mockMode = true
-    }
+  if (apiDisabled) {
+    return adminClimateService.listColdStorages(query)
   }
-
-  let filtered = [...storagesState]
-  if (status && status !== 'all') {
-    filtered = filtered.filter((s) => s.status === status)
+  try {
+    const qs = toQueryString(query)
+    const res = await request('GET', `/v1/admin/cold-storage/facilities${qs}`)
+    return res?.data || adminClimateService.listColdStorages(query)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.listColdStorages(query)
   }
-  if (district && district !== 'all') {
-    filtered = filtered.filter((s) => s.district?.toLowerCase() === district.toLowerCase())
-  }
-  if (search) {
-    const q = search.toLowerCase()
-    filtered = filtered.filter(
-      (s) =>
-        s.name?.toLowerCase().includes(q) ||
-        s.operatorName?.toLowerCase().includes(q) ||
-        s.district?.toLowerCase().includes(q) ||
-        s.fssaiLicense?.toLowerCase().includes(q) ||
-        s.id?.toLowerCase().includes(q)
-    )
-  }
-  return paginate(filtered, Number(page), Number(pageSize))
 }
 
-export async function createColdStorage(payload, adminName = 'Super Admin') {
-  if (!mockMode) {
-    try {
-      return await request('POST', '/v1/admin/cold-storage/facilities', payload)
-    } catch {
-      mockMode = true
-    }
+export async function getColdStorageById(id) {
+  if (apiDisabled) {
+    return adminClimateService.getColdStorageById(id)
   }
-
-  const newFacility = {
-    id: `cs_fac_${Date.now()}`,
-    ...payload,
-    availableCapacityMt: Number(payload.totalCapacityMt || 0),
-    totalCapacityMt: Number(payload.totalCapacityMt || 0),
-    chambersCount: Number(payload.chambersCount || 4),
-    monthlyRatePerMt: Number(payload.monthlyRatePerMt || 1000),
-    monthlyRatePerQuintal: Number(payload.monthlyRatePerQuintal || 100),
-    status: payload.status || 'active',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+  try {
+    const res = await request('GET', `/v1/admin/cold-storage/facilities/${id}`)
+    return res?.data || adminClimateService.getColdStorageById(id)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.getColdStorageById(id)
   }
-  storagesState.unshift(newFacility)
-  recordAudit({
-    actionType: 'ONBOARD_COLD_STORAGE',
-    entityId: newFacility.id,
-    entityName: newFacility.name,
-    collection: 'cold_storages',
-    previousState: null,
-    newState: `totalCapacity: ${newFacility.totalCapacityMt} MT`,
-    reason: 'Onboarded new verified cold chain partner facility',
-    adminName
-  })
-  return newFacility
 }
 
-export async function updateColdStorage(id, payload, adminName = 'Super Admin') {
-  if (!mockMode) {
-    try {
-      return await request('PUT', `/v1/admin/cold-storage/facilities/${id}`, payload)
-    } catch {
-      mockMode = true
-    }
+export async function createColdStorage(payload, adminUid = 'usr_admin_root', adminName = 'Super Admin') {
+  if (apiDisabled) {
+    return adminClimateService.createColdStorage(payload, adminUid, adminName)
   }
-
-  const idx = storagesState.findIndex((s) => s.id === id)
-  if (idx === -1) throw new Error('Facility not found')
-  const prev = { ...storagesState[idx] }
-  storagesState[idx] = {
-    ...storagesState[idx],
-    ...payload,
-    updatedAt: new Date().toISOString()
+  try {
+    const res = await request('POST', '/v1/admin/cold-storage/facilities', payload)
+    return res?.data || adminClimateService.createColdStorage(payload, adminUid, adminName)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.createColdStorage(payload, adminUid, adminName)
   }
-  recordAudit({
-    actionType: 'UPDATE_COLD_STORAGE',
-    entityId: id,
-    entityName: storagesState[idx].name,
-    collection: 'cold_storages',
-    previousState: JSON.stringify({ rate: prev.monthlyRatePerMt, cap: prev.totalCapacityMt }),
-    newState: JSON.stringify({ rate: storagesState[idx].monthlyRatePerMt, cap: storagesState[idx].totalCapacityMt }),
-    reason: 'Updated facility operational specs & rate card',
-    adminName
-  })
-  return storagesState[idx]
 }
 
-export async function setFacilityStatus(id, status, reason, adminName = 'Super Admin') {
-  if (!mockMode) {
-    try {
-      return await request('PUT', `/v1/admin/cold-storage/facilities/${id}/status`, { status, reason })
-    } catch {
-      mockMode = true
-    }
+export async function updateColdStorage(id, payload, adminUid = 'usr_admin_root', adminName = 'Super Admin') {
+  if (apiDisabled) {
+    return adminClimateService.updateColdStorage(id, payload, adminUid, adminName)
   }
+  try {
+    const res = await request('PUT', `/v1/admin/cold-storage/facilities/${id}`, payload)
+    return res?.data || adminClimateService.updateColdStorage(id, payload, adminUid, adminName)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.updateColdStorage(id, payload, adminUid, adminName)
+  }
+}
 
-  const fac = storagesState.find((s) => s.id === id)
-  if (!fac) throw new Error('Facility not found')
-  const prevStatus = fac.status
-  fac.status = status
-  fac.updatedAt = new Date().toISOString()
-  recordAudit({
-    actionType: 'SET_FACILITY_STATUS',
-    entityId: id,
-    entityName: fac.name,
-    collection: 'cold_storages',
-    previousState: `status: ${prevStatus}`,
-    newState: `status: ${status}`,
-    reason: reason || `Admin updated status to ${status}`,
-    adminName
-  })
-  return fac
+export async function setFacilityStatus(id, status, reason, adminUid = 'usr_admin_root', adminName = 'Super Admin') {
+  if (apiDisabled) {
+    return adminClimateService.setFacilityStatus(id, status, reason, adminUid, adminName)
+  }
+  try {
+    const res = await request('PUT', `/v1/admin/cold-storage/facilities/${id}/status`, { status, reason })
+    return res?.data || adminClimateService.setFacilityStatus(id, status, reason, adminUid, adminName)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.setFacilityStatus(id, status, reason, adminUid, adminName)
+  }
+}
+
+export async function batchUpdateFacilityStatus(ids, status, reason, adminUid = 'usr_admin_root', adminName = 'Super Admin') {
+  return adminClimateService.batchUpdateFacilityStatus(ids, status, reason, adminUid, adminName)
 }
 
 // --- 3. Cold Storage Bookings ---
 export async function listColdStorageBookings(query = {}) {
-  const { page = 1, pageSize = 20, search = '', status = 'all', facilityId = 'all' } = query
-  if (!mockMode) {
-    try {
-      return await request('GET', '/v1/admin/cold-storage/bookings', { params: query })
-    } catch {
-      mockMode = true
-    }
+  if (apiDisabled) {
+    return adminClimateService.listColdStorageBookings(query)
   }
-
-  let filtered = [...bookingsState]
-  if (status && status !== 'all') {
-    filtered = filtered.filter((b) => b.status === status)
+  try {
+    const qs = toQueryString(query)
+    const res = await request('GET', `/v1/admin/cold-storage/bookings${qs}`)
+    return res?.data || adminClimateService.listColdStorageBookings(query)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.listColdStorageBookings(query)
   }
-  if (facilityId && facilityId !== 'all') {
-    filtered = filtered.filter((b) => b.facilityId === facilityId)
-  }
-  if (search) {
-    const q = search.toLowerCase()
-    filtered = filtered.filter(
-      (b) =>
-        b.farmerName?.toLowerCase().includes(q) ||
-        b.cropType?.toLowerCase().includes(q) ||
-        b.facilityName?.toLowerCase().includes(q) ||
-        b.chamberAllocated?.toLowerCase().includes(q) ||
-        b.id?.toLowerCase().includes(q)
-    )
-  }
-  return paginate(filtered, Number(page), Number(pageSize))
 }
 
-export async function allocateChamber(id, chamberAllocated, reason, adminName = 'Super Admin') {
-  if (!mockMode) {
-    try {
-      return await request('POST', `/v1/admin/cold-storage/bookings/${id}/allocate`, { chamberAllocated, reason })
-    } catch {
-      mockMode = true
-    }
+export async function getColdStorageBookingById(id) {
+  if (apiDisabled) {
+    return adminClimateService.getColdStorageBookingById(id)
   }
-
-  const bk = bookingsState.find((b) => b.id === id)
-  if (!bk) throw new Error('Booking not found')
-  const prevChamber = bk.chamberAllocated
-  bk.chamberAllocated = chamberAllocated
-  bk.updatedAt = new Date().toISOString()
-  recordAudit({
-    actionType: 'ALLOCATE_CHAMBER',
-    entityId: id,
-    entityName: `${bk.farmerName} (${bk.cropType})`,
-    collection: 'cold_storage_bookings',
-    previousState: `chamber: ${prevChamber}`,
-    newState: `chamber: ${chamberAllocated}`,
-    reason: reason || 'Assigned physical cold chamber to booking',
-    adminName
-  })
-  return bk
+  try {
+    const res = await request('GET', `/v1/admin/cold-storage/bookings/${id}`)
+    return res?.data || adminClimateService.getColdStorageBookingById(id)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.getColdStorageBookingById(id)
+  }
 }
 
-export async function cancelColdStorageBooking(id, refundAmount, reason, coAdmin = null, adminName = 'Super Admin') {
-  if (!mockMode) {
-    try {
-      return await request('POST', `/v1/admin/cold-storage/bookings/${id}/cancel`, {
-        refundAmount,
-        reason,
-        coAdmin
-      })
-    } catch {
-      mockMode = true
-    }
+export async function allocateChamber(id, chamberAllocated, reason, adminUid = 'usr_admin_root', adminName = 'Super Admin') {
+  if (apiDisabled) {
+    return adminClimateService.allocateChamber(id, chamberAllocated, reason, adminUid, adminName)
   }
-
-  const bk = bookingsState.find((b) => b.id === id)
-  if (!bk) throw new Error('Booking not found')
-
-  // Return capacity back to facility
-  const fac = storagesState.find((s) => s.id === bk.facilityId)
-  if (fac) {
-    fac.availableCapacityMt = Math.min(fac.totalCapacityMt, fac.availableCapacityMt + bk.quantityMt)
+  try {
+    const res = await request('POST', `/v1/admin/cold-storage/bookings/${id}/allocate`, { chamberAllocated, reason })
+    return res?.data || adminClimateService.allocateChamber(id, chamberAllocated, reason, adminUid, adminName)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.allocateChamber(id, chamberAllocated, reason, adminUid, adminName)
   }
+}
 
-  const prevStatus = bk.status
-  bk.status = 'cancelled'
-  bk.paymentStatus = 'refunded'
-  bk.disputeReason = reason || 'Admin cancelled reservation'
-  bk.updatedAt = new Date().toISOString()
+export async function cancelColdStorageBooking(id, refundAmount, reason, coAdmin = null, adminUid = 'usr_admin_root', adminName = 'Super Admin') {
+  if (apiDisabled) {
+    return adminClimateService.cancelColdStorageBooking(id, refundAmount, reason, coAdmin, adminUid, adminName)
+  }
+  try {
+    const res = await request('POST', `/v1/admin/cold-storage/bookings/${id}/cancel`, {
+      refundAmount,
+      reason,
+      coAdmin
+    })
+    return res?.data || adminClimateService.cancelColdStorageBooking(id, refundAmount, reason, coAdmin, adminUid, adminName)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.cancelColdStorageBooking(id, refundAmount, reason, coAdmin, adminUid, adminName)
+  }
+}
 
-  recordAudit({
-    actionType: refundAmount > 50000 ? 'DUAL_SIGNOFF_BOOKING_CANCEL' : 'CANCEL_BOOKING',
-    entityId: id,
-    entityName: `${bk.farmerName} (${bk.cropType})`,
-    collection: 'cold_storage_bookings',
-    previousState: `status: ${prevStatus}, fee: ₹${bk.totalFee}`,
-    newState: `status: cancelled, refund: ₹${refundAmount}${coAdmin ? ` (Co-admin: ${coAdmin.secondAdminEmail})` : ''}`,
-    reason: reason || 'Administrative slot release and refund processed',
-    adminName
-  })
-  return bk
+export async function batchCancelBookings(ids, reason, adminUid = 'usr_admin_root', adminName = 'Super Admin') {
+  return adminClimateService.batchCancelBookings(ids, reason, adminUid, adminName)
 }
 
 // --- 4. Climate-Resilient Varieties ---
 export async function listClimateVarieties(query = {}) {
-  const { page = 1, pageSize = 20, search = '', resilienceType = 'all', status = 'all' } = query
-  if (!mockMode) {
-    try {
-      return await request('GET', '/v1/admin/climate/varieties', { params: query })
-    } catch {
-      mockMode = true
-    }
+  if (apiDisabled) {
+    return adminClimateService.listClimateVarieties(query)
   }
-
-  let filtered = [...varietiesState]
-  if (resilienceType && resilienceType !== 'all') {
-    filtered = filtered.filter((v) => v.resilienceType === resilienceType)
+  try {
+    const qs = toQueryString(query)
+    const res = await request('GET', `/v1/admin/climate/varieties${qs}`)
+    return res?.data || adminClimateService.listClimateVarieties(query)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.listClimateVarieties(query)
   }
-  if (status && status !== 'all') {
-    filtered = filtered.filter((v) => v.status === status)
-  }
-  if (search) {
-    const q = search.toLowerCase()
-    filtered = filtered.filter(
-      (v) =>
-        v.cropName?.toLowerCase().includes(q) ||
-        v.varietyCode?.toLowerCase().includes(q) ||
-        v.commonName?.toLowerCase().includes(q) ||
-        v.certifyingAgency?.toLowerCase().includes(q)
-    )
-  }
-  return paginate(filtered, Number(page), Number(pageSize))
 }
 
-export async function createClimateVariety(payload, adminName = 'Super Admin') {
-  if (!mockMode) {
-    try {
-      return await request('POST', '/v1/admin/climate/varieties', payload)
-    } catch {
-      mockMode = true
-    }
+export async function getClimateVarietyById(id) {
+  if (apiDisabled) {
+    return adminClimateService.getClimateVarietyById(id)
   }
-
-  const newVariety = {
-    id: `cv_var_${Date.now()}`,
-    ...payload,
-    breederSeedAvailable: Boolean(payload.breederSeedAvailable ?? true),
-    status: payload.status || 'certified',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+  try {
+    const res = await request('GET', `/v1/admin/climate/varieties/${id}`)
+    return res?.data || adminClimateService.getClimateVarietyById(id)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.getClimateVarietyById(id)
   }
-  varietiesState.unshift(newVariety)
-  recordAudit({
-    actionType: 'CREATE_CLIMATE_VARIETY',
-    entityId: newVariety.id,
-    entityName: `${newVariety.cropName} (${newVariety.varietyCode})`,
-    collection: 'climate_varieties',
-    previousState: null,
-    newState: `status: ${newVariety.status}, agency: ${newVariety.certifyingAgency}`,
-    reason: 'Enrolled ICAR / State agricultural university climate-resilient variety',
-    adminName
-  })
-  return newVariety
 }
 
-export async function updateClimateVariety(id, payload, adminName = 'Super Admin') {
-  if (!mockMode) {
-    try {
-      return await request('PUT', `/v1/admin/climate/varieties/${id}`, payload)
-    } catch {
-      mockMode = true
-    }
+export async function createClimateVariety(payload, adminUid = 'usr_admin_root', adminName = 'Super Admin') {
+  if (apiDisabled) {
+    return adminClimateService.createClimateVariety(payload, adminUid, adminName)
   }
+  try {
+    const res = await request('POST', '/v1/admin/climate/varieties', payload)
+    return res?.data || adminClimateService.createClimateVariety(payload, adminUid, adminName)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.createClimateVariety(payload, adminUid, adminName)
+  }
+}
 
-  const idx = varietiesState.findIndex((v) => v.id === id)
-  if (idx === -1) throw new Error('Variety not found')
-  const prev = { ...varietiesState[idx] }
-  varietiesState[idx] = {
-    ...varietiesState[idx],
-    ...payload,
-    updatedAt: new Date().toISOString()
+export async function updateClimateVariety(id, payload, adminUid = 'usr_admin_root', adminName = 'Super Admin') {
+  if (apiDisabled) {
+    return adminClimateService.updateClimateVariety(id, payload, adminUid, adminName)
   }
-  recordAudit({
-    actionType: 'UPDATE_CLIMATE_VARIETY',
-    entityId: id,
-    entityName: `${varietiesState[idx].cropName} (${varietiesState[idx].varietyCode})`,
-    collection: 'climate_varieties',
-    previousState: JSON.stringify({ yield: prev.averageYieldQtlPerHa, status: prev.status }),
-    newState: JSON.stringify({ yield: varietiesState[idx].averageYieldQtlPerHa, status: varietiesState[idx].status }),
-    reason: 'Updated variety agronomic specs and certification status',
-    adminName
-  })
-  return varietiesState[idx]
+  try {
+    const res = await request('PUT', `/v1/admin/climate/varieties/${id}`, payload)
+    return res?.data || adminClimateService.updateClimateVariety(id, payload, adminUid, adminName)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.updateClimateVariety(id, payload, adminUid, adminName)
+  }
+}
+
+export async function batchUpdateVarietyStatus(ids, status, reason, adminUid = 'usr_admin_root', adminName = 'Super Admin') {
+  return adminClimateService.batchUpdateVarietyStatus(ids, status, reason, adminUid, adminName)
 }
 
 // --- 5. Carbon Credit Audits & Payouts ---
 export async function listCarbonAudits(query = {}) {
-  const { page = 1, pageSize = 20, search = '', status = 'all' } = query
-  if (!mockMode) {
-    try {
-      return await request('GET', '/v1/admin/climate/carbon-audit', { params: query })
-    } catch {
-      mockMode = true
-    }
+  if (apiDisabled) {
+    return adminClimateService.listCarbonAudits(query)
   }
-
-  let filtered = [...carbonState]
-  if (status && status !== 'all') {
-    filtered = filtered.filter((c) => c.status === status)
+  try {
+    const qs = toQueryString(query)
+    const res = await request('GET', `/v1/admin/climate/carbon-audit${qs}`)
+    return res?.data || adminClimateService.listCarbonAudits(query)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.listCarbonAudits(query)
   }
-  if (search) {
-    const q = search.toLowerCase()
-    filtered = filtered.filter(
-      (c) =>
-        c.farmerName?.toLowerCase().includes(q) ||
-        c.district?.toLowerCase().includes(q) ||
-        c.verifierAgency?.toLowerCase().includes(q) ||
-        c.id?.toLowerCase().includes(q)
-    )
-  }
-  return paginate(filtered, Number(page), Number(pageSize))
 }
 
-export async function disburseCarbonPayout(id, reason, coAdmin = null, adminName = 'Super Admin') {
-  if (!mockMode) {
-    try {
-      return await request('POST', `/v1/admin/climate/carbon-audit/${id}/disburse`, { reason, coAdmin })
-    } catch {
-      mockMode = true
-    }
+export async function getCarbonAuditById(id) {
+  if (apiDisabled) {
+    return adminClimateService.getCarbonAuditById(id)
   }
-
-  const aud = carbonState.find((c) => c.id === id)
-  if (!aud) throw new Error('Carbon audit not found')
-  const prevStatus = aud.status
-  aud.status = 'disbursed'
-  aud.disbursedAt = new Date().toISOString()
-  aud.signOffBy1 = adminName
-  if (coAdmin) {
-    aud.signOffBy2 = coAdmin.secondAdminEmail
+  try {
+    const res = await request('GET', `/v1/admin/climate/carbon-audit/${id}`)
+    return res?.data || adminClimateService.getCarbonAuditById(id)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.getCarbonAuditById(id)
   }
-  aud.updatedAt = new Date().toISOString()
+}
 
-  recordAudit({
-    actionType: aud.netPayoutInr > 50000 ? 'DUAL_SIGNOFF_CARBON_DISBURSE' : 'DISBURSE_CARBON_PAYOUT',
-    entityId: id,
-    entityName: aud.farmerName,
-    collection: 'carbon_audits',
-    previousState: `status: ${prevStatus}`,
-    newState: `status: disbursed, net: ₹${aud.netPayoutInr}${coAdmin ? ` (Co-admin: ${coAdmin.secondAdminEmail})` : ''}`,
-    reason: reason || 'Disbursed verified carbon credit payout to farmer bank account',
-    adminName
-  })
-  return aud
+export async function disburseCarbonPayout(id, reason, coAdmin = null, adminUid = 'usr_admin_root', adminName = 'Super Admin') {
+  if (apiDisabled) {
+    return adminClimateService.disburseCarbonPayout(id, reason, coAdmin, adminUid, adminName)
+  }
+  try {
+    const res = await request('POST', `/v1/admin/climate/carbon-audit/${id}/disburse`, { reason, coAdmin })
+    return res?.data || adminClimateService.disburseCarbonPayout(id, reason, coAdmin, adminUid, adminName)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.disburseCarbonPayout(id, reason, coAdmin, adminUid, adminName)
+  }
+}
+
+export async function batchDisburseCarbon(ids, reason, adminUid = 'usr_admin_root', adminName = 'Super Admin') {
+  return adminClimateService.batchDisburseCarbon(ids, reason, adminUid, adminName)
 }
 
 // --- 6. AI Produce Quality Grading ---
 export async function listProduceGradings(query = {}) {
-  const { page = 1, pageSize = 20, search = '', status = 'all', commodity = 'all' } = query
-  if (!mockMode) {
-    try {
-      return await request('GET', '/v1/admin/climate/produce-grading', { params: query })
-    } catch {
-      mockMode = true
-    }
+  if (apiDisabled) {
+    return adminClimateService.listProduceGradings(query)
   }
-
-  let filtered = [...gradingsState]
-  if (status && status !== 'all') {
-    filtered = filtered.filter((g) => g.status === status)
+  try {
+    const qs = toQueryString(query)
+    const res = await request('GET', `/v1/admin/climate/produce-grading${qs}`)
+    return res?.data || adminClimateService.listProduceGradings(query)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.listProduceGradings(query)
   }
-  if (commodity && commodity !== 'all') {
-    filtered = filtered.filter((g) => g.commodity?.toLowerCase().includes(commodity.toLowerCase()))
-  }
-  if (search) {
-    const q = search.toLowerCase()
-    filtered = filtered.filter(
-      (g) =>
-        g.farmerName?.toLowerCase().includes(q) ||
-        g.commodity?.toLowerCase().includes(q) ||
-        g.lotId?.toLowerCase().includes(q) ||
-        g.aiPredictedGrade?.toLowerCase().includes(q) ||
-        g.id?.toLowerCase().includes(q)
-    )
-  }
-  return paginate(filtered, Number(page), Number(pageSize))
 }
 
-export async function overrideGrading(id, manualOverrideGrade, overrideNote, reason, adminName = 'Super Admin') {
-  if (!mockMode) {
-    try {
-      return await request('POST', `/v1/admin/climate/produce-grading/${id}/override`, {
-        manualOverrideGrade,
-        overrideNote,
-        reason
-      })
-    } catch {
-      mockMode = true
-    }
+export async function getProduceGradingById(id) {
+  if (apiDisabled) {
+    return adminClimateService.getProduceGradingById(id)
   }
-
-  const grd = gradingsState.find((g) => g.id === id)
-  if (!grd) throw new Error('Grading check not found')
-  const prevGrade = grd.manualOverrideGrade || grd.aiPredictedGrade
-  grd.manualOverrideGrade = manualOverrideGrade
-  grd.overrideNote = overrideNote
-  grd.status = 'overridden'
-  grd.updatedAt = new Date().toISOString()
-
-  recordAudit({
-    actionType: 'OVERRIDE_AI_GRADING',
-    entityId: id,
-    entityName: `${grd.farmerName} (${grd.commodity})`,
-    collection: 'produce_gradings',
-    previousState: `grade: ${prevGrade}`,
-    newState: `manualGrade: ${manualOverrideGrade}`,
-    reason: reason || 'Calibrated quality classification via manual optical inspection',
-    adminName
-  })
-  return grd
+  try {
+    const res = await request('GET', `/v1/admin/climate/produce-grading/${id}`)
+    return res?.data || adminClimateService.getProduceGradingById(id)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.getProduceGradingById(id)
+  }
 }
 
-// --- 7. Audit Logs ---
+export async function overrideGrading(id, manualOverrideGrade, overrideNote, reason, adminUid = 'usr_admin_root', adminName = 'Super Admin') {
+  if (apiDisabled) {
+    return adminClimateService.overrideGrading(id, manualOverrideGrade, overrideNote, reason, adminUid, adminName)
+  }
+  try {
+    const res = await request('POST', `/v1/admin/climate/produce-grading/${id}/override`, {
+      manualOverrideGrade,
+      overrideNote,
+      reason
+    })
+    return res?.data || adminClimateService.overrideGrading(id, manualOverrideGrade, overrideNote, reason, adminUid, adminName)
+  } catch {
+    apiDisabled = true
+    return adminClimateService.overrideGrading(id, manualOverrideGrade, overrideNote, reason, adminUid, adminName)
+  }
+}
+
+export async function batchOverrideGradings(ids, overrideGrade, reason, adminUid = 'usr_admin_root', adminName = 'Super Admin') {
+  return adminClimateService.batchOverrideGradings(ids, overrideGrade, reason, adminUid, adminName)
+}
+
+// --- 7. Audit Logs & Seed Reset ---
 export async function getClimateAuditLogs(query = {}) {
-  const { page = 1, pageSize = 20, search = '' } = query
-  let filtered = [...auditLogsState]
-  if (search) {
-    const q = search.toLowerCase()
-    filtered = filtered.filter(
-      (l) =>
-        l.entityName?.toLowerCase().includes(q) ||
-        l.actionType?.toLowerCase().includes(q) ||
-        l.reason?.toLowerCase().includes(q) ||
-        l.id?.toLowerCase().includes(q)
-    )
-  }
-  return paginate(filtered, Number(page), Number(pageSize))
+  return adminClimateService.getClimateAuditLogs(query)
+}
+
+export async function getEntityAuditLogs(entityId) {
+  return adminClimateService.getEntityAuditLogs(entityId)
+}
+
+export async function resetClimateSeedData(reason, adminUid, adminName) {
+  return adminClimateService.resetToDefaultSeed(reason, adminUid, adminName)
 }

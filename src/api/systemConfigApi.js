@@ -1,345 +1,210 @@
+/**
+ * AGROVERCITY SUPERADMIN — Module 26: System Health, Remote Config, Broadcast & Moderation API
+ * Document ID: SOP-26
+ * Target Collections: app_config, broadcasts, user_reports, user_blocks, user_consents, audit_logs, expert_tickets
+ */
+
 import { request } from './client'
-import {
-  mockAppConfig,
-  mockSystemHealth,
-  mockBroadcasts,
-  mockUserReports,
-  mockUserBlocks,
-  mockUserConsents,
-  mockSystemConfigAuditLogs,
-  mockSystemConfigSummary
-} from './systemConfigMockData'
+import * as adminSystemConfigService from '../services/adminSystemConfigService'
 
-let mockMode = false
+let apiDisabled = false
 
-function paginate(list, page = 1, pageSize = 20) {
-  const start = (page - 1) * pageSize
-  return {
-    data: list.slice(start, start + pageSize),
-    page,
-    pageSize,
-    total: list.length
-  }
-}
-
-// In-memory state for mutations
-let appConfigState = JSON.parse(JSON.stringify(mockAppConfig))
-let broadcastsState = JSON.parse(JSON.stringify(mockBroadcasts))
-let userReportsState = JSON.parse(JSON.stringify(mockUserReports))
-let userBlocksState = JSON.parse(JSON.stringify(mockUserBlocks))
-let userConsentsState = JSON.parse(JSON.stringify(mockUserConsents))
-let auditLogsState = JSON.parse(JSON.stringify(mockSystemConfigAuditLogs))
-
-function recordAudit({ actionType, entityId, entityName, collection, previousState, newState, reason, adminName = 'Super Admin' }) {
-  const logEntry = {
-    id: `aud_cfg_${Date.now()}`,
-    adminUid: 'usr_admin_root',
-    adminName,
-    timestamp: new Date().toISOString(),
-    ipAddress: '10.0.4.15',
-    actionType,
-    entityId,
-    entityName,
-    collection,
-    previousState,
-    newState,
-    reason: reason || 'Routine system governance administrative operation'
-  }
-  auditLogsState.unshift(logEntry)
-  return logEntry
+function toQueryString(params = {}) {
+  const clean = {}
+  Object.keys(params).forEach((key) => {
+    if (params[key] !== undefined && params[key] !== null && params[key] !== '' && params[key] !== 'all') {
+      clean[key] = params[key]
+    }
+  })
+  const qs = new URLSearchParams(clean).toString()
+  return qs ? `?${qs}` : ''
 }
 
 // --- 1. Global KPI & System Health ---
 export async function getSystemConfigSummary() {
-  if (!mockMode) {
-    try {
-      return await request('GET', '/v1/admin/analytics/summary')
-    } catch {
-      mockMode = true
-    }
+  if (apiDisabled) {
+    return adminSystemConfigService.getSystemConfigSummary()
   }
-
-  const pendingReports = userReportsState.filter((r) => r.status === 'pending' || r.status === 'investigating').length
-  const totalBroadcasts = broadcastsState.reduce((acc, b) => acc + (b.deliveredCount || 0), 0)
-
-  return {
-    totalPlatformModules: 26,
-    activeServicesHealthy: 26,
-    systemUptimePct: 99.98,
-    minSupportedAppVersion: appConfigState.minSupportedVersion,
-    latestAppVersion: appConfigState.latestVersion,
-    broadcastsDeliveredThisMonth: totalBroadcasts,
-    pendingModerationReports: pendingReports,
-    totalBannedUsers: userBlocksState.length,
-    dpdpConsentCompliancePct: 100,
-    activeFeatureFlagCount: Object.values(appConfigState.featureFlags || {}).filter(Boolean).length
+  try {
+    const res = await request('GET', '/v1/admin/analytics/summary')
+    return res?.data || adminSystemConfigService.getSystemConfigSummary()
+  } catch {
+    apiDisabled = true
+    return adminSystemConfigService.getSystemConfigSummary()
   }
 }
 
 export async function getSystemHealth() {
-  if (!mockMode) {
-    try {
-      return await request('GET', '/v1/admin/system/health')
-    } catch {
-      mockMode = true
-    }
+  if (apiDisabled) {
+    return adminSystemConfigService.getSystemHealth()
   }
-  return { ...mockSystemHealth, lastHealthCheckAt: new Date().toISOString() }
+  try {
+    const res = await request('GET', '/v1/admin/system/health')
+    return res?.data || adminSystemConfigService.getSystemHealth()
+  } catch {
+    apiDisabled = true
+    return adminSystemConfigService.getSystemHealth()
+  }
+}
+
+export async function pingSystemHealth(adminName = 'Super Admin', adminUid = 'usr_admin_root') {
+  return adminSystemConfigService.pingSystemHealth(adminName, adminUid)
 }
 
 // --- 2. Remote Config & Feature Flags ---
 export async function getAppConfig() {
-  if (!mockMode) {
-    try {
-      return await request('GET', '/v1/admin/app-config')
-    } catch {
-      mockMode = true
-    }
+  if (apiDisabled) {
+    return adminSystemConfigService.getAppConfig()
   }
-  return { ...appConfigState }
+  try {
+    const res = await request('GET', '/v1/admin/app-config')
+    return res?.data || adminSystemConfigService.getAppConfig()
+  } catch {
+    apiDisabled = true
+    return adminSystemConfigService.getAppConfig()
+  }
 }
 
-export async function updateAppConfig(payload, reason = '', adminName = 'Super Admin') {
-  if (!mockMode) {
-    try {
-      return await request('PUT', '/v1/admin/app-config', { ...payload, reason })
-    } catch {
-      mockMode = true
-    }
+export async function updateAppConfig(payload, reason = '', adminName = 'Super Admin', adminUid = 'usr_admin_root') {
+  if (apiDisabled) {
+    return adminSystemConfigService.updateAppConfig(payload, reason, adminName, adminUid)
   }
-
-  const prev = { ...appConfigState }
-  appConfigState = {
-    ...appConfigState,
-    ...payload,
-    lastUpdatedBy: adminName,
-    lastUpdatedAt: new Date().toISOString()
+  try {
+    const res = await request('PUT', '/v1/admin/app-config', { ...payload, reason })
+    return res?.data || adminSystemConfigService.updateAppConfig(payload, reason, adminName, adminUid)
+  } catch {
+    apiDisabled = true
+    return adminSystemConfigService.updateAppConfig(payload, reason, adminName, adminUid)
   }
-
-  recordAudit({
-    actionType: 'UPDATE_REMOTE_CONFIG',
-    entityId: 'app_config',
-    entityName: 'Mobile App Version Gates & Feature Flags',
-    collection: 'app_config',
-    previousState: JSON.stringify({ min: prev.minSupportedVersion, maintenance: prev.maintenanceMode }),
-    newState: JSON.stringify({ min: appConfigState.minSupportedVersion, maintenance: appConfigState.maintenanceMode }),
-    reason: reason || 'Updated remote mobile config and feature flags',
-    adminName
-  })
-  return appConfigState
 }
 
 // --- 3. FCM Push Broadcasts Engine ---
 export async function listBroadcasts(query = {}) {
-  const { page = 1, pageSize = 20, search = '', targetPersona = 'all' } = query
-  if (!mockMode) {
-    try {
-      return await request('GET', '/v1/admin/broadcast', { params: query })
-    } catch {
-      mockMode = true
-    }
+  if (apiDisabled) {
+    return adminSystemConfigService.listBroadcasts(query)
   }
-
-  let filtered = [...broadcastsState]
-  if (targetPersona && targetPersona !== 'all') {
-    filtered = filtered.filter((b) => b.targetPersona === targetPersona)
+  try {
+    const qs = toQueryString(query)
+    const res = await request('GET', `/v1/admin/broadcast${qs}`)
+    return res?.data || adminSystemConfigService.listBroadcasts(query)
+  } catch {
+    apiDisabled = true
+    return adminSystemConfigService.listBroadcasts(query)
   }
-  if (search) {
-    const q = search.toLowerCase()
-    filtered = filtered.filter(
-      (b) =>
-        b.title?.toLowerCase().includes(q) ||
-        b.body?.toLowerCase().includes(q) ||
-        b.targetDistrict?.toLowerCase().includes(q) ||
-        b.id?.toLowerCase().includes(q)
-    )
-  }
-  return paginate(filtered, Number(page), Number(pageSize))
 }
 
-export async function sendBroadcast(payload, adminName = 'Super Admin') {
-  if (!mockMode) {
-    try {
-      return await request('POST', '/v1/admin/broadcast', payload)
-    } catch {
-      mockMode = true
-    }
+export async function sendBroadcast(payload, adminName = 'Super Admin', adminUid = 'usr_admin_root') {
+  if (apiDisabled) {
+    return adminSystemConfigService.sendBroadcast(payload, adminName, adminUid)
   }
-
-  const estRecipients = Math.floor(1500 + Math.random() * 25000)
-  const newBroadcast = {
-    id: `bc_fcm_${Date.now()}`,
-    ...payload,
-    status: 'sent',
-    recipientCount: estRecipients,
-    deliveredCount: Math.floor(estRecipients * 0.98),
-    clickRatePct: Math.floor(25 + Math.random() * 30),
-    fcmMessageId: `projects/agrovercity/messages/bc-${Date.now()}`,
-    sentAt: new Date().toISOString(),
-    sentBy: adminName,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+  try {
+    const res = await request('POST', '/v1/admin/broadcast', payload)
+    return res?.data || adminSystemConfigService.sendBroadcast(payload, adminName, adminUid)
+  } catch {
+    apiDisabled = true
+    return adminSystemConfigService.sendBroadcast(payload, adminName, adminUid)
   }
-  broadcastsState.unshift(newBroadcast)
-
-  recordAudit({
-    actionType: 'DISPATCH_FCM_BROADCAST',
-    entityId: newBroadcast.id,
-    entityName: newBroadcast.title,
-    collection: 'broadcasts',
-    previousState: null,
-    newState: `Delivered to ${newBroadcast.deliveredCount} users (${newBroadcast.targetPersona}, ${newBroadcast.targetDistrict})`,
-    reason: `FCM push notification broadcast: ${newBroadcast.title}`,
-    adminName
-  })
-  return newBroadcast
 }
 
 // --- 4. User Moderation Queue & Reports ---
 export async function listUserReports(query = {}) {
-  const { page = 1, pageSize = 20, search = '', status = 'all', category = 'all' } = query
-  if (!mockMode) {
-    try {
-      return await request('GET', '/v1/admin/reports', { params: query })
-    } catch {
-      mockMode = true
-    }
+  if (apiDisabled) {
+    return adminSystemConfigService.listUserReports(query)
   }
-
-  let filtered = [...userReportsState]
-  if (status && status !== 'all') {
-    filtered = filtered.filter((r) => r.status === status)
+  try {
+    const qs = toQueryString(query)
+    const res = await request('GET', `/v1/admin/reports${qs}`)
+    return res?.data || adminSystemConfigService.listUserReports(query)
+  } catch {
+    apiDisabled = true
+    return adminSystemConfigService.listUserReports(query)
   }
-  if (category && category !== 'all') {
-    filtered = filtered.filter((r) => r.category === category)
-  }
-  if (search) {
-    const q = search.toLowerCase()
-    filtered = filtered.filter(
-      (r) =>
-        r.reportedUserName?.toLowerCase().includes(q) ||
-        r.reporterName?.toLowerCase().includes(q) ||
-        r.evidenceDescription?.toLowerCase().includes(q) ||
-        r.id?.toLowerCase().includes(q)
-    )
-  }
-  return paginate(filtered, Number(page), Number(pageSize))
 }
 
-export async function resolveUserReport(id, resolution, reason = '', adminName = 'Super Admin') {
-  if (!mockMode) {
-    try {
-      return await request('POST', `/v1/admin/reports/${id}/resolve`, { resolution, reason })
-    } catch {
-      mockMode = true
-    }
+export async function resolveUserReport(id, resolution, reason = '', adminName = 'Super Admin', adminUid = 'usr_admin_root') {
+  if (apiDisabled) {
+    return adminSystemConfigService.resolveUserReport(id, resolution, reason, adminName, adminUid)
   }
-
-  const rep = userReportsState.find((r) => r.id === id)
-  if (!rep) throw new Error('Report not found')
-
-  const prevStatus = rep.status
-  rep.status = resolution // 'resolved_warning', 'resolved_banned', 'dismissed'
-  rep.resolutionNotes = reason
-  rep.updatedAt = new Date().toISOString()
-
-  if (resolution === 'resolved_banned') {
-    // Add to userBlocksState
-    const isAlreadyBlocked = userBlocksState.some((b) => b.userId === rep.reportedUserId)
-    if (!isAlreadyBlocked) {
-      userBlocksState.unshift({
-        id: `blk_${Date.now()}`,
-        userId: rep.reportedUserId,
-        userName: rep.reportedUserName,
-        userPhone: rep.reportedUserPhone,
-        userAadhaarMasked: 'XXXX-XXXX-8921',
-        persona: rep.reportedUserPersona,
-        district: 'Reported Region',
-        bannedBy: adminName,
-        banReason: reason || `Banned following resolution of report #${id} (${rep.category})`,
-        appealStatus: 'ineligible',
-        bannedAt: new Date().toISOString()
-      })
-    }
+  try {
+    const res = await request('POST', `/v1/admin/reports/${id}/resolve`, { resolution, reason })
+    return res?.data || adminSystemConfigService.resolveUserReport(id, resolution, reason, adminName, adminUid)
+  } catch {
+    apiDisabled = true
+    return adminSystemConfigService.resolveUserReport(id, resolution, reason, adminName, adminUid)
   }
+}
 
-  recordAudit({
-    actionType: resolution === 'resolved_banned' ? 'BAN_USER' : 'RESOLVE_USER_REPORT',
-    entityId: id,
-    entityName: `${rep.reportedUserName} (${rep.category})`,
-    collection: 'user_reports',
-    previousState: `status: ${prevStatus}`,
-    newState: `status: ${resolution}`,
-    reason: reason || `Admin resolved moderation report as ${resolution}`,
-    adminName
-  })
-  return rep
+export async function batchResolveReports(ids, resolution, reason, adminName = 'Super Admin', adminUid = 'usr_admin_root') {
+  return adminSystemConfigService.batchResolveReports(ids, resolution, reason, adminName, adminUid)
 }
 
 // --- 5. User Blocks / Blacklist Registry ---
 export async function listUserBlocks(query = {}) {
-  const { page = 1, pageSize = 20, search = '' } = query
-  let filtered = [...userBlocksState]
-  if (search) {
-    const q = search.toLowerCase()
-    filtered = filtered.filter(
-      (b) =>
-        b.userName?.toLowerCase().includes(q) ||
-        b.userPhone?.toLowerCase().includes(q) ||
-        b.banReason?.toLowerCase().includes(q) ||
-        b.userId?.toLowerCase().includes(q)
-    )
+  if (apiDisabled) {
+    return adminSystemConfigService.listUserBlocks(query)
   }
-  return paginate(filtered, Number(page), Number(pageSize))
+  try {
+    const qs = toQueryString(query)
+    const res = await request('GET', `/v1/admin/blocks${qs}`)
+    return res?.data || adminSystemConfigService.listUserBlocks(query)
+  } catch {
+    apiDisabled = true
+    return adminSystemConfigService.listUserBlocks(query)
+  }
 }
 
-export async function unbanUser(userId, reason = '', adminName = 'Super Admin') {
-  const idx = userBlocksState.findIndex((b) => b.userId === userId)
-  if (idx === -1) throw new Error('Blocked user record not found')
-  const unbanned = userBlocksState.splice(idx, 1)[0]
-
-  recordAudit({
-    actionType: 'UNBAN_USER',
-    entityId: userId,
-    entityName: unbanned.userName,
-    collection: 'user_blocks',
-    previousState: 'status: banned',
-    newState: 'status: restored',
-    reason: reason || 'Lifted user ban following appeal review',
-    adminName
-  })
-  return unbanned
+export async function unbanUser(userId, reason = '', adminName = 'Super Admin', adminUid = 'usr_admin_root') {
+  if (apiDisabled) {
+    return adminSystemConfigService.unbanUser(userId, reason, adminName, adminUid)
+  }
+  try {
+    const res = await request('POST', `/v1/admin/blocks/${userId}/unban`, { reason })
+    return res?.data || adminSystemConfigService.unbanUser(userId, reason, adminName, adminUid)
+  } catch {
+    apiDisabled = true
+    return adminSystemConfigService.unbanUser(userId, reason, adminName, adminUid)
+  }
 }
 
-// --- 6. DPDP User Consents Ledger ---
+export async function batchUnbanUsers(userIds, reason, adminName = 'Super Admin', adminUid = 'usr_admin_root') {
+  return adminSystemConfigService.batchUnbanUsers(userIds, reason, adminName, adminUid)
+}
+
+// --- 6. Agronomist Consultation Expert Tickets Desk ---
+export async function listExpertTickets(query = {}) {
+  return adminSystemConfigService.listExpertTickets(query)
+}
+
+export async function resolveExpertTicket(id, resolutionNotes, prescribedTreatment, adminName = 'Super Admin', adminUid = 'usr_admin_root') {
+  return adminSystemConfigService.resolveExpertTicket(id, resolutionNotes, prescribedTreatment, adminName, adminUid)
+}
+
+export async function assignExpertTicket(id, assignedAgronomist, reason, adminName = 'Super Admin', adminUid = 'usr_admin_root') {
+  return adminSystemConfigService.assignExpertTicket(id, assignedAgronomist, reason, adminName, adminUid)
+}
+
+export async function batchResolveExpertTickets(ids, resolutionNotes, adminName = 'Super Admin', adminUid = 'usr_admin_root') {
+  return adminSystemConfigService.batchResolveExpertTickets(ids, resolutionNotes, adminName, adminUid)
+}
+
+// --- 7. DPDP User Consents Ledger ---
 export async function listUserConsents(query = {}) {
-  const { page = 1, pageSize = 20, search = '' } = query
-  let filtered = [...userConsentsState]
-  if (search) {
-    const q = search.toLowerCase()
-    filtered = filtered.filter(
-      (c) =>
-        c.userName?.toLowerCase().includes(q) ||
-        c.purpose?.toLowerCase().includes(q) ||
-        c.userId?.toLowerCase().includes(q)
-    )
-  }
-  return paginate(filtered, Number(page), Number(pageSize))
+  return adminSystemConfigService.listUserConsents(query)
 }
 
-// --- 7. Audit Logs ---
+// --- 8. Audit Logs & Seed Reset ---
 export async function getSystemConfigAuditLogs(query = {}) {
-  const { page = 1, pageSize = 20, search = '' } = query
-  let filtered = [...auditLogsState]
-  if (search) {
-    const q = search.toLowerCase()
-    filtered = filtered.filter(
-      (l) =>
-        l.entityName?.toLowerCase().includes(q) ||
-        l.actionType?.toLowerCase().includes(q) ||
-        l.reason?.toLowerCase().includes(q) ||
-        l.id?.toLowerCase().includes(q)
-    )
-  }
-  return paginate(filtered, Number(page), Number(pageSize))
+  return adminSystemConfigService.getSystemConfigAuditLogs(query)
+}
+
+export async function getEntityAuditLogs(entityId) {
+  return adminSystemConfigService.getEntityAuditLogs(entityId)
+}
+
+export async function resetSystemConfigSeedData(reason, adminUid, adminName) {
+  return adminSystemConfigService.resetToDefaultSeed(reason, adminUid, adminName)
+}
+
+export async function resetToDefaultSeed(reason, adminName, adminUid) {
+  return adminSystemConfigService.resetToDefaultSeed(reason, adminName, adminUid)
 }
