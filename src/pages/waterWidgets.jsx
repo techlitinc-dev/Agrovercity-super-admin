@@ -29,6 +29,12 @@ import {
   SlidersHorizontal,
   BellRing
 } from 'lucide-react'
+import {
+  AgroStatusDropdown,
+  AgroDistrictDropdown,
+  AgroDateDropdown,
+  AgroFilterDropdown
+} from '../components/ui/AgroFilterDropdown'
 
 export function fmtLiters(liters) {
   if (liters === undefined || liters === null) return '—'
@@ -236,93 +242,99 @@ export function FiltersBar({
 
         {/* Schedule Status Filter */}
         {tab === 'schedules' && (
-          <select
+          <AgroStatusDropdown
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Schedule Statuses</option>
-            <option value="active">Active Running</option>
-            <option value="scheduled">Scheduled</option>
-            <option value="completed">Completed</option>
-            <option value="skipped">Skipped</option>
-          </select>
+            onChange={setStatus}
+            options={[
+              { value: 'all', label: 'All Schedule Statuses', dotColor: 'bg-slate-400' },
+              { value: 'active', label: 'Active Running Flow', dotColor: 'bg-teal-500', badge: 'Running' },
+              { value: 'scheduled', label: 'Scheduled Rotation', dotColor: 'bg-sky-500', badge: 'Next' },
+              { value: 'completed', label: 'Completed Cycle', dotColor: 'bg-emerald-500' },
+              { value: 'skipped', label: 'Skipped / Weather Deferred', dotColor: 'bg-slate-400' }
+            ]}
+          />
         )}
 
         {/* Irrigation Type Filter */}
         {tab === 'schedules' && (
-          <select
+          <AgroFilterDropdown
+            label="Method"
             value={irrigationType}
-            onChange={(e) => setIrrigationType(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Irrigation Methods</option>
-            <option value="Drip">Drip Irrigation (ठिबक)</option>
-            <option value="Sprinkler">Sprinkler (तुषार)</option>
-            <option value="Furrow">Furrow / Flood</option>
-            <option value="Canal">Canal Lift Linked</option>
-          </select>
+            onChange={setIrrigationType}
+            options={[
+              { value: 'all', label: 'All Irrigation Methods' },
+              { value: 'Drip', label: 'Drip Irrigation (ठिबक)', badge: 'PMKSY 55%', subtext: 'Micro-irrigation' },
+              { value: 'Sprinkler', label: 'Sprinkler (तुषार)', badge: 'Subsidized', subtext: 'Pressurized spray' },
+              { value: 'Furrow', label: 'Furrow / Surface Flood', subtext: 'Traditional gravity flow' },
+              { value: 'Canal', label: 'Canal Lift Linked', badge: 'WRD', subtext: 'Command area lift' }
+            ]}
+            icon={Droplets}
+          />
         )}
 
         {/* Over/Under Irrigation Alert Filter */}
         {tab === 'schedules' && (
-          <select
+          <AgroFilterDropdown
+            label="Water Balance"
             value={alertFilter}
-            onChange={(e) => setAlertFilter(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Irrigation Levels</option>
-            <option value="OPTIMAL">Optimal Irrigation</option>
-            <option value="UNDER_IRRIGATED">Under-Irrigated Alert</option>
-            <option value="OVER_IRRIGATED">Over-Irrigated Alert</option>
-          </select>
+            onChange={setAlertFilter}
+            options={[
+              { value: 'all', label: 'All Irrigation Levels' },
+              { value: 'OPTIMAL', label: 'Optimal Irrigation', dotColor: 'bg-emerald-500', badge: 'Safe' },
+              { value: 'UNDER_IRRIGATED', label: 'Under-Irrigated Alert', dotColor: 'bg-amber-500', badge: 'Deficit' },
+              { value: 'OVER_IRRIGATED', label: 'Over-Irrigated Alert', dotColor: 'bg-rose-500', badge: 'Risk' }
+            ]}
+            icon={Gauge}
+          />
         )}
 
         {/* CGWB Category Filter */}
         {tab === 'cgwb' && (
-          <select
+          <AgroStatusDropdown
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Aquifer Categories</option>
-            <option value="SAFE">Safe Category</option>
-            <option value="SEMI_CRITICAL">Semi-Critical</option>
-            <option value="CRITICAL">Critical Depth</option>
-            <option value="OVER_EXPLOITED">Over-Exploited (OEX)</option>
-          </select>
+            onChange={setStatus}
+            label="Aquifer Depth"
+            options={[
+              { value: 'all', label: 'All Aquifer Categories', dotColor: 'bg-slate-400' },
+              { value: 'SAFE', label: 'Safe Category (< 10m BGL)', dotColor: 'bg-emerald-500', badge: 'Safe' },
+              { value: 'SEMI_CRITICAL', label: 'Semi-Critical (10–20m BGL)', dotColor: 'bg-amber-500', badge: 'Watch' },
+              { value: 'CRITICAL', label: 'Critical Depth (> 20m BGL)', dotColor: 'bg-rose-500', badge: 'Critical' },
+              { value: 'OVER_EXPLOITED', label: 'Over-Exploited (OEX)', dotColor: 'bg-purple-500', badge: 'Borewell Ban' }
+            ]}
+          />
         )}
 
         {/* Canal Status Filter */}
         {tab === 'canals' && (
-          <select
+          <AgroStatusDropdown
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Canal Release Statuses</option>
-            <option value="active_rotation">Active Flow Release</option>
-            <option value="scheduled">Scheduled Rotation</option>
-            <option value="maintenance_closure">Maintenance Closure</option>
-            <option value="dry_spell">Water Deficit Hold</option>
-          </select>
+            onChange={setStatus}
+            label="Release Flow"
+            options={[
+              { value: 'all', label: 'All Canal Release Statuses', dotColor: 'bg-slate-400' },
+              { value: 'active_rotation', label: 'Active Flow Release', dotColor: 'bg-emerald-500', badge: 'Open' },
+              { value: 'scheduled', label: 'Scheduled Rotation', dotColor: 'bg-sky-500', badge: 'Upcoming' },
+              { value: 'maintenance_closure', label: 'Maintenance Closure', dotColor: 'bg-amber-500', badge: 'Closed' },
+              { value: 'dry_spell', label: 'Water Deficit Hold', dotColor: 'bg-rose-500', badge: 'Hold' }
+            ]}
+          />
         )}
 
         {/* District Filter */}
         {['schedules', 'cgwb', 'canals'].includes(tab) && (
-          <select
+          <AgroDistrictDropdown
             value={district}
-            onChange={(e) => setDistrict(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Districts</option>
-            <option value="Nashik">Nashik</option>
-            <option value="Jalna">Jalna</option>
-            <option value="Beed">Beed</option>
-            <option value="Latur">Latur</option>
-            <option value="Chhatrapati Sambhajinagar">Chhatrapati Sambhajinagar</option>
-            <option value="Dewas">Dewas (MP)</option>
-          </select>
+            onChange={setDistrict}
+            districts={[
+              { value: 'all', label: 'All Districts (Command Basin)', subtext: 'Godavari & Krishna Command' },
+              { value: 'Nashik', label: 'Nashik', subtext: 'Upper Godavari Basin', badge: 'MH' },
+              { value: 'Jalna', label: 'Jalna', subtext: 'Marathwada Canal Grid', badge: 'MH' },
+              { value: 'Beed', label: 'Beed', subtext: 'Majalgaon Command', badge: 'MH' },
+              { value: 'Latur', label: 'Latur', subtext: 'Manjara Sub-basin', badge: 'MH' },
+              { value: 'Chhatrapati Sambhajinagar', label: 'Chhatrapati Sambhajinagar', subtext: 'Jayakwadi Command', badge: 'MH' },
+              { value: 'Dewas', label: 'Dewas', subtext: 'Narmada Kshipra Link', badge: 'MP' }
+            ]}
+          />
         )}
       </div>
 

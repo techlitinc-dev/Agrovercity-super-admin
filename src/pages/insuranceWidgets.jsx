@@ -21,6 +21,11 @@ import {
   Layers,
   Sparkles
 } from 'lucide-react'
+import {
+  AgroStatusDropdown,
+  AgroDateDropdown,
+  AgroFilterDropdown
+} from '../components/ui/AgroFilterDropdown'
 
 export function fmtINR(amount) {
   if (amount === undefined || amount === null || isNaN(amount)) return '—'
@@ -160,63 +165,67 @@ export function FiltersBar({
 
         {/* Status dropdown */}
         {tab === 'claims' && (
-          <select
+          <AgroStatusDropdown
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Claim Statuses</option>
-            <option value="intimated">Intimated (Awaiting Surveyor)</option>
-            <option value="surveyorAssigned">Surveyor Assigned</option>
-            <option value="fieldAssessed">Field Assessed</option>
-            <option value="dbtApproved">DBT Approved</option>
-            <option value="disbursed">Disbursed (Payout Settled)</option>
-            <option value="rejected">Rejected Claims</option>
-          </select>
+            onChange={setStatus}
+            options={[
+              { value: 'all', label: 'All Claim Statuses', dotColor: 'bg-slate-400' },
+              { value: 'intimated', label: 'Intimated (Awaiting Surveyor)', dotColor: 'bg-amber-500', badge: 'Queue' },
+              { value: 'surveyorAssigned', label: 'Surveyor Assigned', dotColor: 'bg-sky-500' },
+              { value: 'fieldAssessed', label: 'Field Assessed', dotColor: 'bg-purple-500' },
+              { value: 'dbtApproved', label: 'DBT Approved', dotColor: 'bg-teal-500', badge: 'DBT' },
+              { value: 'disbursed', label: 'Disbursed (Payout Settled)', dotColor: 'bg-emerald-500', badge: 'Settled' },
+              { value: 'rejected', label: 'Rejected Claims', dotColor: 'bg-rose-500', badge: 'Declined' }
+            ]}
+          />
         )}
 
         {tab === 'policies' && (
-          <select
+          <AgroStatusDropdown
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Policy Statuses</option>
-            <option value="active">Active Policies</option>
-            <option value="claimed">Claim Filed</option>
-            <option value="expired">Expired</option>
-          </select>
+            onChange={setStatus}
+            options={[
+              { value: 'all', label: 'All Policy Statuses', dotColor: 'bg-slate-400' },
+              { value: 'active', label: 'Active Policies', dotColor: 'bg-emerald-500', badge: 'Live' },
+              { value: 'claimed', label: 'Claim Filed', dotColor: 'bg-amber-500' },
+              { value: 'expired', label: 'Expired Policy', dotColor: 'bg-slate-400' }
+            ]}
+          />
         )}
 
         {/* Secondary filter */}
         {tab === 'claims' && (
-          <select
+          <AgroFilterDropdown
+            label="Calamity"
             value={secondaryFilter}
-            onChange={(e) => setSecondaryFilter(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Calamity Types</option>
-            <option value="Excess Rainfall / Flood">Excess Rainfall / Flood</option>
-            <option value="Hailstorm (गारपीट)">Hailstorm (गारपीट)</option>
-            <option value="Severe Pest Attack (Pink Bollworm)">Pest Attack (Pink Bollworm)</option>
-            <option value="Unseasonal Heavy Rains">Unseasonal Rains</option>
-            <option value="Drought / Dry Spell">Drought / Dry Spell</option>
-            <option value="Cyclone / Heavy Gale Winds">Cyclone / Squall Winds</option>
-          </select>
+            onChange={setSecondaryFilter}
+            options={[
+              { value: 'all', label: 'All Calamity Types' },
+              { value: 'Excess Rainfall / Flood', label: 'Excess Rainfall / Flood', badge: 'Flood' },
+              { value: 'Hailstorm (गारपीट)', label: 'Hailstorm (गारपीट)', badge: 'Hail' },
+              { value: 'Severe Pest Attack (Pink Bollworm)', label: 'Pest Attack (Pink Bollworm)', badge: 'Pest' },
+              { value: 'Unseasonal Heavy Rains', label: 'Unseasonal Rains' },
+              { value: 'Drought / Dry Spell', label: 'Drought / Dry Spell', badge: 'Dry' },
+              { value: 'Cyclone / Heavy Gale Winds', label: 'Cyclone / Squall Winds' }
+            ]}
+            icon={ShieldAlert}
+          />
         )}
 
         {tab === 'surveyors' && (
-          <select
+          <AgroFilterDropdown
+            label="Agency"
             value={secondaryFilter}
-            onChange={(e) => setSecondaryFilter(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Insurance Agencies</option>
-            <option value="Agriculture Insurance Company of India (AIC)">AIC of India</option>
-            <option value="HDFC ERGO General Insurance">HDFC ERGO</option>
-            <option value="SBI General Insurance">SBI General</option>
-            <option value="Bajaj Allianz General Insurance">Bajaj Allianz</option>
-          </select>
+            onChange={setSecondaryFilter}
+            options={[
+              { value: 'all', label: 'All Insurance Agencies' },
+              { value: 'Agriculture Insurance Company of India (AIC)', label: 'AIC of India', badge: 'Govt' },
+              { value: 'HDFC ERGO General Insurance', label: 'HDFC ERGO' },
+              { value: 'SBI General Insurance', label: 'SBI General' },
+              { value: 'Bajaj Allianz General Insurance', label: 'Bajaj Allianz' }
+            ]}
+            icon={Building2}
+          />
         )}
 
         {/* 72h Calamity Intimation quick toggle */}
@@ -224,10 +233,10 @@ export function FiltersBar({
           <button
             type="button"
             onClick={() => setLateOnly(!lateOnly)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all cursor-pointer ${
               lateOnly
-                ? 'bg-rose-50 text-rose-700 border-rose-300 shadow-2xs'
-                : 'bg-emerald-50/20 text-slate-700 border-slate-200 hover:bg-emerald-50/50'
+                ? 'bg-rose-50 text-rose-700 border-rose-300 shadow-2xs font-bold ring-2 ring-rose-400/20'
+                : 'bg-white hover:bg-emerald-50/50 text-slate-700 border-emerald-200/90'
             }`}
             title="Filter claims submitted outside statutory 72-hour window"
           >
@@ -237,16 +246,16 @@ export function FiltersBar({
         )}
 
         {/* Date range filter */}
-        <select
+        <AgroDateDropdown
           value={dateRange}
-          onChange={(e) => setDateRange(e.target.value)}
-          className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-        >
-          <option value="7">Last 7 Days</option>
-          <option value="30">Last 30 Days</option>
-          <option value="90">Last 90 Days</option>
-          <option value="all">All Historical</option>
-        </select>
+          onChange={setDateRange}
+          options={[
+            { value: '7', label: 'Last 7 Days', subtext: 'Weekly operational view' },
+            { value: '30', label: 'Last 30 Days', subtext: 'Monthly SLA view' },
+            { value: '90', label: 'Last 90 Days', subtext: 'Seasonal quarter' },
+            { value: 'all', label: 'All Historical', subtext: 'Full PMFBY records' }
+          ]}
+        />
       </div>
 
       {/* Action buttons on the right */}

@@ -1,4 +1,3 @@
-import React from 'react'
 import {
   Stethoscope,
   HeartPulse,
@@ -31,6 +30,13 @@ import {
   CheckSquare,
   Square
 } from 'lucide-react'
+import {
+  AgroStatusDropdown,
+  AgroDistrictDropdown,
+  AgroDateDropdown,
+  AgroPersonaDropdown,
+  AgroFilterDropdown
+} from '../components/ui/AgroFilterDropdown'
 
 export function fmtINR(val) {
   if (val === null || val === undefined || isNaN(val)) return '₹0'
@@ -215,6 +221,112 @@ export function FiltersBar({
 
   const addText = getAddButtonText()
 
+  const getStatusOptions = () => {
+    switch (activeTab) {
+      case 'vets':
+        return [
+          { value: 'all', label: 'All Statuses', dotColor: 'bg-slate-400' },
+          { value: 'verified_active', label: 'Verified & Active', dotColor: 'bg-emerald-500', badge: 'Active' },
+          { value: 'pending_verification', label: 'Pending Verification', dotColor: 'bg-amber-500', badge: 'Queue' },
+          { value: 'suspended', label: 'Suspended Vet', dotColor: 'bg-rose-500', badge: 'Hold' }
+        ]
+      case 'gaushalas':
+        return [
+          { value: 'all', label: 'All Statuses', dotColor: 'bg-slate-400' },
+          { value: 'certified_active', label: 'Certified Compliant', dotColor: 'bg-emerald-500', badge: 'Certified' },
+          { value: 'pending_audit', label: 'Pending Audit', dotColor: 'bg-amber-500', badge: 'Audit' },
+          { value: 'flagged', label: 'Flagged Anomaly', dotColor: 'bg-rose-500', badge: 'Alert' }
+        ]
+      case 'nurseries':
+        return [
+          { value: 'all', label: 'All Statuses', dotColor: 'bg-slate-400' },
+          { value: 'approved', label: 'Govt Empaneled', dotColor: 'bg-emerald-500', badge: 'Govt' },
+          { value: 'pending_inspection', label: 'Pending Inspection', dotColor: 'bg-amber-500', badge: 'Inspect' },
+          { value: 'suspended', label: 'Suspended', dotColor: 'bg-rose-500' }
+        ]
+      case 'dairy':
+        return [
+          { value: 'all', label: 'All Statuses', dotColor: 'bg-slate-400' },
+          { value: 'active', label: 'Active (Lab Cleared)', dotColor: 'bg-emerald-500', badge: 'NABL' },
+          { value: 'pending_lab_clearance', label: 'Pending Lab Clearance', dotColor: 'bg-amber-500' },
+          { value: 'recalled', label: 'Recalled Batch', dotColor: 'bg-rose-500', badge: 'Alert' }
+        ]
+      case 'bookings':
+        return [
+          { value: 'all', label: 'All Statuses', dotColor: 'bg-slate-400' },
+          { value: 'emergency_dispatched', label: 'Emergency Dispatched', dotColor: 'bg-rose-500', badge: 'SOS' },
+          { value: 'in_progress', label: 'In Progress', dotColor: 'bg-sky-500' },
+          { value: 'completed', label: 'Completed', dotColor: 'bg-emerald-500' },
+          { value: 'dispute_mediation', label: 'Dispute / Mediated', dotColor: 'bg-amber-500' }
+        ]
+      case 'manure':
+        return [
+          { value: 'all', label: 'All Statuses', dotColor: 'bg-slate-400' },
+          { value: 'in_transit', label: 'In Transit', dotColor: 'bg-sky-500' },
+          { value: 'loading_at_gaushala', label: 'Loading at Yard', dotColor: 'bg-amber-500' },
+          { value: 'delivered', label: 'Delivered', dotColor: 'bg-emerald-500' },
+          { value: 'pending_dual_signoff', label: 'Pending Dual Sign-off', dotColor: 'bg-purple-500', badge: 'Sign-Off' }
+        ]
+      case 'orders_audit':
+        return [
+          { value: 'all', label: 'All Audit Statuses', dotColor: 'bg-slate-400' },
+          { value: 'NABL CLEARED', label: 'NABL Cleared (Dairy)', dotColor: 'bg-emerald-500' },
+          { value: 'RECALLED BATCH', label: 'Recalled (Dairy)', dotColor: 'bg-rose-500' },
+          { value: 'IN TRANSIT', label: 'In Transit (Manure)', dotColor: 'bg-sky-500' },
+          { value: 'DELIVERED', label: 'Delivered (Manure)', dotColor: 'bg-emerald-500' },
+          { value: 'PENDING DUAL SIGNOFF', label: 'Pending Dual Signoff', dotColor: 'bg-purple-500' }
+        ]
+      default:
+        return [
+          { value: 'all', label: 'All Statuses', dotColor: 'bg-slate-400' },
+          { value: 'active', label: 'Active', dotColor: 'bg-emerald-500' },
+          { value: 'pending', label: 'Pending', dotColor: 'bg-amber-500' }
+        ]
+    }
+  }
+
+  const dateRangeOptions = [
+    { value: 'all', label: 'All Time' },
+    { value: 'today', label: 'Today (Live)' },
+    { value: 'last_7_days', label: 'Last 7 Days' },
+    { value: 'last_30_days', label: 'Last 30 Days' },
+    { value: 'this_quarter', label: 'This Quarter' }
+  ]
+
+  const districtOptions = [
+    { value: 'all', label: 'All Districts (Pan-India)' },
+    { value: 'Pune', label: 'Pune', subtext: 'Maharashtra', badge: 'MH' },
+    { value: 'Nashik', label: 'Nashik', subtext: 'Maharashtra', badge: 'MH' },
+    { value: 'Ahmednagar', label: 'Ahmednagar', subtext: 'Maharashtra', badge: 'MH' },
+    { value: 'Kolhapur', label: 'Kolhapur', subtext: 'Maharashtra', badge: 'MH' },
+    { value: 'Solapur', label: 'Solapur', subtext: 'Maharashtra', badge: 'MH' },
+    { value: 'Aurangabad', label: 'Aurangabad', subtext: 'Maharashtra', badge: 'MH' },
+    { value: 'Satara', label: 'Satara', subtext: 'Maharashtra', badge: 'MH' },
+    { value: 'Ratnagiri', label: 'Ratnagiri', subtext: 'Maharashtra', badge: 'MH' }
+  ]
+
+  const dairyCategoryOptions = [
+    { value: 'all', label: 'All Dairy Categories' },
+    { value: 'Desi Ghee', label: 'Desi Ghee', badge: 'A2 Vedic' },
+    { value: 'Fresh Milk', label: 'Fresh Milk', badge: 'Raw Whole' },
+    { value: 'Paneer', label: 'Paneer', badge: 'Handmade' },
+    { value: 'Cultured Dairy', label: 'Cultured Dairy / Chaas' },
+    { value: 'Butter', label: 'Butter', badge: 'Makhan' }
+  ]
+
+  const manureOrderOptions = [
+    { value: 'all', label: 'All Manure Orders' },
+    { value: 'required', label: 'Dual Sign-off Required (> ₹50k)', badge: 'Escrow' },
+    { value: 'pending', label: 'Dual Sign-off Pending', badge: 'Action Needed' },
+    { value: 'completed', label: 'Dual Sign-off Completed' }
+  ]
+
+  const orderAuditTypeOptions = [
+    { value: 'all', label: 'All Order Streams' },
+    { value: 'dairy', label: 'Direct A2 Dairy Ledger', badge: 'SOP-19 §5.1' },
+    { value: 'manure', label: 'Bulk Manure Escrow Ledger', badge: 'SOP-19 §5.2' }
+  ]
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-emerald-50/40 border-b border-emerald-100/90 text-xs">
       <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[320px]">
@@ -231,137 +343,59 @@ export function FiltersBar({
         </div>
 
         {/* Status Dropdown */}
-        <select
+        <AgroStatusDropdown
           value={statusFilter}
-          onChange={(e) => onStatusChange(e.target.value)}
-          className="px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
-        >
-          <option value="all">All Statuses</option>
-          {activeTab === 'vets' && (
-            <>
-              <option value="verified_active">Verified &amp; Active</option>
-              <option value="pending_verification">Pending Verification</option>
-              <option value="suspended">Suspended</option>
-            </>
-          )}
-          {activeTab === 'gaushalas' && (
-            <>
-              <option value="certified_active">Certified Compliant</option>
-              <option value="pending_audit">Pending Audit</option>
-              <option value="flagged">Flagged Anomaly</option>
-            </>
-          )}
-          {activeTab === 'nurseries' && (
-            <>
-              <option value="approved">Govt Empaneled</option>
-              <option value="pending_inspection">Pending Inspection</option>
-              <option value="suspended">Suspended</option>
-            </>
-          )}
-          {activeTab === 'dairy' && (
-            <>
-              <option value="active">Active (Lab Cleared)</option>
-              <option value="pending_lab_clearance">Pending Lab</option>
-              <option value="recalled">Recalled</option>
-            </>
-          )}
-          {activeTab === 'bookings' && (
-            <>
-              <option value="emergency_dispatched">Emergency Dispatched</option>
-              <option value="in_progress">In Progress</option>
-              <option value="completed">Completed</option>
-              <option value="dispute_mediation">Dispute / Mediated</option>
-            </>
-          )}
-          {activeTab === 'manure' && (
-            <>
-              <option value="in_transit">In Transit</option>
-              <option value="loading_at_gaushala">Loading at Yard</option>
-              <option value="delivered">Delivered</option>
-              <option value="pending_dual_signoff">Pending Dual Sign-off</option>
-            </>
-          )}
-          {activeTab === 'orders_audit' && (
-            <>
-              <option value="NABL CLEARED">NABL Cleared (Dairy)</option>
-              <option value="RECALLED BATCH">Recalled (Dairy)</option>
-              <option value="IN TRANSIT">In Transit (Manure)</option>
-              <option value="DELIVERED">Delivered (Manure)</option>
-              <option value="PENDING DUAL SIGNOFF">Pending Dual Signoff</option>
-            </>
-          )}
-        </select>
+          onChange={onStatusChange}
+          options={getStatusOptions()}
+        />
 
-        {/* Date Range Filter (SOP-19 §4.2 Wireframe) */}
-        <select
+        {/* Date Range Filter */}
+        <AgroDateDropdown
           value={dateRangeFilter}
-          onChange={(e) => onDateRangeChange(e.target.value)}
-          className="px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
-        >
-          <option value="all">Date: All Time</option>
-          <option value="today">Date: Today</option>
-          <option value="last_7_days">Date: Last 7 Days</option>
-          <option value="last_30_days">Date: Last 30 Days</option>
-          <option value="this_quarter">Date: This Quarter</option>
-        </select>
+          onChange={onDateRangeChange}
+          options={dateRangeOptions}
+        />
 
-        {/* District or Category Filter */}
+        {/* District Filter (for location-based tabs) */}
         {(activeTab === 'vets' || activeTab === 'gaushalas' || activeTab === 'nurseries' || activeTab === 'bookings') && (
-          <select
+          <AgroDistrictDropdown
             value={extraFilter}
-            onChange={(e) => onExtraFilterChange(e.target.value)}
-            className="px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
-          >
-            <option value="all">All Districts</option>
-            <option value="Pune">Pune</option>
-            <option value="Nashik">Nashik</option>
-            <option value="Ahmednagar">Ahmednagar</option>
-            <option value="Kolhapur">Kolhapur</option>
-            <option value="Solapur">Solapur</option>
-            <option value="Aurangabad">Aurangabad</option>
-            <option value="Satara">Satara</option>
-            <option value="Ratnagiri">Ratnagiri</option>
-          </select>
+            onChange={onExtraFilterChange}
+            districts={districtOptions}
+          />
         )}
 
+        {/* Dairy Category Filter */}
         {activeTab === 'dairy' && (
-          <select
+          <AgroFilterDropdown
+            label="Category"
             value={extraFilter}
-            onChange={(e) => onExtraFilterChange(e.target.value)}
-            className="px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
-          >
-            <option value="all">All Dairy Categories</option>
-            <option value="Desi Ghee">Desi Ghee</option>
-            <option value="Fresh Milk">Fresh Milk</option>
-            <option value="Paneer">Paneer</option>
-            <option value="Cultured Dairy">Cultured Dairy / Chaas</option>
-            <option value="Butter">Butter</option>
-          </select>
+            onChange={onExtraFilterChange}
+            options={dairyCategoryOptions}
+            icon={Milk}
+          />
         )}
 
+        {/* Manure Order Escrow Filter */}
         {activeTab === 'manure' && (
-          <select
+          <AgroFilterDropdown
+            label="Dual Sign-off"
             value={extraFilter}
-            onChange={(e) => onExtraFilterChange(e.target.value)}
-            className="px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
-          >
-            <option value="all">All Orders</option>
-            <option value="required">Dual Sign-off Required (&gt; ₹50,000)</option>
-            <option value="pending">Dual Sign-off Pending</option>
-            <option value="completed">Dual Sign-off Completed</option>
-          </select>
+            onChange={onExtraFilterChange}
+            options={manureOrderOptions}
+            icon={ShieldCheck}
+          />
         )}
 
+        {/* Orders Audit Stream Filter */}
         {activeTab === 'orders_audit' && (
-          <select
+          <AgroFilterDropdown
+            label="Order Stream"
             value={extraFilter}
-            onChange={(e) => onExtraFilterChange(e.target.value)}
-            className="px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
-          >
-            <option value="all">All Order Types</option>
-            <option value="dairy">Direct A2 Dairy Only</option>
-            <option value="manure">Bulk Manure Only</option>
-          </select>
+            onChange={onExtraFilterChange}
+            options={orderAuditTypeOptions}
+            icon={Truck}
+          />
         )}
       </div>
 

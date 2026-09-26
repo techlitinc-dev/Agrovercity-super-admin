@@ -28,6 +28,12 @@ import {
   FileSpreadsheet,
   ShieldAlert
 } from 'lucide-react'
+import {
+  AgroStatusDropdown,
+  AgroPersonaDropdown,
+  AgroDateDropdown,
+  AgroFilterDropdown
+} from '../components/ui/AgroFilterDropdown'
 
 export function fmtINR(val) {
   if (val === null || val === undefined || isNaN(val)) return '₹0'
@@ -263,70 +269,70 @@ export function SettlementsFiltersBar({
 
         {/* Status Dropdown */}
         {activeTab === 'settlements' && (
-          <select
+          <AgroStatusDropdown
             value={statusFilter}
-            onChange={(e) => onStatusChange(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Statuses</option>
-            <option value="approved">Approved</option>
-            <option value="pending">Pending</option>
-            <option value="paid">Paid (Disbursed)</option>
-            <option value="on_hold">On Legal Hold</option>
-          </select>
+            onChange={onStatusChange}
+            options={[
+              { value: 'all', label: 'All Batch Statuses', dotColor: 'bg-slate-400' },
+              { value: 'approved', label: 'Approved for Disbursal', dotColor: 'bg-emerald-500', badge: 'Ready' },
+              { value: 'pending', label: 'Pending Batch Calculation', dotColor: 'bg-amber-500', badge: 'Queue' },
+              { value: 'paid', label: 'Paid & Reconciled (UTR Confirmed)', dotColor: 'bg-teal-500', badge: 'Disbursed' },
+              { value: 'on_hold', label: 'On Legal / Escrow Hold', dotColor: 'bg-rose-500', badge: 'Frozen' }
+            ]}
+          />
         )}
         {activeTab === 'transporters' && (
-          <select
+          <AgroStatusDropdown
             value={statusFilter}
-            onChange={(e) => onStatusChange(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Trip Statuses</option>
-            <option value="settled">Settled</option>
-            <option value="pending_batch">Pending T+1 Batch</option>
-            <option value="dispute_hold">Dispute Hold</option>
-          </select>
+            onChange={onStatusChange}
+            options={[
+              { value: 'all', label: 'All Trip Statuses', dotColor: 'bg-slate-400' },
+              { value: 'settled', label: 'Settled Payouts', dotColor: 'bg-emerald-500', badge: 'Settled' },
+              { value: 'pending_batch', label: 'Pending T+1 Batch', dotColor: 'bg-amber-500', badge: 'T+1' },
+              { value: 'dispute_hold', label: 'Dispute Hold / Grievance', dotColor: 'bg-rose-500', badge: 'Hold' }
+            ]}
+          />
         )}
         {activeTab === 'sellers' && (
-          <select
+          <AgroStatusDropdown
             value={statusFilter}
-            onChange={(e) => onStatusChange(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Escrow Statuses</option>
-            <option value="released">Escrow Released</option>
-            <option value="pending_release">Awaiting Maturity</option>
-          </select>
+            onChange={onStatusChange}
+            options={[
+              { value: 'all', label: 'All Escrow Statuses', dotColor: 'bg-slate-400' },
+              { value: 'released', label: 'Escrow Released to Seller', dotColor: 'bg-emerald-500', badge: 'Released' },
+              { value: 'pending_release', label: 'Awaiting 48h Inspection Maturity', dotColor: 'bg-amber-500', badge: 'Escrow' }
+            ]}
+          />
         )}
 
         {/* Persona Dropdown */}
         {activeTab === 'settlements' && (
-          <select
+          <AgroPersonaDropdown
             value={personaFilter}
-            onChange={(e) => onPersonaChange(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Personas</option>
-            <option value="transporter">Transporter Freight</option>
-            <option value="seller">Produce Seller</option>
-            <option value="equipment_owner">Equipment Rental</option>
-            <option value="broker">Mandi Broker</option>
-          </select>
+            onChange={onPersonaChange}
+            options={[
+              { value: 'all', label: 'All Personas', subtext: 'Entire financial ledger' },
+              { value: 'transporter', label: 'Transporter Freight', badge: '10% Comm', subtext: 'Logistics and haulage fleet' },
+              { value: 'seller', label: 'Produce Seller', badge: '2.5% Comm', subtext: 'Farmers & Mandi merchants' },
+              { value: 'equipment_owner', label: 'Equipment Rental', badge: '12% Comm', subtext: 'Harvester & Tractor hubs' },
+              { value: 'broker', label: 'Mandi Commission Agent', subtext: 'APMC intermediary trade' }
+            ]}
+          />
         )}
 
         {/* Date Range Dropdown */}
         {onDateRangeChange && (
-          <select
+          <AgroDateDropdown
             value={dateRange}
-            onChange={(e) => onDateRangeChange(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">Date: All Time</option>
-            <option value="today">Today</option>
-            <option value="last_7_days">Last 7 Days</option>
-            <option value="last_30_days">Last 30 Days</option>
-            <option value="this_quarter">This Quarter</option>
-          </select>
+            onChange={onDateRangeChange}
+            options={[
+              { value: 'all', label: 'Date: All Time', subtext: 'Cumulative historical ledger' },
+              { value: 'today', label: 'Today (Live Batches)', subtext: 'Past 24 hours realtime activity' },
+              { value: 'last_7_days', label: 'Last 7 Days', subtext: 'Weekly operational cycle' },
+              { value: 'last_30_days', label: 'Last 30 Days', subtext: 'Monthly billing cycle' },
+              { value: 'this_quarter', label: 'This Quarter', subtext: 'Q1 fiscal reconciliation' }
+            ]}
+          />
         )}
       </div>
 

@@ -21,6 +21,12 @@ import {
   Zap,
   Users
 } from 'lucide-react'
+import {
+  AgroStatusDropdown,
+  AgroDistrictDropdown,
+  AgroDateDropdown,
+  AgroFilterDropdown
+} from '../components/ui/AgroFilterDropdown'
 
 export function fmtAcres(acres, hectares) {
   if (acres === undefined || acres === null) return '—'
@@ -156,49 +162,51 @@ export function FiltersBar({
 
         {/* Status filter */}
         {tab === 'records' && (
-          <select
+          <AgroStatusDropdown
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Verification Statuses</option>
-            <option value="verified">Verified by State Gateway</option>
-            <option value="cached">Cached in Redis</option>
-            <option value="flagged_discrepancy">Flagged Discrepancy</option>
-            <option value="manual_override">Manual Override (Downtime)</option>
-          </select>
+            onChange={setStatus}
+            options={[
+              { value: 'all', label: 'All Verification Statuses', dotColor: 'bg-slate-400' },
+              { value: 'verified', label: 'Verified by State Gateway', dotColor: 'bg-emerald-500', badge: 'State Confirmed' },
+              { value: 'cached', label: 'Cached in Redis L2', dotColor: 'bg-sky-500', badge: 'L2 Cache' },
+              { value: 'flagged_discrepancy', label: 'Flagged Discrepancy', dotColor: 'bg-rose-500', badge: 'Alert' },
+              { value: 'manual_override', label: 'Manual Override (Downtime)', dotColor: 'bg-amber-500', badge: 'Override' }
+            ]}
+          />
         )}
 
         {/* Record Type filter */}
         {tab === 'records' && (
-          <select
+          <AgroFilterDropdown
+            label="Form Type"
             value={recordType}
-            onChange={(e) => setRecordType(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Record Forms</option>
-            <option value="712">Village Form VII-XII (7/12)</option>
-            <option value="8A">Village Form VIII-A (8A Khate)</option>
-          </select>
+            onChange={setRecordType}
+            options={[
+              { value: 'all', label: 'All Record Forms', subtext: '7/12 Utara & 8A Khate' },
+              { value: '712', label: 'Village Form VII-XII (7/12)', badge: 'Satbara', subtext: 'Ownership & crop rights' },
+              { value: '8A', label: 'Village Form VIII-A (8A Khate)', badge: 'Khate', subtext: 'Holding ledger & taxes' }
+            ]}
+            icon={Layers}
+          />
         )}
 
         {/* District filter */}
         {['records', 'imports'].includes(tab) && (
-          <select
+          <AgroDistrictDropdown
             value={district}
-            onChange={(e) => setDistrict(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">All Districts</option>
-            <option value="Nashik">Nashik</option>
-            <option value="Chhatrapati Sambhajinagar">Chhatrapati Sambhajinagar</option>
-            <option value="Jalna">Jalna</option>
-            <option value="Beed">Beed</option>
-            <option value="Latur">Latur</option>
-            <option value="Dharashiv">Dharashiv (Osmanabad)</option>
-            <option value="Dewas">Dewas (MP)</option>
-            <option value="Rajkot">Rajkot (Gujarat)</option>
-          </select>
+            onChange={setDistrict}
+            districts={[
+              { value: 'all', label: 'All Districts (Pan-India)', subtext: 'Multi-state land registry' },
+              { value: 'Nashik', label: 'Nashik', subtext: 'Maharashtra', badge: 'MH' },
+              { value: 'Chhatrapati Sambhajinagar', label: 'Chhatrapati Sambhajinagar', subtext: 'Maharashtra', badge: 'MH' },
+              { value: 'Jalna', label: 'Jalna', subtext: 'Maharashtra', badge: 'MH' },
+              { value: 'Beed', label: 'Beed', subtext: 'Maharashtra', badge: 'MH' },
+              { value: 'Latur', label: 'Latur', subtext: 'Maharashtra', badge: 'MH' },
+              { value: 'Dharashiv', label: 'Dharashiv (Osmanabad)', subtext: 'Maharashtra', badge: 'MH' },
+              { value: 'Dewas', label: 'Dewas', subtext: 'Madhya Pradesh (MP Bhulekh)', badge: 'MP' },
+              { value: 'Rajkot', label: 'Rajkot', subtext: 'Gujarat (AnyRoR)', badge: 'GJ' }
+            ]}
+          />
         )}
 
         {/* Bank Encumbrance Filter Toggle */}

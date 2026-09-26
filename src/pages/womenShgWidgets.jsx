@@ -28,6 +28,13 @@ import {
   Volume2,
   Radio
 } from 'lucide-react'
+import {
+  AgroStatusDropdown,
+  AgroDistrictDropdown,
+  AgroDateDropdown,
+  AgroPersonaDropdown,
+  AgroFilterDropdown
+} from '../components/ui/AgroFilterDropdown'
 
 export function fmtINR(val) {
   if (val === null || val === undefined || isNaN(val)) return '₹0'
@@ -271,93 +278,85 @@ export function WomenShgFiltersBar({
         </div>
 
         {/* Status Dropdown */}
-        <select
+        <AgroStatusDropdown
           value={statusFilter}
-          onChange={(e) => onStatusChange(e.target.value)}
-          className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-        >
-          <option value="all">All Statuses</option>
-          {activeTab === 'shgs' && (
-            <>
-              <option value="verified">NRLM Verified</option>
-              <option value="pending_verification">Pending Verification</option>
-              <option value="flagged_audit">Audit Flagged</option>
-              <option value="suspended">Suspended</option>
-            </>
-          )}
-          {activeTab === 'deposits' && (
-            <>
-              <option value="cleared">Cleared</option>
-              <option value="pending">Pending</option>
-              <option value="flagged_discrepancy">Discrepancy</option>
-            </>
-          )}
-          {activeTab === 'enterprises' && (
-            <>
-              <option value="approved">Storefront Active</option>
-              <option value="pending_review">Pending Review</option>
-              <option value="changes_requested">Changes Requested</option>
-              <option value="delisted">Delisted</option>
-            </>
-          )}
-          {activeTab === 'subsidies' && (
-            <>
-              <option value="disbursed">Disbursed</option>
-              <option value="pending_approval">Pending Approval</option>
-              <option value="dual_signoff_pending">Dual Sign-Off Pending</option>
-              <option value="rejected">Rejected</option>
-            </>
-          )}
-          {activeTab === 'districts' && (
-            <>
-              <option value="optimal">Optimal Adoption</option>
-              <option value="expanding">Adoption Expanding</option>
-              <option value="attention">Cluster Attention</option>
-            </>
-          )}
-        </select>
+          onChange={onStatusChange}
+          options={
+            activeTab === 'shgs'
+              ? [
+                  { value: 'all', label: 'All SHG Statuses', dotColor: 'bg-slate-400' },
+                  { value: 'verified', label: 'NRLM Verified', dotColor: 'bg-emerald-500', badge: 'Verified' },
+                  { value: 'pending_verification', label: 'Pending Verification', dotColor: 'bg-amber-500', badge: 'Review' },
+                  { value: 'flagged_audit', label: 'Audit Flagged', dotColor: 'bg-rose-500', badge: 'Alert' },
+                  { value: 'suspended', label: 'Suspended SHG', dotColor: 'bg-slate-400' }
+                ]
+              : activeTab === 'deposits'
+              ? [
+                  { value: 'all', label: 'All Deposit Statuses', dotColor: 'bg-slate-400' },
+                  { value: 'cleared', label: 'Cleared Savings', dotColor: 'bg-emerald-500', badge: 'Cleared' },
+                  { value: 'pending', label: 'Pending Doorstep Pickup', dotColor: 'bg-amber-500' },
+                  { value: 'flagged_discrepancy', label: 'Audit Discrepancy', dotColor: 'bg-rose-500', badge: 'Flag' }
+                ]
+              : activeTab === 'enterprises'
+              ? [
+                  { value: 'all', label: 'All Product Statuses', dotColor: 'bg-slate-400' },
+                  { value: 'approved', label: 'Storefront Active', dotColor: 'bg-emerald-500', badge: 'Live' },
+                  { value: 'pending_review', label: 'Pending Curation', dotColor: 'bg-amber-500' },
+                  { value: 'changes_requested', label: 'Changes Requested', dotColor: 'bg-purple-500' },
+                  { value: 'delisted', label: 'Delisted Product', dotColor: 'bg-slate-400' }
+                ]
+              : activeTab === 'subsidies'
+              ? [
+                  { value: 'all', label: 'All Subsidy Statuses', dotColor: 'bg-slate-400' },
+                  { value: 'disbursed', label: '3% Subvention Disbursed', dotColor: 'bg-emerald-500', badge: 'DBT' },
+                  { value: 'pending_approval', label: 'Pending Approval', dotColor: 'bg-amber-500' },
+                  { value: 'dual_signoff_pending', label: 'Dual Sign-Off Pending', dotColor: 'bg-purple-500', badge: 'Sign-Off' },
+                  { value: 'rejected', label: 'Rejected Claims', dotColor: 'bg-rose-500' }
+                ]
+              : [
+                  { value: 'all', label: 'All District Adoption', dotColor: 'bg-slate-400' },
+                  { value: 'optimal', label: 'Optimal Adoption', dotColor: 'bg-emerald-500', badge: 'Optimal' },
+                  { value: 'expanding', label: 'Adoption Expanding', dotColor: 'bg-sky-500' },
+                  { value: 'attention', label: 'Cluster Attention Required', dotColor: 'bg-amber-500', badge: 'Attention' }
+                ]
+          }
+        />
 
         {/* Secondary Filter if available */}
         {subFilterOptions.length > 0 && (
-          <select
+          <AgroFilterDropdown
+            label={subFilterLabel}
             value={subFilter}
-            onChange={(e) => onSubFilterChange(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-          >
-            <option value="all">{subFilterLabel}: All</option>
-            {subFilterOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+            onChange={onSubFilterChange}
+            options={[{ value: 'all', label: `${subFilterLabel}: All` }, ...subFilterOptions]}
+          />
         )}
 
         {/* Date Range Filter */}
-        <select
+        <AgroDateDropdown
           value={dateRange}
-          onChange={(e) => onDateRangeChange(e.target.value)}
-          className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-        >
-          <option value="all">Date: All Time</option>
-          <option value="today">Today</option>
-          <option value="last_7_days">Last 7 Days</option>
-          <option value="last_30_days">Last 30 Days</option>
-          <option value="this_quarter">This Quarter</option>
-        </select>
+          onChange={onDateRangeChange}
+          options={[
+            { value: 'all', label: 'Date: All Time', subtext: 'Cumulative historical ledger' },
+            { value: 'today', label: 'Today (Live Activity)', subtext: 'Past 24 hours activity' },
+            { value: 'last_7_days', label: 'Last 7 Days', subtext: 'Weekly operational cycle' },
+            { value: 'last_30_days', label: 'Last 30 Days', subtext: 'Monthly billing cycle' },
+            { value: 'this_quarter', label: 'This Quarter', subtext: 'Q1 fiscal cycle' }
+          ]}
+        />
 
         {/* Persona Filter */}
-        <select
+        <AgroPersonaDropdown
           value={persona}
-          onChange={(e) => onPersonaChange(e.target.value)}
-          className="bg-emerald-50/20 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-        >
-          <option value="all">Persona: All Stakeholders</option>
-          <option value="mahila_kisan">Mahila Kisan</option>
-          <option value="shg_leader">SHG Leadership</option>
-          <option value="enterprise_artisan">Cottage Artisans</option>
-          <option value="nrlm_officer">NRLM Officers</option>
-        </select>
+          onChange={onPersonaChange}
+          options={[
+            { value: 'all', label: 'All Stakeholders', subtext: 'Full women empowerment ecosystem' },
+            { value: 'mahila_kisan', label: 'Mahila Kisan (Women Farmers)', badge: 'Producers', subtext: 'Direct agri-cultivators' },
+            { value: 'shg_leader', label: 'SHG Leadership & Presidents', badge: 'Federation', subtext: 'Group coordinators' },
+            { value: 'enterprise_artisan', label: 'Cottage Artisans & Food Units', badge: 'Makers', subtext: 'Handcrafted products' },
+            { value: 'nrlm_officer', label: 'NRLM & Bank Sakhi Officers', badge: 'Govt Field', subtext: 'District nodal officers' }
+          ]}
+        />
       </div>
 
       <div className="flex items-center gap-2 self-end md:self-auto">
