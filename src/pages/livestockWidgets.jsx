@@ -1117,62 +1117,66 @@ export function OrdersAuditTable({ rows, onView }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100/80 font-mono">
-          {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
-              <td className="py-3.5 px-4">
-                <div className="font-bold text-slate-900">{row.orderOrBatchNumber}</div>
-                <div className="text-[11px] text-slate-500 font-sans">{new Date(row.timestamp).toLocaleDateString('en-IN')}</div>
-              </td>
-              <td className="py-3.5 px-4 font-sans">
-                <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                  {row.itemType === 'dairy' ? (
-                    <Milk className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
-                  ) : (
-                    <Truck className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                  )}
-                  <span>{row.title}</span>
-                </div>
-                <span className="text-[10px] uppercase font-bold text-slate-500">
-                  {row.itemType === 'dairy' ? 'A2 Dairy SKU' : 'Bulk Organic Manure'}
-                </span>
-              </td>
-              <td className="py-3.5 px-4 font-sans">
-                <div className="font-medium text-slate-900">{row.producerOrGaushala}</div>
-              </td>
-              <td className="py-3.5 px-4">
-                <div className="font-bold text-slate-900">{fmtINR(row.amountINR)}</div>
-                <div className="text-[11px] text-slate-600 font-sans">{row.quantityOrStock}</div>
-              </td>
-              <td className="py-3.5 px-4 font-sans">
-                <div className="font-semibold text-emerald-800">{row.complianceStatus}</div>
-                <div className="text-[10px] text-slate-500 font-mono mt-0.5">{row.labOrWeighbridgeSlip}</div>
-              </td>
-              <td className="py-3.5 px-4 font-sans">
-                <span className="text-[11px] text-slate-700 font-medium">{row.dualSignOffStatus}</span>
-              </td>
-              <td className="py-3.5 px-4 text-center font-sans">
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                    row.auditRiskLevel === 'CRITICAL_RISK'
-                      ? 'bg-rose-100 text-rose-800 border-rose-300 animate-pulse'
-                      : row.auditRiskLevel === 'HIGH_RISK_HOLD'
-                      ? 'bg-amber-100 text-amber-800 border-amber-300'
-                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                  }`}
-                >
-                  {row.auditRiskLevel.replace(/_/g, ' ')}
-                </span>
-              </td>
-              <td className="py-3.5 px-4 text-right font-sans">
-                <button
-                  onClick={() => onView(row.raw)}
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition"
-                >
-                  Audit Detail
-                </button>
-              </td>
-            </tr>
-          ))}
+          {rows.map((row) => {
+            const risk = row.auditRiskLevel || 'LOW_RISK'
+            const formattedDate = row.timestamp ? new Date(row.timestamp).toLocaleDateString('en-IN') : 'N/A'
+            return (
+              <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
+                <td className="py-3.5 px-4">
+                  <div className="font-bold text-slate-900">{row.orderOrBatchNumber || row.id}</div>
+                  <div className="text-[11px] text-slate-500 font-sans">{formattedDate}</div>
+                </td>
+                <td className="py-3.5 px-4 font-sans">
+                  <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                    {row.itemType === 'dairy' ? (
+                      <Milk className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
+                    ) : (
+                      <Truck className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    )}
+                    <span>{row.title || (row.itemType === 'dairy' ? 'A2 Dairy Item' : 'Bulk Manure')}</span>
+                  </div>
+                  <span className="text-[10px] uppercase font-bold text-slate-500">
+                    {row.itemType === 'dairy' ? 'A2 Dairy SKU' : 'Bulk Organic Manure'}
+                  </span>
+                </td>
+                <td className="py-3.5 px-4 font-sans">
+                  <div className="font-medium text-slate-900">{row.producerOrGaushala || 'N/A'}</div>
+                </td>
+                <td className="py-3.5 px-4">
+                  <div className="font-bold text-slate-900">{fmtINR(row.amountINR || 0)}</div>
+                  <div className="text-[11px] text-slate-600 font-sans">{row.quantityOrStock || 'N/A'}</div>
+                </td>
+                <td className="py-3.5 px-4 font-sans">
+                  <div className="font-semibold text-emerald-800">{row.complianceStatus || 'VERIFIED'}</div>
+                  <div className="text-[10px] text-slate-500 font-mono mt-0.5">{row.labOrWeighbridgeSlip || 'Lab Cleared'}</div>
+                </td>
+                <td className="py-3.5 px-4 font-sans">
+                  <span className="text-[11px] text-slate-700 font-medium">{row.dualSignOffStatus || 'Standard Escrow'}</span>
+                </td>
+                <td className="py-3.5 px-4 text-center font-sans">
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                      risk === 'CRITICAL_RISK'
+                        ? 'bg-rose-100 text-rose-800 border-rose-300 animate-pulse'
+                        : risk === 'HIGH_RISK_HOLD'
+                        ? 'bg-amber-100 text-amber-800 border-amber-300'
+                        : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    }`}
+                  >
+                    {String(risk).replace(/_/g, ' ')}
+                  </span>
+                </td>
+                <td className="py-3.5 px-4 text-right font-sans">
+                  <button
+                    onClick={() => onView && onView(row.raw || row)}
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition"
+                  >
+                    Audit Detail
+                  </button>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>

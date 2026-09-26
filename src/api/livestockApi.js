@@ -3,12 +3,23 @@ import { adminLivestockService } from '../services/adminLivestockService'
 
 let apiDisabled = false
 
+function toQueryString(params = {}) {
+  const q = new URLSearchParams()
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && v !== '') {
+      q.append(k, String(v))
+    }
+  })
+  const str = q.toString()
+  return str ? `?${str}` : ''
+}
+
 export async function getLivestockSummary() {
   if (apiDisabled) {
     return adminLivestockService.getLivestockSummary()
   }
   try {
-    const res = await request('/v1/admin/livestock/summary')
+    const res = await request('GET', '/v1/admin/livestock/summary')
     return res?.data || (await adminLivestockService.getLivestockSummary())
   } catch (err) {
     apiDisabled = true
@@ -21,7 +32,8 @@ export async function listVets(params = {}) {
     return adminLivestockService.listVets(params)
   }
   try {
-    const res = await request('/v1/admin/livestock/vets', { params })
+    const qs = toQueryString(params)
+    const res = await request('GET', `/v1/admin/livestock/vets${qs}`)
     return res?.data || (await adminLivestockService.listVets(params))
   } catch (err) {
     apiDisabled = true
@@ -34,10 +46,7 @@ export async function createVet(payload, adminUid) {
     return adminLivestockService.createVet(payload, adminUid)
   }
   try {
-    const res = await request('/v1/admin/livestock/vets', {
-      method: 'POST',
-      body: payload
-    })
+    const res = await request('POST', '/v1/admin/livestock/vets', payload)
     return res?.data || (await adminLivestockService.createVet(payload, adminUid))
   } catch (err) {
     apiDisabled = true
@@ -50,10 +59,7 @@ export async function verifyVet(vetId, payload = {}) {
     return adminLivestockService.verifyVet(vetId, payload)
   }
   try {
-    const res = await request(`/v1/admin/livestock/vets/${vetId}/verify`, {
-      method: 'POST',
-      body: payload
-    })
+    const res = await request('POST', `/v1/admin/livestock/vets/${vetId}/verify`, payload)
     return res?.data || (await adminLivestockService.verifyVet(vetId, payload))
   } catch (err) {
     apiDisabled = true
@@ -70,7 +76,8 @@ export async function listGaushalas(params = {}) {
     return adminLivestockService.listGaushalas(params)
   }
   try {
-    const res = await request('/v1/admin/livestock/gaushalas', { params })
+    const qs = toQueryString(params)
+    const res = await request('GET', `/v1/admin/livestock/gaushalas${qs}`)
     return res?.data || (await adminLivestockService.listGaushalas(params))
   } catch (err) {
     apiDisabled = true
@@ -83,10 +90,7 @@ export async function createGaushala(payload, adminUid) {
     return adminLivestockService.createGaushala(payload, adminUid)
   }
   try {
-    const res = await request('/v1/admin/livestock/gaushalas', {
-      method: 'POST',
-      body: payload
-    })
+    const res = await request('POST', '/v1/admin/livestock/gaushalas', payload)
     return res?.data || (await adminLivestockService.createGaushala(payload, adminUid))
   } catch (err) {
     apiDisabled = true
@@ -99,10 +103,7 @@ export async function auditGaushala(gshId, payload = {}) {
     return adminLivestockService.auditGaushala(gshId, payload)
   }
   try {
-    const res = await request(`/v1/admin/livestock/gaushalas/${gshId}/audit`, {
-      method: 'POST',
-      body: payload
-    })
+    const res = await request('POST', `/v1/admin/livestock/gaushalas/${gshId}/audit`, payload)
     return res?.data || (await adminLivestockService.auditGaushala(gshId, payload))
   } catch (err) {
     apiDisabled = true
@@ -119,7 +120,8 @@ export async function listNurseries(params = {}) {
     return adminLivestockService.listNurseries(params)
   }
   try {
-    const res = await request('/v1/admin/livestock/nurseries', { params })
+    const qs = toQueryString(params)
+    const res = await request('GET', `/v1/admin/livestock/nurseries${qs}`)
     return res?.data || (await adminLivestockService.listNurseries(params))
   } catch (err) {
     apiDisabled = true
@@ -132,10 +134,7 @@ export async function createNursery(payload, adminUid) {
     return adminLivestockService.createNursery(payload, adminUid)
   }
   try {
-    const res = await request('/v1/admin/livestock/nurseries', {
-      method: 'POST',
-      body: payload
-    })
+    const res = await request('POST', '/v1/admin/livestock/nurseries', payload)
     return res?.data || (await adminLivestockService.createNursery(payload, adminUid))
   } catch (err) {
     apiDisabled = true
@@ -148,10 +147,7 @@ export async function approveNursery(nurseryId, payload = {}) {
     return adminLivestockService.approveNursery(nurseryId, payload)
   }
   try {
-    const res = await request(`/v1/admin/livestock/nurseries/${nurseryId}/approve`, {
-      method: 'POST',
-      body: payload
-    })
+    const res = await request('POST', `/v1/admin/livestock/nurseries/${nurseryId}/approve`, payload)
     return res?.data || (await adminLivestockService.approveNursery(nurseryId, payload))
   } catch (err) {
     apiDisabled = true
@@ -168,7 +164,8 @@ export async function listDairyProducts(params = {}) {
     return adminLivestockService.listDairyProducts(params)
   }
   try {
-    const res = await request('/v1/admin/livestock/dairy-products', { params })
+    const qs = toQueryString(params)
+    const res = await request('GET', `/v1/admin/livestock/dairy-products${qs}`)
     return res?.data || (await adminLivestockService.listDairyProducts(params))
   } catch (err) {
     apiDisabled = true
@@ -181,10 +178,7 @@ export async function createDairyProduct(payload, adminUid) {
     return adminLivestockService.createDairyProduct(payload, adminUid)
   }
   try {
-    const res = await request('/v1/admin/livestock/dairy-products', {
-      method: 'POST',
-      body: payload
-    })
+    const res = await request('POST', '/v1/admin/livestock/dairy-products', payload)
     return res?.data || (await adminLivestockService.createDairyProduct(payload, adminUid))
   } catch (err) {
     apiDisabled = true
@@ -197,10 +191,7 @@ export async function updateDairyProductStatus(productId, payload = {}) {
     return adminLivestockService.updateDairyProductStatus(productId, payload)
   }
   try {
-    const res = await request(`/v1/admin/livestock/dairy-products/${productId}/status`, {
-      method: 'POST',
-      body: payload
-    })
+    const res = await request('POST', `/v1/admin/livestock/dairy-products/${productId}/status`, payload)
     return res?.data || (await adminLivestockService.updateDairyProductStatus(productId, payload))
   } catch (err) {
     apiDisabled = true
@@ -217,7 +208,8 @@ export async function listVetBookings(params = {}) {
     return adminLivestockService.listVetBookings(params)
   }
   try {
-    const res = await request('/v1/admin/livestock/vet-bookings', { params })
+    const qs = toQueryString(params)
+    const res = await request('GET', `/v1/admin/livestock/vet-bookings${qs}`)
     return res?.data || (await adminLivestockService.listVetBookings(params))
   } catch (err) {
     apiDisabled = true
@@ -230,10 +222,7 @@ export async function createVetBooking(payload, adminUid) {
     return adminLivestockService.createVetBooking(payload, adminUid)
   }
   try {
-    const res = await request('/v1/admin/livestock/vet-bookings', {
-      method: 'POST',
-      body: payload
-    })
+    const res = await request('POST', '/v1/admin/livestock/vet-bookings', payload)
     return res?.data || (await adminLivestockService.createVetBooking(payload, adminUid))
   } catch (err) {
     apiDisabled = true
@@ -246,10 +235,7 @@ export async function mediateVetBooking(bookingId, payload = {}) {
     return adminLivestockService.mediateVetBooking(bookingId, payload)
   }
   try {
-    const res = await request(`/v1/admin/livestock/vet-bookings/${bookingId}/mediate`, {
-      method: 'POST',
-      body: payload
-    })
+    const res = await request('POST', `/v1/admin/livestock/vet-bookings/${bookingId}/mediate`, payload)
     return res?.data || (await adminLivestockService.mediateVetBooking(bookingId, payload))
   } catch (err) {
     apiDisabled = true
@@ -262,7 +248,8 @@ export async function listManureOrders(params = {}) {
     return adminLivestockService.listManureOrders(params)
   }
   try {
-    const res = await request('/v1/admin/livestock/manure-orders', { params })
+    const qs = toQueryString(params)
+    const res = await request('GET', `/v1/admin/livestock/manure-orders${qs}`)
     return res?.data || (await adminLivestockService.listManureOrders(params))
   } catch (err) {
     apiDisabled = true
@@ -275,10 +262,7 @@ export async function createManureOrder(payload, adminUid) {
     return adminLivestockService.createManureOrder(payload, adminUid)
   }
   try {
-    const res = await request('/v1/admin/livestock/manure-orders', {
-      method: 'POST',
-      body: payload
-    })
+    const res = await request('POST', '/v1/admin/livestock/manure-orders', payload)
     return res?.data || (await adminLivestockService.createManureOrder(payload, adminUid))
   } catch (err) {
     apiDisabled = true
@@ -291,10 +275,7 @@ export async function signOffManureOrder(orderId, payload = {}) {
     return adminLivestockService.signOffManureOrder(orderId, payload)
   }
   try {
-    const res = await request(`/v1/admin/livestock/manure-orders/${orderId}/signoff`, {
-      method: 'POST',
-      body: payload
-    })
+    const res = await request('POST', `/v1/admin/livestock/manure-orders/${orderId}/signoff`, payload)
     return res?.data || (await adminLivestockService.signOffManureOrder(orderId, payload))
   } catch (err) {
     apiDisabled = true
@@ -308,7 +289,8 @@ export async function auditOrders(params = {}) {
     return adminLivestockService.auditOrders(params)
   }
   try {
-    const res = await request('/v1/admin/livestock/orders', { params })
+    const qs = toQueryString(params)
+    const res = await request('GET', `/v1/admin/livestock/orders${qs}`)
     return res?.data || (await adminLivestockService.auditOrders(params))
   } catch (err) {
     apiDisabled = true
@@ -321,7 +303,8 @@ export async function getLivestockAuditLogs(params = {}) {
     return adminLivestockService.listLivestockAuditLogs(params)
   }
   try {
-    const res = await request('/v1/admin/livestock/audit-logs', { params })
+    const qs = toQueryString(params)
+    const res = await request('GET', `/v1/admin/livestock/audit-logs${qs}`)
     return res?.data || (await adminLivestockService.listLivestockAuditLogs(params))
   } catch (err) {
     apiDisabled = true

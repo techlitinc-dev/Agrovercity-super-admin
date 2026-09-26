@@ -40,12 +40,18 @@ export default function LivestockDetailDrawer({
 
   useEffect(() => {
     if (entity?.id) {
-      getLivestockAuditLogs().then((logs) => {
-        const filtered = logs.filter(
-          (l) => l.entityId === entity.id || (entity.orderNumber && l.entityName?.includes(entity.orderNumber))
-        )
-        setEntityAuditLogs(filtered)
-      })
+      getLivestockAuditLogs()
+        .then((logs) => {
+          const logList = Array.isArray(logs) ? logs : (logs?.data || [])
+          const filtered = logList.filter(
+            (l) => l.entityId === entity.id || (entity.orderNumber && l.entityName?.includes(entity.orderNumber))
+          )
+          setEntityAuditLogs(filtered)
+        })
+        .catch((e) => {
+          console.error('Failed to load audit logs for entity:', e)
+          setEntityAuditLogs([])
+        })
     }
   }, [entity])
 

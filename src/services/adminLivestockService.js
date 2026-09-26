@@ -191,6 +191,8 @@ export const adminLivestockService = {
       pendingDualSignOffs,
       todayManureOrdersINR,
       flaggedAnomalies,
+      totalOrdersAudit: dairy.length + manure.length,
+      totalAuditLogs: getStoredAuditLogs().length,
       lastTelemetrySync: new Date().toISOString()
     }
   },
@@ -1045,19 +1047,32 @@ export const adminLivestockService = {
 
     if (type === 'all' || type === 'dairy') {
       dairy.forEach((d) => {
+        const compliance =
+          d.status === 'active'
+            ? 'NABL Cleared'
+            : d.status === 'recalled'
+            ? 'RECALLED BATCH'
+            : 'Awaiting Lab NABL'
+        const risk =
+          d.status === 'recalled'
+            ? 'CRITICAL_RISK'
+            : (d.a2BetaCaseinPurity || 0) >= 98
+            ? 'LOW_RISK'
+            : 'MEDIUM_RISK'
+
         combined.push({
           id: d.id,
-          orderOrBatchNumber: d.batchNo,
+          orderOrBatchNumber: d.batchNo || d.id,
           itemType: 'dairy',
-          title: d.name,
-          producerOrGaushala: d.brandOrGaushala,
-          quantityOrStock: `${d.stockAvailable} units in stock`,
-          amountINR: d.priceINR * (d.stockAvailable || 1),
-          complianceStatus: d.status === 'active' ? 'NABL Cleared' : d.status === 'recalled' ? 'RECALLED BATCH' : 'Awaiting Lab NABL',
-          labOrWeighbridgeSlip: d.labReportId,
+          title: d.name || 'A2 Dairy Product',
+          producerOrGaushala: d.brandOrGaushala || 'Registered Gaushala',
+          quantityOrStock: `${d.stockAvailable || 0} units in stock`,
+          amountINR: (d.priceINR || 0) * (d.stockAvailable || 1),
+          complianceStatus: compliance,
+          labOrWeighbridgeSlip: d.labReportId || 'Pending Certification',
           dualSignOffStatus: 'Standard Escrow',
-          auditRiskLevel: d.status === 'recalled' ? 'CRITICAL_RISK' : d.a2BetaCaseinPurity >= 98 ? 'LOW_RISK' : 'MEDIUM_RISK',
-          timestamp: d.manufacturedDate || new Date().toISOString(),
+          auditRiskLevel: risk,
+          timestamp: d.manufacturedDate || d.labTestDate || d.statusHistory?.[0]?.timestamp || new Date().toISOString(),
           raw: d
         })
       })
@@ -1065,22 +1080,27 @@ export const adminLivestockService = {
 
     if (type === 'all' || type === 'manure') {
       manure.forEach((m) => {
+        const compliance = (m.deliveryStatus || 'in_transit').replace(/_/g, ' ').toUpperCase()
+        const dualSign = m.dualSignOffRequired
+          ? m.dualSignOffCompleted
+            ? 'Dual Approved (CRO & Fin)'
+            : 'Sign-off Pending (>₹50k)'
+          : 'Standard Order (<₹50k)'
+        const risk =
+          m.dualSignOffRequired && !m.dualSignOffCompleted ? 'HIGH_RISK_HOLD' : 'LOW_RISK'
+
         combined.push({
           id: m.id,
-          orderOrBatchNumber: m.orderNumber,
+          orderOrBatchNumber: m.orderNumber || m.id,
           itemType: 'manure',
-          title: m.productName,
-          producerOrGaushala: m.gaushalaName,
-          quantityOrStock: `${m.quantityMT} MT`,
-          amountINR: m.totalAmountINR,
-          complianceStatus: m.deliveryStatus.replace(/_/g, ' ').toUpperCase(),
-          labOrWeighbridgeSlip: `GatePass / ${m.vehicleNumber}`,
-          dualSignOffStatus: m.dualSignOffRequired
-            ? m.dualSignOffCompleted
-              ? 'Dual Approved (CRO & Fin)'
-              : 'Sign-off Pending (>₹50k)'
-            : 'Standard Order (<₹50k)',
-          auditRiskLevel: m.dualSignOffRequired && !m.dualSignOffCompleted ? 'HIGH_RISK_HOLD' : 'LOW_RISK',
+          title: m.productName || 'Bulk Organic Manure',
+          producerOrGaushala: m.gaushalaName || 'Organic Gaushala Unit',
+          quantityOrStock: `${m.quantityMT || 0} MT`,
+          amountINR: m.totalAmountINR || 0,
+          complianceStatus: compliance,
+          labOrWeighbridgeSlip: m.vehicleNumber ? `GatePass / ${m.vehicleNumber}` : 'GatePass Logged',
+          dualSignOffStatus: dualSign,
+          auditRiskLevel: risk,
           timestamp: m.orderDate || new Date().toISOString(),
           raw: m
         })
@@ -1089,8 +1109,29 @@ export const adminLivestockService = {
 
     // Filter
     combined = combined.filter((item) => {
-      if (status !== 'all' && item.complianceStatus.toLowerCase() !== status.toLowerCase()) return false
+      if (status && status !== 'all') {
+        const s = status.toLowerCase()
+        const cs = (item.complianceStatus || '').toLowerCase()
+        const ds = (item.dualSignOffStatus || '').toLowerCase()
+        const ar = (item.auditRiskLevel || '').toLowerCase()
+
+        if (s.includes('dual') || s.includes('signoff')) {
+          if (!ds.includes('pending') && !cs.includes('dual')) return false
+        } else if (s === 'recalled batch' || s.includes('recalled')) {
+          if (!cs.includes('recalled') && !ar.includes('critical')) return false
+        } else if (s === 'nabl cleared' || s.includes('cleared')) {
+          if (!cs.includes('cleared') && !cs.includes('nabl')) return false
+        } else if (s === 'in transit' || s.includes('transit')) {
+          if (!cs.includes('transit')) return false
+        } else if (s === 'delivered' || s.includes('delivered')) {
+          if (!cs.includes('delivered')) return false
+        } else {
+          if (cs !== s && !cs.includes(s)) return false
+        }
+      }
+
       if (!matchesDateRange(item.timestamp, dateRange)) return false
+
       if (!needle) return true
 
       return [
@@ -1099,7 +1140,9 @@ export const adminLivestockService = {
         item.title,
         item.producerOrGaushala,
         item.labOrWeighbridgeSlip,
-        item.dualSignOffStatus
+        item.dualSignOffStatus,
+        item.complianceStatus,
+        item.auditRiskLevel
       ].some((val) => String(val || '').toLowerCase().includes(needle))
     })
 

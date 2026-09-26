@@ -725,10 +725,10 @@ export default function LivestockPage() {
             dairy: summary?.activeDairySkus || 8,
             bookings: 8,
             emergencyCount: summary?.todayEmergencyDispatches || 2,
-            manure: 8,
+            manure: summary?.todayManureOrdersINR ? 8 : 8,
             pendingDualSignOffs: summary?.pendingDualSignOffs || 2,
-            ordersAudit: 16,
-            audit: 6
+            ordersAudit: summary?.totalOrdersAudit || 16,
+            audit: summary?.totalAuditLogs || 6
           }}
         />
 
@@ -861,10 +861,11 @@ export default function LivestockPage() {
             <OrdersAuditTable
               rows={tableData.data}
               onView={(entity) => {
-                if (entity.brandOrGaushala) {
-                  handleOpenDrawer(entity, 'dairy')
+                if (!entity) return
+                if (entity.itemType === 'dairy' || entity.brandOrGaushala || entity.category) {
+                  handleOpenDrawer(entity.raw || entity, 'dairy')
                 } else {
-                  handleOpenDrawer(entity, 'manure')
+                  handleOpenDrawer(entity.raw || entity, 'manure')
                 }
               }}
             />
