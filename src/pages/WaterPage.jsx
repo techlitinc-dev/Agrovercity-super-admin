@@ -15,7 +15,8 @@ import {
   Activity,
   ShieldCheck,
   Zap,
-  SlidersHorizontal
+  SlidersHorizontal,
+  RotateCcw
 } from 'lucide-react'
 import {
   getWaterSummary,
@@ -29,7 +30,9 @@ import {
   approvePmksySubsidy,
   listDroughtAdvisories,
   issueDroughtAlert,
-  getWaterAuditLogs
+  getWaterAuditLogs,
+  runWaterEfficiencyAudit,
+  resetWaterSeedData
 } from '../api/waterApi'
 import {
   MetricCard,
@@ -40,10 +43,11 @@ import {
   CanalSchedulesTable,
   PmksySubsidiesTable,
   DroughtAdvisoriesTable,
-  AuditLogTable,
   Pagination
 } from './waterWidgets'
+import WaterAuditTrailTable from '../components/water/WaterAuditTrailTable'
 import WaterDetailDrawer from '../components/water/WaterDetailDrawer'
+import ConfirmDialog from '../components/ConfirmDialog'
 import {
   UpdateCanalScheduleModal,
   SyncCgwbStationModal,
@@ -92,6 +96,7 @@ export default function WaterPage() {
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
 
   // Filters
   const [q, setQ] = useState('')
@@ -109,6 +114,18 @@ export default function WaterPage() {
   const [configureSubsidyOpen, setConfigureSubsidyOpen] = useState(false)
   const [issueDroughtOpen, setIssueDroughtOpen] = useState(false)
   const [approveSubsidyModal, setApproveSubsidyModal] = useState({ open: false, application: null })
+
+  // Confirmation Dialog
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    title: '',
+    message: '',
+    confirmLabel: 'Confirm',
+    requireReason: false,
+    danger: false,
+    dualSignOff: false,
+    action: null
+  })
 
   // 1. Load Summary Metrics
   const loadSummary = useCallback(async () => {
@@ -156,15 +173,23 @@ export default function WaterPage() {
           page,
           pageSize: PAGE_SIZE,
           q,
-          status,
-          district
+          division: district !== 'all' ? district : 'all',
+          status
         })
         setCanals(res.data || [])
         setTotal(res.total || 0)
       } else if (tab === 'subsidy') {
-        const rules = await getPmksySubsidyRules()
-        setPmksyData((prev) => ({ ...prev, rules }))
-        setTotal(pmksyData.applications?.total || 4)
+        const res = await getPmksySubsidyRules({
+          page,
+          pageSize: PAGE_SIZE,
+          q,
+          status
+        })
+        setPmksyData({
+          rules: res.rules,
+          applications: res.applications || { data: [], total: 0 }
+        })
+        setTotal(res.applications?.total || 0)
       } else if (tab === 'advisories') {
         const res = await listDroughtAdvisories({
           page,
@@ -193,7 +218,7 @@ export default function WaterPage() {
     } finally {
       setLoading(false)
     }
-  }, [tab, page, q, status, irrigationType, district, alertFilter, addToast, pmksyData.applications?.total])
+  }, [tab, page, q, status, irrigationType, district, alertFilter, addToast])
 
   useEffect(() => {
     loadTabData()
@@ -212,7 +237,7 @@ export default function WaterPage() {
   // 3. Operational Handlers
   const handleUpdateCanalConfirm = async (payload) => {
     try {
-      const res = await updateCanalSchedule(payload.id, payload)
+      const res = await updateCanalSchedule(payload)
       addToast({
         title: 'Canal Timetable Updated',
         message: `Updated release timetable for ${res.canalName} (${res.dischargeCusecs} cusecs).`,
@@ -233,7 +258,7 @@ export default function WaterPage() {
 
   const handleSyncCgwbConfirm = async (stationCodes) => {
     try {
-      const res = await syncCgwbReadings(stationCodes)
+      const res = await syncCgwbReadings({ stationCodes })
       addToast({
         title: 'CGWB Hydrological Sync Complete',
         message: `Ingested latest depth telemetry for ${res.syncedCount} observatory stations.`,
@@ -262,6 +287,8 @@ export default function WaterPage() {
         type: 'success'
       })
       setConfigureSubsidyOpen(false)
+      loadTabData()
+      loadSummary()
     } catch (err) {
       addToast({
         title: 'Rule Update Failed',
@@ -295,7 +322,7 @@ export default function WaterPage() {
 
   const handleApproveSubsidyConfirm = async (payload) => {
     try {
-      const res = await approvePmksySubsidy(payload.id, payload)
+      const res = await approvePmksySubsidy(payload)
       addToast({
         title: 'PMKSY Subsidy Approved',
         message: `Approved 55% subsidy of ₹${res.calculatedSubsidyInr.toLocaleString('en-IN')} for ${res.farmerName}.`,
@@ -312,6 +339,62 @@ export default function WaterPage() {
       })
       throw err
     }
+  }
+
+  const handleRunEfficiencyAudit = async () => {
+    try {
+      setBusy(true)
+      const res = await runWaterEfficiencyAudit()
+      addToast({
+        title: 'Efficiency & DPDP Audit Complete',
+        message: `Verified ${res.auditedPlots} plot schedules (${res.efficiencyRate}% optimal). All PMKSY applications comply with 100% DPDP Act masking.`,
+        type: 'success'
+      })
+      loadSummary()
+      loadTabData()
+    } catch (err) {
+      addToast({
+        title: 'Audit Failed',
+        message: err.message || 'Failed to complete efficiency audit.',
+        type: 'error'
+      })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handleResetSeed = () => {
+    setConfirmDialog({
+      open: true,
+      title: 'Reset Water Resources & Irrigation Seed Data',
+      message: 'Restore all plot irrigation duration schedules, CGWB monitoring stations, canal rotation timetables, PMKSY subsidy parameters, and statutory audit logs back to default factory state?',
+      confirmLabel: 'Reset All Data',
+      requireReason: false,
+      danger: true,
+      dualSignOff: false,
+      action: async () => {
+        setBusy(true)
+        try {
+          await resetWaterSeedData('Superadmin requested factory reset of Module 17 telemetry.')
+          addToast({
+            title: 'Seed Data Reset',
+            message: 'Water resources database and telemetry cache restored to default seeds.',
+            type: 'success'
+          })
+          setConfirmDialog({ open: false })
+          loadSummary()
+          loadTabData()
+        } catch (err) {
+          addToast({
+            title: 'Reset Failed',
+            message: err.message || 'Could not reset water seed data.',
+            type: 'error'
+          })
+        } finally {
+          setBusy(false)
+        }
+      }
+    })
   }
 
   // General CSV Export
@@ -350,7 +433,7 @@ export default function WaterPage() {
       canals: canals.length || 6,
       subsidy: summary?.pendingPmksySubsidies || 4,
       advisories: advisories.length || 3,
-      audit: auditLogs.length || 4
+      audit: auditLogs.length || 5
     }
   }, [summary, schedules.length, cgwbStations.length, canals.length, advisories.length, auditLogs.length])
 
@@ -372,14 +455,14 @@ export default function WaterPage() {
                   </span>
                 </h1>
                 <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                  Optimal irrigation schedules, CGWB groundwater monitoring, canal rotation timetables, and PMKSY 55% micro-irrigation subsidy.
+                  Optimal irrigation duration schedules, CGWB groundwater monitoring, canal rotation timetables, and PMKSY 55% micro-irrigation subsidy.
                 </p>
               </div>
             </div>
           </div>
 
           {/* Quick Header Actions */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => setIssueDroughtOpen(true)}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition active:scale-95"
@@ -402,6 +485,25 @@ export default function WaterPage() {
             >
               <SlidersHorizontal className="w-4 h-4 text-emerald-600" />
               <span>PMKSY Rules</span>
+            </button>
+
+            <button
+              onClick={handleRunEfficiencyAudit}
+              disabled={busy}
+              title="Run Cluster Water Efficiency & DPDP Masking Audit"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
+            >
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>Efficiency Audit</span>
+            </button>
+
+            <button
+              onClick={handleResetSeed}
+              title="Reset Module 17 Seed Data"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs font-bold shadow-2xs transition"
+            >
+              <RotateCcw className="w-4 h-4 text-slate-500" />
+              <span>Reset Seed</span>
             </button>
           </div>
         </div>
@@ -471,7 +573,7 @@ export default function WaterPage() {
 
         <MetricCard
           title="Cluster Efficiency"
-          value={`${summary?.clusterEfficiencyScore || '92.6'}%`}
+          value={`${summary?.clusterEfficiencyScore || '94.2'}%`}
           subtext="Optimum Water Index"
           icon={ShieldCheck}
           color="emerald"
@@ -599,12 +701,27 @@ export default function WaterPage() {
             )}
 
             {tab === 'advisories' && (
-              <DroughtAdvisoriesTable advisories={advisories} />
+              <>
+                <DroughtAdvisoriesTable advisories={advisories} />
+                <Pagination
+                  page={page}
+                  pageSize={PAGE_SIZE}
+                  total={total}
+                  onPageChange={(p) => setPage(p)}
+                />
+              </>
             )}
 
             {tab === 'audit' && (
               <>
-                <AuditLogTable logs={auditLogs} />
+                <div className="p-4">
+                  <WaterAuditTrailTable
+                    auditLogs={auditLogs}
+                    loading={loading}
+                    onRefresh={loadTabData}
+                    onExportCsv={handleExportCsv}
+                  />
+                </div>
                 <Pagination
                   page={page}
                   pageSize={PAGE_SIZE}
@@ -662,6 +779,20 @@ export default function WaterPage() {
         application={approveSubsidyModal.application}
         onClose={() => setApproveSubsidyModal({ open: false, application: null })}
         onConfirm={handleApproveSubsidyConfirm}
+      />
+
+      {/* Generic Confirmation Dialog */}
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        confirmLabel={confirmDialog.confirmLabel}
+        requireReason={confirmDialog.requireReason}
+        danger={confirmDialog.danger}
+        dualSignOff={confirmDialog.dualSignOff}
+        busy={busy}
+        onConfirm={confirmDialog.action || (() => setConfirmDialog({ open: false }))}
+        onCancel={() => setConfirmDialog({ open: false })}
       />
     </div>
   )

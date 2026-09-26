@@ -11,7 +11,192 @@ import {
 const EQUIPMENT_STORAGE_KEY = 'agrovercity_superadmin_equipment';
 const SLOTS_STORAGE_KEY = 'agrovercity_superadmin_equipment_slots';
 const BOOKINGS_STORAGE_KEY = 'agrovercity_superadmin_equipment_bookings';
+const BENCHMARKS_STORAGE_KEY = 'agrovercity_superadmin_equipment_benchmarks';
 const AUDIT_STORAGE_KEY = 'agrovercity_superadmin_audit_logs';
+
+export const INITIAL_EQUIPMENT_BENCHMARKS = [
+  {
+    id: 'BM-EQ-01',
+    district: 'Kolhapur',
+    machineryClass: 'Tractor (45-60 HP)',
+    category: 'tractor',
+    benchmarkCapHourly: 800,
+    fpoPoolAvgHourly: 750,
+    privatePoolAvgHourly: 850,
+    maxVariancePercent: 20,
+    activeCount: 18,
+    status: 'compliant',
+    lastRevised: '2026-09-01T10:00:00.000Z'
+  },
+  {
+    id: 'BM-EQ-02',
+    district: 'Kolhapur',
+    machineryClass: 'Combine Harvester (Multi-Crop)',
+    category: 'harvester',
+    benchmarkCapHourly: 2500,
+    fpoPoolAvgHourly: 2300,
+    privatePoolAvgHourly: 2600,
+    maxVariancePercent: 20,
+    activeCount: 6,
+    status: 'flagged_variance',
+    lastRevised: '2026-08-25T11:30:00.000Z'
+  },
+  {
+    id: 'BM-EQ-03',
+    district: 'Sangli',
+    machineryClass: 'Tractor (45-60 HP)',
+    category: 'tractor',
+    benchmarkCapHourly: 780,
+    fpoPoolAvgHourly: 720,
+    privatePoolAvgHourly: 810,
+    maxVariancePercent: 20,
+    activeCount: 14,
+    status: 'compliant',
+    lastRevised: '2026-09-05T09:15:00.000Z'
+  },
+  {
+    id: 'BM-EQ-04',
+    district: 'Sangli',
+    machineryClass: 'Combine Harvester (Multi-Crop)',
+    category: 'harvester',
+    benchmarkCapHourly: 2400,
+    fpoPoolAvgHourly: 2200,
+    privatePoolAvgHourly: 2600,
+    maxVariancePercent: 20,
+    activeCount: 8,
+    status: 'flagged_variance',
+    lastRevised: '2026-09-10T14:20:00.000Z'
+  },
+  {
+    id: 'BM-EQ-05',
+    district: 'Nashik',
+    machineryClass: 'Tractor (45-60 HP)',
+    category: 'tractor',
+    benchmarkCapHourly: 800,
+    fpoPoolAvgHourly: 740,
+    privatePoolAvgHourly: 840,
+    maxVariancePercent: 20,
+    activeCount: 22,
+    status: 'compliant',
+    lastRevised: '2026-09-02T08:45:00.000Z'
+  },
+  {
+    id: 'BM-EQ-06',
+    district: 'Nashik',
+    machineryClass: 'Laser Land Leveler',
+    category: 'laser_leveler',
+    benchmarkCapHourly: 950,
+    fpoPoolAvgHourly: 900,
+    privatePoolAvgHourly: 980,
+    maxVariancePercent: 20,
+    activeCount: 9,
+    status: 'compliant',
+    lastRevised: '2026-08-30T16:00:00.000Z'
+  },
+  {
+    id: 'BM-EQ-07',
+    district: 'Pune',
+    machineryClass: 'Tractor (45-60 HP)',
+    category: 'tractor',
+    benchmarkCapHourly: 820,
+    fpoPoolAvgHourly: 780,
+    privatePoolAvgHourly: 860,
+    maxVariancePercent: 20,
+    activeCount: 16,
+    status: 'compliant',
+    lastRevised: '2026-09-12T13:10:00.000Z'
+  },
+  {
+    id: 'BM-EQ-08',
+    district: 'Pune',
+    machineryClass: 'Rotavator (7 ft Heavy Duty)',
+    category: 'rotavator',
+    benchmarkCapHourly: 500,
+    fpoPoolAvgHourly: 450,
+    privatePoolAvgHourly: 520,
+    maxVariancePercent: 20,
+    activeCount: 12,
+    status: 'compliant',
+    lastRevised: '2026-09-08T11:00:00.000Z'
+  },
+  {
+    id: 'BM-EQ-09',
+    district: 'Solapur',
+    machineryClass: 'Combine Harvester (Multi-Crop)',
+    category: 'harvester',
+    benchmarkCapHourly: 2450,
+    fpoPoolAvgHourly: 2350,
+    privatePoolAvgHourly: 2500,
+    maxVariancePercent: 20,
+    activeCount: 7,
+    status: 'compliant',
+    lastRevised: '2026-09-04T15:30:00.000Z'
+  },
+  {
+    id: 'BM-EQ-10',
+    district: 'Nagpur',
+    machineryClass: 'Agricultural Drone Sprayer (16L)',
+    category: 'drone_sprayer',
+    benchmarkCapHourly: 650,
+    fpoPoolAvgHourly: 580,
+    privatePoolAvgHourly: 700,
+    maxVariancePercent: 20,
+    activeCount: 5,
+    status: 'compliant',
+    lastRevised: '2026-09-14T09:00:00.000Z'
+  }
+];
+
+export const INITIAL_EQUIPMENT_AUDIT_LOGS = [
+  {
+    id: 'AUD-901',
+    adminUid: 'root@agrovercity',
+    action: 'EQUIPMENT_VERIFIED_FOR_PUBLIC_BOOKING',
+    targetUserId: 'USR-2201',
+    targetUserName: 'Ram Patil (John Deere 5310 Tractor)',
+    previousState: 'Machine EQ-901 status: pending_verification',
+    newState: 'Machine EQ-901 status: verified (RC:OK, INS:OK, LIC:OK)',
+    reason: 'Verified RTO commercial permit MH09EQ5521 & commercial machinery comprehensive insurance.',
+    timestamp: '2026-09-20T10:15:00.000Z',
+    ipAddress: '14.139.122.9'
+  },
+  {
+    id: 'AUD-902',
+    adminUid: 'root@agrovercity',
+    action: 'SLOT_DOUBLE_BOOKING_RESOLVED',
+    targetUserId: 'USR-1103',
+    targetUserName: 'Baburao Kale (EQ-903)',
+    previousState: 'Slot EQ-903_2026-09-21_14-18 anomaly: double_booked',
+    newState: 'Awarded to Baburao Kale; conflicting booking EQB-904 refunded ₹2,800',
+    reason: 'First-timestamp booking priority respected. Farmer 2 granted full automated refund without cancellation fee.',
+    timestamp: '2026-09-20T14:30:00.000Z',
+    ipAddress: '14.139.122.9'
+  },
+  {
+    id: 'AUD-903',
+    adminUid: 'root@agrovercity',
+    action: 'DAMAGE_REPORT_RESOLVED',
+    targetUserId: 'USR-1104',
+    targetUserName: 'Sambhaji Shinde (EQB-905)',
+    previousState: 'Deposit action: pending',
+    newState: 'Deposit action: forfeit_partial (forfeited ₹4,500 of ₹8,000)',
+    reason: 'Verified field engineer geo-stamped photo showing bent rotary shaft flange after stony soil operation.',
+    timestamp: '2026-09-19T16:45:00.000Z',
+    ipAddress: '14.139.122.9'
+  },
+  {
+    id: 'AUD-904',
+    adminUid: 'root@agrovercity',
+    action: 'BENCHMARK_RATE_OVERRIDDEN',
+    targetUserId: 'REG-SANGLI-DISTRICT',
+    targetUserName: 'Sangli Harvester Benchmark Band',
+    previousState: 'Benchmark cap: ₹2,200/hr',
+    newState: 'Benchmark cap: ₹2,400/hr',
+    reason: 'APMC Sangli mechanization council quarterly diesel inflation rate index update.',
+    timestamp: '2026-09-18T11:20:00.000Z',
+    ipAddress: '14.139.122.9'
+  }
+];
 
 // Dual-admin sign-off threshold for financial overrides (SOP-09 Rule 3)
 const DUAL_SIGNOFF_THRESHOLD = 50000;
@@ -411,12 +596,274 @@ export const adminEquipmentService = {
     };
   },
 
-  // 8. Compute module KPIs
+  // 8. Onboard new machinery into FPO / Private fleet
+  async createEquipment(equipmentData, adminUid = 'root@agrovercity') {
+    await new Promise((r) => setTimeout(r, 160));
+    const machines = getStored(EQUIPMENT_STORAGE_KEY, INITIAL_EQUIPMENT);
+    const newId = `EQ-${Date.now().toString().slice(-4)}`;
+
+    const newMachine = {
+      id: newId,
+      ownerId: equipmentData.ownerId || `USR-${Math.floor(2000 + Math.random() * 8000)}`,
+      ownerName: equipmentData.ownerName?.trim() || 'FPO Operator',
+      ownerMobile: equipmentData.ownerMobile?.trim() || '+91 98000 00000',
+      ownerType: equipmentData.ownerType || 'fpo',
+      fpoName: equipmentData.fpoName?.trim() || (equipmentData.ownerType === 'fpo' ? 'Local Agri FPO' : null),
+      village: equipmentData.village?.trim() || 'Default Village',
+      district: equipmentData.district?.trim() || 'Kolhapur',
+      name: equipmentData.name?.trim() || 'Agricultural Machine',
+      type: equipmentData.type || 'tractor',
+      description: equipmentData.description?.trim() || 'Machinery registered via Superadmin console.',
+      hourlyRate: Number(equipmentData.hourlyRate) || 800,
+      perAcreRate: equipmentData.perAcreRate ? Number(equipmentData.perAcreRate) : null,
+      photoUrl: equipmentData.photoUrl || 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=400&q=80',
+      rcDocument: {
+        number: equipmentData.rcNumber?.trim() || `MH${Math.floor(10 + Math.random() * 80)}EQ${Math.floor(1000 + Math.random() * 9000)}`,
+        verified: Boolean(equipmentData.immediateVerified)
+      },
+      insuranceDocument: {
+        policyNumber: equipmentData.insurancePolicy?.trim() || `POL-${Date.now().toString().slice(-6)}`,
+        validTill: equipmentData.insuranceValidTill || '2027-12-31',
+        verified: Boolean(equipmentData.immediateVerified)
+      },
+      operatorLicense: {
+        number: equipmentData.licenseNumber?.trim() || `DL-${Date.now().toString().slice(-6)}`,
+        validTill: equipmentData.licenseValidTill || '2027-12-31',
+        verified: Boolean(equipmentData.immediateVerified)
+      },
+      utilizationPercent: 0,
+      pricingIndexPercent: 100,
+      totalBookings: 0,
+      rating: 5.0,
+      status: equipmentData.immediateVerified ? 'verified' : 'pending_verification',
+      createdAt: new Date().toISOString()
+    };
+
+    const updated = [newMachine, ...machines];
+    save(EQUIPMENT_STORAGE_KEY, updated);
+
+    // Automatically generate today's standard 4-hour Yantra time-slots for this new machine
+    const slots = getStored(SLOTS_STORAGE_KEY, INITIAL_EQUIPMENT_SLOTS);
+    const today = new Date().toISOString().slice(0, 10);
+    const slotWindows = [
+      { name: '06:00-10:00', startMin: 360, endMin: 600, task: 'Tillage' },
+      { name: '10:00-14:00', startMin: 600, endMin: 840, task: 'Sowing' },
+      { name: '14:00-18:00', startMin: 840, endMin: 1080, task: 'Spraying' },
+      { name: '18:00-22:00', startMin: 1080, endMin: 1320, task: 'Leveling' }
+    ];
+    const newSlots = slotWindows.map((sw) => ({
+      id: `${newMachine.id}_${today}_${sw.name.slice(0, 2)}-${sw.name.slice(6, 8)}`,
+      equipmentId: newMachine.id,
+      equipmentName: newMachine.name,
+      ownerName: newMachine.ownerName,
+      ownerType: newMachine.ownerType,
+      date: today,
+      slotName: sw.name,
+      startMin: sw.startMin,
+      endMin: sw.endMin,
+      duration: 240,
+      priceRupees: newMachine.hourlyRate * 4,
+      recommendedTask: sw.task,
+      status: 'available',
+      bookedBy: null,
+      bookedByName: null,
+      waitlist: [],
+      anomaly: null,
+      createdAt: new Date().toISOString()
+    }));
+    save(SLOTS_STORAGE_KEY, [...newSlots, ...slots]);
+
+    const audit = recordAuditLog({
+      adminUid,
+      action: 'EQUIPMENT_ONBOARDED',
+      targetUserId: newMachine.ownerId,
+      targetUserName: `${newMachine.ownerName} (${newMachine.name})`,
+      previousState: 'Non-existent machinery inventory',
+      newState: `Added machine ${newMachine.id} [${newMachine.type}, Hourly: ₹${newMachine.hourlyRate}, Status: ${newMachine.status}]`,
+      reason: 'Machinery registered into rental sharing fleet via Superadmin console (SOP-09)'
+    });
+
+    return {
+      success: true,
+      message: `Machine ${newMachine.name} (${newMachine.id}) registered successfully into ${newMachine.ownerType.toUpperCase()} fleet.`,
+      machine: newMachine,
+      auditRecord: audit
+    };
+  },
+
+  // 9. List Pricing Benchmarks & District Rate Caps (SOP-09 §3)
+  async listPricingBenchmarks({ query = '', district = 'all', category = 'all' } = {}) {
+    await new Promise((r) => setTimeout(r, 60));
+    let benchmarks = getStored(BENCHMARKS_STORAGE_KEY, INITIAL_EQUIPMENT_BENCHMARKS);
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      benchmarks = benchmarks.filter((b) =>
+        b.district.toLowerCase().includes(q) ||
+        b.machineryClass.toLowerCase().includes(q) ||
+        b.category.toLowerCase().includes(q)
+      );
+    }
+    if (district && district !== 'all') {
+      benchmarks = benchmarks.filter((b) => b.district.toLowerCase() === district.toLowerCase());
+    }
+    if (category && category !== 'all') {
+      benchmarks = benchmarks.filter((b) => b.category.toLowerCase() === category.toLowerCase());
+    }
+
+    return { success: true, data: { benchmarks } };
+  },
+
+  // 10. Update Pricing Benchmark (SOP-09 §3)
+  async updatePricingBenchmark({ benchmarkId, newCapRate, maxVariancePercent, reason, adminUid = 'root@agrovercity' }) {
+    if (!reason || reason.trim().length < 8) {
+      throw new Error('Mandatory administrative rationale (min 8 characters) is required for benchmark cap revision.');
+    }
+    await new Promise((r) => setTimeout(r, 140));
+    const benchmarks = getStored(BENCHMARKS_STORAGE_KEY, INITIAL_EQUIPMENT_BENCHMARKS);
+    const index = benchmarks.findIndex((b) => b.id === benchmarkId);
+    if (index === -1) throw new Error(`Benchmark ${benchmarkId} not found`);
+
+    const bm = benchmarks[index];
+    const prevCap = bm.benchmarkCapHourly;
+    bm.benchmarkCapHourly = Number(newCapRate);
+    if (maxVariancePercent !== undefined) bm.maxVariancePercent = Number(maxVariancePercent);
+    bm.lastRevised = new Date().toISOString();
+
+    // Recompute compliance status against private pool avg
+    if (bm.privatePoolAvgHourly > bm.benchmarkCapHourly * (1 + (bm.maxVariancePercent || 20) / 100)) {
+      bm.status = 'flagged_variance';
+    } else {
+      bm.status = 'compliant';
+    }
+
+    benchmarks[index] = bm;
+    save(BENCHMARKS_STORAGE_KEY, benchmarks);
+
+    const audit = recordAuditLog({
+      adminUid,
+      action: 'BENCHMARK_RATE_OVERRIDDEN',
+      targetUserId: `DISTRICT-${bm.district.toUpperCase()}`,
+      targetUserName: `${bm.district} ${bm.machineryClass}`,
+      previousState: `Cap: ₹${prevCap}/hr`,
+      newState: `Cap: ₹${bm.benchmarkCapHourly}/hr; Max Variance: ${bm.maxVariancePercent}%; Status: ${bm.status}`,
+      reason: reason.trim()
+    });
+
+    return {
+      success: true,
+      message: `District benchmark for ${bm.district} ${bm.machineryClass} updated to ₹${bm.benchmarkCapHourly}/hr.`,
+      benchmark: bm,
+      auditRecord: audit
+    };
+  },
+
+  // 11. Resolve Double-Booking Anomaly on Yantra Time-Slots (SOP-09 §3)
+  async resolveSlotAnomaly({ slotId, winningBookingId, conflictingAction = 'refund', adminUid = 'root@agrovercity', reason }) {
+    if (!reason || reason.trim().length < 8) {
+      throw new Error('Administrative explanation (min 8 characters) is mandatory to resolve slot anomaly.');
+    }
+    await new Promise((r) => setTimeout(r, 180));
+    const slots = getStored(SLOTS_STORAGE_KEY, INITIAL_EQUIPMENT_SLOTS);
+    const slotIndex = slots.findIndex((s) => s.id === slotId);
+    if (slotIndex === -1) throw new Error(`Slot ${slotId} not found`);
+
+    const bookings = getStored(BOOKINGS_STORAGE_KEY, INITIAL_EQUIPMENT_BOOKINGS);
+    const slotBookings = bookings.filter((b) => b.slotId === slotId && b.status !== 'cancelled');
+
+    const winningBooking = bookings.find((b) => b.id === winningBookingId);
+    if (!winningBooking) throw new Error(`Winning booking ${winningBookingId} not found`);
+
+    const conflictingBookings = slotBookings.filter((b) => b.id !== winningBookingId);
+
+    // Confirm winning booking
+    winningBooking.status = 'confirmed';
+    winningBooking.updatedAt = new Date().toISOString();
+
+    // Handle conflicting bookings
+    conflictingBookings.forEach((cb) => {
+      cb.status = 'cancelled';
+      cb.refundAmount = cb.priceRupees + (cb.securityDeposit || 0);
+      cb.cancelReason = `Slot double-booking resolution: Admin awarded slot to ${winningBooking.farmerName}. Full refund of ₹${cb.refundAmount.toLocaleString('en-IN')} issued.`;
+      cb.updatedAt = new Date().toISOString();
+    });
+
+    // Update slot
+    const slot = slots[slotIndex];
+    slot.anomaly = null;
+    slot.status = 'booked';
+    slot.bookedBy = winningBooking.farmerId;
+    slot.bookedByName = winningBooking.farmerName;
+    slot.updatedAt = new Date().toISOString();
+
+    slots[slotIndex] = slot;
+    save(SLOTS_STORAGE_KEY, slots);
+    save(BOOKINGS_STORAGE_KEY, bookings);
+
+    const audit = recordAuditLog({
+      adminUid,
+      action: 'SLOT_DOUBLE_BOOKING_RESOLVED',
+      targetUserId: winningBooking.farmerId,
+      targetUserName: `${winningBooking.farmerName} (${slot.id})`,
+      previousState: `Slot ${slot.id} anomaly: double_booked`,
+      newState: `Awarded to ${winningBooking.farmerName} (${winningBooking.id}); ${conflictingBookings.length} conflict(s) refunded`,
+      reason: reason.trim()
+    });
+
+    return {
+      success: true,
+      message: `Slot anomaly resolved. ${winningBooking.farmerName} confirmed. ${conflictingBookings.length} conflicting booking(s) refunded.`,
+      slot,
+      auditRecord: audit
+    };
+  },
+
+  // 12. List Equipment Statutory Audit Logs (SOP-09 Rule 2)
+  async listEquipmentAuditLogs({ query = '', page = 1, limit = 10 } = {}) {
+    await new Promise((r) => setTimeout(r, 60));
+    let logs = getStoredAuditLogs();
+
+    if (logs.length === 0) {
+      logs = INITIAL_EQUIPMENT_AUDIT_LOGS;
+      localStorage.setItem(AUDIT_STORAGE_KEY, JSON.stringify(logs));
+    }
+
+    const equipmentKeywords = [
+      'EQUIPMENT',
+      'YANTRA',
+      'SLOT',
+      'MACHINE',
+      'DAMAGE',
+      'BENCHMARK',
+      'DEPOSIT'
+    ];
+
+    let filtered = logs.filter((log) =>
+      equipmentKeywords.some((kw) => (log.action || '').toUpperCase().includes(kw))
+    );
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      filtered = filtered.filter((log) =>
+        (log.id && log.id.toLowerCase().includes(q)) ||
+        (log.action && log.action.toLowerCase().includes(q)) ||
+        (log.targetUserName && log.targetUserName.toLowerCase().includes(q)) ||
+        (log.reason && log.reason.toLowerCase().includes(q)) ||
+        (log.adminUid && log.adminUid.toLowerCase().includes(q))
+      );
+    }
+
+    const { records, pagination } = paginate(filtered, page, limit);
+    return { success: true, data: { auditLogs: records, pagination } };
+  },
+
+  // 13. Compute module KPIs
   async getEquipmentKpis() {
     await new Promise((r) => setTimeout(r, 60));
     const machines = getStored(EQUIPMENT_STORAGE_KEY, INITIAL_EQUIPMENT);
     const slots = getStored(SLOTS_STORAGE_KEY, INITIAL_EQUIPMENT_SLOTS);
     const bookings = getStored(BOOKINGS_STORAGE_KEY, INITIAL_EQUIPMENT_BOOKINGS);
+    const benchmarks = getStored(BENCHMARKS_STORAGE_KEY, INITIAL_EQUIPMENT_BENCHMARKS);
 
     const verified = machines.filter((m) => m.status === 'verified');
     const pending = machines.filter((m) => m.status === 'pending_verification');
@@ -432,6 +879,8 @@ export const adminEquipmentService = {
       ? Math.round(machines.reduce((acc, m) => acc + (m.utilizationPercent || 0), 0) / machines.length)
       : 0;
 
+    const flaggedBenchmarks = benchmarks.filter((b) => b.status === 'flagged_variance');
+
     return {
       totalMachines: machines.length,
       verifiedMachinesCount: verified.length,
@@ -443,15 +892,18 @@ export const adminEquipmentService = {
       doubleBookedSlotCount: doubleBookedSlots.length,
       pendingDamageReportCount: pendingDamageReports.length,
       depositAtStakeValue: depositAtStake,
-      suspendedCount: machines.filter((m) => m.status === 'suspended').length
+      suspendedCount: machines.filter((m) => m.status === 'suspended').length,
+      totalBenchmarksCount: benchmarks.length,
+      flaggedVarianceCount: flaggedBenchmarks.length
     };
   },
 
-  // 9. Reset to default seed
+  // 14. Reset to default seed
   async resetToDefaultSeed() {
     localStorage.setItem(EQUIPMENT_STORAGE_KEY, JSON.stringify(INITIAL_EQUIPMENT));
     localStorage.setItem(SLOTS_STORAGE_KEY, JSON.stringify(INITIAL_EQUIPMENT_SLOTS));
     localStorage.setItem(BOOKINGS_STORAGE_KEY, JSON.stringify(INITIAL_EQUIPMENT_BOOKINGS));
+    localStorage.setItem(BENCHMARKS_STORAGE_KEY, JSON.stringify(INITIAL_EQUIPMENT_BENCHMARKS));
     return { success: true };
   }
 };

@@ -1,11 +1,22 @@
-import { Bot, Flag, User } from 'lucide-react'
+import { Bot, Flag, User, Clock, CheckCircle2, ShieldAlert, UserCheck, MessageSquare } from 'lucide-react'
 import DetailDrawer, { DrawerSection, DocJson } from '../DetailDrawer'
 import { KeyValue, Button, EmptyState } from '../ui'
 import { ChatbotStatusBadge } from '../../pages/chatbotWidgets'
 
-const LANG_LABELS = { mr: 'Marathi', hi: 'Hindi', en: 'English' }
+const LANG_LABELS = { mr: 'Marathi (मराठी)', hi: 'Hindi (हिंदी)', en: 'English' }
 
-export default function ChatbotDetailDrawer({ session, ticket, experts, promptConfig, onClose, onAssign, onUpdatePrompt }) {
+export default function ChatbotDetailDrawer({
+  session,
+  ticket,
+  experts,
+  promptConfig,
+  onClose,
+  onAssign,
+  onResolveTicket,
+  onEscalateTicket,
+  onFlagSafety,
+  onUpdatePrompt
+}) {
   if (!session && !ticket) return null
 
   return (
@@ -13,9 +24,24 @@ export default function ChatbotDetailDrawer({ session, ticket, experts, promptCo
       open={!!(session || ticket)}
       onClose={onClose}
       title={session ? `Transcript #${session.id}` : `Ticket #${ticket.id}`}
-      subtitle={session ? `${session.farmerName} · ${LANG_LABELS[session.language]} · ${session.topic}` : `${ticket.farmerName} · ${ticket.topic}`}
+      subtitle={session ? `${session.farmerName} · ${LANG_LABELS[session.language] || session.language} · ${session.topic}` : `${ticket.farmerName} · ${ticket.topic}`}
     >
-      {session ? <SessionView session={session} /> : <TicketView ticket={ticket} experts={experts} promptConfig={promptConfig} onAssign={onAssign} onUpdatePrompt={onUpdatePrompt} />}
+      {session ? (
+        <SessionView
+          session={session}
+          onFlagSafety={onFlagSafety}
+        />
+      ) : (
+        <TicketView
+          ticket={ticket}
+          experts={experts}
+          promptConfig={promptConfig}
+          onAssign={onAssign}
+          onResolveTicket={onResolveTicket}
+          onEscalateTicket={onEscalateTicket}
+          onUpdatePrompt={onUpdatePrompt}
+        />
+      )}
 
       <DrawerSection title="Document JSON (audit view)">
         <DocJson doc={session || ticket} />
@@ -24,47 +50,72 @@ export default function ChatbotDetailDrawer({ session, ticket, experts, promptCo
   )
 }
 
-function SessionView({ session }) {
+function SessionView({ session, onFlagSafety }) {
   return (
     <>
       <DrawerSection title="Session Overview">
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2">
-          <KeyValue k="Farmer" v={`${session.farmerName} · ${session.farmerPhone?.replace(/^(\+91\d{2})\d{4}(\d{2})/, '$1••••$2')}`} />
-          <KeyValue k="Language" v={LANG_LABELS[session.language]} />
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 px-3.5 py-2.5 shadow-2xs">
+          <KeyValue k="Farmer" v={`${session.farmerName} · ${session.farmerPhone}`} />
+          <KeyValue k="Language" v={LANG_LABELS[session.language] || session.language} />
           <KeyValue k="AI Engine" v={session.engine} mono />
           <KeyValue k="Topic" v={session.topic} />
           <KeyValue k="Messages" v={session.messageCount} mono />
-          <KeyValue k="Satisfaction" v={session.satisfactionScore != null ? `${session.satisfactionScore} / 5 ★` : 'Not rated yet'} />
+          <KeyValue k="Satisfaction" v={session.satisfactionScore != null ? `${session.satisfactionScore} / 5 ★` : 'Awaiting farmer rating'} />
           <KeyValue k="Status" v={<ChatbotStatusBadge status={session.status} />} />
         </div>
       </DrawerSection>
 
-      {session.flagReason && (
-        <DrawerSection title="Safety / Accuracy Flag">
-          <div className="flex items-start gap-2 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
-            <Flag className="mt-0.5 h-4 w-4 shrink-0" />
-            {session.flagReason}
+      {session.flagReason ? (
+        <DrawerSection title="Safety & Accuracy Flag">
+          <div className="flex items-start gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs text-rose-900 shadow-2xs">
+            <Flag className="mt-0.5 h-4 w-4 shrink-0 text-rose-600" />
+            <div>
+              <p className="font-bold">Flagged for Safety Review</p>
+              <p className="mt-0.5 text-rose-800">{session.flagReason}</p>
+            </div>
+          </div>
+        </DrawerSection>
+      ) : (
+        <DrawerSection title="Safety Monitoring">
+          <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs text-emerald-900">
+            <span>No safety or accuracy violations flagged.</span>
+            <Button variant="danger" size="sm" onClick={() => onFlagSafety(session)}>
+              <Flag className="h-3 w-3 mr-1" /> Flag Transcript
+            </Button>
           </div>
         </DrawerSection>
       )}
 
-      <DrawerSection title="Conversation Transcript">
-        <div className="space-y-2.5">
+      <DrawerSection title="Conversation Transcript (Multi-turn)">
+        <div className="space-y-3">
           {session.messages?.map((m) => (
-            <div key={m.id} className={`flex gap-2 ${m.role === 'farmer' ? 'justify-end' : ''}`}>
+            <div key={m.id} className={`flex gap-2.5 ${m.role === 'farmer' ? 'justify-end' : ''}`}>
               {m.role === 'ai' && (
-                <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
-                  <Bot className="h-3.5 w-3.5 text-emerald-400" />
+                <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 shadow-2xs">
+                  <Bot className="h-4 w-4" />
                 </span>
               )}
-              <div className={`max-w-[80%] rounded-lg px-3 py-2 ${m.role === 'farmer' ? 'bg-sky-500/10 ring-1 ring-sky-500/20' : m.handoff ? 'bg-orange-500/10 ring-1 ring-orange-500/30' : 'bg-slate-900 ring-1 ring-slate-800'}`}>
-                <p className="text-sm leading-relaxed text-slate-200">{m.text}</p>
-                <div className="mt-1 flex items-center gap-2 font-mono text-[10px] text-slate-500">
-                  <span>{m.role === 'farmer' ? <User className="inline h-3 w-3" /> : 'KISAN MITRA'} · {m.at?.slice(0, 16).replace('T', ' ')}</span>
+              <div
+                className={`max-w-[82%] rounded-2xl px-4 py-3 text-xs leading-relaxed shadow-2xs ${
+                  m.role === 'farmer'
+                    ? 'bg-sky-50 text-sky-950 border border-sky-200'
+                    : m.handoff
+                    ? 'bg-amber-50 text-amber-950 border border-amber-300 ring-1 ring-amber-300'
+                    : 'bg-white text-slate-800 border border-emerald-100'
+                }`}
+              >
+                <p className="font-medium">{m.text}</p>
+                <div className="mt-2 flex items-center justify-between gap-3 font-mono text-[10px] text-slate-500 pt-1.5 border-t border-slate-100">
+                  <span className="flex items-center gap-1">
+                    {m.role === 'farmer' ? <User className="h-3 w-3 text-sky-600" /> : <Bot className="h-3 w-3 text-emerald-600" />}
+                    <span>{m.role === 'farmer' ? 'FARMER' : 'KISAN MITRA'} · {m.at?.slice(0, 16).replace('T', ' ')}</span>
+                  </span>
                   {m.confidence != null && (
-                    <span className={m.confidence >= 0.8 ? 'text-emerald-400' : 'text-amber-400'}>conf {(m.confidence * 100).toFixed(0)}%</span>
+                    <span className={`font-bold ${m.confidence >= 0.8 ? 'text-emerald-700' : 'text-amber-700'}`}>
+                      {(m.confidence * 100).toFixed(0)}% confidence
+                    </span>
                   )}
-                  {m.handoff && <span className="text-orange-400">→ HUMAN HANDOFF</span>}
+                  {m.handoff && <span className="font-bold text-amber-700">&rarr; KVK ESCALATION</span>}
                 </div>
               </div>
             </div>
@@ -75,76 +126,76 @@ function SessionView({ session }) {
   )
 }
 
-function TicketView({ ticket, experts, promptConfig, onAssign, onUpdatePrompt }) {
+function TicketView({
+  ticket,
+  experts,
+  promptConfig,
+  onAssign,
+  onResolveTicket,
+  onEscalateTicket,
+  onUpdatePrompt
+}) {
   const canAssign = ['open', 'escalated'].includes(ticket.status)
+  const canResolve = ['assigned', 'open', 'escalated'].includes(ticket.status)
   const available = experts?.filter((e) => e.available) || []
 
   return (
     <>
-      <DrawerSection title="Handoff Ticket">
-        <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2">
-          <KeyValue k="Farmer" v={`${ticket.farmerName} · ${ticket.farmerPhone?.replace(/^(\+91\d{2})\d{4}(\d{2})/, '$1••••$2')}`} />
-          <KeyValue k="Source Session" v={ticket.sessionId} mono />
+      <DrawerSection title="Handoff Ticket & SLA">
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 px-3.5 py-2.5 shadow-2xs">
+          <KeyValue k="Farmer" v={`${ticket.farmerName} · ${ticket.farmerPhone}`} />
+          <KeyValue k="Source Session ID" v={ticket.sessionId} mono />
           <KeyValue k="Topic" v={ticket.topic} />
           <KeyValue k="Priority" v={ticket.priority} />
-          <KeyValue k="Language" v={LANG_LABELS[ticket.language]} />
-          <KeyValue k="Contact Channel" v={ticket.channel} />
+          <KeyValue k="Language" v={LANG_LABELS[ticket.language] || ticket.language} />
+          <KeyValue k="Preferred Channel" v={ticket.channel} />
           <KeyValue k="SLA Deadline" v={ticket.slaDeadline?.slice(0, 16).replace('T', ' ')} mono />
-          <KeyValue k="Assigned Expert" v={ticket.assignedExpertName || 'Unassigned'} />
+          <KeyValue k="Assigned Agronomist" v={ticket.assignedExpertName || 'Unassigned'} />
+          <KeyValue k="Status" v={<ChatbotStatusBadge status={ticket.status} />} />
         </div>
       </DrawerSection>
 
-      <DrawerSection title="Expert Roster (Available Agronomists)">
-        {experts == null ? (
-          <div className="rounded-lg border border-slate-800 py-6 text-center text-xs text-slate-500">Loading expert roster…</div>
-        ) : (
-          <div className="overflow-hidden rounded-lg border border-slate-800">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-slate-800 bg-slate-900/80 uppercase tracking-wider text-slate-500">
-                  <th className="px-3 py-2 font-semibold">Expert</th>
-                  <th className="px-3 py-2 font-semibold">Specialization</th>
-                  <th className="px-3 py-2 font-semibold">Load</th>
-                  <th className="px-3 py-2 font-semibold">Rating</th>
-                </tr>
-              </thead>
-              <tbody>
-                {experts.map((e) => (
-                  <tr key={e.id} className="border-b border-slate-800/60 last:border-0">
-                    <td className="px-3 py-2">
-                      <p className="font-semibold text-slate-200">{e.name}</p>
-                      <p className="font-mono text-[10px] text-slate-500">{e.organization} · {(e.languages || []).map((l) => LANG_LABELS[l] || l).join(', ')}</p>
-                    </td>
-                    <td className="px-3 py-2 text-slate-400">{e.specialization}</td>
-                    <td className="px-3 py-2">
-                      <span className={`rounded px-1.5 py-0.5 font-mono text-[10px] ${e.available ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
-                        {e.available ? `AVAILABLE · ${e.activeTickets} active` : `BUSY · ${e.activeTickets} active`}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 font-mono text-amber-400">{e.rating} ★</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {ticket.resolutionNotes && (
+        <DrawerSection title="Agronomist Resolution Notes">
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-950">
+            <div className="flex items-center gap-1.5 font-bold mb-1">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              Advisory Delivered
+            </div>
+            <p className="leading-relaxed">{ticket.resolutionNotes}</p>
+            <p className="mt-1 font-mono text-[10px] text-slate-500">
+              Resolved at: {ticket.resolvedAt?.slice(0, 16).replace('T', ' ')}
+            </p>
           </div>
-        )}
-      </DrawerSection>
+        </DrawerSection>
+      )}
 
-      <DrawerSection title="Actions">
+      <DrawerSection title="Actions & Triage Controls">
         <div className="flex flex-wrap gap-2">
           {canAssign && (
             <Button onClick={() => onAssign(ticket)}>
+              <UserCheck className="h-4 w-4 mr-1.5" />
               Assign Agronomist ({available.length} available)
             </Button>
           )}
-          <Button variant="secondary" onClick={onUpdatePrompt}>
-            Edit AI Prompt Config
-          </Button>
-          {!canAssign && (
-            <p className="text-xs text-slate-500">
-              Ticket is {ticket.status}{ticket.resolvedAt ? ` (resolved ${ticket.resolvedAt.slice(0, 10)})` : ''} — no reassignment available.
-            </p>
+
+          {canResolve && (
+            <Button variant="secondary" onClick={() => onResolveTicket(ticket)}>
+              <CheckCircle2 className="h-4 w-4 mr-1.5 text-emerald-600" />
+              Mark Resolved
+            </Button>
           )}
+
+          {ticket.status !== 'escalated' && ticket.status !== 'resolved' && (
+            <Button variant="danger" onClick={() => onEscalateTicket(ticket)}>
+              <ShieldAlert className="h-4 w-4 mr-1.5" />
+              Escalate to KVK Head
+            </Button>
+          )}
+
+          <Button variant="secondary" onClick={onUpdatePrompt}>
+            Calibrate Prompt Config
+          </Button>
         </div>
       </DrawerSection>
     </>

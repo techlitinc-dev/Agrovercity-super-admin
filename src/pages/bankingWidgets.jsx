@@ -204,7 +204,8 @@ export function TabSwitch({ activeTab, onTabChange, counts = {} }) {
     { id: 'loans', label: 'Loan Underwriting Queue', count: counts.loans },
     { id: 'kcc', label: 'KCC Records & Credit Limits', count: counts.kcc },
     { id: 'repayments', label: 'Repayments & Default Risk', count: counts.repayments },
-    { id: 'model', label: 'Credit Score Model & Simulator' }
+    { id: 'model', label: 'Credit Score Model & Simulator' },
+    { id: 'audit_trail', label: 'Statutory Audit Trail', count: counts.audit_trail }
   ]
 
   return (

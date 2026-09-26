@@ -73,7 +73,8 @@ export function TabSwitch({ activeTab, onChangeTab, counts = {} }) {
     { id: 'surveyors', label: 'Field Surveyor Panel', icon: UserCheck, badge: counts.surveyors },
     { id: 'policies', label: 'PMFBY Policies Passbook', icon: FileText, badge: counts.policies },
     { id: 'rates', label: 'Seasonal Premium Rates', icon: Sliders, badge: counts.rates },
-    { id: 'dbt', label: 'DBT Disbursals & Sign-Off', icon: Coins, badge: counts.dbt }
+    { id: 'dbt', label: 'DBT Disbursals & Sign-Off', icon: Coins, badge: counts.dbt },
+    { id: 'audit_trail', label: 'Statutory Audit Trail', icon: ShieldAlert, badge: counts.audit_trail }
   ]
 
   return (

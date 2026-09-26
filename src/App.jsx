@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { AuthAdminProvider } from './context/AuthAdminContext';
+import React, { useState, useEffect } from 'react';
+import { AuthAdminProvider, useAuthAdmin } from './context/AuthAdminContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
@@ -32,7 +32,8 @@ import { TransportModule } from './components/transport/TransportModule';
 import { EquipmentModule } from './components/equipment/EquipmentModule';
 import { getModuleById, getGroupById } from './lib/navigationConfig';
 
-export function App() {
+function AppContent() {
+  const { actingStaff, isModuleAllowed } = useAuthAdmin();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeModuleId, setActiveModuleId] = useState('overview'); // Default to Executive Command Center & Overview
   const [refreshKey, setRefreshKey] = useState(0);
@@ -41,12 +42,20 @@ export function App() {
     setRefreshKey((prev) => prev + 1);
   };
 
+  // If acting as a delegated admin, auto-redirect if current active module is unauthorized
+  useEffect(() => {
+    if (actingStaff && actingStaff.role !== 'Superadmin') {
+      if (!isModuleAllowed(activeModuleId)) {
+        const firstAllowed = actingStaff.delegatedModules?.[0] || '02';
+        setActiveModuleId(firstAllowed);
+      }
+    }
+  }, [actingStaff, activeModuleId, isModuleAllowed]);
+
   const currentNav = getModuleById(activeModuleId);
   const currentGroup = getGroupById(currentNav.groupId);
 
   return (
-    <AuthAdminProvider>
-      <NotificationProvider>
         <div className="min-h-screen bg-gradient-to-br from-[#f8fbf9] via-[#f0fdf4]/50 to-[#ecfdf5]/40 text-slate-900 flex flex-col antialiased relative overflow-x-hidden selection:bg-emerald-500 selection:text-white">
           {/* Subtle Ambient Agricultural Glassmorphic Glow Orbs */}
           <div className="pointer-events-none fixed -top-40 -right-40 w-96 h-96 bg-emerald-300/25 rounded-full blur-3xl z-0" />
@@ -200,6 +209,14 @@ export function App() {
             </div>
           </footer>
         </div>
+  );
+}
+
+export function App() {
+  return (
+    <AuthAdminProvider>
+      <NotificationProvider>
+        <AppContent />
       </NotificationProvider>
     </AuthAdminProvider>
   );

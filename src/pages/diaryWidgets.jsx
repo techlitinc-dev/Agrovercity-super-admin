@@ -163,7 +163,8 @@ export function TabSwitch({ tab, setTab }) {
     { id: 'entries', label: 'Farm Diary Entries', countKey: 'entries' },
     { id: 'pnl', label: 'Crop P&L Statements', countKey: 'pnl' },
     { id: 'benchmarks', label: 'Cost Benchmarks & Break-Even', countKey: 'benchmarks' },
-    { id: 'trends', label: 'Regional Expenditure & AgriCoins Audit', countKey: 'trends' }
+    { id: 'trends', label: 'Regional Expenditure & AgriCoins Audit', countKey: 'trends' },
+    { id: 'audit_trail', label: 'Audit Trail', countKey: 'audit' }
   ]
 
   return (

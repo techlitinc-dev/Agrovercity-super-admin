@@ -15,8 +15,10 @@ import {
   ALL_MODULES_MAP,
   getModuleById
 } from '../../lib/navigationConfig';
+import { useAuthAdmin } from '../../context/AuthAdminContext';
 
 export function Sidebar({ collapsed, setCollapsed, activeModuleId = 'overview', onSelectModule }) {
+  const { isModuleAllowed, actingStaff } = useAuthAdmin();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
@@ -60,6 +62,8 @@ export function Sidebar({ collapsed, setCollapsed, activeModuleId = 'overview', 
         .map((modId) => ALL_MODULES_MAP[modId])
         .filter((mod) => {
           if (!mod) return false;
+          // Hide unauthorized modules for delegated admin
+          if (!isModuleAllowed(mod.id)) return false;
           if (!searchQuery.trim()) return true;
           const q = searchQuery.toLowerCase();
           return (
@@ -125,51 +129,53 @@ export function Sidebar({ collapsed, setCollapsed, activeModuleId = 'overview', 
         </button>
       </div>
 
-      {/* Executive Command Center Button */}
-      {!collapsed ? (
-        <div className="p-2.5 border-b border-emerald-200/60 bg-gradient-to-r from-emerald-50/70 via-white to-teal-50/50">
-          <button
-            onClick={() => {
-              if (onSelectModule) onSelectModule('overview');
-            }}
-            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs transition-all shadow-xs ${
-              activeModuleId === 'overview'
-                ? 'bg-gradient-to-r from-emerald-700 via-green-700 to-emerald-800 text-white font-bold shadow-md shadow-emerald-700/25 ring-2 ring-emerald-400/40'
-                : 'bg-white hover:bg-emerald-50/90 text-slate-800 hover:text-emerald-950 border border-emerald-200/80 font-semibold'
-            }`}
-          >
-            <div className={`p-1 rounded-lg ${activeModuleId === 'overview' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
-              <LayoutDashboard className="w-4 h-4 shrink-0" />
-            </div>
-            <div className="flex-1 flex items-center justify-between truncate text-left">
-              <div className="truncate">
-                <span className="block font-bold text-xs truncate">Executive Command</span>
-                <span className={`block text-[10px] font-mono truncate ${activeModuleId === 'overview' ? 'text-emerald-100' : 'text-slate-500'}`}>
-                  HQ Overview & Insights
+      {/* Executive Command Center Button (Superadmin Only) */}
+      {(!actingStaff || actingStaff.role === 'Superadmin') && (
+        !collapsed ? (
+          <div className="p-2.5 border-b border-emerald-200/60 bg-gradient-to-r from-emerald-50/70 via-white to-teal-50/50">
+            <button
+              onClick={() => {
+                if (onSelectModule) onSelectModule('overview');
+              }}
+              className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs transition-all shadow-xs ${
+                activeModuleId === 'overview'
+                  ? 'bg-gradient-to-r from-emerald-700 via-green-700 to-emerald-800 text-white font-bold shadow-md shadow-emerald-700/25 ring-2 ring-emerald-400/40'
+                  : 'bg-white hover:bg-emerald-50/90 text-slate-800 hover:text-emerald-950 border border-emerald-200/80 font-semibold'
+              }`}
+            >
+              <div className={`p-1 rounded-lg ${activeModuleId === 'overview' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                <LayoutDashboard className="w-4 h-4 shrink-0" />
+              </div>
+              <div className="flex-1 flex items-center justify-between truncate text-left">
+                <div className="truncate">
+                  <span className="block font-bold text-xs truncate">Executive Command</span>
+                  <span className={`block text-[10px] font-mono truncate ${activeModuleId === 'overview' ? 'text-emerald-100' : 'text-slate-500'}`}>
+                    HQ Overview & Insights
+                  </span>
+                </div>
+                <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ml-1 shrink-0 ${
+                  activeModuleId === 'overview' ? 'bg-emerald-500/40 text-emerald-100 border border-white/30' : 'bg-emerald-100 text-emerald-800 border border-emerald-300/60'
+                }`}>
+                  Live
                 </span>
               </div>
-              <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ml-1 shrink-0 ${
-                activeModuleId === 'overview' ? 'bg-emerald-500/40 text-emerald-100 border border-white/30' : 'bg-emerald-100 text-emerald-800 border border-emerald-300/60'
-              }`}>
-                Live
-              </span>
-            </div>
-          </button>
-        </div>
-      ) : (
-        <div className="p-2 border-b border-emerald-200/60 flex justify-center bg-emerald-50/30">
-          <button
-            onClick={() => onSelectModule && onSelectModule('overview')}
-            className={`p-2 rounded-xl transition-all ${
-              activeModuleId === 'overview'
-                ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/30 ring-2 ring-emerald-400/50'
-                : 'text-emerald-800 hover:bg-emerald-100/70 border border-emerald-200/50'
-            }`}
-            title="Executive Command Center & Overview"
-          >
-            <LayoutDashboard className="w-5 h-5" />
-          </button>
-        </div>
+            </button>
+          </div>
+        ) : (
+          <div className="p-2 border-b border-emerald-200/60 flex justify-center bg-emerald-50/30">
+            <button
+              onClick={() => onSelectModule && onSelectModule('overview')}
+              className={`p-2 rounded-xl transition-all ${
+                activeModuleId === 'overview'
+                  ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/30 ring-2 ring-emerald-400/50'
+                  : 'text-emerald-800 hover:bg-emerald-100/70 border border-emerald-200/50'
+              }`}
+              title="Executive Command Center & Overview"
+            >
+              <LayoutDashboard className="w-5 h-5" />
+            </button>
+          </div>
+        )
       )}
 
       {/* Module Search & Category Filter Pills (When Expanded) */}

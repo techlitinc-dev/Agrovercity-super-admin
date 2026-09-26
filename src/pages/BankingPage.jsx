@@ -13,8 +13,11 @@ import {
   CreditCard,
   Clock,
   ShieldAlert,
-  Layers
+  Layers,
+  RotateCcw,
+  CheckCircle2
 } from 'lucide-react'
+import { Button } from '../components/ui'
 import {
   isMockMode,
   getBankingSummary,
@@ -29,10 +32,13 @@ import {
   getCreditScoreModel,
   updateCreditScoreModel,
   calculateLoanEmi,
-  listRepaymentMilestones
+  listRepaymentMilestones,
+  listBankingAuditLogs,
+  resetBankingSeedData
 } from '../api/bankingApi'
 import ConfirmDialog from '../components/ConfirmDialog'
 import BankingDetailDrawer from '../components/banking/BankingDetailDrawer'
+import BankingAuditTrailTable from '../components/banking/BankingAuditTrailTable'
 import {
   UnderwriteLoanModal,
   PennyDropOverrideModal,
@@ -72,18 +78,20 @@ function daysAgoIso(days) {
 }
 
 export default function BankingPage() {
-  const [tab, setTab] = useState('accounts') // 'accounts' | 'loans' | 'kcc' | 'repayments' | 'model'
+  const [tab, setTab] = useState('accounts') // 'accounts' | 'loans' | 'kcc' | 'repayments' | 'model' | 'audit_trail'
   const [accounts, setAccounts] = useState([])
   const [loans, setLoans] = useState([])
   const [kccList, setKccList] = useState([])
   const [repayments, setRepayments] = useState([])
   const [creditModel, setCreditModel] = useState(null)
+  const [auditLogs, setAuditLogs] = useState([])
   const [summary, setSummary] = useState(null)
 
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [successBanner, setSuccessBanner] = useState('')
   const [busy, setBusy] = useState(false)
 
   // Filters
@@ -176,6 +184,15 @@ export default function BankingPage() {
       } else if (tab === 'model') {
         const res = await getCreditScoreModel()
         setCreditModel(res)
+      } else if (tab === 'audit_trail') {
+        const res = await listBankingAuditLogs({
+          page,
+          pageSize: PAGE_SIZE,
+          q,
+          action: status
+        })
+        setAuditLogs(res.data || [])
+        setTotal(res.total || 0)
       }
     } catch (err) {
       setError(err?.message || 'Failed to load banking records')
@@ -235,6 +252,8 @@ export default function BankingPage() {
       if (selectedItem?.id === overrideModal.account.id) {
         setSelectedItem((prev) => ({ ...prev, verificationStatus: 'verified', verificationMethod: 'manualOverride' }))
       }
+      setSuccessBanner(`Penny-drop verification manually approved for ${overrideModal.account.farmerName}.`)
+      setTimeout(() => setSuccessBanner(''), 4500)
       loadData()
       loadSummary()
     } catch (err) {
@@ -258,6 +277,8 @@ export default function BankingPage() {
         try {
           await setPrimaryAccount(acc.id, { reason })
           setConfirmDialog({ open: false })
+          setSuccessBanner(`Primary payout account updated for ${acc.farmerName}.`)
+          setTimeout(() => setSuccessBanner(''), 4500)
           loadData()
           if (selectedItem) setSelectedItem(null)
         } catch (err) {
@@ -281,6 +302,8 @@ export default function BankingPage() {
       if (selectedItem?.id === underwriteModal.loan.id) {
         setSelectedItem((prev) => ({ ...prev, ...payload }))
       }
+      setSuccessBanner(`Loan application #${underwriteModal.loan.applicationId || underwriteModal.loan.id} updated to ${payload.status?.toUpperCase()}.`)
+      setTimeout(() => setSuccessBanner(''), 4500)
       loadData()
       loadSummary()
     } catch (err) {
@@ -299,6 +322,8 @@ export default function BankingPage() {
     try {
       await updateKccLimit(kccModal.kcc.id, payload)
       setKccModal({ open: false, kcc: null })
+      setSuccessBanner(`KCC limit for ${kccModal.kcc.farmerName} updated to ${fmtINR(payload.newLimit)}.`)
+      setTimeout(() => setSuccessBanner(''), 4500)
       loadData()
       loadSummary()
     } catch (err) {
@@ -318,6 +343,10 @@ export default function BankingPage() {
       const updated = await updateCreditScoreModel(payload)
       setCreditModel(updated)
       setCalibrateModal({ open: false, model: null })
+      setSuccessBanner('Kisan Credit Score algorithmic weights and tiers calibrated successfully.')
+      setTimeout(() => setSuccessBanner(''), 4500)
+      loadData()
+      loadSummary()
     } catch (err) {
       alert(err?.message || 'Failed to calibrate model')
     } finally {
@@ -330,11 +359,39 @@ export default function BankingPage() {
     try {
       const result = await auditMaskingCompliance()
       setDpdpModal({ open: true, result })
+      loadSummary()
     } catch (err) {
       alert(err?.message || 'Failed to run DPDP audit')
     } finally {
       setBusy(false)
     }
+  }
+
+  const handleResetSeed = () => {
+    setConfirmDialog({
+      open: true,
+      title: 'Reset Banking & Underwriting Seed Data',
+      message: 'Are you sure you want to reset all bank accounts, loan underwriting queues, KCC limits, and statutory audit logs back to default mock seeds?',
+      confirmLabel: 'Reset All Data',
+      requireReason: false,
+      danger: true,
+      dualSignOff: false,
+      action: async () => {
+        setBusy(true)
+        try {
+          await resetBankingSeedData()
+          setSuccessBanner('Module 14 seed data has been successfully restored to initial defaults.')
+          setTimeout(() => setSuccessBanner(''), 4500)
+          setConfirmDialog({ open: false })
+          loadSummary()
+          loadData()
+        } catch (err) {
+          alert(err?.message || 'Failed to reset seed data')
+        } finally {
+          setBusy(false)
+        }
+      }
+    })
   }
 
   const handleExportCsv = () => {
@@ -353,6 +410,9 @@ export default function BankingPage() {
     } else if (tab === 'repayments') {
       rows = repayments
       filename = 'repayment_milestones.csv'
+    } else if (tab === 'audit_trail') {
+      rows = auditLogs
+      filename = 'banking_statutory_audit_trail.csv'
     }
 
     const csvContent = toCsv(rows)
@@ -391,6 +451,17 @@ export default function BankingPage() {
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
             <span>DPDP Act: 100% Masked</span>
           </div>
+
+          <button
+            type="button"
+            onClick={handleResetSeed}
+            title="Reset Module 14 Seed Data"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold shadow-2xs transition"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+            <span>Reset Seed</span>
+          </button>
+
           {isMockMode() && (
             <span className="px-2.5 py-1 rounded-xl bg-amber-50 text-amber-800 border border-amber-300 text-[11px] font-mono font-bold shadow-2xs">
               Offline Mock Engine
@@ -398,6 +469,22 @@ export default function BankingPage() {
           )}
         </div>
       </div>
+
+      {/* Success Notification Banner */}
+      {successBanner && (
+        <div className="p-3.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-900 text-xs font-medium flex items-center justify-between shadow-xs animate-in fade-in duration-200">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{successBanner}</span>
+          </div>
+          <button
+            onClick={() => setSuccessBanner('')}
+            className="text-emerald-700 hover:text-emerald-900 text-xs font-bold"
+          >
+            &times;
+          </button>
+        </div>
+      )}
 
       {/* Top Metric Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -443,31 +530,34 @@ export default function BankingPage() {
         activeTab={tab}
         onTabChange={handleTabChange}
         counts={{
-          accounts: accounts.length || 12,
-          loans: loans.length || 10,
+          accounts: summary ? summary.totalBankAccounts : (accounts.length || 12),
+          loans: summary ? summary.totalLoanApplications : (loans.length || 10),
           kcc: kccList.length || 8,
-          repayments: repayments.length || 8
+          repayments: repayments.length || 8,
+          audit_trail: auditLogs.length || 5
         }}
       />
 
       {/* Filters Toolbar */}
-      <FiltersBar
-        tab={tab}
-        q={q}
-        setQ={setQ}
-        status={status}
-        setStatus={setStatus}
-        secondaryFilter={secondaryFilter}
-        setSecondaryFilter={setSecondaryFilter}
-        dateRange={dateRange}
-        setDateRange={setDateRange}
-        onRefresh={loadData}
-        onExportCsv={handleExportCsv}
-        onOpenEmiCalculator={() => setEmiModal({ open: true, initialLoan: null })}
-        onCalibrateModel={handleTriggerCalibrateModel}
-        onRunMaskingAudit={handleRunMaskingAudit}
-        loading={loading}
-      />
+      {tab !== 'audit_trail' && (
+        <FiltersBar
+          tab={tab}
+          q={q}
+          setQ={setQ}
+          status={status}
+          setStatus={setStatus}
+          secondaryFilter={secondaryFilter}
+          setSecondaryFilter={setSecondaryFilter}
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+          onRefresh={loadData}
+          onExportCsv={handleExportCsv}
+          onOpenEmiCalculator={() => setEmiModal({ open: true, initialLoan: null })}
+          onCalibrateModel={handleTriggerCalibrateModel}
+          onRunMaskingAudit={handleRunMaskingAudit}
+          loading={loading}
+        />
+      )}
 
       {/* Error Banner */}
       {error && (
@@ -476,9 +566,13 @@ export default function BankingPage() {
             <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
             <span>{error}</span>
           </div>
-          <Button variant="secondary" className="text-xs px-2 py-1" onClick={loadData}>
+          <button
+            type="button"
+            className="text-xs px-2.5 py-1 font-semibold rounded-lg bg-rose-100 text-rose-800 hover:bg-rose-200"
+            onClick={loadData}
+          >
             Retry
-          </Button>
+          </button>
         </div>
       )}
 
@@ -554,6 +648,22 @@ export default function BankingPage() {
           onCalibrate={handleTriggerCalibrateModel}
           onOpenEmiSimulator={() => setEmiModal({ open: true, initialLoan: null })}
         />
+      )}
+
+      {tab === 'audit_trail' && (
+        <>
+          <BankingAuditTrailTable
+            auditLogs={auditLogs}
+            loading={loading}
+            onRefresh={loadData}
+          />
+          <Pagination
+            page={page}
+            pageSize={PAGE_SIZE}
+            total={total}
+            onPageChange={(p) => setPage(p)}
+          />
+        </>
       )}
 
       {/* Slide-over Action Drawer */}

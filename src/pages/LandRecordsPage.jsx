@@ -21,7 +21,8 @@ import {
   Zap,
   Users,
   Download,
-  Plus
+  Plus,
+  RotateCcw
 } from 'lucide-react'
 import {
   getLandRecordsSummary,
@@ -33,7 +34,9 @@ import {
   resolveDiscrepancy,
   refreshRecordFromPortal,
   seedVillageRecords,
-  exportGovernmentCompliance
+  exportGovernmentCompliance,
+  auditCompliance,
+  resetLandRecordsSeedData
 } from '../api/landRecordsApi'
 import {
   MetricCard,
@@ -42,15 +45,17 @@ import {
   LandRecordsTable,
   UserImportsTable,
   GatewayStatusCards,
-  AuditLogTable,
   Pagination
 } from './landRecordsWidgets'
 import LandRecordDetailDrawer from '../components/land-records/LandRecordDetailDrawer'
+import LandRecordsAuditTrailTable from '../components/land-records/LandRecordsAuditTrailTable'
+import ConfirmDialog from '../components/ConfirmDialog'
 import {
   ManualProvisionRecordModal,
   ResolveDiscrepancyModal,
   SeedVillageCacheModal,
-  GovernmentExportModal
+  GovernmentExportModal,
+  DpdpLandComplianceModal
 } from '../components/land-records/LandRecordsModals'
 import { useNotification } from '../context/NotificationContext'
 
@@ -108,6 +113,19 @@ export default function LandRecordsPage() {
   const [discrepancyModal, setDiscrepancyModal] = useState({ open: false, record: null })
   const [seedCacheOpen, setSeedCacheOpen] = useState(false)
   const [exportComplianceOpen, setExportComplianceOpen] = useState(false)
+  const [dpdpAuditModal, setDpdpAuditModal] = useState({ open: false, result: null })
+
+  // Generic Confirmation Dialog
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    title: '',
+    message: '',
+    confirmLabel: 'Confirm',
+    requireReason: false,
+    danger: false,
+    dualSignOff: false,
+    action: null
+  })
 
   // 1. Load KPI summary and gateway telemetry
   const loadSummaryAndGateways = useCallback(async () => {
@@ -157,7 +175,8 @@ export default function LandRecordsPage() {
         const res = await getAuditLogs({
           page,
           pageSize: PAGE_SIZE,
-          q
+          q,
+          actionType: status !== 'all' ? status : 'all'
         })
         setAuditLogs(res.data || [])
         setTotal(res.total || 0)
@@ -314,6 +333,61 @@ export default function LandRecordsPage() {
     }
   }
 
+  const handleRunDpdpAudit = async () => {
+    try {
+      setBusy(true)
+      const result = await auditCompliance()
+      setDpdpAuditModal({ open: true, result })
+      addToast({
+        title: 'DPDP Audit Complete',
+        message: `Pass Rate: ${result.passRate}% · ${result.passedCount} compliant · ${result.leaksDetected} leaks.`,
+        type: 'info'
+      })
+    } catch (err) {
+      addToast({
+        title: 'Audit Failed',
+        message: err.message,
+        type: 'error'
+      })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handleResetSeed = () => {
+    setConfirmDialog({
+      open: true,
+      title: 'Reset Land Records Registry Seed Data',
+      message: 'Restore all default 7/12 & 8A land records, user farm imports, state revenue gateway health telemetry, and statutory audit logs back to initial defaults?',
+      confirmLabel: 'Reset All Data',
+      requireReason: false,
+      danger: true,
+      dualSignOff: false,
+      action: async () => {
+        setBusy(true)
+        try {
+          await resetLandRecordsSeedData()
+          addToast({
+            title: 'Seed Data Reset',
+            message: 'Land records database and cache restored to default seeds.',
+            type: 'success'
+          })
+          setConfirmDialog({ open: false })
+          loadSummaryAndGateways()
+          loadTabData()
+        } catch (err) {
+          addToast({
+            title: 'Reset Failed',
+            message: err?.message || 'Failed to reset seed data',
+            type: 'error'
+          })
+        } finally {
+          setBusy(false)
+        }
+      }
+    })
+  }
+
   const handleExportCurrentView = () => {
     if (tab === 'records') {
       const csv = toCsv(records)
@@ -350,7 +424,7 @@ export default function LandRecordsPage() {
       records: summary?.activeVerifiedParcels || records.length,
       imports: summary?.totalImportsThisMonth || imports.length,
       gateways: gatewayStatus?.portals?.length || 4,
-      audit: auditLogs.length || 4
+      audit: auditLogs.length || 5
     }
   }, [summary, records.length, imports.length, gatewayStatus, auditLogs.length])
 
@@ -397,11 +471,29 @@ export default function LandRecordsPage() {
             </button>
 
             <button
+              onClick={handleRunDpdpAudit}
+              title="Audit DPDP Act Masking Compliance"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
+            >
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>DPDP Audit</span>
+            </button>
+
+            <button
               onClick={() => setExportComplianceOpen(true)}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
             >
               <Download className="w-4 h-4 text-emerald-600" />
               <span>Govt Dossier</span>
+            </button>
+
+            <button
+              onClick={handleResetSeed}
+              title="Reset Module 16 Seed Data"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs font-bold shadow-2xs transition"
+            >
+              <RotateCcw className="w-4 h-4 text-slate-500" />
+              <span>Reset Seed</span>
             </button>
           </div>
         </div>
@@ -487,23 +579,25 @@ export default function LandRecordsPage() {
         <TabSwitch activeTab={tab} onChangeTab={handleTabChange} counts={counts} />
 
         {/* Global Filter Bar */}
-        <FiltersBar
-          tab={tab}
-          q={q}
-          setQ={setQ}
-          status={status}
-          setStatus={setStatus}
-          recordType={recordType}
-          setRecordType={setRecordType}
-          district={district}
-          setDistrict={setDistrict}
-          encumbranceOnly={encumbranceOnly}
-          setEncumbranceOnly={setEncumbranceOnly}
-          onExportCsv={handleExportCurrentView}
-          onManualProvision={() => setManualProvisionOpen(true)}
-          onSeedCache={() => setSeedCacheOpen(true)}
-          onOpenGatewayHealth={() => setTab('gateways')}
-        />
+        {tab !== 'gateways' && (
+          <FiltersBar
+            tab={tab}
+            q={q}
+            setQ={setQ}
+            status={status}
+            setStatus={setStatus}
+            recordType={recordType}
+            setRecordType={setRecordType}
+            district={district}
+            setDistrict={setDistrict}
+            encumbranceOnly={encumbranceOnly}
+            setEncumbranceOnly={setEncumbranceOnly}
+            onExportCsv={handleExportCurrentView}
+            onManualProvision={() => setManualProvisionOpen(true)}
+            onSeedCache={() => setSeedCacheOpen(true)}
+            onOpenGatewayHealth={() => setTab('gateways')}
+          />
+        )}
 
         {/* Loading / Error States */}
         {loading && (
@@ -572,7 +666,11 @@ export default function LandRecordsPage() {
 
             {tab === 'audit' && (
               <>
-                <AuditLogTable logs={auditLogs} />
+                <LandRecordsAuditTrailTable
+                  auditLogs={auditLogs}
+                  loading={loading}
+                  onRefresh={loadTabData}
+                />
                 <Pagination
                   page={page}
                   pageSize={PAGE_SIZE}
@@ -620,6 +718,29 @@ export default function LandRecordsPage() {
         open={exportComplianceOpen}
         onClose={() => setExportComplianceOpen(false)}
         onConfirm={handleExportComplianceConfirm}
+      />
+
+      {/* DPDP Act Compliance Result Modal */}
+      <DpdpLandComplianceModal
+        open={dpdpAuditModal.open}
+        result={dpdpAuditModal.result}
+        onClose={() => setDpdpAuditModal({ open: false, result: null })}
+      />
+
+      {/* Confirmation Dialog for Reset Seed */}
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        confirmLabel={confirmDialog.confirmLabel}
+        requireReason={confirmDialog.requireReason}
+        danger={confirmDialog.danger}
+        dualSignOff={confirmDialog.dualSignOff}
+        busy={busy}
+        onConfirm={() => {
+          if (confirmDialog.action) confirmDialog.action()
+        }}
+        onCancel={() => setConfirmDialog({ open: false })}
       />
     </div>
   )

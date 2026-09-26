@@ -10,7 +10,7 @@ import { adminLotsService } from '../../services/adminLotsService';
 import { getModuleById, getGroupById } from '../../lib/navigationConfig';
 
 export function Header({ activeModuleId = '26', onDataRefreshed }) {
-  const { currentAdmin, currentRoleKey, switchRole } = useAuthAdmin();
+  const { currentAdmin, currentRoleKey, switchRole, actingStaff, staffList, exitActAs } = useAuthAdmin();
   const { addToast } = useNotification();
 
   const handleResetSeed = async () => {
@@ -39,6 +39,36 @@ export function Header({ activeModuleId = '26', onDataRefreshed }) {
 
   return (
     <header className="sticky top-0 z-30 bg-white/85 backdrop-blur-xl border-b border-emerald-200/70 shadow-[0_4px_20px_-4px_rgba(16,185,129,0.05)]">
+      {/* Top Banner for Admin Session: [Name] · X Modules Active */}
+      {actingStaff && (
+        <div className="bg-gradient-to-r from-blue-700 via-blue-800 to-indigo-900 text-white px-4 lg:px-8 py-2.5 text-xs flex flex-wrap items-center justify-between gap-3 shadow-md border-b border-blue-500/30">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
+            </span>
+            <span className="font-extrabold text-white text-sm tracking-wide">
+              Admin Session: {actingStaff.name} · {actingStaff.delegatedModules?.length || 0} Modules Active
+            </span>
+            <span className="text-blue-200 bg-blue-900/60 border border-blue-400/30 px-2 py-0.5 rounded text-[11px] font-mono">
+              {actingStaff.role} ({actingStaff.department || 'Operations'})
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:inline-block text-[11px] text-blue-200">
+              Sidebar automatically displays only assigned modules
+            </span>
+            <button
+              onClick={exitActAs}
+              className="px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg font-bold text-xs transition-all border border-white/40 cursor-pointer active:scale-95"
+            >
+              Exit Session ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Top wireframe banner */}
       <div className="px-4 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
         {/* Brand & Module Identification */}
@@ -90,18 +120,41 @@ export function Header({ activeModuleId = '26', onDataRefreshed }) {
             <select
               value={currentRoleKey}
               onChange={(e) => {
-                switchRole(e.target.value);
+                const selectedKey = e.target.value;
+                switchRole(selectedKey);
+                if (selectedKey.startsWith('STAFF_')) {
+                  const staff = staffList.find((s) => s.id === selectedKey.replace('STAFF_', ''));
+                  if (staff) {
+                    addToast({
+                      title: 'Admin Session Activated',
+                      message: `Now acting as ${staff.name} (${staff.delegatedModules?.length || 0} Modules Active)`,
+                      type: 'info'
+                    });
+                    return;
+                  }
+                }
                 addToast({
                   title: 'Admin Context Switched',
-                  message: `Now acting as ${ADMIN_ROLES[e.target.value].name} (${ADMIN_ROLES[e.target.value].email})`,
+                  message: `Now acting as ${ADMIN_ROLES[selectedKey]?.name || selectedKey}`,
                   type: 'info'
                 });
               }}
-              className="bg-slate-50/80 text-xs font-semibold text-slate-800 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 cursor-pointer transition-colors"
+              className="bg-slate-50/80 text-xs font-semibold text-slate-800 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 cursor-pointer transition-colors max-w-[240px] truncate"
             >
-              <option value="SUPER_ADMIN">Super Admin (customClaims: admin:true)</option>
-              <option value="SUPPORT_OPERATOR">Support Operator (Triage / Tier-2)</option>
-              <option value="FINANCIAL_AUDITOR">Financial Auditor (Strict Read-Only)</option>
+              <optgroup label="Core System Roles">
+                <option value="SUPER_ADMIN">👑 Super Admin (Full Access)</option>
+                <option value="SUPPORT_OPERATOR">Support Operator (Tier-2)</option>
+                <option value="FINANCIAL_AUDITOR">Financial Auditor (Read-Only)</option>
+              </optgroup>
+              {staffList.length > 0 && (
+                <optgroup label="Staff & Delegated Admins">
+                  {staffList.map((s) => (
+                    <option key={s.id} value={`STAFF_${s.id}`}>
+                      {s.role === 'Superadmin' ? '👑' : s.role === 'Admin' ? '🛡️' : '✍️'} {s.name} ({s.role} · {s.delegatedModules?.length || 0} Modules)
+                    </option>
+                  ))}
+                </optgroup>
+              )}
             </select>
           </div>
 
@@ -122,18 +175,18 @@ export function Header({ activeModuleId = '26', onDataRefreshed }) {
         </div>
       </div>
 
-      {/* Secondary micro-banner with RBAC notice if not superadmin */}
-      {currentRoleKey !== 'SUPER_ADMIN' && (
+      {/* Secondary micro-banner with RBAC notice if acting as support or auditor */}
+      {!actingStaff && currentRoleKey !== 'SUPER_ADMIN' && (
         <div className="bg-amber-50/90 border-t border-amber-200/80 px-4 lg:px-8 py-1.5 text-xs text-amber-900 flex items-center justify-between backdrop-blur-sm">
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
             <span>
-              <strong>RBAC Simulation:</strong> You are currently operating as <em>{currentAdmin.name}</em>. Destructive actions (suspending accounts, unlinking primary personas) are restricted.
+              <strong>RBAC Simulation:</strong> You are currently operating as <em>{currentAdmin.name}</em>. Destructive actions are restricted.
             </span>
           </div>
           <button
             onClick={() => switchRole('SUPER_ADMIN')}
-            className="text-[11px] font-semibold text-amber-700 underline hover:text-amber-900 ml-4"
+            className="text-[11px] font-semibold text-amber-700 underline hover:text-amber-900 ml-4 cursor-pointer"
           >
             Switch to Super Admin
           </button>

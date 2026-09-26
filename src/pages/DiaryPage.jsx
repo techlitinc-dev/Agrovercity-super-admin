@@ -13,22 +13,10 @@ import {
   Flag,
   Trash2,
   Eye,
+  RotateCcw,
   RefreshCw
 } from 'lucide-react'
-import {
-  isMockMode,
-  listDiaryEntries,
-  verifyDiaryEntry,
-  flagDiaryEntry,
-  deleteDiaryEntry,
-  listCropPnl,
-  verifyCropPnl,
-  listBenchmarks,
-  updateBenchmark,
-  calculateBreakEven,
-  getRegionalSummary,
-  getPdfReport
-} from '../api/diaryApi'
+import { adminDiaryService } from '../services/adminDiaryService'
 import ConfirmDialog from '../components/ConfirmDialog'
 import DiaryDetailDrawer from '../components/diary/DiaryDetailDrawer'
 import {
@@ -36,6 +24,7 @@ import {
   BreakEvenCalculatorModal,
   PdfReviewModal
 } from '../components/diary/DiaryModals'
+import DiaryAuditTrailTable from '../components/diary/DiaryAuditTrailTable'
 import {
   fmtINR,
   DIARY_STATUSES,
@@ -51,7 +40,7 @@ import {
   Pagination
 } from './diaryWidgets'
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 15
 
 function toCsv(rows) {
   if (!rows || rows.length === 0) return ''
@@ -69,15 +58,19 @@ function daysAgoIso(days) {
 }
 
 export default function DiaryPage() {
-  const [tab, setTab] = useState('entries') // 'entries' | 'pnl' | 'benchmarks' | 'trends'
+  const [tab, setTab] = useState('entries') // 'entries' | 'pnl' | 'benchmarks' | 'trends' | 'audit_trail'
   const [diaryEntries, setDiaryEntries] = useState([])
   const [cropPnlList, setCropPnlList] = useState([])
   const [benchmarks, setBenchmarks] = useState([])
   const [regionalData, setRegionalData] = useState(null)
+  const [auditLogs, setAuditLogs] = useState([])
+  const [kpis, setKpis] = useState(null)
+
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
 
   // Filters
@@ -105,6 +98,19 @@ export default function DiaryPage() {
     action: null
   })
 
+  const loadKpis = useCallback(async () => {
+    try {
+      const stats = await adminDiaryService.getDiaryKpis()
+      setKpis(stats)
+      const bMarks = await adminDiaryService.listBenchmarks()
+      setBenchmarks(bMarks || [])
+      const reg = await adminDiaryService.getRegionalSummary()
+      setRegionalData(reg)
+    } catch (err) {
+      console.error('Failed to prefetch KPIs or benchmarks', err)
+    }
+  }, [])
+
   // Load active tab data
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -113,57 +119,60 @@ export default function DiaryPage() {
 
     try {
       if (tab === 'entries') {
-        const res = await listDiaryEntries({
-          page,
-          pageSize: PAGE_SIZE,
-          q,
+        const res = await adminDiaryService.listDiaryEntries({
+          query: q,
           status,
           category: secondaryFilter,
-          from: fromDate
-        })
-        setDiaryEntries(res.data || [])
-        setTotal(res.total || 0)
-      } else if (tab === 'pnl') {
-        const res = await listCropPnl({
+          from: fromDate,
           page,
-          pageSize: PAGE_SIZE,
-          q,
+          limit: PAGE_SIZE
+        })
+        setDiaryEntries(res.entries || [])
+        setTotal(res.pagination?.total || 0)
+      } else if (tab === 'pnl') {
+        const res = await adminDiaryService.listCropPnl({
+          query: q,
           status,
           season: secondaryFilter,
-          from: fromDate
+          from: fromDate,
+          page,
+          limit: PAGE_SIZE
         })
-        setCropPnlList(res.data || [])
-        setTotal(res.total || 0)
+        setCropPnlList(res.records || [])
+        setTotal(res.pagination?.total || 0)
       } else if (tab === 'benchmarks') {
-        const res = await listBenchmarks()
-        setBenchmarks(res.data || [])
-        setTotal(res.data?.length || 0)
+        const res = await adminDiaryService.listBenchmarks()
+        setBenchmarks(res || [])
+        setTotal(res?.length || 0)
       } else if (tab === 'trends') {
-        const res = await getRegionalSummary()
+        const res = await adminDiaryService.getRegionalSummary()
         setRegionalData(res)
+      } else if (tab === 'audit_trail') {
+        const res = await adminDiaryService.listDiaryAuditLogs({
+          query: q,
+          page,
+          limit: PAGE_SIZE
+        })
+        setAuditLogs(res.auditLogs || [])
+        setTotal(res.pagination?.total || 0)
       }
+      await loadKpis()
     } catch (err) {
       setError(err.message || 'Failed to load farm diary and P&L analytics data')
     } finally {
       setLoading(false)
     }
-  }, [tab, page, q, status, secondaryFilter, dateRange])
+  }, [tab, page, q, status, secondaryFilter, dateRange, loadKpis])
 
   useEffect(() => {
     loadData()
   }, [loadData])
 
-  // Also prefetch benchmarks & regional data for cards / calculator
-  useEffect(() => {
-    listBenchmarks().then((res) => setBenchmarks(res.data || [])).catch(() => {})
-    getRegionalSummary().then((res) => setRegionalData(res)).catch(() => {})
-  }, [])
-
   // Sort rows
   const activeRows = tab === 'entries' ? diaryEntries : cropPnlList
 
   const sortedRows = useMemo(() => {
-    if (tab === 'benchmarks' || tab === 'trends') return []
+    if (tab === 'benchmarks' || tab === 'trends' || tab === 'audit_trail') return []
     const list = [...activeRows]
     const { key, dir } = sort
     const mul = dir === 'asc' ? 1 : -1
@@ -180,23 +189,14 @@ export default function DiaryPage() {
 
   // Top Metric Cards Calculation
   const metrics = useMemo(() => {
-    const today = new Date().toISOString().slice(0, 10)
-    const activeEntriesCount = diaryEntries.filter((e) => e.status === 'verified').length
-    const pendingReviewCount = diaryEntries.filter((e) => e.status === 'pending_review').length
-    const flaggedCount = diaryEntries.filter((e) => e.flagged || e.status === 'flagged' || e.status === 'disputed').length
-    const todayCount = diaryEntries.filter((e) => (e.createdAt || '').slice(0, 10) === today).length
-
-    const totalCoins = regionalData?.agriCoinsAudit?.totalCoinsDisbursed || 632550
-    const integrity = regionalData?.agriCoinsAudit?.auditIntegrityScore || 99.7
-
     return {
-      active: activeEntriesCount || diaryEntries.length,
-      pending: pendingReviewCount || 1,
-      today: todayCount || 3,
-      flagged: flaggedCount || 2,
-      extra: `${totalCoins.toLocaleString()} coins disbursed · ${integrity}% integrity`
+      active: kpis?.activeEntries != null ? kpis.activeEntries : diaryEntries.length,
+      pending: kpis?.pendingReview != null ? kpis.pendingReview : 1,
+      today: kpis?.todayVolume != null ? kpis.todayVolume : 3,
+      flagged: kpis?.flaggedCount != null ? kpis.flaggedCount : 2,
+      extra: `${(kpis?.totalCoinsDisbursed || 632550).toLocaleString('en-IN')} 🪙 disbursed · ${kpis?.auditIntegrityScore || 99.7}% integrity`
     }
-  }, [diaryEntries, regionalData])
+  }, [kpis, diaryEntries])
 
   // Tab change handler
   const handleTabChange = (newTab) => {
@@ -220,10 +220,13 @@ export default function DiaryPage() {
       action: async (reason) => {
         setBusy(true)
         try {
-          const updated = await verifyDiaryEntry(entry.id, reason)
-          setDiaryEntries((prev) => prev.map((e) => (e.id === updated.id ? updated : e)))
+          const res = await adminDiaryService.verifyDiaryEntry({
+            entryId: entry.id,
+            reason
+          })
+          setNotice(res.message || 'Entry verified successfully.')
           if (selected?.doc?.id === entry.id) {
-            setSelected({ type: 'entry', doc: updated })
+            setSelected({ type: 'entry', doc: res.entry })
           }
           loadData()
         } catch (err) {
@@ -248,10 +251,14 @@ export default function DiaryPage() {
       action: async (reason) => {
         setBusy(true)
         try {
-          const updated = await flagDiaryEntry(entry.id, reason, reason)
-          setDiaryEntries((prev) => prev.map((e) => (e.id === updated.id ? updated : e)))
+          const res = await adminDiaryService.flagDiaryEntry({
+            entryId: entry.id,
+            flagReason: reason,
+            reason
+          })
+          setNotice(res.message || 'Entry flagged for investigation.')
           if (selected?.doc?.id === entry.id) {
-            setSelected({ type: 'entry', doc: updated })
+            setSelected({ type: 'entry', doc: res.entry })
           }
           loadData()
         } catch (err) {
@@ -280,7 +287,12 @@ export default function DiaryPage() {
       action: async (reason, dualApprover) => {
         setBusy(true)
         try {
-          await deleteDiaryEntry(entry.id, reason, dualApprover)
+          const res = await adminDiaryService.deleteDiaryEntry({
+            entryId: entry.id,
+            reason,
+            secondApprover: dualApprover
+          })
+          setNotice(res.message || 'Entry soft-deleted and coins revoked.')
           setSelected(null)
           loadData()
         } catch (err) {
@@ -305,10 +317,13 @@ export default function DiaryPage() {
       action: async (reason) => {
         setBusy(true)
         try {
-          const updated = await verifyCropPnl(pnl.id, reason)
-          setCropPnlList((prev) => prev.map((p) => (p.id === updated.id ? updated : p)))
+          const res = await adminDiaryService.verifyCropPnl({
+            pnlId: pnl.id,
+            reason
+          })
+          setNotice(res.message || 'P&L statement verified.')
           if (selected?.doc?.id === pnl.id) {
-            setSelected({ type: 'pnl', doc: updated })
+            setSelected({ type: 'pnl', doc: res.record })
           }
           loadData()
         } catch (err) {
@@ -323,10 +338,9 @@ export default function DiaryPage() {
   // Open PDF statement review modal
   const handleOpenPdf = async (pnl) => {
     try {
-      const report = await getPdfReport(pnl.id)
+      const report = await adminDiaryService.getPdfReport(pnl.id)
       setPdfModal({ open: true, report })
     } catch (err) {
-      // Fallback with current pnl
       setPdfModal({
         open: true,
         report: {
@@ -342,10 +356,14 @@ export default function DiaryPage() {
   const handleCalibrateConfirm = async (crop, payload) => {
     setBusy(true)
     try {
-      await updateBenchmark(crop, payload)
+      const res = await adminDiaryService.updateBenchmark({
+        crop,
+        payload,
+        reason: payload.reason || 'Calibrated input cost baseline'
+      })
       setCalibrateModal({ open: false, benchmark: null })
-      const res = await listBenchmarks()
-      setBenchmarks(res.data || [])
+      setNotice(res.message || 'Benchmark calibrated successfully.')
+      loadData()
     } catch (err) {
       setError(err.message || 'Failed to calibrate benchmark')
     } finally {
@@ -353,15 +371,35 @@ export default function DiaryPage() {
     }
   }
 
+  const handleResetSeed = async () => {
+    if (!window.confirm('Reset all farm diary entries, crop P&L statements, benchmarks, and audit logs to statutory baseline defaults?')) return
+    setBusy(true)
+    try {
+      await adminDiaryService.resetToDefaultSeed()
+      setNotice('Farm Diary & P&L seed data reset to baseline.')
+      loadData()
+    } catch (err) {
+      setError(err.message || 'Reset failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   // Export CSV
   const handleExport = () => {
-    const rows = tab === 'entries' ? diaryEntries : cropPnlList
-    const csvContent = toCsv(rows)
+    let rowsToExport = []
+    let filenamePrefix = `diary-${tab}`
+    if (tab === 'entries') rowsToExport = diaryEntries
+    else if (tab === 'pnl') rowsToExport = cropPnlList
+    else if (tab === 'benchmarks') rowsToExport = benchmarks
+    else if (tab === 'audit_trail') rowsToExport = auditLogs
+
+    const csvContent = toCsv(rowsToExport)
     const blob = new Blob([csvContent], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `agrovercity-${tab}-${new Date().toISOString().slice(0, 10)}.csv`
+    a.download = `${filenamePrefix}-${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -371,18 +409,31 @@ export default function DiaryPage() {
       {/* Top Header & Tab Switch */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <TabSwitch tab={tab} setTab={handleTabChange} />
+
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs text-slate-500">
-            Target Collections: farm_diary_entries · crop_pnl
-          </span>
           <button
-            onClick={() => loadData()}
-            className="p-1 text-slate-400 hover:text-emerald-400 rounded hover:bg-slate-800"
-            title="Refresh Data"
+            onClick={() => setCalcModalOpen(true)}
+            className="flex items-center gap-1.5 rounded-xl border border-emerald-200/80 bg-white/90 px-3 py-1.5 font-mono text-xs font-semibold text-emerald-900 shadow-2xs hover:bg-emerald-50 transition-colors"
+            title="Pre-Sowing Break-Even Price Calculator"
           >
-            <RefreshCw className="h-4 w-4" />
+            <Calculator className="h-3.5 w-3.5 text-emerald-600" />
+            <span>Break-Even Calc</span>
+          </button>
+
+          <button
+            onClick={handleResetSeed}
+            className="flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-2xs"
+            title="Reset to statutory seed state"
+          >
+            <RotateCcw className="h-3.5 w-3.5" /> Reset Seed
           </button>
         </div>
+      </div>
+
+      {/* Target Collections Stat Pill */}
+      <div className="flex items-center justify-between text-xs text-slate-500 font-mono">
+        <span>Target Collections: farm_diary_entries · crop_pnl · pnl_benchmarks · regional_trends · audit_logs</span>
+        <span className="font-semibold text-emerald-800">SOP-13 Superadmin Mode</span>
       </div>
 
       {/* KPI Metric Summary Bar */}
@@ -417,18 +468,18 @@ export default function DiaryPage() {
         />
       </div>
 
-      {/* Mock Mode Banner */}
-      {isMockMode() && (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-300">
-          Backend unreachable at{' '}
-          <span className="font-mono">{import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/v1'}</span> — displaying high-fidelity mock data. Changes persist in-memory and all administrative audit actions follow SOP-13 standards.
+      {/* Feedback Alerts */}
+      {notice && (
+        <div className="flex items-center justify-between rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-2.5 text-xs font-semibold text-emerald-900 shadow-2xs">
+          <span>{notice}</span>
+          <button onClick={() => setNotice('')} className="text-emerald-700 hover:text-emerald-950">&times;</button>
         </div>
       )}
 
-      {/* Error Banner */}
       {error && (
-        <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
-          {error}
+        <div className="flex items-center justify-between rounded-xl border border-rose-300 bg-rose-50 px-4 py-2.5 text-xs font-semibold text-rose-900 shadow-2xs">
+          <span>{error}</span>
+          <button onClick={() => setError('')} className="text-rose-700 hover:text-rose-950">&times;</button>
         </div>
       )}
 
@@ -517,11 +568,18 @@ export default function DiaryPage() {
           onCalibrate={(benchmark) => setCalibrateModal({ open: true, benchmark })}
           onTestBreakEven={() => setCalcModalOpen(true)}
         />
-      ) : (
+      ) : tab === 'trends' ? (
         <RegionalTrendsView
           trends={regionalData?.regionalTrends}
           agriCoins={regionalData?.agriCoinsAudit}
           onTestCalculator={() => setCalcModalOpen(true)}
+        />
+      ) : (
+        <DiaryAuditTrailTable
+          auditLogs={auditLogs}
+          pagination={{ page, limit: PAGE_SIZE, total, totalPages: Math.ceil(total / PAGE_SIZE) }}
+          onPageChange={setPage}
+          loading={loading}
         />
       )}
 
@@ -550,7 +608,7 @@ export default function DiaryPage() {
       <BreakEvenCalculatorModal
         open={calcModalOpen}
         benchmarks={benchmarks}
-        onCalculate={calculateBreakEven}
+        onCalculate={adminDiaryService.calculateBreakEven}
         onCancel={() => setCalcModalOpen(false)}
       />
 

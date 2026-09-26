@@ -1,19 +1,40 @@
-import { BrainCircuit, RadioTower, TestTube2 } from 'lucide-react'
+import { BrainCircuit, RadioTower, TestTube2, TrendingUp, Sliders, AlertTriangle, ShieldCheck } from 'lucide-react'
 import DetailDrawer, { DrawerSection, DocJson } from '../DetailDrawer'
 import { KeyValue, Button, EmptyState } from '../ui'
 import { AdvisoryStatusBadge } from '../../pages/advisoryWidgets'
 
 const fmtINR = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`
 
-export default function AdvisoryDetailDrawer({ entity, tab, npkConfig, onClose, onMarkFalsePositive, onBroadcast, onUploadResults }) {
+export default function AdvisoryDetailDrawer({
+  entity,
+  tab,
+  npkConfig,
+  onClose,
+  onMarkFalsePositive,
+  onBroadcast,
+  onUploadResults,
+  onCalibrateSubstitution,
+}) {
   if (!entity) return null
+
+  const getTitle = () => {
+    return `#${entity.id}`
+  }
+
+  const getSubtitle = () => {
+    if (tab === 'scans') return `${entity.farmerName} · ${entity.district} · ${entity.crop}`
+    if (tab === 'alerts') return `${entity.pestName} · ${entity.district} (${entity.radiusKm}km)`
+    if (tab === 'soil') return `${entity.farmerName} · Sample: ${entity.sampleCode} · ${entity.district}`
+    if (tab === 'saturation' || tab === 'cycles') return `${entity.crop} · ${entity.district} · ${entity.season}`
+    return `${entity.id}`
+  }
 
   return (
     <DetailDrawer
       open={!!entity}
       onClose={onClose}
-      title={`#${entity.id}`}
-      subtitle={`${entity.farmerName || entity.pestName} · ${entity.district} · ${tab}`}
+      title={getTitle()}
+      subtitle={getSubtitle()}
     >
       {tab === 'scans' && (
         <ScanView scan={entity} onMarkFalsePositive={onMarkFalsePositive} />
@@ -23,6 +44,9 @@ export default function AdvisoryDetailDrawer({ entity, tab, npkConfig, onClose, 
       )}
       {tab === 'soil' && (
         <SoilView test={entity} npkConfig={npkConfig} onUploadResults={onUploadResults} />
+      )}
+      {(tab === 'saturation' || tab === 'cycles') && (
+        <CycleView cycle={entity} onCalibrateSubstitution={onCalibrateSubstitution} />
       )}
 
       <DrawerSection title="Document JSON (audit view)">
@@ -52,7 +76,7 @@ function ScanView({ scan, onMarkFalsePositive }) {
                 style={{ width: `${Math.min(100, scan.confidence * 100)}%` }}
               />
             </div>
-            <p className="mt-1.5 font-mono text-[11px] text-slate-500">model: {scan.modelVersion}</p>
+            <p className="mt-1.5 font-mono text-[11px] text-slate-500">model: {scan.modelVersion || 'cnn-leafnet-v4.2'}</p>
           </div>
         </div>
       </DrawerSection>
@@ -67,7 +91,7 @@ function ScanView({ scan, onMarkFalsePositive }) {
         ) : (
           <div className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 shadow-2xs">
             <p className="text-xs font-bold text-rose-900">Reported as false positive</p>
-            <p className="mt-1 text-xs text-rose-800">{scan.falsePositiveReason}</p>
+            <p className="mt-1 text-xs text-rose-800">{scan.falsePositiveReason || 'Farmer indicated symptoms do not match actual crop pathogen.'}</p>
           </div>
         )}
       </DrawerSection>
@@ -96,7 +120,7 @@ function AlertView({ alert, onBroadcast }) {
           <KeyValue k="Affected Crop" v={alert.crop} />
           <KeyValue k="Geofence Radius" v={`${alert.radiusKm} km`} mono />
           <KeyValue k="Broadcast At" v={alert.broadcastAt?.slice(0, 16).replace('T', ' ')} mono />
-          <KeyValue k="Broadcast By" v={alert.broadcastBy} mono />
+          <KeyValue k="Broadcast By" v={alert.broadcastBy || 'root@agrovercity'} mono />
         </div>
       </DrawerSection>
 
@@ -110,7 +134,7 @@ function AlertView({ alert, onBroadcast }) {
         <div className="rounded-xl border border-emerald-100 bg-emerald-50/40 px-3.5 py-2.5 shadow-2xs">
           <div className="flex items-center gap-2">
             <RadioTower className="h-4 w-4 text-emerald-600" />
-            <span className="font-mono text-lg font-bold text-emerald-900">{alert.recipientsNotified.toLocaleString('en-IN')}</span>
+            <span className="font-mono text-lg font-bold text-emerald-900">{alert.recipientsNotified?.toLocaleString('en-IN') || 0}</span>
             <span className="text-xs text-slate-600">farmers notified within geofence</span>
           </div>
         </div>
@@ -186,6 +210,45 @@ function SoilView({ test, npkConfig, onUploadResults }) {
           </div>
         </DrawerSection>
       )}
+    </>
+  )
+}
+
+function CycleView({ cycle, onCalibrateSubstitution }) {
+  return (
+    <>
+      <DrawerSection title="Crop Cycle & Saturation Metrics">
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 px-3.5 py-2.5 shadow-2xs">
+          <KeyValue k="Commodity" v={cycle.crop} />
+          <KeyValue k="District / Season" v={`${cycle.district} · ${cycle.season}`} />
+          <KeyValue k="Acreage Sown" v={`${cycle.acreageSown?.toLocaleString('en-IN')} Acres`} mono />
+          <KeyValue k="Target Market Capacity" v={`${cycle.targetMarketCapacityAcres?.toLocaleString('en-IN')} Acres`} mono />
+          <KeyValue k="Saturation Index" v={`${cycle.saturationIndexPercent}%`} mono />
+          <KeyValue k="Price Risk Status" v={cycle.priceRiskStatus} />
+          <KeyValue k="Expected Yield" v={cycle.expectedYieldPerAcre} />
+        </div>
+      </DrawerSection>
+
+      <DrawerSection title="Recommended Crop Substitution">
+        <div className="rounded-xl border border-emerald-300 bg-emerald-50 px-3.5 py-2.5 text-xs text-emerald-950 shadow-2xs">
+          <div className="flex items-center gap-1.5 font-bold text-emerald-900 mb-1">
+            <TrendingUp className="h-4 w-4 text-emerald-600" />
+            Strategic Diversification Target
+          </div>
+          <p className="text-sm font-semibold text-emerald-950">{cycle.recommendedSubstitution}</p>
+          <p className="mt-1 text-slate-600 leading-relaxed">
+            Market oversupply risk index triggers automated diversification guidance across AGROVERCITY mandi advisories to protect farmers against price crashes.
+          </p>
+        </div>
+      </DrawerSection>
+
+      <DrawerSection title="Actions">
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => onCalibrateSubstitution(cycle)}>
+            <Sliders className="h-4 w-4 mr-1.5" /> Calibrate Substitution Model
+          </Button>
+        </div>
+      </DrawerSection>
     </>
   )
 }

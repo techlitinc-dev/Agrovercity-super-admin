@@ -24,6 +24,8 @@ export function DisputeMediationModal({
   const [resolutionType, setResolutionType] = useState('quality_docking'); // 'uphold_farmer' | 'quality_docking' | 'cancel_and_refund'
   const [adjustedPrice, setAdjustedPrice] = useState('');
   const [reason, setReason] = useState('');
+  const [secondaryAdminUid, setSecondaryAdminUid] = useState('supervisor.finance@agrovercity.in');
+  const [dualSignoffConfirmed, setDualSignoffConfirmed] = useState(true);
   const [error, setError] = useState('');
 
   // Extract deal or lot info
@@ -40,6 +42,8 @@ export function DisputeMediationModal({
       setResolutionType('quality_docking');
       setAdjustedPrice(Math.round(agreedPrice * 0.88)); // Default ~12% docking proposal
       setReason('');
+      setSecondaryAdminUid('supervisor.finance@agrovercity.in');
+      setDualSignoffConfirmed(true);
       setError('');
     }
   }, [isOpen, agreedPrice]);
@@ -51,6 +55,7 @@ export function DisputeMediationModal({
                        resolutionType === 'cancel_and_refund' ? 0 :
                        numAdjustedPrice * quantityQtl;
   const buyerRefund = totalEscrow - farmerPayout;
+  const requiresDualSignoff = farmerPayout > 50000 || buyerRefund > 50000;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -62,6 +67,10 @@ export function DisputeMediationModal({
       setError('Formal arbitration reasoning (minimum 8 characters) is mandatory.');
       return;
     }
+    if (requiresDualSignoff && !dualSignoffConfirmed) {
+      setError('Dual-admin sign-off verification checkbox is required for adjustments exceeding ₹50,000 (SOP-05 §6.3).');
+      return;
+    }
 
     onConfirmResolution({
       dealId,
@@ -69,6 +78,7 @@ export function DisputeMediationModal({
       adjustedPrice: numAdjustedPrice,
       releaseAmount: farmerPayout,
       refundAmount: buyerRefund,
+      secondaryAdminUid: requiresDualSignoff ? secondaryAdminUid : null,
       reason: reason.trim()
     });
   };
@@ -262,11 +272,50 @@ export function DisputeMediationModal({
             />
           </div>
 
+          {/* Dual-Admin Sign-off for High-Value Escrow Adjustment (> ₹50,000) (SOP-05 §6.3) */}
+          {requiresDualSignoff && (
+            <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-3.5 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
+                  <ShieldAlert className="w-4 h-4 text-amber-700" />
+                  <span>Dual-Admin Escalation Required (&gt; ₹50,000)</span>
+                </span>
+                <span className="text-[10px] font-mono bg-amber-200/80 text-amber-950 px-2 py-0.5 rounded-full font-bold">
+                  Rule 6.3 Enforced
+                </span>
+              </div>
+              <p className="text-[11px] text-amber-900 leading-relaxed">
+                Because this financial arbitration impacts <strong className="font-mono">₹{Math.max(farmerPayout, buyerRefund).toLocaleString('en-IN')}</strong> (exceeds ₹50,000 limit), dual-admin sign-off is statutory.
+              </p>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
+                <label className="text-[11px] font-semibold text-slate-700 shrink-0">Secondary Co-Signer:</label>
+                <input
+                  type="text"
+                  value={secondaryAdminUid}
+                  onChange={(e) => setSecondaryAdminUid(e.target.value)}
+                  placeholder="e.g. supervisor.finance@agrovercity.in"
+                  className="flex-1 bg-white border border-amber-300 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-900 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                />
+              </div>
+              <label className="flex items-center gap-2 pt-1 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={dualSignoffConfirmed}
+                  onChange={(e) => setDualSignoffConfirmed(e.target.checked)}
+                  className="w-4 h-4 rounded text-amber-600 border-amber-300 focus:ring-amber-500"
+                />
+                <span className="text-[11px] font-semibold text-amber-950">
+                  I confirm dual-admin authorization was obtained from <span className="font-mono">{secondaryAdminUid}</span>.
+                </span>
+              </label>
+            </div>
+          )}
+
           {/* Compliance notice */}
           <div className="flex items-start gap-2 text-[11px] text-slate-600 bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-100">
             <ShieldAlert className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
             <span>
-              Per SOP-05 Rule 6.3, financial adjustments above ₹50,000 are recorded in immutable audit logs with admin <code className="text-emerald-950 font-bold font-mono">{currentAdmin?.email || 'root@agrovercity'}</code> signature.
+              Per SOP-05 Rule 6.3, financial adjustments are recorded in immutable audit logs with admin <code className="text-emerald-950 font-bold font-mono">{currentAdmin?.email || 'root@agrovercity'}</code> signature and secondary co-sign verification.
             </span>
           </div>
 

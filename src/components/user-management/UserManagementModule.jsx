@@ -6,13 +6,21 @@ import { UserDetailDrawer } from './UserDetailDrawer';
 import { ManagePersonasModal } from './ManagePersonasModal';
 import { FarmSatelliteMapModal } from './FarmSatelliteMapModal';
 import { StatusChangeModal } from './StatusChangeModal';
+import { StaffDelegationView } from './StaffDelegationView';
+import { RoleProfilesTable } from './RoleProfilesTable';
+import { UserBookingsTable } from './UserBookingsTable';
+import { FarmPolygonsTable } from './FarmPolygonsTable';
 import { adminUserService } from '../../services/adminUserService';
 import { useAuthAdmin } from '../../context/AuthAdminContext';
 import { useNotification } from '../../context/NotificationContext';
+import { ShieldCheck, Users, Layers, Calendar, Compass } from 'lucide-react';
 
 export function UserManagementModule() {
   const { currentAdmin } = useAuthAdmin();
   const { addToast } = useNotification();
+
+  // Active top tab: 'delegation' | 'users'
+  const [activeMainTab, setActiveMainTab] = useState('delegation');
 
   // Data & loading states
   const [users, setUsers] = useState([]);
@@ -113,6 +121,56 @@ export function UserManagementModule() {
     setSelectedUserForDrawer(user);
     setIsDrawerOpen(true);
   };
+
+  const handleOpenDrawerByUserId = (uidOrId) => {
+    const pool = allUsersForKpis.length > 0 ? allUsersForKpis : users;
+    const found = pool.find((u) => u.uid === uidOrId || u.id === uidOrId);
+    if (found) {
+      handleOpenDrawer(found);
+    }
+  };
+
+  const handleOpenFarmMapByUserId = (userObj) => {
+    if (userObj.farmPolygon) {
+      setUserForFarmMap(userObj);
+      setIsFarmMapOpen(true);
+    } else {
+      const pool = allUsersForKpis.length > 0 ? allUsersForKpis : users;
+      const found = pool.find((u) => u.uid === userObj.uid || u.id === userObj.id);
+      if (found) {
+        setUserForFarmMap(found);
+        setIsFarmMapOpen(true);
+      }
+    }
+  };
+
+  const handleOpenManagePersonasByUserId = (userObj) => {
+    const pool = allUsersForKpis.length > 0 ? allUsersForKpis : users;
+    const found = pool.find((u) => u.uid === userObj.uid || u.id === userObj.id);
+    if (found) {
+      setUserForPersonas(found);
+      setIsManagePersonasOpen(true);
+    }
+  };
+
+  // Metrics for collection tab counters
+  const totalLinkedProfilesCount = (allUsersForKpis.length > 0 ? allUsersForKpis : users).reduce(
+    (acc, u) => {
+      if (!u.roleProfiles) return acc;
+      return acc + Object.values(u.roleProfiles).filter((p) => p.linked).length;
+    },
+    0
+  );
+
+  const totalBookingsCount = (allUsersForKpis.length > 0 ? allUsersForKpis : users).reduce(
+    (acc, u) => acc + (u.bookings?.length || 0),
+    0
+  );
+
+  const totalPolygonsCount = (allUsersForKpis.length > 0 ? allUsersForKpis : users).reduce(
+    (acc, u) => acc + (u.farmPolygon ? 1 : 0),
+    0
+  );
 
   // Manage Personas Modal
   const handleOpenManagePersonas = (user) => {
@@ -244,50 +302,182 @@ export function UserManagementModule() {
 
   return (
     <div className="p-4 lg:p-8 max-w-7xl mx-auto space-y-6">
-      {/* 1. Top Metric Bar */}
-      <TopMetricBar users={allUsersForKpis.length > 0 ? allUsersForKpis : users} />
+      {/* Top Navigation Tabs */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-emerald-200/80 pb-3">
+        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-white/90 border border-emerald-200/90 rounded-2xl shadow-xs">
+          {/* Tab 1: Staff & Module Delegation (Superadmin ➔ Admins ➔ DEOs) */}
+          <button
+            onClick={() => setActiveMainTab('delegation')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeMainTab === 'delegation'
+                ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>Staff Delegation</span>
+          </button>
 
-      {/* 2. Search & Filter Controls */}
-      <SearchAndFilterBar
-        searchQuery={searchQuery}
-        setSearchQuery={(q) => {
-          setSearchQuery(q);
-          setPage(1);
-        }}
-        statusFilter={statusFilter}
-        setStatusFilter={(s) => {
-          setStatusFilter(s);
-          setPage(1);
-        }}
-        personaFilter={personaFilter}
-        setPersonaFilter={(p) => {
-          setPersonaFilter(p);
-          setPage(1);
-        }}
-        dateFilter={dateFilter}
-        setDateFilter={(d) => {
-          setDateFilter(d);
-          setPage(1);
-        }}
-        onRefresh={fetchUsers}
-        onExportCsv={handleExportCsv}
-        onExportJson={handleExportJson}
-        loading={loading}
-      />
+          {/* Tab 2: Platform Users Directory (Collection: users) */}
+          <button
+            onClick={() => setActiveMainTab('users')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeMainTab === 'users'
+                ? 'bg-emerald-700 text-white shadow-sm shadow-emerald-700/30'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            <span>Users Directory</span>
+            <span
+              className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                activeMainTab === 'users' ? 'bg-emerald-800 text-emerald-100' : 'bg-slate-200 text-slate-700'
+              }`}
+            >
+              {allUsersForKpis.length || pagination.total}
+            </span>
+          </button>
 
-      {/* 3. Primary Data Grid */}
-      <UserTable
-        users={users}
-        pagination={pagination}
-        onPageChange={(newPage) => setPage(newPage)}
-        onSelectUser={handleOpenDrawer}
-        onOpenManagePersonas={handleOpenManagePersonas}
-        onOpenFarmMap={handleOpenFarmMap}
-        onOpenStatusChange={handleOpenStatusChange}
-        loading={loading}
-        selectedUserIds={selectedUserIds}
-        setSelectedUserIds={setSelectedUserIds}
-      />
+          {/* Tab 3: Multi-Persona Profiles (Collection: users/{uid}/role_profiles) */}
+          <button
+            onClick={() => setActiveMainTab('personas')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeMainTab === 'personas'
+                ? 'bg-emerald-700 text-white shadow-sm shadow-emerald-700/30'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <Layers className="w-4 h-4" />
+            <span>Role Profiles</span>
+            <span
+              className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                activeMainTab === 'personas' ? 'bg-emerald-800 text-emerald-100' : 'bg-slate-200 text-slate-700'
+              }`}
+            >
+              role_profiles ({totalLinkedProfilesCount})
+            </span>
+          </button>
+
+          {/* Tab 4: Cross-Persona Bookings (Collection: users/{uid}/bookings) */}
+          <button
+            onClick={() => setActiveMainTab('bookings')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeMainTab === 'bookings'
+                ? 'bg-emerald-700 text-white shadow-sm shadow-emerald-700/30'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <Calendar className="w-4 h-4" />
+            <span>Bookings & Escrow</span>
+            <span
+              className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                activeMainTab === 'bookings' ? 'bg-emerald-800 text-emerald-100' : 'bg-slate-200 text-slate-700'
+              }`}
+            >
+              bookings ({totalBookingsCount})
+            </span>
+          </button>
+
+          {/* Tab 5: Farm Geofence Polygons */}
+          <button
+            onClick={() => setActiveMainTab('polygons')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeMainTab === 'polygons'
+                ? 'bg-emerald-700 text-white shadow-sm shadow-emerald-700/30'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <Compass className="w-4 h-4" />
+            <span>Farm Polygons</span>
+            <span
+              className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                activeMainTab === 'polygons' ? 'bg-emerald-800 text-emerald-100' : 'bg-slate-200 text-slate-700'
+              }`}
+            >
+              farmPolygon ({totalPolygonsCount})
+            </span>
+          </button>
+        </div>
+
+        <div className="hidden xl:flex items-center gap-2 text-xs font-mono text-slate-500 bg-white/80 border border-slate-200 px-3 py-1.5 rounded-xl shadow-2xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>SOP-02 Multi-Persona Engine</span>
+        </div>
+      </div>
+
+      {/* View 1: Staff & Module Delegation Hierarchy */}
+      {activeMainTab === 'delegation' && <StaffDelegationView />}
+
+      {/* View 2: Platform Users & Multi-Persona Grid */}
+      {activeMainTab === 'users' && (
+        <>
+          {/* 1. Top Metric Bar */}
+          <TopMetricBar users={allUsersForKpis.length > 0 ? allUsersForKpis : users} />
+
+          {/* 2. Search & Filter Controls */}
+          <SearchAndFilterBar
+            searchQuery={searchQuery}
+            setSearchQuery={(q) => {
+              setSearchQuery(q);
+              setPage(1);
+            }}
+            statusFilter={statusFilter}
+            setStatusFilter={(s) => {
+              setStatusFilter(s);
+              setPage(1);
+            }}
+            personaFilter={personaFilter}
+            setPersonaFilter={(p) => {
+              setPersonaFilter(p);
+              setPage(1);
+            }}
+            dateFilter={dateFilter}
+            setDateFilter={(d) => {
+              setDateFilter(d);
+              setPage(1);
+            }}
+            onRefresh={fetchUsers}
+            onExportCsv={handleExportCsv}
+            onExportJson={handleExportJson}
+            loading={loading}
+          />
+
+          {/* 3. Primary Data Grid */}
+          <UserTable
+            users={users}
+            pagination={pagination}
+            onPageChange={(newPage) => setPage(newPage)}
+            onSelectUser={handleOpenDrawer}
+            onOpenManagePersonas={handleOpenManagePersonas}
+            onOpenFarmMap={handleOpenFarmMap}
+            onOpenStatusChange={handleOpenStatusChange}
+            loading={loading}
+            selectedUserIds={selectedUserIds}
+            setSelectedUserIds={setSelectedUserIds}
+          />
+        </>
+      )}
+
+      {/* View 3: Multi-Persona Role Profiles Grid */}
+      {activeMainTab === 'personas' && (
+        <RoleProfilesTable
+          onOpenUserDrawer={handleOpenDrawerByUserId}
+          onOpenManagePersonas={handleOpenManagePersonasByUserId}
+        />
+      )}
+
+      {/* View 4: Cross-Persona Bookings & Escrow Grid */}
+      {activeMainTab === 'bookings' && (
+        <UserBookingsTable onOpenUserDrawer={handleOpenDrawerByUserId} />
+      )}
+
+      {/* View 5: Farm Geofence Polygons Grid */}
+      {activeMainTab === 'polygons' && (
+        <FarmPolygonsTable
+          onOpenUserDrawer={handleOpenDrawerByUserId}
+          onOpenFarmMap={handleOpenFarmMapByUserId}
+        />
+      )}
 
       {/* 4. Action Drawer / Slide-Over Modal */}
       <UserDetailDrawer

@@ -410,6 +410,344 @@ export const adminUserService = {
     };
   },
 
+  // LIST ALL ROLE PROFILES across all users (users/{uid}/role_profiles collection)
+  async listAllRoleProfiles({ query = '', persona = 'all', status = 'all', page = 1, limit = 10 } = {}) {
+    await new Promise((r) => setTimeout(r, 100));
+    const users = getStoredUsers();
+    let allProfiles = [];
+
+    users.forEach((u) => {
+      if (u.roleProfiles) {
+        Object.entries(u.roleProfiles).forEach(([personaKey, prof]) => {
+          allProfiles.push({
+            id: `${u.id}-${personaKey.toLowerCase().replace(/\s+/g, '_')}`,
+            userId: u.uid,
+            userCode: u.id,
+            userName: u.name,
+            userMobile: u.mobile,
+            userEmail: u.email,
+            userCity: u.geoCity || 'Maharashtra, IN',
+            persona: personaKey,
+            isPrimary: u.primaryPersona === personaKey,
+            isActive: u.activePersona === personaKey,
+            linked: !!prof.linked,
+            status: prof.status || (prof.linked ? 'verified' : 'inactive'),
+            verificationDate: prof.verificationDate || u.createdAt,
+            rating: prof.rating || 4.5,
+            details: prof
+          });
+        });
+      }
+    });
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      allProfiles = allProfiles.filter((p) => {
+        const nameMatch = p.userName && p.userName.toLowerCase().includes(q);
+        const mobileMatch = p.userMobile && p.userMobile.includes(q);
+        const personaMatch = p.persona && p.persona.toLowerCase().includes(q);
+        const cityMatch = p.userCity && p.userCity.toLowerCase().includes(q);
+        const codeMatch = p.userCode && p.userCode.toLowerCase().includes(q);
+        const detailsJson = JSON.stringify(p.details).toLowerCase();
+        return nameMatch || mobileMatch || personaMatch || cityMatch || codeMatch || detailsJson.includes(q);
+      });
+    }
+
+    if (persona !== 'all') {
+      allProfiles = allProfiles.filter((p) => p.persona.toLowerCase() === persona.toLowerCase());
+    }
+
+    if (status !== 'all') {
+      allProfiles = allProfiles.filter((p) => p.status.toLowerCase() === status.toLowerCase());
+    }
+
+    // Sort by primary first, then linked, then name
+    allProfiles.sort((a, b) => {
+      if (a.isPrimary && !b.isPrimary) return -1;
+      if (!a.isPrimary && b.isPrimary) return 1;
+      if (a.linked && !b.linked) return -1;
+      if (!a.linked && b.linked) return 1;
+      return a.userName.localeCompare(b.userName);
+    });
+
+    const total = allProfiles.length;
+    const startIndex = (page - 1) * limit;
+    const paginated = allProfiles.slice(startIndex, startIndex + limit);
+
+    return {
+      success: true,
+      data: {
+        profiles: paginated,
+        total,
+        verifiedCount: allProfiles.filter((p) => p.status === 'verified').length,
+        pendingCount: allProfiles.filter((p) => p.status === 'pending').length,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit) || 1
+        }
+      }
+    };
+  },
+
+  // Verify or change status of a single role profile
+  async verifyRoleProfile({ uid, persona, status, adminUid, reason }) {
+    await new Promise((r) => setTimeout(r, 150));
+    const users = getStoredUsers();
+    const index = users.findIndex((u) => u.uid === uid || u.id === uid);
+    if (index === -1) throw new Error('User record not found');
+
+    const user = users[index];
+    if (!user.roleProfiles) user.roleProfiles = {};
+    if (!user.roleProfiles[persona]) {
+      user.roleProfiles[persona] = { linked: false, status: 'inactive' };
+    }
+
+    const prevStatus = user.roleProfiles[persona].status || 'inactive';
+    user.roleProfiles[persona].status = status;
+    if (status === 'verified') {
+      user.roleProfiles[persona].linked = true;
+      user.roleProfiles[persona].verificationDate = new Date().toISOString();
+      if (!user.primaryPersona) user.primaryPersona = persona;
+    } else if (status === 'inactive' || status === 'rejected') {
+      user.roleProfiles[persona].linked = false;
+      if (user.primaryPersona === persona) {
+        const remaining = Object.keys(user.roleProfiles).find(
+          (p) => p !== persona && user.roleProfiles[p]?.linked
+        );
+        user.primaryPersona = remaining || null;
+      }
+    }
+
+    user.updatedAt = new Date().toISOString();
+    users[index] = user;
+    saveUsers(users);
+
+    const audit = recordAuditLog({
+      adminUid: adminUid || 'root@agrovercity',
+      action: 'ROLE_PROFILE_VERIFICATION',
+      targetUserId: user.uid,
+      targetUserName: user.name,
+      previousState: `${persona}: ${prevStatus}`,
+      newState: `${persona}: ${status}`,
+      reason: reason || `Updated role profile status for ${persona} to ${status}`
+    });
+
+    return {
+      success: true,
+      message: `Role profile for ${persona} on ${user.name} is now '${status}'.`,
+      auditRecord: audit,
+      user
+    };
+  },
+
+  // LIST ALL BOOKINGS across all users (users/{uid}/bookings collection)
+  async listAllBookings({ query = '', status = 'all', persona = 'all', paymentStatus = 'all', page = 1, limit = 10 } = {}) {
+    await new Promise((r) => setTimeout(r, 100));
+    const users = getStoredUsers();
+    let allBookings = [];
+
+    users.forEach((u) => {
+      if (u.bookings && Array.isArray(u.bookings)) {
+        u.bookings.forEach((b) => {
+          allBookings.push({
+            ...b,
+            userId: u.uid,
+            userCode: u.id,
+            userName: u.name,
+            userMobile: u.mobile,
+            userEmail: u.email
+          });
+        });
+      }
+    });
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      allBookings = allBookings.filter((b) => {
+        const idMatch = b.id && b.id.toLowerCase().includes(q);
+        const nameMatch = b.userName && b.userName.toLowerCase().includes(q);
+        const counterpartyMatch = b.counterparty && b.counterparty.toLowerCase().includes(q);
+        const serviceMatch = b.service && b.service.toLowerCase().includes(q);
+        const mobileMatch = b.userMobile && b.userMobile.includes(q);
+        return idMatch || nameMatch || counterpartyMatch || serviceMatch || mobileMatch;
+      });
+    }
+
+    if (status !== 'all') {
+      allBookings = allBookings.filter((b) => b.status?.toLowerCase() === status.toLowerCase());
+    }
+
+    if (persona !== 'all') {
+      allBookings = allBookings.filter((b) => b.persona?.toLowerCase() === persona.toLowerCase());
+    }
+
+    if (paymentStatus !== 'all') {
+      allBookings = allBookings.filter((b) => b.paymentStatus?.toLowerCase().includes(paymentStatus.toLowerCase()));
+    }
+
+    // Sort by date desc
+    allBookings.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    const total = allBookings.length;
+    const startIndex = (page - 1) * limit;
+    const paginated = allBookings.slice(startIndex, startIndex + limit);
+
+    return {
+      success: true,
+      data: {
+        bookings: paginated,
+        total,
+        disputedCount: allBookings.filter((b) => b.status === 'disputed').length,
+        activeCount: allBookings.filter((b) => b.status === 'active' || b.status === 'in-transit').length,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit) || 1
+        }
+      }
+    };
+  },
+
+  // Update booking status / dispute resolution
+  async updateBookingStatus({ uid, bookingId, status, paymentStatus, adminUid, reason }) {
+    await new Promise((r) => setTimeout(r, 150));
+    const users = getStoredUsers();
+    const index = users.findIndex((u) => u.uid === uid || u.id === uid);
+    if (index === -1) throw new Error('User record not found');
+
+    const user = users[index];
+    const booking = user.bookings?.find((b) => b.id === bookingId);
+    if (!booking) throw new Error('Booking not found');
+
+    const prevStatus = `${booking.status} (${booking.paymentStatus})`;
+    if (status) booking.status = status;
+    if (paymentStatus) booking.paymentStatus = paymentStatus;
+    booking.updatedAt = new Date().toISOString();
+    booking.adminResolutionReason = reason;
+
+    user.updatedAt = new Date().toISOString();
+    users[index] = user;
+    saveUsers(users);
+
+    const audit = recordAuditLog({
+      adminUid: adminUid || 'root@agrovercity',
+      action: 'BOOKING_DISPUTE_RESOLVED',
+      targetUserId: user.uid,
+      targetUserName: user.name,
+      previousState: prevStatus,
+      newState: `${booking.status} (${booking.paymentStatus})`,
+      reason: reason || 'Administrative dispute resolution and escrow update'
+    });
+
+    return {
+      success: true,
+      message: `Booking ${booking.id} updated to '${booking.status}' with payment '${booking.paymentStatus}'.`,
+      auditRecord: audit,
+      booking,
+      user
+    };
+  },
+
+  // LIST ALL FARM POLYGONS across all farmers & landlords
+  async listAllFarmPolygons({ query = '', verified = 'all', page = 1, limit = 10 } = {}) {
+    await new Promise((r) => setTimeout(r, 100));
+    const users = getStoredUsers();
+    let allPolygons = [];
+
+    users.forEach((u) => {
+      if (u.farmPolygon && typeof u.farmPolygon === 'object') {
+        allPolygons.push({
+          ...u.farmPolygon,
+          userId: u.uid,
+          userCode: u.id,
+          userName: u.name,
+          userMobile: u.mobile,
+          userEmail: u.email,
+          userCity: u.geoCity || 'Maharashtra, IN',
+          primaryPersona: u.primaryPersona || 'Farmer'
+        });
+      }
+    });
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      allPolygons = allPolygons.filter((p) => {
+        const titleMatch = p.title && p.title.toLowerCase().includes(q);
+        const surveyMatch = p.surveyNumber && p.surveyNumber.toLowerCase().includes(q);
+        const nameMatch = p.userName && p.userName.toLowerCase().includes(q);
+        const districtMatch = p.district && p.district.toLowerCase().includes(q);
+        const talukaMatch = p.taluka && p.taluka.toLowerCase().includes(q);
+        const villageMatch = p.village && p.village.toLowerCase().includes(q);
+        return titleMatch || surveyMatch || nameMatch || districtMatch || talukaMatch || villageMatch;
+      });
+    }
+
+    if (verified !== 'all') {
+      const isVerified = verified === 'verified' || verified === 'true';
+      allPolygons = allPolygons.filter((p) => !!p.verifiedByAdmin === isVerified);
+    }
+
+    const total = allPolygons.length;
+    const startIndex = (page - 1) * limit;
+    const paginated = allPolygons.slice(startIndex, startIndex + limit);
+
+    return {
+      success: true,
+      data: {
+        polygons: paginated,
+        total,
+        verifiedCount: allPolygons.filter((p) => p.verifiedByAdmin).length,
+        unverifiedCount: allPolygons.filter((p) => !p.verifiedByAdmin).length,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit) || 1
+        }
+      }
+    };
+  },
+
+  // Verify or unverify a farm polygon boundary
+  async verifyFarmPolygon({ uid, verified, adminUid, reason }) {
+    await new Promise((r) => setTimeout(r, 150));
+    const users = getStoredUsers();
+    const index = users.findIndex((u) => u.uid === uid || u.id === uid);
+    if (index === -1) throw new Error('User record not found');
+
+    const user = users[index];
+    if (!user.farmPolygon) throw new Error('User does not have a farm polygon registered');
+
+    const prevVerified = !!user.farmPolygon.verifiedByAdmin;
+    user.farmPolygon.verifiedByAdmin = verified;
+    user.farmPolygon.lastVerifiedAt = new Date().toISOString();
+    user.updatedAt = new Date().toISOString();
+
+    users[index] = user;
+    saveUsers(users);
+
+    const audit = recordAuditLog({
+      adminUid: adminUid || 'root@agrovercity',
+      action: verified ? 'FARM_POLYGON_VERIFIED' : 'FARM_POLYGON_UNVERIFIED',
+      targetUserId: user.uid,
+      targetUserName: user.name,
+      previousState: `Verified: ${prevVerified}`,
+      newState: `Verified: ${verified}`,
+      reason: reason || (verified ? 'Cadastral Mahabhulekh 7/12 satellite survey verified' : 'Farm polygon verification revoked')
+    });
+
+    return {
+      success: true,
+      message: `Farm boundary polygon for ${user.name} is now ${verified ? 'Verified' : 'Unverified'}.`,
+      auditRecord: audit,
+      farmPolygon: user.farmPolygon,
+      user
+    };
+  },
+
   // GET audit logs for target user
   async getUserAuditLogs(targetUserId) {
     await new Promise((r) => setTimeout(r, 60));

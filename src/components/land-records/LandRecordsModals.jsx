@@ -604,3 +604,69 @@ export function GovernmentExportModal({ open, onClose, onConfirm }) {
     </div>
   )
 }
+
+// 5. DPDP ACT LAND RECORDS PRIVACY COMPLIANCE MODAL
+export function DpdpLandComplianceModal({ open, result, onClose }) {
+  if (!open || !result) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+      <div className="relative w-full max-w-lg rounded-2xl border border-emerald-100/90 bg-white p-6 shadow-2xl space-y-4">
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 transition"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center gap-2.5 text-emerald-700">
+          <ShieldCheck className="w-6 h-6 text-emerald-600" />
+          <div>
+            <h3 className="text-base font-extrabold text-slate-900">
+              Land Records Data Privacy &amp; Masking Audit
+            </h3>
+            <p className="text-[11px] text-slate-500 font-medium">
+              Timestamp: {new Date(result.timestamp).toLocaleString('en-IN')}
+            </p>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-xl border border-emerald-100 bg-emerald-50/40 space-y-2 text-xs">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-slate-900">
+              Digital Personal Data Protection (DPDP) Act 2023 Check
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] font-mono font-bold">
+              PASS ({result.passRate}%)
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-600">{result.rule}</p>
+          <div className="grid grid-cols-3 gap-2 font-mono text-[11px] pt-1">
+            <div className="p-2.5 rounded-xl bg-white border border-slate-200">
+              <span className="text-slate-500 block text-[10px] font-bold">Total Audited:</span>
+              <span className="text-slate-900 font-bold">{result.totalAudited}</span>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white border border-slate-200">
+              <span className="text-slate-500 block text-[10px] font-bold">Aadhaar Masked:</span>
+              <span className="text-emerald-700 font-bold">{result.passedCount}</span>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white border border-slate-200">
+              <span className="text-slate-500 block text-[10px] font-bold">Leaks Detected:</span>
+              <span className="text-emerald-700 font-bold">{result.leaksDetected}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-2 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-colors"
+          >
+            Acknowledge Findings
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+

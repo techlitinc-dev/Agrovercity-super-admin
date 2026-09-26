@@ -5,13 +5,19 @@ import { KycTable } from './KycTable';
 import { SideBySideReviewModal } from './SideBySideReviewModal';
 import { RejectConfirmationModal } from './RejectConfirmationModal';
 import { KycDetailDrawer } from './KycDetailDrawer';
+import { EncryptedVaultTable } from './EncryptedVaultTable';
+import { KycAuditTrailTable } from './KycAuditTrailTable';
 import { adminKycService } from '../../services/adminKycService';
 import { useAuthAdmin } from '../../context/AuthAdminContext';
 import { useNotification } from '../../context/NotificationContext';
+import { FileCheck, Lock, History } from 'lucide-react';
 
 export function KycVaultModule() {
   const { currentAdmin } = useAuthAdmin();
   const { addToast } = useNotification();
+
+  // Active collection tab: 'queue' | 'vault' | 'audit'
+  const [activeTab, setActiveTab] = useState('queue');
 
   // Data & loading states
   const [items, setItems] = useState([]);
@@ -269,51 +275,125 @@ export function KycVaultModule() {
       {/* 1. Top Metric Bar */}
       <TopMetricBar items={allItemsForKpis.length > 0 ? allItemsForKpis : items} />
 
-      {/* 2. Search & Filter Controls */}
-      <SearchAndFilterBar
-        searchQuery={searchQuery}
-        setSearchQuery={(q) => {
-          setSearchQuery(q);
-          setPage(1);
-        }}
-        statusFilter={statusFilter}
-        setStatusFilter={(s) => {
-          setStatusFilter(s);
-          setPage(1);
-        }}
-        docTypeFilter={docTypeFilter}
-        setDocTypeFilter={(dt) => {
-          setDocTypeFilter(dt);
-          setPage(1);
-        }}
-        personaFilter={personaFilter}
-        setPersonaFilter={(p) => {
-          setPersonaFilter(p);
-          setPage(1);
-        }}
-        dateFilter={dateFilter}
-        setDateFilter={(d) => {
-          setDateFilter(d);
-          setPage(1);
-        }}
-        onRefresh={fetchKycItems}
-        onExportCsv={handleExportCsv}
-        onExportJson={handleExportJson}
-        loading={loading}
-      />
+      {/* 2. SOP-03 Core Collections Navigation Tabs */}
+      <div className="bg-white/80 backdrop-blur-xl border border-emerald-100 rounded-2xl p-1.5 shadow-sm flex flex-wrap items-center gap-1.5">
+        {/* Tab 1: KYC Verification Queue (Collection: kyc_verifications) */}
+        <button
+          onClick={() => setActiveTab('queue')}
+          className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            activeTab === 'queue'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          <FileCheck className="w-4 h-4" />
+          <span>KYC Verification Queue</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
+              activeTab === 'queue' ? 'bg-emerald-700 text-emerald-100' : 'bg-slate-200 text-slate-700'
+            }`}
+          >
+            kyc_verifications ({items.filter((i) => i.status === 'pending').length} pending)
+          </span>
+        </button>
 
-      {/* 3. Primary Data Grid */}
-      <KycTable
-        items={items}
-        pagination={pagination}
-        onPageChange={(newPage) => setPage(newPage)}
-        onInspectItem={handleInspect}
-        onApproveItem={(item) => handleApprove(item, 'Quick verification by Superadmin')}
-        onRejectItem={handleOpenReject}
-        loading={loading}
-        selectedIds={selectedIds}
-        setSelectedIds={setSelectedIds}
-      />
+        {/* Tab 2: Encrypted Document Vault (Collection: users/{uid}/vault_documents) */}
+        <button
+          onClick={() => setActiveTab('vault')}
+          className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            activeTab === 'vault'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          <Lock className="w-4 h-4" />
+          <span>Encrypted Document Vault</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
+              activeTab === 'vault' ? 'bg-emerald-700 text-emerald-100' : 'bg-slate-200 text-slate-700'
+            }`}
+          >
+            vault_documents (AES-256)
+          </span>
+        </button>
+
+        {/* Tab 3: Verification Decision Audit Trail (Endpoint: /v1/admin/kyc/history) */}
+        <button
+          onClick={() => setActiveTab('audit')}
+          className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            activeTab === 'audit'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          <History className="w-4 h-4" />
+          <span>Decision Audit Trail</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
+              activeTab === 'audit' ? 'bg-emerald-700 text-emerald-100' : 'bg-slate-200 text-slate-700'
+            }`}
+          >
+            /v1/admin/kyc/history (§5)
+          </span>
+        </button>
+      </div>
+
+      {/* 3. Conditional Collection Table Rendering */}
+      {activeTab === 'queue' && (
+        <>
+          <SearchAndFilterBar
+            searchQuery={searchQuery}
+            setSearchQuery={(q) => {
+              setSearchQuery(q);
+              setPage(1);
+            }}
+            statusFilter={statusFilter}
+            setStatusFilter={(s) => {
+              setStatusFilter(s);
+              setPage(1);
+            }}
+            docTypeFilter={docTypeFilter}
+            setDocTypeFilter={(dt) => {
+              setDocTypeFilter(dt);
+              setPage(1);
+            }}
+            personaFilter={personaFilter}
+            setPersonaFilter={(p) => {
+              setPersonaFilter(p);
+              setPage(1);
+            }}
+            dateFilter={dateFilter}
+            setDateFilter={(d) => {
+              setDateFilter(d);
+              setPage(1);
+            }}
+            onRefresh={fetchKycItems}
+            onExportCsv={handleExportCsv}
+            onExportJson={handleExportJson}
+            loading={loading}
+          />
+
+          <KycTable
+            items={items}
+            pagination={pagination}
+            onPageChange={(newPage) => setPage(newPage)}
+            onInspectItem={handleInspect}
+            onApproveItem={(item) => handleApprove(item, 'Quick verification by Superadmin')}
+            onRejectItem={handleOpenReject}
+            loading={loading}
+            selectedIds={selectedIds}
+            setSelectedIds={setSelectedIds}
+          />
+        </>
+      )}
+
+      {activeTab === 'vault' && (
+        <EncryptedVaultTable onOpenDetailDrawer={handleOpenDrawer} />
+      )}
+
+      {activeTab === 'audit' && (
+        <KycAuditTrailTable />
+      )}
 
       {/* 4. Side-by-Side Review Modal with Zoom & Rotation */}
       <SideBySideReviewModal

@@ -13,7 +13,163 @@ const PRODUCTS_STORAGE_KEY = 'agrovercity_superadmin_marketplace_products';
 const ORDERS_STORAGE_KEY = 'agrovercity_superadmin_marketplace_orders';
 const PAYMENTS_STORAGE_KEY = 'agrovercity_superadmin_marketplace_payments';
 const REVIEWS_STORAGE_KEY = 'agrovercity_superadmin_marketplace_reviews';
+const CARTS_STORAGE_KEY = 'agrovercity_superadmin_marketplace_carts';
+const ADDRESSES_STORAGE_KEY = 'agrovercity_superadmin_marketplace_addresses';
 const AUDIT_STORAGE_KEY = 'agrovercity_superadmin_audit_logs';
+
+const INITIAL_CARTS = [
+  {
+    id: "CART-701",
+    userId: "USR-1001",
+    farmerName: "Ram Patil",
+    farmerMobile: "+91 98220 14592",
+    district: "Kolhapur",
+    items: [
+      { productId: "PROD-101", productName: "Mahyco Soybean Seeds JS-335 (30kg Bag)", quantity: 4, unitPrice: 2950, totalPrice: 11800 },
+      { productId: "PROD-102", productName: "IFFCO Urea (Neem Coated 45kg)", quantity: 5, unitPrice: 266.5, totalPrice: 1332.5 }
+    ],
+    totalAmount: 13132.5,
+    itemCount: 9,
+    lastActive: "2026-09-20T08:10:00.000Z",
+    status: "active"
+  },
+  {
+    id: "CART-702",
+    userId: "USR-1004",
+    farmerName: "Laxman Thorat",
+    farmerMobile: "+91 98901 23456",
+    district: "Solapur",
+    items: [
+      { productId: "PROD-105", productName: "KisanKraft Portable Power Sprayer KK-P768", quantity: 1, unitPrice: 9800, totalPrice: 9800 }
+    ],
+    totalAmount: 9800,
+    itemCount: 1,
+    lastActive: "2026-09-18T16:20:00.000Z",
+    status: "abandoned"
+  },
+  {
+    id: "CART-703",
+    userId: "USR-1005",
+    farmerName: "Anusaya Bai Rathod",
+    farmerMobile: "+91 97655 43210",
+    district: "Yavatmal",
+    items: [
+      { productId: "PROD-108", productName: "Mahabeej Cotton Hybrid Seeds (RCH-659 BG II)", quantity: 8, unitPrice: 810, totalPrice: 6480 },
+      { productId: "PROD-106", productName: "Multiplex Bio-Jeevamrut 5L", quantity: 2, unitPrice: 890, totalPrice: 1780 }
+    ],
+    totalAmount: 8260,
+    itemCount: 10,
+    lastActive: "2026-09-20T07:45:00.000Z",
+    status: "active"
+  },
+  {
+    id: "CART-704",
+    userId: "USR-1006",
+    farmerName: "Pandurang Kadam",
+    farmerMobile: "+91 98224 55678",
+    district: "Satara",
+    items: [
+      { productId: "PROD-104", productName: "Jain Drip Lateral Pipe 16mm (400m Coil)", quantity: 2, unitPrice: 3150, totalPrice: 6300 }
+    ],
+    totalAmount: 6300,
+    itemCount: 2,
+    lastActive: "2026-09-19T14:00:00.000Z",
+    status: "abandoned"
+  }
+];
+
+const INITIAL_ADDRESSES = [
+  {
+    id: "ADDR-801",
+    userId: "USR-1001",
+    farmerName: "Ram Patil",
+    farmerMobile: "+91 98220 14592",
+    addressType: "farm_gate",
+    street: "Gat No. 412, Near Gram Panchayat",
+    village: "Shiroli",
+    taluka: "Karvir",
+    district: "Kolhapur",
+    state: "Maharashtra",
+    pincode: "416122",
+    gpsCoordinates: "16.7412° N, 74.2750° E",
+    isDefault: true,
+    deliveryNotes: "Call before arrival; tractor accessible road from main road"
+  },
+  {
+    id: "ADDR-802",
+    userId: "USR-1002",
+    farmerName: "Suresh Jadhav",
+    farmerMobile: "+91 94231 77610",
+    addressType: "farm_gate",
+    street: "Nashik-Aurangabad Highway, Post Niphad",
+    village: "Niphad",
+    taluka: "Niphad",
+    district: "Nashik",
+    state: "Maharashtra",
+    pincode: "422303",
+    gpsCoordinates: "20.0811° N, 74.1124° E",
+    isDefault: true,
+    deliveryNotes: "Near Jadhav Krishi Seva Kendra warehouse"
+  },
+  {
+    id: "ADDR-803",
+    userId: "USR-1003",
+    farmerName: "Mahadev Shinde",
+    farmerMobile: "+91 97644 88321",
+    addressType: "residence",
+    street: "Station Road, Near Turmeric Mandi Yard",
+    village: "Miraj",
+    taluka: "Miraj",
+    district: "Sangli",
+    state: "Maharashtra",
+    pincode: "416410",
+    gpsCoordinates: "16.8252° N, 74.6465° E",
+    isDefault: true,
+    deliveryNotes: "Commercial APMC shopfront access"
+  },
+  {
+    id: "ADDR-804",
+    userId: "USR-1005",
+    farmerName: "Anusaya Bai Rathod",
+    farmerMobile: "+91 97655 43210",
+    addressType: "farm_gate",
+    street: "Ward No. 3, Shivaji Nagar",
+    village: "Pusad",
+    taluka: "Pusad",
+    district: "Yavatmal",
+    state: "Maharashtra",
+    pincode: "445204",
+    gpsCoordinates: "19.9056° N, 77.5714° E",
+    isDefault: true,
+    deliveryNotes: "Deliver to SHG Center next to Anganwadi"
+  }
+];
+
+function getStoredCarts() {
+  const data = localStorage.getItem(CARTS_STORAGE_KEY);
+  if (!data) {
+    localStorage.setItem(CARTS_STORAGE_KEY, JSON.stringify(INITIAL_CARTS));
+    return INITIAL_CARTS;
+  }
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    return INITIAL_CARTS;
+  }
+}
+
+function getStoredAddresses() {
+  const data = localStorage.getItem(ADDRESSES_STORAGE_KEY);
+  if (!data) {
+    localStorage.setItem(ADDRESSES_STORAGE_KEY, JSON.stringify(INITIAL_ADDRESSES));
+    return INITIAL_ADDRESSES;
+  }
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    return INITIAL_ADDRESSES;
+  }
+}
 
 function getStoredProducts() {
   const data = localStorage.getItem(PRODUCTS_STORAGE_KEY);
@@ -661,12 +817,215 @@ export const adminMarketplaceService = {
     };
   },
 
-  // 13. Reset to default seed
+  // 13. List Carts (users/{uid}/cart)
+  async listCarts({
+    query = '',
+    status = 'all',
+    page = 1,
+    limit = 10
+  } = {}) {
+    await new Promise((r) => setTimeout(r, 70));
+    let carts = getStoredCarts();
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      carts = carts.filter((c) =>
+        c.id.toLowerCase().includes(q) ||
+        c.userId.toLowerCase().includes(q) ||
+        c.farmerName.toLowerCase().includes(q) ||
+        c.farmerMobile.toLowerCase().includes(q) ||
+        c.district.toLowerCase().includes(q) ||
+        c.items.some((it) => it.productName.toLowerCase().includes(q))
+      );
+    }
+
+    if (status && status !== 'all') {
+      carts = carts.filter((c) => c.status.toLowerCase() === status.toLowerCase());
+    }
+
+    const total = carts.length;
+    const startIndex = (page - 1) * limit;
+    const paginated = carts.slice(startIndex, startIndex + limit);
+
+    return {
+      success: true,
+      data: {
+        carts: paginated,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit) || 1
+        }
+      }
+    };
+  },
+
+  // 14. Send Cart Recovery Notification / SMS
+  async sendCartReminder({ cartId, adminUid = 'root@agrovercity' }) {
+    await new Promise((r) => setTimeout(r, 120));
+    const carts = getStoredCarts();
+    const cart = carts.find((c) => c.id === cartId);
+    if (!cart) throw new Error(`Cart ${cartId} not found`);
+
+    const audit = recordAuditLog({
+      adminUid,
+      action: 'CART_RECOVERY_REMINDER_SENT',
+      targetUserId: cart.userId,
+      targetUserName: `${cart.farmerName} (${cart.farmerMobile})`,
+      previousState: `Cart status: ${cart.status}`,
+      newState: `Dispatched SMS/WhatsApp recovery ping for ₹${cart.totalAmount.toLocaleString('en-IN')}`,
+      reason: 'Admin-initiated abandoned cart recovery notification'
+    });
+
+    return {
+      success: true,
+      message: `Recovery reminder successfully dispatched to ${cart.farmerName} (${cart.farmerMobile}).`,
+      auditRecord: audit
+    };
+  },
+
+  // 15. List Delivery Addresses (users/{uid}/addresses)
+  async listAddresses({
+    query = '',
+    district = 'all',
+    page = 1,
+    limit = 10
+  } = {}) {
+    await new Promise((r) => setTimeout(r, 70));
+    let addresses = getStoredAddresses();
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      addresses = addresses.filter((a) =>
+        a.id.toLowerCase().includes(q) ||
+        a.userId.toLowerCase().includes(q) ||
+        a.farmerName.toLowerCase().includes(q) ||
+        a.farmerMobile.toLowerCase().includes(q) ||
+        a.village.toLowerCase().includes(q) ||
+        a.taluka.toLowerCase().includes(q) ||
+        a.district.toLowerCase().includes(q) ||
+        a.pincode.toLowerCase().includes(q)
+      );
+    }
+
+    if (district && district !== 'all') {
+      addresses = addresses.filter((a) => a.district.toLowerCase() === district.toLowerCase());
+    }
+
+    const total = addresses.length;
+    const startIndex = (page - 1) * limit;
+    const paginated = addresses.slice(startIndex, startIndex + limit);
+
+    return {
+      success: true,
+      data: {
+        addresses: paginated,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit) || 1
+        }
+      }
+    };
+  },
+
+  // 16. List Statutory Marketplace Audit Logs
+  async listMarketplaceAuditLogs({
+    query = '',
+    action = 'all',
+    page = 1,
+    limit = 10
+  } = {}) {
+    await new Promise((r) => setTimeout(r, 60));
+    let logs = getStoredAuditLogs();
+
+    // Default seed logs if empty
+    if (logs.length === 0) {
+      logs = [
+        {
+          id: 'AUD-8821',
+          adminUid: 'root@agrovercity',
+          action: 'AGMARK_QR_CERTIFICATE_ATTESTED',
+          targetUserId: 'PROD-101',
+          targetUserName: 'Mahyco Soybean Seeds JS-335 (AGR-SEE-8841)',
+          previousState: 'Verified: false',
+          newState: 'Verified: true (Authority: National Seeds Corporation Inspectorate)',
+          reason: 'Verified physical batch laboratory report & QR tamper seal against Agmarknet registry.',
+          timestamp: '2026-09-20T10:14:00.000Z',
+          ipAddress: '14.139.122.9'
+        },
+        {
+          id: 'AUD-8822',
+          adminUid: 'root@agrovercity',
+          action: 'RAZORPAY_PAYMENT_REFUND_PROCESSED',
+          targetUserId: 'USR-1002',
+          targetUserName: 'Suresh Jadhav (Order ORD-4003)',
+          previousState: 'Payment: netbanking (₹8,900)',
+          newState: 'Refunded ₹8,900 via Razorpay Gateway (rfnd_Rp98124501)',
+          reason: 'FPO logistics cancellation requested prior to dispatch; full refund processed.',
+          timestamp: '2026-09-19T14:32:00.000Z',
+          ipAddress: '14.139.122.9'
+        },
+        {
+          id: 'AUD-8823',
+          adminUid: 'root@agrovercity',
+          action: 'MARKETPLACE_ORDER_STATUS_UPDATED',
+          targetUserId: 'USR-1001',
+          targetUserName: 'Ram Patil (Order ORD-4001)',
+          previousState: 'Order status: confirmed',
+          newState: 'Order status: dispatched (Tracking: DELH-AGR-99881)',
+          reason: 'Shipped via Delhivery Agri-Express freight hub.',
+          timestamp: '2026-09-19T11:00:00.000Z',
+          ipAddress: '14.139.122.9'
+        }
+      ];
+      localStorage.setItem(AUDIT_STORAGE_KEY, JSON.stringify(logs));
+    }
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      logs = logs.filter((l) =>
+        l.id.toLowerCase().includes(q) ||
+        l.adminUid.toLowerCase().includes(q) ||
+        l.action.toLowerCase().includes(q) ||
+        (l.targetUserId && l.targetUserId.toLowerCase().includes(q)) ||
+        (l.targetUserName && l.targetUserName.toLowerCase().includes(q)) ||
+        (l.reason && l.reason.toLowerCase().includes(q))
+      );
+    }
+
+    if (action && action !== 'all') {
+      logs = logs.filter((l) => l.action.toLowerCase() === action.toLowerCase());
+    }
+
+    const total = logs.length;
+    const startIndex = (page - 1) * limit;
+    const paginated = logs.slice(startIndex, startIndex + limit);
+
+    return {
+      success: true,
+      data: {
+        auditLogs: paginated,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit) || 1
+        }
+      }
+    };
+  },
+
+  // 17. Reset to default seed
   async resetToDefaultSeed() {
     localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(INITIAL_PRODUCTS));
     localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(INITIAL_ORDERS));
     localStorage.setItem(PAYMENTS_STORAGE_KEY, JSON.stringify(INITIAL_PAYMENTS));
     localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(INITIAL_REVIEWS));
+    localStorage.setItem(CARTS_STORAGE_KEY, JSON.stringify(INITIAL_CARTS));
+    localStorage.setItem(ADDRESSES_STORAGE_KEY, JSON.stringify(INITIAL_ADDRESSES));
     return { success: true };
   }
 };

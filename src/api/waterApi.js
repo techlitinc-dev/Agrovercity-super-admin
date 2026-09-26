@@ -1,382 +1,32 @@
 import { request } from './client'
-import {
-  mockWaterSchedules,
-  mockCgwbStations,
-  mockCanalSchedules,
-  mockPmksySubsidyRules,
-  mockPmksyApplications,
-  mockDroughtAdvisories,
-  mockWaterAuditLogs,
-  mockWaterSummary
-} from './mockData'
+import { adminWaterService } from '../services/adminWaterService'
 
-let mockMode = false
-
-function paginate(list, page = 1, pageSize = 20) {
-  const start = (page - 1) * pageSize
-  return {
-    data: list.slice(start, start + pageSize),
-    page,
-    pageSize,
-    total: list.length,
-  }
-}
-
-function filterSchedules({ q = '', status = 'all', irrigationType = 'all', district = 'all', alertFilter = 'all' }, list) {
-  const needle = q.trim().toLowerCase()
-  return list.filter((item) => {
-    if (status !== 'all' && item.status !== status) return false
-    if (irrigationType !== 'all' && !item.irrigationType.toLowerCase().includes(irrigationType.toLowerCase())) return false
-    if (district !== 'all' && item.district !== district) return false
-    if (alertFilter !== 'all' && item.overUnderAlert !== alertFilter) return false
-    if (!needle) return true
-
-    return [
-      item.id,
-      item.farmerName,
-      item.farmerPhone,
-      item.gatNumber,
-      item.village,
-      item.taluka,
-      item.district,
-      item.crop,
-      item.irrigationType,
-      item.waterSource
-    ].some((v) => String(v || '').toLowerCase().includes(needle))
-  })
-}
-
-function filterCgwb({ q = '', category = 'all', district = 'all' }, list) {
-  const needle = q.trim().toLowerCase()
-  return list.filter((item) => {
-    if (category !== 'all' && item.category !== category) return false
-    if (district !== 'all' && item.district !== district) return false
-    if (!needle) return true
-
-    return [
-      item.id,
-      item.stationCode,
-      item.stationName,
-      item.tehsil,
-      item.district,
-      item.aquiferType
-    ].some((v) => String(v || '').toLowerCase().includes(needle))
-  })
-}
-
-function filterCanals({ q = '', division = 'all', status = 'all' }, list) {
-  const needle = q.trim().toLowerCase()
-  return list.filter((item) => {
-    if (division !== 'all' && !item.division.toLowerCase().includes(division.toLowerCase())) return false
-    if (status !== 'all' && item.status !== status) return false
-    if (!needle) return true
-
-    return [
-      item.id,
-      item.canalCode,
-      item.canalName,
-      item.division,
-      item.subDivision,
-      item.distributaryMinor,
-      item.waterSourceDam,
-      ...(item.beneficiaryVillages || [])
-    ].some((v) => String(v || '').toLowerCase().includes(needle))
-  })
-}
-
-function filterSubsidies({ q = '', status = 'all' }, list) {
-  const needle = q.trim().toLowerCase()
-  return list.filter((item) => {
-    if (status !== 'all' && item.status !== status) return false
-    if (!needle) return true
-
-    return [
-      item.id,
-      item.applicationNumber,
-      item.farmerName,
-      item.farmerPhone,
-      item.aadhaarMasked,
-      item.systemType,
-      item.manufacturer
-    ].some((v) => String(v || '').toLowerCase().includes(needle))
-  })
-}
-
-async function mockRequest(method, path, body) {
-  await new Promise((r) => setTimeout(r, 140))
-
-  const url = new URL(`http://localhost${path}`)
-  const pathname = url.pathname
-  const params = url.searchParams
-
-  // 1. KPI Summary
-  if (method === 'GET' && (pathname === '/admin/water/summary' || pathname === '/v1/admin/water/summary')) {
-    const totalSchedules = mockWaterSchedules.length
-    const safeCgwb = mockCgwbStations.filter((s) => s.category === 'SAFE').length
-    const safePct = Math.round((safeCgwb / Math.max(1, mockCgwbStations.length)) * 100)
-
-    return {
-      ...mockWaterSummary,
-      activeSchedulesToday: totalSchedules * 602 || mockWaterSummary.activeSchedulesToday,
-      cgwbSafePct: safePct || mockWaterSummary.cgwbSafePct,
-      activeCanalRotations: mockCanalSchedules.filter((c) => c.status === 'active_rotation').length || 2,
-      pendingPmksySubsidies: mockPmksyApplications.filter((a) => a.status === 'pending_inspection' || a.status === 'first_signoff').length
-    }
-  }
-
-  // 2. List Water Schedules: GET /admin/water/schedules
-  if (method === 'GET' && (pathname === '/admin/water/schedules' || pathname === '/v1/admin/water/schedules')) {
-    const q = params.get('q') || ''
-    const status = params.get('status') || 'all'
-    const irrigationType = params.get('irrigationType') || 'all'
-    const district = params.get('district') || 'all'
-    const alertFilter = params.get('alertFilter') || 'all'
-    const page = parseInt(params.get('page') || '1', 10)
-    const pageSize = parseInt(params.get('pageSize') || '20', 10)
-
-    const filtered = filterSchedules({ q, status, irrigationType, district, alertFilter }, mockWaterSchedules)
-    return paginate(filtered, page, pageSize)
-  }
-
-  // 3. List CGWB Stations: GET /admin/water/cgwb-stations
-  if (method === 'GET' && (pathname === '/admin/water/cgwb-stations' || pathname === '/v1/admin/water/cgwb-stations')) {
-    const q = params.get('q') || ''
-    const category = params.get('category') || 'all'
-    const district = params.get('district') || 'all'
-    const page = parseInt(params.get('page') || '1', 10)
-    const pageSize = parseInt(params.get('pageSize') || '20', 10)
-
-    const filtered = filterCgwb({ q, category, district }, mockCgwbStations)
-    return paginate(filtered, page, pageSize)
-  }
-
-  // 4. Batch Ingest CGWB readings: POST /v1/admin/water/groundwater-readings
-  if (method === 'POST' && (pathname === '/admin/water/groundwater-readings' || pathname === '/v1/admin/water/groundwater-readings')) {
-    const nowIso = new Date().toISOString()
-    mockCgwbStations.forEach((s) => {
-      s.lastReadingAt = nowIso
-      s.sensorStatus = 'ONLINE'
-    })
-
-    mockWaterAuditLogs.unshift({
-      id: `aud_wat_${Date.now()}`,
-      adminUid: body.adminUid || 'superadmin_root',
-      adminName: body.adminName || 'Vikram Mehta (Chief Risk Officer)',
-      timestamp: nowIso,
-      ipAddress: '10.0.4.18',
-      actionType: 'SYNC_CGWB_READINGS',
-      entityId: 'batch_cgwb_stations',
-      entityName: `${mockCgwbStations.length} CGWB Stations`,
-      previousState: 'telemetry_stale',
-      newState: 'telemetry_live',
-      reason: body.reason || 'Manual Superadmin refresh of CGWB piezometer and observatory wells.'
-    })
-
-    return {
-      success: true,
-      stationsUpdated: mockCgwbStations.length,
-      syncedAt: nowIso
-    }
-  }
-
-  // 5. List Canal Schedules: GET /admin/water/canal-schedules
-  if (method === 'GET' && (pathname === '/admin/water/canal-schedules' || pathname === '/v1/admin/water/canal-schedules')) {
-    const q = params.get('q') || ''
-    const division = params.get('division') || 'all'
-    const status = params.get('status') || 'all'
-    const page = parseInt(params.get('page') || '1', 10)
-    const pageSize = parseInt(params.get('pageSize') || '20', 10)
-
-    const filtered = filterCanals({ q, division, status }, mockCanalSchedules)
-    return paginate(filtered, page, pageSize)
-  }
-
-  // 6. Update Canal Schedule: PUT /v1/admin/water/canal-schedule
-  if (method === 'PUT' && (pathname === '/admin/water/canal-schedule' || pathname === '/v1/admin/water/canal-schedule')) {
-    const canalId = body.id
-    const idx = mockCanalSchedules.findIndex((c) => c.id === canalId || c.canalCode === canalId)
-    if (idx === -1) {
-      throw Object.assign(new Error('Canal schedule not found'), { status: 404 })
-    }
-    const current = mockCanalSchedules[idx]
-    const previousState = `${current.status} (${current.dischargeCusecs} cusecs)`
-
-    if (body.dischargeCusecs !== undefined) current.dischargeCusecs = Number(body.dischargeCusecs)
-    if (body.rotationStartDate) current.rotationStartDate = body.rotationStartDate
-    if (body.rotationEndDate) current.rotationEndDate = body.rotationEndDate
-    if (body.status) current.status = body.status
-    if (body.maintenanceNotes) current.maintenanceNotes = body.maintenanceNotes
-
-    const newState = `${current.status} (${current.dischargeCusecs} cusecs)`
-
-    mockWaterAuditLogs.unshift({
-      id: `aud_wat_${Date.now()}`,
-      adminUid: body.adminUid || 'superadmin_root',
-      adminName: body.adminName || 'Vikram Mehta (CRO)',
-      timestamp: new Date().toISOString(),
-      ipAddress: '10.0.4.18',
-      actionType: 'UPDATE_CANAL_SCHEDULE',
-      entityId: current.id,
-      entityName: current.canalName,
-      previousState,
-      newState,
-      reason: body.reason || 'Superadmin updated rotation cycle and discharge parameters.'
-    })
-
-    return { success: true, updatedSchedule: current }
-  }
-
-  // 7. Get PMKSY Subsidy Rules & Applications: GET /admin/water/subsidy-rules
-  if (method === 'GET' && (pathname === '/admin/water/subsidy-rules' || pathname === '/v1/admin/water/subsidy-rules')) {
-    const q = params.get('q') || ''
-    const status = params.get('status') || 'all'
-    const page = parseInt(params.get('page') || '1', 10)
-    const pageSize = parseInt(params.get('pageSize') || '20', 10)
-
-    const filtered = filterSubsidies({ q, status }, mockPmksyApplications)
-    return {
-      rules: mockPmksySubsidyRules,
-      applications: paginate(filtered, page, pageSize)
-    }
-  }
-
-  // 8. Update PMKSY Subsidy Rules: PUT /v1/admin/water/subsidy-rules
-  if (method === 'PUT' && (pathname === '/admin/water/subsidy-rules' || pathname === '/v1/admin/water/subsidy-rules')) {
-    const previousState = `Drip Cap ₹${mockPmksySubsidyRules.dripCeilingPerHaInr}/ha, SM ${mockPmksySubsidyRules.smallMarginalSubsidyPct}%`
-
-    if (body.smallMarginalSubsidyPct) mockPmksySubsidyRules.smallMarginalSubsidyPct = Number(body.smallMarginalSubsidyPct)
-    if (body.otherFarmerSubsidyPct) mockPmksySubsidyRules.otherFarmerSubsidyPct = Number(body.otherFarmerSubsidyPct)
-    if (body.dripCeilingPerHaInr) mockPmksySubsidyRules.dripCeilingPerHaInr = Number(body.dripCeilingPerHaInr)
-    if (body.sprinklerCeilingPerHaInr) mockPmksySubsidyRules.sprinklerCeilingPerHaInr = Number(body.sprinklerCeilingPerHaInr)
-    if (body.additionalStateTopUpPct) mockPmksySubsidyRules.additionalStateTopUpPct = Number(body.additionalStateTopUpPct)
-    mockPmksySubsidyRules.lastUpdatedAt = new Date().toISOString()
-    mockPmksySubsidyRules.updatedBy = body.adminName || 'Vikram Mehta (Superadmin)'
-
-    const newState = `Drip Cap ₹${mockPmksySubsidyRules.dripCeilingPerHaInr}/ha, SM ${mockPmksySubsidyRules.smallMarginalSubsidyPct}%`
-
-    mockWaterAuditLogs.unshift({
-      id: `aud_wat_${Date.now()}`,
-      adminUid: body.adminUid || 'superadmin_root',
-      adminName: body.adminName || 'Vikram Mehta (CRO)',
-      timestamp: new Date().toISOString(),
-      ipAddress: '10.0.4.18',
-      actionType: 'UPDATE_SUBSIDY_RULES',
-      entityId: 'PMKSY-PDMC-MH',
-      entityName: 'PMKSY Subsidy Parameters',
-      previousState,
-      newState,
-      reason: body.reason || 'Superadmin re-calibrated per-hectare ceiling caps and state subsidy ratios.'
-    })
-
-    return { success: true, rules: mockPmksySubsidyRules }
-  }
-
-  // 9. Issue Drought / Low-Water Advisory Alert: POST /v1/admin/water/issue-drought-alert
-  if (method === 'POST' && (pathname === '/admin/water/issue-drought-alert' || pathname === '/v1/admin/water/issue-drought-alert')) {
-    const newAlert = {
-      id: `drought_adv_${Date.now()}`,
-      district: body.district || 'Beed',
-      tehsils: body.tehsils || ['All Tehsils'],
-      alertLevel: body.alertLevel || 'MODERATE_WATER_DEFICIT',
-      alertLevelText: body.alertLevelText || 'पाणी टंचाई इशारा (Water Advisory)',
-      headline: body.headline || 'Emergency Irrigation Water Advisory',
-      message: body.message || 'Restricted irrigation advisory broadcast.',
-      waterSavingTargetPct: Number(body.waterSavingTargetPct || 25),
-      issuedAt: new Date().toISOString(),
-      issuedBy: body.adminName || 'Vikram Mehta (Chief Risk Officer)',
-      smsBroadcastCount: Number(body.estimatedRecipients || 12000),
-      affectedFarmingAcres: Number(body.affectedAcreage || 25000),
-      status: 'active'
-    }
-
-    mockDroughtAdvisories.unshift(newAlert)
-
-    mockWaterAuditLogs.unshift({
-      id: `aud_wat_${Date.now()}`,
-      adminUid: body.adminUid || 'superadmin_root',
-      adminName: body.adminName || 'Vikram Mehta (CRO)',
-      timestamp: new Date().toISOString(),
-      ipAddress: '10.0.4.18',
-      actionType: 'ISSUE_DROUGHT_ALERT',
-      entityId: newAlert.id,
-      entityName: `${newAlert.district} Low-Water Advisory`,
-      previousState: 'none',
-      newState: 'active_broadcast',
-      reason: body.reason || 'Drought alert broadcast to affected farmers.'
-    })
-
-    return { success: true, alert: newAlert }
-  }
-
-  // 10. Approve Subsidy Application: POST /v1/admin/water/approve-subsidy
-  if (method === 'POST' && (pathname === '/admin/water/approve-subsidy' || pathname === '/v1/admin/water/approve-subsidy')) {
-    const appId = body.applicationId
-    const idx = mockPmksyApplications.findIndex((a) => a.id === appId || a.applicationNumber === appId)
-    if (idx === -1) {
-      throw Object.assign(new Error('PMKSY application not found'), { status: 404 })
-    }
-    const app = mockPmksyApplications[idx]
-    const previousState = app.status
-
-    app.status = 'approved'
-    app.statusText = 'सबसिडी मंजूर (Approved)'
-    app.approvedAt = new Date().toISOString()
-    app.dbtStatus = 'DBT_APPROVED_READY'
-
-    mockWaterAuditLogs.unshift({
-      id: `aud_wat_${Date.now()}`,
-      adminUid: body.adminUid || 'superadmin_root',
-      adminName: body.adminName || 'Vikram Mehta (CRO)',
-      timestamp: new Date().toISOString(),
-      ipAddress: '10.0.4.18',
-      actionType: 'APPROVE_SUBSIDY',
-      entityId: app.id,
-      entityName: app.applicationNumber,
-      previousState,
-      newState: 'approved',
-      reason: body.reason || `Approved PMKSY micro-irrigation subsidy of ₹${app.calculatedSubsidyInr.toLocaleString('en-IN')}.`
-    })
-
-    return { success: true, application: app }
-  }
-
-  // 11. List Drought Advisories: GET /admin/water/drought-advisories
-  if (method === 'GET' && (pathname === '/admin/water/drought-advisories' || pathname === '/v1/admin/water/drought-advisories')) {
-    return { data: mockDroughtAdvisories, total: mockDroughtAdvisories.length }
-  }
-
-  // 12. Audit Logs: GET /admin/water/audit-log
-  if (method === 'GET' && (pathname === '/admin/water/audit-log' || pathname === '/v1/admin/water/audit-log')) {
-    const page = parseInt(params.get('page') || '1', 10)
-    const pageSize = parseInt(params.get('pageSize') || '20', 10)
-    return paginate(mockWaterAuditLogs, page, pageSize)
-  }
-
-  throw Object.assign(new Error(`No mock handler for ${method} ${pathname}`), { status: 501 })
-}
-
-async function call(method, path, body) {
-  if (mockMode) return mockRequest(method, path, body)
-  try {
-    return await request(method, path, body)
-  } catch (err) {
-    if (err instanceof TypeError || (err?.status && [404, 500, 501, 502, 503].includes(err.status))) {
-      mockMode = true
-      return mockRequest(method, path, body)
-    }
-    throw err
-  }
-}
+let mockMode = true
 
 export function isMockMode() {
   return mockMode
 }
 
-export function getWaterSummary() {
-  return call('GET', '/admin/water/summary')
+export function setMockMode(val) {
+  mockMode = Boolean(val)
 }
 
-export function listWaterSchedules({
+// 1. Summary KPIs
+export async function getWaterSummary() {
+  if (mockMode) {
+    return adminWaterService.getWaterSummary()
+  }
+  try {
+    return await request('GET', '/admin/water/summary')
+  } catch (err) {
+    console.warn('API error, falling back to local adminWaterService:', err)
+    mockMode = true
+    return adminWaterService.getWaterSummary()
+  }
+}
+
+// 2. List Water Schedules
+export async function listWaterSchedules({
   page = 1,
   pageSize = 20,
   q = '',
@@ -384,76 +34,251 @@ export function listWaterSchedules({
   irrigationType = 'all',
   district = 'all',
   alertFilter = 'all'
-}) {
-  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
-  if (q) params.set('q', q)
-  if (status !== 'all') params.set('status', status)
-  if (irrigationType !== 'all') params.set('irrigationType', irrigationType)
-  if (district !== 'all') params.set('district', district)
-  if (alertFilter !== 'all') params.set('alertFilter', alertFilter)
-  return call('GET', `/admin/water/schedules?${params}`)
+} = {}) {
+  if (mockMode) {
+    return adminWaterService.listWaterSchedules({
+      page,
+      pageSize,
+      q,
+      status,
+      irrigationType,
+      district,
+      alertFilter
+    })
+  }
+  try {
+    const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
+    if (q) params.set('q', q)
+    if (status !== 'all') params.set('status', status)
+    if (irrigationType !== 'all') params.set('irrigationType', irrigationType)
+    if (district !== 'all') params.set('district', district)
+    if (alertFilter !== 'all') params.set('alertFilter', alertFilter)
+    return await request('GET', `/admin/water/schedules?${params}`)
+  } catch (err) {
+    console.warn('API error, falling back to local adminWaterService:', err)
+    mockMode = true
+    return adminWaterService.listWaterSchedules({
+      page,
+      pageSize,
+      q,
+      status,
+      irrigationType,
+      district,
+      alertFilter
+    })
+  }
 }
 
-export function listCgwbStations({
+// 3. List CGWB Stations
+export async function listCgwbStations({
   page = 1,
   pageSize = 20,
   q = '',
   category = 'all',
   district = 'all'
-}) {
-  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
-  if (q) params.set('q', q)
-  if (category !== 'all') params.set('category', category)
-  if (district !== 'all') params.set('district', district)
-  return call('GET', `/admin/water/cgwb-stations?${params}`)
+} = {}) {
+  if (mockMode) {
+    return adminWaterService.listCgwbStations({
+      page,
+      pageSize,
+      q,
+      category,
+      district
+    })
+  }
+  try {
+    const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
+    if (q) params.set('q', q)
+    if (category !== 'all') params.set('category', category)
+    if (district !== 'all') params.set('district', district)
+    return await request('GET', `/admin/water/cgwb-stations?${params}`)
+  } catch (err) {
+    console.warn('API error, falling back to local adminWaterService:', err)
+    mockMode = true
+    return adminWaterService.listCgwbStations({
+      page,
+      pageSize,
+      q,
+      category,
+      district
+    })
+  }
 }
 
-export function syncCgwbReadings(payload = {}) {
-  return call('POST', '/admin/water/groundwater-readings', payload)
+// 4. Batch Ingest & Sync CGWB Readings
+export async function syncCgwbReadings(payload = {}) {
+  if (mockMode) {
+    return adminWaterService.syncCgwbReadings(payload)
+  }
+  try {
+    return await request('POST', '/admin/water/groundwater-readings', payload)
+  } catch (err) {
+    console.warn('API error, falling back to local adminWaterService:', err)
+    mockMode = true
+    return adminWaterService.syncCgwbReadings(payload)
+  }
 }
 
-export function listCanalSchedules({
+// 5. List Canal Schedules
+export async function listCanalSchedules({
   page = 1,
   pageSize = 20,
   q = '',
   division = 'all',
   status = 'all'
-}) {
-  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
-  if (q) params.set('q', q)
-  if (division !== 'all') params.set('division', division)
-  if (status !== 'all') params.set('status', status)
-  return call('GET', `/admin/water/canal-schedules?${params}`)
+} = {}) {
+  if (mockMode) {
+    return adminWaterService.listCanalSchedules({
+      page,
+      pageSize,
+      q,
+      division,
+      status
+    })
+  }
+  try {
+    const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
+    if (q) params.set('q', q)
+    if (division !== 'all') params.set('division', division)
+    if (status !== 'all') params.set('status', status)
+    return await request('GET', `/admin/water/canal-schedules?${params}`)
+  } catch (err) {
+    console.warn('API error, falling back to local adminWaterService:', err)
+    mockMode = true
+    return adminWaterService.listCanalSchedules({
+      page,
+      pageSize,
+      q,
+      division,
+      status
+    })
+  }
 }
 
-export function updateCanalSchedule(payload) {
-  return call('PUT', '/admin/water/canal-schedule', payload)
+// 6. Update Canal Schedule
+export async function updateCanalSchedule(idOrPayload, maybePayload) {
+  if (mockMode) {
+    return adminWaterService.updateCanalSchedule(idOrPayload, maybePayload)
+  }
+  try {
+    const body = typeof idOrPayload === 'object' && idOrPayload !== null ? idOrPayload : maybePayload
+    return await request('PUT', '/admin/water/canal-schedule', body)
+  } catch (err) {
+    console.warn('API error, falling back to local adminWaterService:', err)
+    mockMode = true
+    return adminWaterService.updateCanalSchedule(idOrPayload, maybePayload)
+  }
 }
 
-export function getPmksySubsidyRules({ page = 1, pageSize = 20, q = '', status = 'all' } = {}) {
-  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
-  if (q) params.set('q', q)
-  if (status !== 'all') params.set('status', status)
-  return call('GET', `/admin/water/subsidy-rules?${params}`)
+// 7. Get PMKSY Subsidy Rules & Applications
+export async function getPmksySubsidyRules({ page = 1, pageSize = 20, q = '', status = 'all' } = {}) {
+  if (mockMode) {
+    return adminWaterService.getPmksySubsidyRules({ page, pageSize, q, status })
+  }
+  try {
+    const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
+    if (q) params.set('q', q)
+    if (status !== 'all') params.set('status', status)
+    return await request('GET', `/admin/water/subsidy-rules?${params}`)
+  } catch (err) {
+    console.warn('API error, falling back to local adminWaterService:', err)
+    mockMode = true
+    return adminWaterService.getPmksySubsidyRules({ page, pageSize, q, status })
+  }
 }
 
-export function updatePmksySubsidyRules(payload) {
-  return call('PUT', '/admin/water/subsidy-rules', payload)
+// 8. Update PMKSY Subsidy Rules
+export async function updatePmksySubsidyRules(payload) {
+  if (mockMode) {
+    return adminWaterService.updatePmksySubsidyRules(payload)
+  }
+  try {
+    return await request('PUT', '/admin/water/subsidy-rules', payload)
+  } catch (err) {
+    console.warn('API error, falling back to local adminWaterService:', err)
+    mockMode = true
+    return adminWaterService.updatePmksySubsidyRules(payload)
+  }
 }
 
-export function approvePmksySubsidy(payload) {
-  return call('POST', '/admin/water/approve-subsidy', payload)
+// 9. Approve PMKSY Subsidy (with Dual Sign-Off enforcement)
+export async function approvePmksySubsidy(appIdOrPayload, maybePayload) {
+  if (mockMode) {
+    return adminWaterService.approvePmksySubsidy(appIdOrPayload, maybePayload)
+  }
+  try {
+    const body = typeof appIdOrPayload === 'object' && appIdOrPayload !== null ? appIdOrPayload : maybePayload
+    return await request('POST', '/admin/water/approve-subsidy', body)
+  } catch (err) {
+    console.warn('API error, falling back to local adminWaterService:', err)
+    mockMode = true
+    return adminWaterService.approvePmksySubsidy(appIdOrPayload, maybePayload)
+  }
 }
 
-export function listDroughtAdvisories() {
-  return call('GET', '/admin/water/drought-advisories')
+// 10. List Drought Advisories
+export async function listDroughtAdvisories({ page = 1, pageSize = 20, q = '', district = 'all' } = {}) {
+  if (mockMode) {
+    return adminWaterService.listDroughtAdvisories({ page, pageSize, q, district })
+  }
+  try {
+    const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
+    if (q) params.set('q', q)
+    if (district !== 'all') params.set('district', district)
+    return await request('GET', `/admin/water/drought-advisories?${params}`)
+  } catch (err) {
+    console.warn('API error, falling back to local adminWaterService:', err)
+    mockMode = true
+    return adminWaterService.listDroughtAdvisories({ page, pageSize, q, district })
+  }
 }
 
-export function issueDroughtAlert(payload) {
-  return call('POST', '/admin/water/issue-drought-alert', payload)
+// 11. Issue Drought Alert
+export async function issueDroughtAlert(payload) {
+  if (mockMode) {
+    return adminWaterService.issueDroughtAlert(payload)
+  }
+  try {
+    return await request('POST', '/admin/water/issue-drought-alert', payload)
+  } catch (err) {
+    console.warn('API error, falling back to local adminWaterService:', err)
+    mockMode = true
+    return adminWaterService.issueDroughtAlert(payload)
+  }
 }
 
-export function getWaterAuditLogs({ page = 1, pageSize = 20 } = {}) {
-  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
-  return call('GET', `/admin/water/audit-log?${params}`)
+// 12. Get Water Audit Logs
+export async function getWaterAuditLogs({ page = 1, pageSize = 20, q = '', actionType = 'ALL' } = {}) {
+  if (mockMode) {
+    return adminWaterService.listWaterAuditLogs({ page, pageSize, q, actionType })
+  }
+  try {
+    const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
+    if (q) params.set('q', q)
+    if (actionType !== 'ALL') params.set('actionType', actionType)
+    return await request('GET', `/admin/water/audit-log?${params}`)
+  } catch (err) {
+    console.warn('API error, falling back to local adminWaterService:', err)
+    mockMode = true
+    return adminWaterService.listWaterAuditLogs({ page, pageSize, q, actionType })
+  }
+}
+
+// 13. Run Water Cluster Efficiency & DPDP Audit
+export async function runWaterEfficiencyAudit() {
+  if (mockMode) {
+    return adminWaterService.runWaterEfficiencyAudit()
+  }
+  try {
+    return await request('POST', '/admin/water/efficiency-audit', {})
+  } catch (err) {
+    console.warn('API error, falling back to local adminWaterService:', err)
+    mockMode = true
+    return adminWaterService.runWaterEfficiencyAudit()
+  }
+}
+
+// 14. Reset Seed Data
+export async function resetWaterSeedData(reason) {
+  return adminWaterService.resetToDefaultSeed(reason)
 }

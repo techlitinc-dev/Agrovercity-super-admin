@@ -11,7 +11,89 @@ import {
 const VEHICLES_STORAGE_KEY = 'agrovercity_superadmin_vehicles';
 const BOOKINGS_STORAGE_KEY = 'agrovercity_superadmin_transport_bookings';
 const SETTLEMENTS_STORAGE_KEY = 'agrovercity_superadmin_transporter_settlements';
+const FARE_BANDS_STORAGE_KEY = 'agrovercity_superadmin_transport_fare_bands';
 const AUDIT_STORAGE_KEY = 'agrovercity_superadmin_audit_logs';
+
+const INITIAL_FARE_BANDS = [
+  {
+    id: 'FB-101',
+    district: 'Nashik',
+    corridor: 'Nashik - Lasalgaon - Pimpalgaon Mandi Corridor',
+    vehicleClass: '1-Ton Mini Truck (Tata Ace / Mahindra Jeeto)',
+    baseFare: 450,
+    perKmRate: 22,
+    minDistanceKm: 10,
+    waitingChargePerHour: 150,
+    nightSurchargePercent: 15,
+    status: 'active',
+    updatedAt: '2026-09-18T10:00:00.000Z'
+  },
+  {
+    id: 'FB-102',
+    district: 'Nashik',
+    corridor: 'Nashik - Dindori - Kalwan Vineyard Hub',
+    vehicleClass: 'Reefer Cold Chain (Fruits & Vegetables 3-Ton)',
+    baseFare: 2500,
+    perKmRate: 65,
+    minDistanceKm: 30,
+    waitingChargePerHour: 500,
+    nightSurchargePercent: 25,
+    status: 'active',
+    updatedAt: '2026-09-18T10:00:00.000Z'
+  },
+  {
+    id: 'FB-103',
+    district: 'Pune',
+    corridor: 'Pune - Baramati - Indapur Sugar Belt',
+    vehicleClass: '3-Ton Light Commercial (Bolero Maxi Truck / Eicher Pro)',
+    baseFare: 850,
+    perKmRate: 32,
+    minDistanceKm: 15,
+    waitingChargePerHour: 250,
+    nightSurchargePercent: 15,
+    status: 'active',
+    updatedAt: '2026-09-19T14:30:00.000Z'
+  },
+  {
+    id: 'FB-104',
+    district: 'Pune',
+    corridor: 'Pune - Narayangaon - Junnar Tomato Hub',
+    vehicleClass: '7-Ton Medium Duty (Eicher 11.10 / Tata 1109)',
+    baseFare: 1600,
+    perKmRate: 48,
+    minDistanceKm: 25,
+    waitingChargePerHour: 400,
+    nightSurchargePercent: 20,
+    status: 'active',
+    updatedAt: '2026-09-19T14:30:00.000Z'
+  },
+  {
+    id: 'FB-105',
+    district: 'Sangli',
+    corridor: 'Sangli - Miraj - Tasgaon Turmeric & Raisin Belt',
+    vehicleClass: '16-Ton Heavy Multi-Axle (Inter-State Mandi Transit)',
+    baseFare: 3200,
+    perKmRate: 75,
+    minDistanceKm: 50,
+    waitingChargePerHour: 700,
+    nightSurchargePercent: 20,
+    status: 'active',
+    updatedAt: '2026-09-17T11:00:00.000Z'
+  },
+  {
+    id: 'FB-106',
+    district: 'Kolhapur',
+    corridor: 'Kolhapur - Karvir - Shirol Jaggery & Cane Corridor',
+    vehicleClass: 'Tractor Trolley (Short-Haul Local APMC Yard)',
+    baseFare: 350,
+    perKmRate: 28,
+    minDistanceKm: 5,
+    waitingChargePerHour: 100,
+    nightSurchargePercent: 10,
+    status: 'active',
+    updatedAt: '2026-09-20T08:00:00.000Z'
+  }
+];
 
 // Dual-admin sign-off threshold for payout approvals (SOP-08 Rule 3)
 const DUAL_SIGNOFF_THRESHOLD = 50000;
@@ -475,11 +557,255 @@ export const adminTransportService = {
     };
   },
 
-  // 10. Reset to default seed
+  // 10. Register / Onboard a new Vehicle to fleet (SOP-08 §3)
+  async createVehicle(vehicleData, adminUid = 'root@agrovercity') {
+    await new Promise((r) => setTimeout(r, 160));
+    const vehicles = getStored(VEHICLES_STORAGE_KEY, INITIAL_VEHICLES);
+
+    const newId = `VEH-${Math.floor(100 + Math.random() * 900)}`;
+    const newVehicle = {
+      id: newId,
+      transporterId: vehicleData.transporterId || `TRP-${Math.floor(1000 + Math.random() * 9000)}`,
+      transporterName: vehicleData.transporterName || 'Rural Agro Logistics Operator',
+      transporterMobile: vehicleData.transporterMobile || '+91 98000 00000',
+      registrationNumber: (vehicleData.registrationNumber || `MH-${Math.floor(10 + Math.random() * 40)}-AB-${Math.floor(1000 + Math.random() * 9000)}`).toUpperCase(),
+      chassisNumber: vehicleData.chassisNumber || `MAT${Math.floor(100000000 + Math.random() * 900000000)}`,
+      vehicleClass: vehicleData.vehicleClass || '3-Ton Light Commercial',
+      capacityTons: Number(vehicleData.capacityTons) || 3.0,
+      district: vehicleData.district || 'Nashik',
+      baseFare: Number(vehicleData.baseFare) || 850,
+      perKmRate: Number(vehicleData.perKmRate) || 32,
+      status: vehicleData.verifyImmediately ? 'verified' : 'pending_verification',
+      rcBook: {
+        number: vehicleData.rcNumber || vehicleData.registrationNumber,
+        verified: Boolean(vehicleData.verifyImmediately)
+      },
+      commercialInsurance: {
+        policyNumber: vehicleData.insuranceNumber || `POL-NIC-${Math.floor(100000 + Math.random() * 900000)}`,
+        verified: Boolean(vehicleData.verifyImmediately)
+      },
+      fitnessCertificate: {
+        certificateNumber: vehicleData.fitnessNumber || `FC-RTO-${Math.floor(10000 + Math.random() * 90000)}`,
+        verified: Boolean(vehicleData.verifyImmediately)
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    const updated = [newVehicle, ...vehicles];
+    save(VEHICLES_STORAGE_KEY, updated);
+
+    const audit = recordAuditLog({
+      adminUid,
+      action: 'VEHICLE_ONBOARDED_TO_FLEET',
+      targetUserId: newVehicle.transporterId,
+      targetUserName: `${newVehicle.transporterName} (${newVehicle.registrationNumber})`,
+      previousState: 'Non-existent fleet entry',
+      newState: `Added vehicle ${newVehicle.registrationNumber} [${newVehicle.vehicleClass}, ${newVehicle.capacityTons}T, Status: ${newVehicle.status}]`,
+      reason: 'Transporter fleet registration via superadmin console (SOP-08)'
+    });
+
+    return {
+      success: true,
+      message: `Vehicle ${newVehicle.registrationNumber} onboarded successfully.`,
+      vehicle: newVehicle,
+      auditRecord: audit
+    };
+  },
+
+  // 11. List Fare Bands & Dynamic Pricing (SOP-08 §3)
+  async listFareBands({ query = '', district = 'all', vehicleClass = 'all' } = {}) {
+    await new Promise((r) => setTimeout(r, 60));
+    let fareBands = getStored(FARE_BANDS_STORAGE_KEY, INITIAL_FARE_BANDS);
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      fareBands = fareBands.filter((f) =>
+        f.district.toLowerCase().includes(q) ||
+        f.corridor.toLowerCase().includes(q) ||
+        f.vehicleClass.toLowerCase().includes(q)
+      );
+    }
+
+    if (district && district !== 'all') {
+      fareBands = fareBands.filter((f) => f.district.toLowerCase() === district.toLowerCase());
+    }
+
+    if (vehicleClass && vehicleClass !== 'all') {
+      fareBands = fareBands.filter((f) => f.vehicleClass.toLowerCase().includes(vehicleClass.toLowerCase()));
+    }
+
+    return {
+      success: true,
+      data: {
+        fareBands
+      }
+    };
+  },
+
+  // 12. Update Fare Band Tariff (SOP-08 §3)
+  async updateFareBand({
+    id,
+    baseFare,
+    perKmRate,
+    waitingChargePerHour,
+    nightSurchargePercent,
+    reason,
+    adminUid = 'root@agrovercity'
+  }) {
+    if (!reason || reason.trim().length < 8) {
+      throw new Error('Mandatory administrative justification (min 8 characters) is required for tariff adjustment.');
+    }
+
+    await new Promise((r) => setTimeout(r, 140));
+    const fareBands = getStored(FARE_BANDS_STORAGE_KEY, INITIAL_FARE_BANDS);
+    const index = fareBands.findIndex((f) => f.id === id);
+    if (index === -1) throw new Error(`Fare Band ${id} not found`);
+
+    const prev = fareBands[index];
+    const updated = {
+      ...prev,
+      baseFare: Number(baseFare) || prev.baseFare,
+      perKmRate: Number(perKmRate) || prev.perKmRate,
+      waitingChargePerHour: Number(waitingChargePerHour) || prev.waitingChargePerHour,
+      nightSurchargePercent: Number(nightSurchargePercent) || prev.nightSurchargePercent,
+      updatedAt: new Date().toISOString()
+    };
+
+    fareBands[index] = updated;
+    save(FARE_BANDS_STORAGE_KEY, fareBands);
+
+    const audit = recordAuditLog({
+      adminUid,
+      action: 'TRANSPORT_FARE_BAND_UPDATED',
+      targetUserId: id,
+      targetUserName: `${updated.district} - ${updated.vehicleClass}`,
+      previousState: `Base: ₹${prev.baseFare}, Per-Km: ₹${prev.perKmRate}/km`,
+      newState: `Base: ₹${updated.baseFare}, Per-Km: ₹${updated.perKmRate}/km (Waiting: ₹${updated.waitingChargePerHour}/hr, Night: ${updated.nightSurchargePercent}%)`,
+      reason: reason.trim()
+    });
+
+    return {
+      success: true,
+      message: `Fare Band ${id} (${updated.district}) updated successfully.`,
+      fareBand: updated,
+      auditRecord: audit
+    };
+  },
+
+  // 13. List Live Dispatch Active Trips (SOP-08 §3)
+  async listLiveDispatchTrips() {
+    await new Promise((r) => setTimeout(r, 80));
+    const bookings = getStored(BOOKINGS_STORAGE_KEY, INITIAL_TRANSPORT_BOOKINGS);
+    const vehicles = getStored(VEHICLES_STORAGE_KEY, INITIAL_VEHICLES);
+
+    // Active trip statuses
+    const activeTrips = bookings
+      .filter((b) => ['in_transit', 'driver_assigned', 'at_pickup', 'disputed'].includes(b.status))
+      .map((b) => {
+        const vehicle = vehicles.find((v) => v.id === b.vehicleId) || {};
+        return {
+          ...b,
+          vehicleRegistration: vehicle.registrationNumber || 'MH-15-EG-8821',
+          vehicleClass: vehicle.vehicleClass || 'Light Commercial 3T',
+          liveGpsCoordinates: b.liveLocation || '19.9975° N, 73.7898° E',
+          speedKmph: b.status === 'in_transit' ? Math.floor(35 + Math.random() * 25) : 0,
+          estimatedMinutesRemaining: Math.floor(25 + Math.random() * 60)
+        };
+      });
+
+    return {
+      success: true,
+      data: {
+        activeTrips
+      }
+    };
+  },
+
+  // 14. List Statutory Transport Audit Logs (SOP-08 §6.2)
+  async listTransportAuditLogs({
+    query = '',
+    action = 'all',
+    page = 1,
+    limit = 10
+  } = {}) {
+    await new Promise((r) => setTimeout(r, 60));
+    let logs = getStoredAuditLogs();
+
+    if (logs.length === 0) {
+      logs = [
+        {
+          id: 'AUD-801',
+          adminUid: 'root@agrovercity',
+          action: 'VEHICLE_COMMERCIAL_PAPERS_VERIFIED',
+          targetUserId: 'TRP-101',
+          targetUserName: 'Ganesh Shinde (MH-15-EG-8821)',
+          previousState: 'Vehicle status: pending_verification',
+          newState: 'Vehicle status: verified (RC:OK, Commercial Insurance:OK, Fitness:OK)',
+          reason: 'Verified Vahan database commercial permit & comprehensive goods carrier insurance.',
+          timestamp: '2026-09-20T10:15:00.000Z',
+          ipAddress: '14.139.122.9'
+        },
+        {
+          id: 'AUD-802',
+          adminUid: 'root@agrovercity',
+          action: 'TRANSPORTER_PAYOUT_RELEASED',
+          targetUserId: 'TRP-102',
+          targetUserName: 'Kailas Patil (MH-12-PQ-4412)',
+          previousState: 'POD status: pending_audit',
+          newState: 'POD status: released; settlement: paid (₹18,400 via ICICI IMPS)',
+          reason: 'Verified physical APMC stamped gate-pass and digital weighment slip matching booking #BK-501.',
+          timestamp: '2026-09-19T14:40:00.000Z',
+          ipAddress: '14.139.122.9'
+        },
+        {
+          id: 'AUD-803',
+          adminUid: 'root@agrovercity',
+          action: 'TRANSPORT_DISPUTE_ARBITRATED',
+          targetUserId: 'USR-201',
+          targetUserName: 'Vikas Deshmukh vs Kailas Patil (BK-502)',
+          previousState: 'Booking status: disputed',
+          newState: 'Resolution: uphold_transporter (Booking status: completed)',
+          reason: 'Farmer refused loading for 3 hours; detention waiting fee credited to transporter ledger per SOP-08 §3.',
+          timestamp: '2026-09-18T16:20:00.000Z',
+          ipAddress: '14.139.122.9'
+        }
+      ];
+      localStorage.setItem(AUDIT_STORAGE_KEY, JSON.stringify(logs));
+    }
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      logs = logs.filter((l) =>
+        l.id.toLowerCase().includes(q) ||
+        l.adminUid.toLowerCase().includes(q) ||
+        l.action.toLowerCase().includes(q) ||
+        (l.targetUserId && l.targetUserId.toLowerCase().includes(q)) ||
+        (l.targetUserName && l.targetUserName.toLowerCase().includes(q)) ||
+        (l.reason && l.reason.toLowerCase().includes(q))
+      );
+    }
+
+    if (action && action !== 'all') {
+      logs = logs.filter((l) => l.action.toLowerCase() === action.toLowerCase());
+    }
+
+    const { records, pagination } = paginate(logs, page, limit);
+    return {
+      success: true,
+      data: {
+        auditLogs: records,
+        pagination
+      }
+    };
+  },
+
+  // 15. Reset to default seed
   async resetToDefaultSeed() {
     localStorage.setItem(VEHICLES_STORAGE_KEY, JSON.stringify(INITIAL_VEHICLES));
     localStorage.setItem(BOOKINGS_STORAGE_KEY, JSON.stringify(INITIAL_TRANSPORT_BOOKINGS));
     localStorage.setItem(SETTLEMENTS_STORAGE_KEY, JSON.stringify(INITIAL_TRANSPORTER_SETTLEMENTS));
+    localStorage.setItem(FARE_BANDS_STORAGE_KEY, JSON.stringify(INITIAL_FARE_BANDS));
     return { success: true };
   }
 };

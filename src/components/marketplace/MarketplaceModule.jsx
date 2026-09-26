@@ -13,6 +13,8 @@ import { ProductsTable } from './ProductsTable';
 import { OrdersTable } from './OrdersTable';
 import { PaymentsTable } from './PaymentsTable';
 import { ReviewsModerationTable } from './ReviewsModerationTable';
+import { CartsAndAddressesView } from './CartsAndAddressesView';
+import { MarketplaceAuditTrailTable } from './MarketplaceAuditTrailTable';
 import { ProductDetailDrawer } from './ProductDetailDrawer';
 import { ProductFormModal } from './ProductFormModal';
 import { QrVerificationModal } from './QrVerificationModal';
@@ -23,7 +25,7 @@ export function MarketplaceModule() {
   const { currentAdmin } = useAuthAdmin();
   const { addToast } = useNotification();
 
-  // Active view tab: 'products' | 'orders' | 'payments' | 'reviews'
+  // Active view tab: 'products' | 'orders' | 'carts_addresses' | 'payments' | 'reviews' | 'audit_trail'
   const [activeTab, setActiveTab] = useState('products');
 
   // Filter states
@@ -37,8 +39,13 @@ export function MarketplaceModule() {
   const [kpis, setKpis] = useState({});
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [carts, setCarts] = useState([]);
+  const [addresses, setAddresses] = useState([]);
+  const [cartPagination, setCartPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
+  const [addressPagination, setAddressPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
   const [payments, setPayments] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
   const [selectedProductIds, setSelectedProductIds] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -87,6 +94,26 @@ export function MarketplaceModule() {
           setOrders(res.data.orders);
           setPagination(res.data.pagination);
         }
+      } else if (activeTab === 'carts_addresses') {
+        const [cRes, aRes] = await Promise.all([
+          adminMarketplaceService.listCarts({
+            ...params,
+            query: searchQuery,
+            status: statusFilter
+          }),
+          adminMarketplaceService.listAddresses({
+            ...params,
+            query: searchQuery
+          })
+        ]);
+        if (cRes.success) {
+          setCarts(cRes.data.carts);
+          setCartPagination(cRes.data.pagination);
+        }
+        if (aRes.success) {
+          setAddresses(aRes.data.addresses);
+          setAddressPagination(aRes.data.pagination);
+        }
       } else if (activeTab === 'payments') {
         const res = await adminMarketplaceService.listPayments({
           ...params,
@@ -105,6 +132,16 @@ export function MarketplaceModule() {
         });
         if (res.success) {
           setReviews(res.data.reviews);
+          setPagination(res.data.pagination);
+        }
+      } else if (activeTab === 'audit_trail') {
+        const res = await adminMarketplaceService.listMarketplaceAuditLogs({
+          ...params,
+          query: searchQuery,
+          action: statusFilter
+        });
+        if (res.success) {
+          setAuditLogs(res.data.auditLogs);
           setPagination(res.data.pagination);
         }
       }
@@ -242,6 +279,28 @@ export function MarketplaceModule() {
     }
   };
 
+  // ---- Cart recovery action ----
+  const handleSendCartReminder = async (cartId) => {
+    try {
+      const res = await adminMarketplaceService.sendCartReminder({
+        cartId,
+        adminUid: currentAdmin?.email
+      });
+      addToast({
+        title: 'Recovery Ping Dispatched',
+        message: res.message,
+        type: 'success'
+      });
+      fetchData();
+    } catch (err) {
+      addToast({
+        title: 'Dispatch Failed',
+        message: err.message,
+        type: 'error'
+      });
+    }
+  };
+
   // ---- Review moderation ----
   const handleModerateReview = async (reviewId, status, reason) => {
     try {
@@ -282,8 +341,10 @@ export function MarketplaceModule() {
   const activeRows =
     activeTab === 'products' ? products :
     activeTab === 'orders' ? orders :
+    activeTab === 'carts_addresses' ? { carts, addresses } :
     activeTab === 'payments' ? payments :
-    reviews;
+    activeTab === 'reviews' ? reviews :
+    auditLogs;
 
   const handleExportCsv = () => {
     let csvContent = 'data:text/csv;charset=utf-8,';
@@ -298,15 +359,28 @@ export function MarketplaceModule() {
       orders.forEach((o) => {
         csvContent += `"${o.id}","${o.userId}","${o.farmerName}","${o.farmerMobile}",${o.items?.length || 0},${o.subtotal},${o.taxAmount},${o.deliveryFee},${o.totalAmount},"${o.paymentMethod}","${o.paymentStatus}","${o.orderStatus}","${o.trackingNumber || 'N/A'}","${o.courierPartner || 'N/A'}","${o.refundId || 'N/A'}",${o.refundAmount || 0},"${o.createdAt}"\n`;
       });
+    } else if (activeTab === 'carts_addresses') {
+      csvContent += 'Type,ID,User ID,Farmer Name,Mobile,District,Items/Location,Total (INR) / Pincode,Status / Coordinates,Last Active\n';
+      carts.forEach((c) => {
+        csvContent += `"CART","${c.id}","${c.userId}","${c.farmerName}","${c.farmerMobile}","${c.district}","${c.itemCount} items",${c.totalAmount},"${c.status}","${c.lastActive}"\n`;
+      });
+      addresses.forEach((a) => {
+        csvContent += `"ADDRESS","${a.id}","${a.userId}","${a.farmerName}","${a.farmerMobile}","${a.district}","${a.village} - ${a.taluka}","${a.pincode}","${a.gpsCoordinates || 'N/A'}","${a.isDefault ? 'DEFAULT' : 'SECONDARY'}"\n`;
+      });
     } else if (activeTab === 'payments') {
       csvContent += 'Payment ID,Order ID,Buyer ID,Farmer Name,Amount (INR),Currency,Method,Razorpay Payment ID,Razorpay Order ID,Fee,Tax,Status,Refund ID,Created\n';
       payments.forEach((p) => {
         csvContent += `"${p.id}","${p.orderId}","${p.userId}","${p.farmerName}",${p.amount},"${p.currency}","${p.method}","${p.razorpayPaymentId}","${p.razorpayOrderId}",${p.fee},${p.tax},"${p.status}","${p.refundId || 'N/A'}","${p.createdAt}"\n`;
       });
-    } else {
+    } else if (activeTab === 'reviews') {
       csvContent += 'Review ID,Product ID,Product Name,Buyer ID,Buyer Name,Rating,Review Text,Verified Purchase,Moderation Status,Created\n';
       reviews.forEach((r) => {
         csvContent += `"${r.id}","${r.productId}","${r.productName}","${r.userId}","${r.userName}",${r.rating},"${r.reviewText}","${r.verifiedPurchase ? 'YES' : 'NO'}","${r.moderationStatus}","${r.createdAt}"\n`;
+      });
+    } else {
+      csvContent += 'Audit ID,Admin UID,Action,Target ID,Target Name,Previous State,New State,Reason,IP Address,Timestamp\n';
+      auditLogs.forEach((l) => {
+        csvContent += `"${l.id}","${l.adminUid}","${l.action}","${l.targetUserId}","${l.targetUserName}","${l.previousState}","${l.newState}","${l.reason}","${l.ipAddress || '14.139.122.9'}","${l.timestamp}"\n`;
       });
     }
 
@@ -322,7 +396,7 @@ export function MarketplaceModule() {
     downloadFile(JSON.stringify(activeRows, null, 2), `agrovercity_marketplace_${activeTab}_${Date.now()}.json`, 'application/json');
     addToast({
       title: 'JSON Export Ready',
-      message: `Exported JSON payload for ${activeRows.length} records.`,
+      message: `Exported JSON payload for ${activeTab} dataset.`,
       type: 'info'
     });
   };
@@ -347,14 +421,14 @@ export function MarketplaceModule() {
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1 font-medium">
-            Centralized oversight of the agri-input catalog, Agmark/Ministry QR certification, order lifecycle fulfillment, Razorpay refunds & customer review moderation.
+            Centralized oversight of the agri-input catalog, Agmark/Ministry QR certification, farmer carts & delivery addresses, order fulfillment, Razorpay refunds & customer review moderation.
           </p>
         </div>
 
         {/* Status Indicator */}
         <div className="text-[11px] font-semibold text-emerald-900 bg-emerald-50/80 border border-emerald-200 px-3 py-1.5 rounded-xl flex items-center gap-2 self-start sm:self-auto shadow-xs">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Razorpay Settlement Engine Active</span>
+          <span>Razorpay Settlement & Gateway Engine Active</span>
         </div>
       </div>
 
@@ -404,6 +478,19 @@ export function MarketplaceModule() {
         />
       )}
 
+      {activeTab === 'carts_addresses' && (
+        <CartsAndAddressesView
+          carts={carts}
+          addresses={addresses}
+          cartPagination={cartPagination}
+          addressPagination={addressPagination}
+          onCartPageChange={(p) => setPage(p)}
+          onAddressPageChange={(p) => setPage(p)}
+          onSendCartReminder={handleSendCartReminder}
+          loading={loading}
+        />
+      )}
+
       {activeTab === 'payments' && (
         <PaymentsTable
           payments={payments}
@@ -419,6 +506,15 @@ export function MarketplaceModule() {
           pagination={pagination}
           onPageChange={(p) => setPage(p)}
           onModerateReview={handleModerateReview}
+          loading={loading}
+        />
+      )}
+
+      {activeTab === 'audit_trail' && (
+        <MarketplaceAuditTrailTable
+          auditLogs={auditLogs}
+          pagination={pagination}
+          onPageChange={(p) => setPage(p)}
           loading={loading}
         />
       )}

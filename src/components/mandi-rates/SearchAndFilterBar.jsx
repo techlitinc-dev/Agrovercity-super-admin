@@ -30,28 +30,15 @@ export function SearchAndFilterBar({
     <div className="bg-white/90 backdrop-blur-xl border border-emerald-100 rounded-2xl p-4 space-y-3.5 shadow-xs">
       {/* Top row: Tab Switcher & Action Buttons */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-emerald-100">
-        {/* View mode toggle tabs */}
-        <div className="flex items-center bg-emerald-50/60 border border-emerald-200 rounded-xl p-1 text-xs">
-          <button
-            onClick={() => setActiveViewTab('vyapari_rates')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-bold transition-all ${
-              activeViewTab === 'vyapari_rates'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <span>Trader Live Rates Queue ('Aaj ke Bhav')</span>
-          </button>
-          <button
-            onClick={() => setActiveViewTab('benchmarks')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-bold transition-all ${
-              activeViewTab === 'benchmarks'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <span>Agmarknet & eNAM Benchmarks (8 APMCs)</span>
-          </button>
+        {/* Collection Identity Indicator */}
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>{activeViewTab === 'vyapari_rates' ? 'Vyapari 2-Hourly Submissions Queue' : 'Official Agmarknet Mandi Benchmarks'}</span>
+          </span>
+          <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded-full font-bold">
+            {activeViewTab === 'vyapari_rates' ? 'vyapari_rates' : 'mandi_prices'}
+          </span>
         </div>
 
         {/* Operational Actions */}

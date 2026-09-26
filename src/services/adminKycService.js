@@ -7,6 +7,7 @@ import { INITIAL_KYC_VERIFICATIONS, INITIAL_USERS } from './mockData';
 const KYC_STORAGE_KEY = 'agrovercity_superadmin_kyc_verifications';
 const AUDIT_STORAGE_KEY = 'agrovercity_superadmin_audit_logs';
 const USERS_STORAGE_KEY = 'agrovercity_superadmin_users';
+const VAULT_STORAGE_KEY = 'agrovercity_superadmin_vault_documents';
 
 function getStoredKyc() {
   const data = localStorage.getItem(KYC_STORAGE_KEY);
@@ -23,6 +24,60 @@ function getStoredKyc() {
 
 function saveKyc(items) {
   localStorage.setItem(KYC_STORAGE_KEY, JSON.stringify(items));
+}
+
+function getStoredVaultDocs() {
+  const data = localStorage.getItem(VAULT_STORAGE_KEY);
+  if (data) {
+    try {
+      return JSON.parse(data);
+    } catch (e) {}
+  }
+  const kycItems = getStoredKyc();
+  const vaultDocs = kycItems.map((item) => ({
+    id: `VLT-${item.docId.replace('DOC-', '')}`,
+    docId: item.docId,
+    userId: item.userId,
+    userName: item.userName,
+    userMobile: item.userMobile,
+    userPersona: item.userPersona,
+    userCity: item.userCity,
+    docType: item.docType,
+    docName: item.docName,
+    storagePath: `gs://agrovercity-vault/users/${item.userId}/${item.docType}_${item.docId.toLowerCase()}.enc`,
+    encryptionCipher: 'AES-256-GCM (HMAC-SHA256 authenticated)',
+    sha256Checksum: `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852${item.docId.replace('DOC-', '')}`,
+    fileSize: item.fileSize,
+    mimeType: item.mimeType,
+    dpdpComplianceStatus: item.dpdpComplianceStatus,
+    retentionPolicy: 'Statutory 7 Years (Section 7 DPDP Act & IT Act §43A)',
+    accessLevel: 'Restricted (Superadmin & Verification Officer)',
+    status: item.status,
+    verificationBadgeIssued: !!item.verificationBadgeIssued,
+    uploadedAt: item.submittedAt,
+    lastAccessedAt: item.reviewedAt || item.submittedAt
+  }));
+  localStorage.setItem(VAULT_STORAGE_KEY, JSON.stringify(vaultDocs));
+  return vaultDocs;
+}
+
+function saveVaultDocs(docs) {
+  localStorage.setItem(VAULT_STORAGE_KEY, JSON.stringify(docs));
+}
+
+function syncVaultDocStatus(docId, newStatus, verificationBadgeIssued) {
+  try {
+    const docs = getStoredVaultDocs();
+    const idx = docs.findIndex((d) => d.docId === docId || d.id === docId);
+    if (idx !== -1) {
+      docs[idx].status = newStatus;
+      docs[idx].verificationBadgeIssued = verificationBadgeIssued;
+      docs[idx].lastAccessedAt = new Date().toISOString();
+      saveVaultDocs(docs);
+    }
+  } catch (e) {
+    console.error('Failed to sync vault document status:', e);
+  }
 }
 
 function getStoredAuditLogs() {
@@ -200,6 +255,9 @@ export const adminKycService = {
     items[index] = item;
     saveKyc(items);
 
+    // Sync vault document status
+    syncVaultDocStatus(item.docId, 'verified', true);
+
     // Sync user role profile and polygon verification
     syncUserKycVerification(item.userId, item.docType, true);
 
@@ -255,6 +313,9 @@ export const adminKycService = {
     items[index] = item;
     saveKyc(items);
 
+    // Sync vault document status
+    syncVaultDocStatus(item.docId, 'rejected', false);
+
     // Write to central immutable audit log
     const audit = recordAuditLog({
       adminUid: adminUid || 'root@agrovercity',
@@ -300,6 +361,9 @@ export const adminKycService = {
     items[index] = item;
     saveKyc(items);
 
+    // Sync vault document status
+    syncVaultDocStatus(item.docId, 'flagged', false);
+
     const audit = recordAuditLog({
       adminUid: adminUid || 'root@agrovercity',
       action: 'KYC_DOCUMENT_FLAGGED',
@@ -318,7 +382,131 @@ export const adminKycService = {
     };
   },
 
-  // GET /v1/admin/kyc/history
+  // LIST ALL VAULT DOCUMENTS across all users (users/{uid}/vault_documents collection)
+  async listVaultDocuments({ query = '', docType = 'all', status = 'all', page = 1, limit = 10 } = {}) {
+    await new Promise((r) => setTimeout(r, 100));
+    let docs = getStoredVaultDocs();
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      docs = docs.filter((d) => {
+        const idMatch = d.id && d.id.toLowerCase().includes(q);
+        const docIdMatch = d.docId && d.docId.toLowerCase().includes(q);
+        const nameMatch = d.userName && d.userName.toLowerCase().includes(q);
+        const mobileMatch = d.userMobile && d.userMobile.includes(q);
+        const docNameMatch = d.docName && d.docName.toLowerCase().includes(q);
+        const pathMatch = d.storagePath && d.storagePath.toLowerCase().includes(q);
+        const checksumMatch = d.sha256Checksum && d.sha256Checksum.toLowerCase().includes(q);
+        return idMatch || docIdMatch || nameMatch || mobileMatch || docNameMatch || pathMatch || checksumMatch;
+      });
+    }
+
+    if (docType !== 'all') {
+      docs = docs.filter((d) => d.docType?.toLowerCase() === docType.toLowerCase());
+    }
+
+    if (status !== 'all') {
+      docs = docs.filter((d) => d.status?.toLowerCase() === status.toLowerCase());
+    }
+
+    docs.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+
+    const total = docs.length;
+    const startIndex = (page - 1) * limit;
+    const paginated = docs.slice(startIndex, startIndex + limit);
+
+    return {
+      success: true,
+      data: {
+        documents: paginated,
+        total,
+        verifiedCount: docs.filter((d) => d.status === 'verified').length,
+        pendingCount: docs.filter((d) => d.status === 'pending').length,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit) || 1
+        }
+      }
+    };
+  },
+
+  // Purge / Emergency shred a document from the vault
+  async purgeVaultDocument({ id, adminUid, reason }) {
+    await new Promise((r) => setTimeout(r, 150));
+    const docs = getStoredVaultDocs();
+    const index = docs.findIndex((d) => d.id === id || d.docId === id);
+    if (index === -1) throw new Error('Vault document not found');
+
+    const doc = docs[index];
+    const prevStatus = doc.status;
+    doc.status = 'purged';
+    doc.purgedAt = new Date().toISOString();
+    doc.purgeReason = reason || 'Statutory GDPR / DPDP right to be forgotten purge';
+
+    docs[index] = doc;
+    saveVaultDocs(docs);
+
+    const audit = recordAuditLog({
+      adminUid: adminUid || 'root@agrovercity',
+      action: 'VAULT_DOCUMENT_PURGED',
+      targetUserId: doc.userId,
+      targetUserName: doc.userName,
+      previousState: `${doc.docName}: ${prevStatus}`,
+      newState: `${doc.docName}: purged (Cryptographically shredded)`,
+      reason: reason || 'Document purged from AES-256 vault storage'
+    });
+
+    return {
+      success: true,
+      message: `Document ${doc.id} (${doc.docName}) has been cryptographically purged from vault.`,
+      auditRecord: audit,
+      document: doc
+    };
+  },
+
+  // LIST KYC AUDIT HISTORY (GET /v1/admin/kyc/history)
+  async listKycAuditHistory({ query = '', action = 'all', page = 1, limit = 10 } = {}) {
+    await new Promise((r) => setTimeout(r, 80));
+    const logs = getStoredAuditLogs();
+    let kycLogs = logs.filter((l) => (l.action && l.action.startsWith('KYC_')) || l.action === 'VAULT_DOCUMENT_PURGED');
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      kycLogs = kycLogs.filter((l) => {
+        const idMatch = l.id && l.id.toLowerCase().includes(q);
+        const nameMatch = l.targetUserName && l.targetUserName.toLowerCase().includes(q);
+        const adminMatch = l.adminUid && l.adminUid.toLowerCase().includes(q);
+        const reasonMatch = l.reason && l.reason.toLowerCase().includes(q);
+        return idMatch || nameMatch || adminMatch || reasonMatch;
+      });
+    }
+
+    if (action !== 'all') {
+      kycLogs = kycLogs.filter((l) => l.action?.toLowerCase() === action.toLowerCase());
+    }
+
+    const total = kycLogs.length;
+    const startIndex = (page - 1) * limit;
+    const paginated = kycLogs.slice(startIndex, startIndex + limit);
+
+    return {
+      success: true,
+      data: {
+        history: paginated,
+        total,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit) || 1
+        }
+      }
+    };
+  },
+
+  // GET /v1/admin/kyc/history by entity
   async getKycHistory(entityId = null) {
     await new Promise((r) => setTimeout(r, 60));
     const logs = getStoredAuditLogs();
@@ -332,6 +520,7 @@ export const adminKycService = {
   // Reset to default seed
   async resetToDefaultSeed() {
     localStorage.setItem(KYC_STORAGE_KEY, JSON.stringify(INITIAL_KYC_VERIFICATIONS));
+    localStorage.removeItem(VAULT_STORAGE_KEY);
     return { success: true };
   }
 };

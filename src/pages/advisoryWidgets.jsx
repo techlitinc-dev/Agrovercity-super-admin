@@ -5,6 +5,7 @@ const fmtINR = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`
 export const SCAN_STATUSES = ['pending_review', 'confirmed', 'false_positive']
 export const ALERT_STATUSES = ['active', 'scheduled', 'expired', 'cancelled']
 export const SOIL_STATUSES = ['sample_collected', 'lab_processing', 'result_uploaded', 'failed']
+export const CYCLE_STATUSES = ['flagged_oversupply', 'moderate_risk', 'balanced']
 
 const STATUS_LABELS = {
   pending_review: 'Pending Review',
@@ -18,6 +19,9 @@ const STATUS_LABELS = {
   lab_processing: 'Lab Processing',
   result_uploaded: 'Result Uploaded',
   failed: 'Failed',
+  flagged_oversupply: 'Oversupply Flagged',
+  moderate_risk: 'Moderate Risk',
+  balanced: 'Balanced Demand',
 }
 
 const STATUS_STYLES = {
@@ -32,6 +36,9 @@ const STATUS_STYLES = {
   lab_processing: 'bg-purple-100 text-purple-900 border border-purple-300 font-bold',
   result_uploaded: 'bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold',
   failed: 'bg-rose-100 text-rose-900 border border-rose-300 font-bold',
+  flagged_oversupply: 'bg-rose-100 text-rose-900 border border-rose-300 font-bold',
+  moderate_risk: 'bg-amber-100 text-amber-900 border border-amber-300 font-bold',
+  balanced: 'bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold',
 }
 
 const SEVERITY_STYLES = {
@@ -109,8 +116,10 @@ export function FiltersBar({ q, setQ, status, setStatus, statuses, dateRange, se
 export function TabSwitch({ tab, setTab }) {
   const tabs = [
     ['scans', 'Disease Scans'],
-    ['alerts', 'Pest Radar Alerts'],
+    ['radar', 'Geofenced Radar'],
     ['soil', 'Soil Tests'],
+    ['saturation', 'Market Saturation'],
+    ['audit_trail', 'Audit Trail'],
   ]
   return (
     <div className="inline-flex rounded-xl border border-emerald-200/80 bg-white/90 p-1 shadow-2xs backdrop-blur-md">

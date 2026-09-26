@@ -308,9 +308,58 @@ export const INITIAL_USERS = [
         paymentStatus: "Pending Verification"
       }
     ],
-    devices: [],
-    sessions: [],
-    authTokens: []
+    devices: [
+      {
+        id: "DEV-102",
+        userId: "fb_uid_suresh_jadhav_55219",
+        deviceName: "Redmi Note 12 Pro 5G",
+        platform: "Android",
+        osVersion: "Android 13",
+        appVersion: "v2.4.0",
+        pushToken: "fcm_token_33ab...881c",
+        biometricEnabled: false,
+        status: "trusted",
+        registeredAt: "2026-09-01T10:00:00.000Z",
+        lastActive: "2026-09-18T11:25:00.000Z",
+        isCurrent: true
+      }
+    ],
+    sessions: [
+      {
+        id: "SES-802",
+        userId: "fb_uid_suresh_jadhav_55219",
+        deviceId: "DEV-102",
+        deviceName: "Redmi Note 12 Pro 5G",
+        ipAddress: "103.21.144.90",
+        userAgent: "AgrovercityMobile/2.4.0 (Android 13; Redmi)",
+        location: "Nashik, MH, IN",
+        active: false,
+        startedAt: "2026-09-18T11:20:00.000Z",
+        lastSeenAt: "2026-09-18T11:25:00.000Z"
+      }
+    ],
+    authTokens: [
+      {
+        id: "TOK-9002",
+        tokenType: "refresh",
+        tokenHash: "eyJhbGciOi...p11K",
+        deviceId: "DEV-102",
+        issuedAt: "2026-09-18T11:20:00.000Z",
+        expiresAt: "2026-10-18T11:20:00.000Z",
+        status: "active",
+        ipAddress: "103.21.144.90"
+      },
+      {
+        id: "TOK-9003",
+        tokenType: "access",
+        tokenHash: "eyJhbGciOi...a44X",
+        deviceId: "DEV-102",
+        issuedAt: "2026-09-18T11:20:00.000Z",
+        expiresAt: "2026-09-18T12:20:00.000Z",
+        status: "expired",
+        ipAddress: "103.21.144.90"
+      }
+    ]
   },
   {
     id: "USR-1003",
@@ -401,9 +450,84 @@ export const INITIAL_USERS = [
         paymentStatus: "On Hold (Dispute Ticket #DIS-4099)"
       }
     ],
-    devices: [],
-    sessions: [],
-    authTokens: []
+    devices: [
+      {
+        id: "DEV-103",
+        userId: "fb_uid_mahadev_shinde_33109",
+        deviceName: "OnePlus 11 5G",
+        platform: "Android",
+        osVersion: "Android 14",
+        appVersion: "v2.4.2",
+        pushToken: "fcm_token_77ef...994d",
+        biometricEnabled: true,
+        status: "trusted",
+        registeredAt: "2026-07-15T09:00:00.000Z",
+        lastActive: "2026-09-20T05:58:00.000Z",
+        isCurrent: true
+      },
+      {
+        id: "DEV-104",
+        userId: "fb_uid_mahadev_shinde_33109",
+        deviceName: "MacBook Pro M2",
+        platform: "Web",
+        osVersion: "macOS 14.5",
+        appVersion: "Chrome 128.0",
+        pushToken: "fcm_web_55ac...112e",
+        biometricEnabled: true,
+        status: "trusted",
+        registeredAt: "2026-08-01T14:00:00.000Z",
+        lastActive: "2026-09-19T18:00:00.000Z",
+        isCurrent: false
+      }
+    ],
+    sessions: [
+      {
+        id: "SES-803",
+        userId: "fb_uid_mahadev_shinde_33109",
+        deviceId: "DEV-103",
+        deviceName: "OnePlus 11 5G",
+        ipAddress: "185.220.101.5",
+        userAgent: "AgrovercityMobile/2.4.2 (Android 14; OnePlus)",
+        location: "Frankfurt (TOR Exit Node)",
+        active: true,
+        startedAt: "2026-09-20T05:50:00.000Z",
+        lastSeenAt: "2026-09-20T05:58:00.000Z"
+      },
+      {
+        id: "SES-804",
+        userId: "fb_uid_mahadev_shinde_33109",
+        deviceId: "DEV-104",
+        deviceName: "MacBook Pro M2",
+        ipAddress: "115.112.89.12",
+        userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/128.0",
+        location: "Pune, MH, IN",
+        active: false,
+        startedAt: "2026-09-19T10:00:00.000Z",
+        lastSeenAt: "2026-09-19T18:00:00.000Z"
+      }
+    ],
+    authTokens: [
+      {
+        id: "TOK-9004",
+        tokenType: "refresh",
+        tokenHash: "eyJhbGciOi...t88L",
+        deviceId: "DEV-103",
+        issuedAt: "2026-09-20T05:50:00.000Z",
+        expiresAt: "2026-10-20T05:50:00.000Z",
+        status: "active",
+        ipAddress: "185.220.101.5"
+      },
+      {
+        id: "TOK-9005",
+        tokenType: "id_token",
+        tokenHash: "eyJhbGciOi...u22M",
+        deviceId: "DEV-104",
+        issuedAt: "2026-09-19T10:00:00.000Z",
+        expiresAt: "2026-09-19T11:00:00.000Z",
+        status: "expired",
+        ipAddress: "115.112.89.12"
+      }
+    ]
   },
   {
     id: "USR-1004",
@@ -514,9 +638,48 @@ export const INITIAL_USERS = [
         paymentStatus: "Paid (Direct UPI)"
       }
     ],
-    devices: [],
-    sessions: [],
-    authTokens: []
+    devices: [
+      {
+        id: "DEV-105",
+        userId: "fb_uid_sunita_more_88421",
+        deviceName: "Vivo Y20A (SHG Field Tablet)",
+        platform: "Android",
+        osVersion: "Android 11",
+        appVersion: "v2.3.9",
+        pushToken: "fcm_token_11ee...662k",
+        biometricEnabled: true,
+        status: "trusted",
+        registeredAt: "2026-08-20T10:00:00.000Z",
+        lastActive: "2026-09-19T11:00:00.000Z",
+        isCurrent: true
+      }
+    ],
+    sessions: [
+      {
+        id: "SES-805",
+        userId: "fb_uid_sunita_more_88421",
+        deviceId: "DEV-105",
+        deviceName: "Vivo Y20A (SHG Field Tablet)",
+        ipAddress: "49.36.190.22",
+        userAgent: "AgrovercityMobile/2.3.9 (Android 11; Vivo)",
+        location: "Satara, MH, IN",
+        active: true,
+        startedAt: "2026-09-19T10:45:00.000Z",
+        lastSeenAt: "2026-09-19T11:00:00.000Z"
+      }
+    ],
+    authTokens: [
+      {
+        id: "TOK-9006",
+        tokenType: "refresh",
+        tokenHash: "eyJhbGciOi...w33P",
+        deviceId: "DEV-105",
+        issuedAt: "2026-09-19T10:45:00.000Z",
+        expiresAt: "2026-10-19T10:45:00.000Z",
+        status: "active",
+        ipAddress: "49.36.190.22"
+      }
+    ]
   },
   {
     id: "USR-1005",
@@ -628,9 +791,58 @@ export const INITIAL_USERS = [
         paymentStatus: "Escrow Locked (Release on GPS Geofence Arrival)"
       }
     ],
-    devices: [],
-    sessions: [],
-    authTokens: []
+    devices: [
+      {
+        id: "DEV-106",
+        userId: "fb_uid_anita_deshmukh_77210",
+        deviceName: "Realme Narzo 50 5G",
+        platform: "Android",
+        osVersion: "Android 13",
+        appVersion: "v2.4.1",
+        pushToken: "fcm_token_44ff...773a",
+        biometricEnabled: true,
+        status: "trusted",
+        registeredAt: "2026-07-22T11:00:00.000Z",
+        lastActive: "2026-09-20T07:15:00.000Z",
+        isCurrent: true
+      }
+    ],
+    sessions: [
+      {
+        id: "SES-806",
+        userId: "fb_uid_anita_deshmukh_77210",
+        deviceId: "DEV-106",
+        deviceName: "Realme Narzo 50 5G",
+        ipAddress: "49.36.210.88",
+        userAgent: "AgrovercityMobile/2.4.1 (Android 13; Realme)",
+        location: "Solapur, MH, IN",
+        active: true,
+        startedAt: "2026-09-20T06:30:00.000Z",
+        lastSeenAt: "2026-09-20T07:15:00.000Z"
+      }
+    ],
+    authTokens: [
+      {
+        id: "TOK-9007",
+        tokenType: "refresh",
+        tokenHash: "eyJhbGciOi...k55T",
+        deviceId: "DEV-106",
+        issuedAt: "2026-09-20T06:30:00.000Z",
+        expiresAt: "2026-10-20T06:30:00.000Z",
+        status: "active",
+        ipAddress: "49.36.210.88"
+      },
+      {
+        id: "TOK-9008",
+        tokenType: "access",
+        tokenHash: "eyJhbGciOi...m11Y",
+        deviceId: "DEV-106",
+        issuedAt: "2026-09-20T06:30:00.000Z",
+        expiresAt: "2026-09-20T07:30:00.000Z",
+        status: "active",
+        ipAddress: "49.36.210.88"
+      }
+    ]
   },
   {
     id: "USR-1006",
@@ -739,9 +951,49 @@ export const INITIAL_USERS = [
         paymentStatus: "Refunded to Farmer"
       }
     ],
-    devices: [],
-    sessions: [],
-    authTokens: []
+    devices: [
+      {
+        id: "DEV-107",
+        userId: "fb_uid_vikram_rathod_66190",
+        deviceName: "iPhone 14 Pro",
+        platform: "iOS",
+        osVersion: "iOS 17.6",
+        appVersion: "v2.4.0",
+        pushToken: "apns_token_88dd...551z",
+        biometricEnabled: true,
+        status: "revoked",
+        registeredAt: "2026-06-10T09:00:00.000Z",
+        lastActive: "2026-09-19T15:59:00.000Z",
+        isCurrent: true
+      }
+    ],
+    sessions: [
+      {
+        id: "SES-807",
+        userId: "fb_uid_vikram_rathod_66190",
+        deviceId: "DEV-107",
+        deviceName: "iPhone 14 Pro",
+        ipAddress: "103.44.52.19",
+        userAgent: "AgrovercityMobile/2.4.0 (iOS 17.6; iPhone)",
+        location: "Solapur, MH, IN",
+        active: false,
+        startedAt: "2026-09-19T14:00:00.000Z",
+        lastSeenAt: "2026-09-19T16:01:00.000Z"
+      }
+    ],
+    authTokens: [
+      {
+        id: "TOK-9009",
+        tokenType: "refresh",
+        tokenHash: "eyJhbGciOi...r99Z",
+        deviceId: "DEV-107",
+        issuedAt: "2026-09-19T14:00:00.000Z",
+        expiresAt: "2026-10-19T14:00:00.000Z",
+        status: "revoked",
+        revocationReason: "Precautionary token revocation following account suspension",
+        ipAddress: "103.44.52.19"
+      }
+    ]
   },
   {
     id: "USR-1007",
@@ -831,9 +1083,48 @@ export const INITIAL_USERS = [
         paymentStatus: "Settled via NEFT"
       }
     ],
-    devices: [],
-    sessions: [],
-    authTokens: []
+    devices: [
+      {
+        id: "DEV-108",
+        userId: "fb_uid_rajesh_verma_44122",
+        deviceName: "Samsung Galaxy Tab S9",
+        platform: "Android",
+        osVersion: "Android 14",
+        appVersion: "v2.4.1",
+        pushToken: "fcm_token_66cc...449e",
+        biometricEnabled: true,
+        status: "trusted",
+        registeredAt: "2026-08-05T14:00:00.000Z",
+        lastActive: "2026-09-20T08:00:00.000Z",
+        isCurrent: true
+      }
+    ],
+    sessions: [
+      {
+        id: "SES-808",
+        userId: "fb_uid_rajesh_verma_44122",
+        deviceId: "DEV-108",
+        deviceName: "Samsung Galaxy Tab S9",
+        ipAddress: "122.161.49.201",
+        userAgent: "AgrovercityMobile/2.4.1 (Android 14; Tab)",
+        location: "Delhi, DL, IN",
+        active: false,
+        startedAt: "2026-09-20T07:45:00.000Z",
+        lastSeenAt: "2026-09-20T08:00:00.000Z"
+      }
+    ],
+    authTokens: [
+      {
+        id: "TOK-9010",
+        tokenType: "refresh",
+        tokenHash: "eyJhbGciOi...x11D",
+        deviceId: "DEV-108",
+        issuedAt: "2026-09-20T07:45:00.000Z",
+        expiresAt: "2026-10-20T07:45:00.000Z",
+        status: "active",
+        ipAddress: "122.161.49.201"
+      }
+    ]
   },
   {
     id: "USR-1008",

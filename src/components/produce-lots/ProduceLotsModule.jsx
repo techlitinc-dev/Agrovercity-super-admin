@@ -21,6 +21,7 @@ import { MarketLotsTable } from './MarketLotsTable';
 import { B2bDealsTable } from './B2bDealsTable';
 import { ProcurementsTable } from './ProcurementsTable';
 import { BuyerLedgersTable } from './BuyerLedgersTable';
+import { ProduceAuditTrailTable } from './ProduceAuditTrailTable';
 import { LotDetailDrawer } from './LotDetailDrawer';
 import { WeighbridgeVerificationModal } from './WeighbridgeVerificationModal';
 import { DisputeMediationModal } from './DisputeMediationModal';
@@ -452,6 +453,10 @@ export function ProduceLotsModule() {
           onAdjustCredit={(buyer) => setAdjustCreditBuyer(buyer)}
           loading={loading}
         />
+      )}
+
+      {activeTab === 'audit_trail' && (
+        <ProduceAuditTrailTable />
       )}
 
       {/* 5. Detail Slide-Over Drawer */}

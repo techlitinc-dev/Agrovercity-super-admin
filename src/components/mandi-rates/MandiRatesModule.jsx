@@ -9,7 +9,13 @@ import {
   PlusCircle,
   Download,
   Building2,
-  Check
+  Check,
+  Clock,
+  Store,
+  Calculator,
+  Wifi,
+  ShieldCheck,
+  FileText
 } from 'lucide-react';
 import { useAuthAdmin } from '../../context/AuthAdminContext';
 import { useNotification } from '../../context/NotificationContext';
@@ -19,6 +25,9 @@ import { TopMetricBar } from './TopMetricBar';
 import { SearchAndFilterBar } from './SearchAndFilterBar';
 import { VyapariRatesTable } from './VyapariRatesTable';
 import { MandiBenchmarksTable } from './MandiBenchmarksTable';
+import { MandiHistoryAndComparison } from './MandiHistoryAndComparison';
+import { AgmarknetGatewayMonitor } from './AgmarknetGatewayMonitor';
+import { MandiAuditTrailTable } from './MandiAuditTrailTable';
 import { RateReviewDrawer } from './RateReviewDrawer';
 import { ManualRateOverrideModal } from './ManualRateOverrideModal';
 import { RejectRateModal } from './RejectRateModal';
@@ -338,43 +347,161 @@ export function MandiRatesModule() {
         rates={rates}
       />
 
-      {/* 3. Search, Filter & Action Toolbar */}
-      <SearchAndFilterBar
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        commodityFilter={commodityFilter}
-        setCommodityFilter={setCommodityFilter}
-        activeViewTab={activeViewTab}
-        setActiveViewTab={setActiveViewTab}
-        onRefresh={fetchData}
-        onTriggerSync={handleTriggerSync}
-        onOpenManualOverride={() => handleOpenOverride(null)}
-        onExportCsv={handleExportCsv}
-        onExportJson={handleExportJson}
-        loading={loading || syncLoading}
-      />
+      {/* 2. SOP-04 Core Collections & Capability Navigation Tabs */}
+      <div className="bg-white/80 backdrop-blur-xl border border-emerald-100 rounded-2xl p-1.5 shadow-xs flex flex-wrap items-center gap-1.5">
+        {/* Tab 1: Trader Live Rates Queue (Collection: vyapari_rates) */}
+        <button
+          onClick={() => setActiveViewTab('vyapari_rates')}
+          className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            activeViewTab === 'vyapari_rates'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          <Clock className="w-4 h-4" />
+          <span>Trader Rates Queue</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
+              activeViewTab === 'vyapari_rates' ? 'bg-emerald-700 text-emerald-100' : 'bg-slate-200 text-slate-700'
+            }`}
+          >
+            vyapari_rates ({rates.filter((r) => r.status === 'pending').length} pending)
+          </span>
+        </button>
 
-      {/* 4. Active Grid Content */}
-      {activeViewTab === 'vyapari_rates' ? (
-        <VyapariRatesTable
-          rates={rates}
-          pagination={pagination}
-          onPageChange={(newPage) => setPage(newPage)}
-          onInspectRate={(rate) => setDrawerRate(rate)}
-          onApproveRate={(rate) => handleApproveRate(rate)}
-          onRejectRate={(rate) => handleOpenRejectModal(rate)}
-          loading={loading}
-          selectedIds={selectedIds}
-          setSelectedIds={setSelectedIds}
-        />
-      ) : (
-        <MandiBenchmarksTable
-          benchmarks={benchmarks}
-          onOpenOverride={(b) => handleOpenOverride(b)}
-          loading={loading}
-        />
+        {/* Tab 2: Mandi Price Benchmarks (Collection: mandi_prices) */}
+        <button
+          onClick={() => setActiveViewTab('benchmarks')}
+          className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            activeViewTab === 'benchmarks'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          <Store className="w-4 h-4" />
+          <span>Official APMC Benchmarks</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
+              activeViewTab === 'benchmarks' ? 'bg-emerald-700 text-emerald-100' : 'bg-slate-200 text-slate-700'
+            }`}
+          >
+            mandi_prices ({benchmarks.length} mandis)
+          </span>
+        </button>
+
+        {/* Tab 3: Price Trends & Net Profit Comparison (Collection: mandi_history) */}
+        <button
+          onClick={() => setActiveViewTab('trends_comparison')}
+          className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            activeViewTab === 'trends_comparison'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          <Calculator className="w-4 h-4" />
+          <span>Price Trends & Net Profit</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
+              activeViewTab === 'trends_comparison' ? 'bg-emerald-700 text-emerald-100' : 'bg-slate-200 text-slate-700'
+            }`}
+          >
+            mandi_history (SOP-04 §1)
+          </span>
+        </button>
+
+        {/* Tab 4: Agmarknet Gateway Health & Alerts */}
+        <button
+          onClick={() => setActiveViewTab('api_health')}
+          className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            activeViewTab === 'api_health'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          <Wifi className="w-4 h-4" />
+          <span>Gateway Health & Alerts</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
+              activeViewTab === 'api_health' ? 'bg-emerald-700 text-emerald-100' : 'bg-slate-200 text-slate-700'
+            }`}
+          >
+            eNAM / MSAMB
+          </span>
+        </button>
+
+        {/* Tab 5: Statutory Decision Audit Trail (Collection: audit_logs) */}
+        <button
+          onClick={() => setActiveViewTab('audit_trail')}
+          className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            activeViewTab === 'audit_trail'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          <ShieldCheck className="w-4 h-4" />
+          <span>Decision Audit Trail</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
+              activeViewTab === 'audit_trail' ? 'bg-emerald-700 text-emerald-100' : 'bg-slate-200 text-slate-700'
+            }`}
+          >
+            audit_logs
+          </span>
+        </button>
+      </div>
+
+      {/* 3. Active Grid or Capability Content */}
+      {(activeViewTab === 'vyapari_rates' || activeViewTab === 'benchmarks') && (
+        <>
+          <SearchAndFilterBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            commodityFilter={commodityFilter}
+            setCommodityFilter={setCommodityFilter}
+            activeViewTab={activeViewTab}
+            setActiveViewTab={setActiveViewTab}
+            onRefresh={fetchData}
+            onTriggerSync={handleTriggerSync}
+            onOpenManualOverride={() => handleOpenOverride(null)}
+            onExportCsv={handleExportCsv}
+            onExportJson={handleExportJson}
+            loading={loading || syncLoading}
+          />
+
+          {activeViewTab === 'vyapari_rates' ? (
+            <VyapariRatesTable
+              rates={rates}
+              pagination={pagination}
+              onPageChange={(newPage) => setPage(newPage)}
+              onInspectRate={(rate) => setDrawerRate(rate)}
+              onApproveRate={(rate) => handleApproveRate(rate)}
+              onRejectRate={(rate) => handleOpenRejectModal(rate)}
+              loading={loading}
+              selectedIds={selectedIds}
+              setSelectedIds={setSelectedIds}
+            />
+          ) : (
+            <MandiBenchmarksTable
+              benchmarks={benchmarks}
+              onOpenOverride={(b) => handleOpenOverride(b)}
+              loading={loading}
+            />
+          )}
+        </>
+      )}
+
+      {activeViewTab === 'trends_comparison' && (
+        <MandiHistoryAndComparison />
+      )}
+
+      {activeViewTab === 'api_health' && (
+        <AgmarknetGatewayMonitor onOpenManualOverride={() => handleOpenOverride(null)} />
+      )}
+
+      {activeViewTab === 'audit_trail' && (
+        <MandiAuditTrailTable />
       )}
 
       {/* 5. Detailed Rate Review Drawer with Sanity Corridor & Net Realization */}

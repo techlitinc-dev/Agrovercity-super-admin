@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Tractor, GitBranch, ShieldAlert, X, AlertTriangle } from 'lucide-react';
+import { Tractor, GitBranch, ShieldAlert, X, AlertTriangle, Scale, ShieldCheck } from 'lucide-react';
 import { useAuthAdmin } from '../../context/AuthAdminContext';
 import { useNotification } from '../../context/NotificationContext';
 import { adminEquipmentService } from '../../services/adminEquipmentService';
@@ -9,6 +9,12 @@ import { EquipmentSearchAndFilterBar } from './EquipmentSearchAndFilterBar';
 import { MachinesTable } from './MachinesTable';
 import { SlotsTable } from './SlotsTable';
 import { SlotBookingsTable } from './SlotBookingsTable';
+import { YantraSlotMatrixView } from './YantraSlotMatrixView';
+import { PricingBenchmarksTable } from './PricingBenchmarksTable';
+import { PricingBenchmarkModal } from './PricingBenchmarkModal';
+import { MachineRegistrationModal } from './MachineRegistrationModal';
+import { ResolveAnomalyModal } from './ResolveAnomalyModal';
+import { EquipmentAuditTrailTable } from './EquipmentAuditTrailTable';
 import { EquipmentDetailDrawer } from './EquipmentDetailDrawer';
 import { VerifyMachineModal } from './VerifyMachineModal';
 import { ForceCancelBookingModal } from './ForceCancelBookingModal';
@@ -18,7 +24,7 @@ export function EquipmentModule() {
   const { currentAdmin } = useAuthAdmin();
   const { addToast } = useNotification();
 
-  // Active view tab: 'machines' | 'slots' | 'bookings'
+  // Active view tab: 'machines' | 'matrix' | 'slots' | 'bookings' | 'benchmarks' | 'audit_trail'
   const [activeTab, setActiveTab] = useState('machines');
 
   // Filter states
@@ -33,6 +39,8 @@ export function EquipmentModule() {
   const [machines, setMachines] = useState([]);
   const [slots, setSlots] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [benchmarks, setBenchmarks] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
   const [loading, setLoading] = useState(false);
 
@@ -43,6 +51,9 @@ export function EquipmentModule() {
   const [cancelBookingTarget, setCancelBookingTarget] = useState(null);
   const [damageBookingTarget, setDamageBookingTarget] = useState(null);
   const [suspendMachineTarget, setSuspendMachineTarget] = useState(null);
+  const [registerMachineModalOpen, setRegisterMachineModalOpen] = useState(false);
+  const [editingBenchmark, setEditingBenchmark] = useState(null);
+  const [resolvingAnomalySlot, setResolvingAnomalySlot] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
 
   // Fetch KPI Summary
@@ -71,6 +82,16 @@ export function EquipmentModule() {
           setMachines(res.data.machines);
           setPagination(res.data.pagination);
         }
+      } else if (activeTab === 'matrix') {
+        // Fetch all machines & slots to build comprehensive scheduler grid
+        const [resMachines, resSlots, resBookings] = await Promise.all([
+          adminEquipmentService.listEquipment({ limit: 50 }),
+          adminEquipmentService.listSlots({ limit: 100 }),
+          adminEquipmentService.listBookings({ limit: 100 })
+        ]);
+        if (resMachines.success) setMachines(resMachines.data.machines);
+        if (resSlots.success) setSlots(resSlots.data.slots);
+        if (resBookings.success) setBookings(resBookings.data.bookings);
       } else if (activeTab === 'slots') {
         const res = await adminEquipmentService.listSlots({
           query: searchQuery,
@@ -92,6 +113,24 @@ export function EquipmentModule() {
         });
         if (res.success) {
           setBookings(res.data.bookings);
+          setPagination(res.data.pagination);
+        }
+      } else if (activeTab === 'benchmarks') {
+        const res = await adminEquipmentService.listPricingBenchmarks({
+          query: searchQuery,
+          category: statusFilter !== 'all' ? statusFilter : 'all'
+        });
+        if (res.success) {
+          setBenchmarks(res.data.benchmarks);
+        }
+      } else if (activeTab === 'audit_trail') {
+        const res = await adminEquipmentService.listEquipmentAuditLogs({
+          query: searchQuery,
+          page,
+          limit
+        });
+        if (res.success) {
+          setAuditLogs(res.data.auditLogs);
           setPagination(res.data.pagination);
         }
       }
@@ -147,6 +186,81 @@ export function EquipmentModule() {
     } catch (err) {
       addToast({
         title: 'Verification Failed',
+        message: err.message,
+        type: 'error'
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Handle Machine Registration Onboarding
+  const handleConfirmRegisterMachine = async (formData) => {
+    setActionLoading(true);
+    try {
+      const res = await adminEquipmentService.createEquipment(formData, currentAdmin?.email);
+      addToast({
+        title: 'Machine Registered',
+        message: res.message,
+        type: 'success'
+      });
+      setRegisterMachineModalOpen(false);
+      fetchData();
+    } catch (err) {
+      addToast({
+        title: 'Onboarding Failed',
+        message: err.message,
+        type: 'error'
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Handle Benchmark Adjustment
+  const handleConfirmEditBenchmark = async (benchmarkData) => {
+    setActionLoading(true);
+    try {
+      const res = await adminEquipmentService.updatePricingBenchmark({
+        ...benchmarkData,
+        adminUid: currentAdmin?.email
+      });
+      addToast({
+        title: 'Benchmark Cap Updated',
+        message: res.message,
+        type: 'success'
+      });
+      setEditingBenchmark(null);
+      fetchData();
+    } catch (err) {
+      addToast({
+        title: 'Benchmark Revision Failed',
+        message: err.message,
+        type: 'error'
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Handle Slot Anomaly Resolution
+  const handleConfirmResolveAnomaly = async (anomalyData) => {
+    setActionLoading(true);
+    try {
+      const res = await adminEquipmentService.resolveSlotAnomaly({
+        ...anomalyData,
+        adminUid: currentAdmin?.email
+      });
+      addToast({
+        title: 'Double-Booking Resolved',
+        message: res.message,
+        type: 'success'
+      });
+      setResolvingAnomalySlot(null);
+      fetchData();
+    } catch (err) {
+      addToast({
+        title: 'Resolution Failed',
         message: err.message,
         type: 'error'
       });
@@ -242,6 +356,26 @@ export function EquipmentModule() {
     }
   };
 
+  // Reset Mock Data Seed
+  const handleResetSeed = async () => {
+    try {
+      await adminEquipmentService.resetToDefaultSeed();
+      addToast({
+        title: 'Default Data Seed Restored',
+        message: 'Reset machinery inventory, Yantra slots, bookings, and district benchmarks.',
+        type: 'info'
+      });
+      fetchData();
+      fetchKpis();
+    } catch (err) {
+      addToast({
+        title: 'Reset Failed',
+        message: err.message,
+        type: 'error'
+      });
+    }
+  };
+
   // Export CSV
   const handleExportCsv = () => {
     let csvContent = 'data:text/csv;charset=utf-8,';
@@ -251,15 +385,25 @@ export function EquipmentModule() {
       machines.forEach((m) => {
         csvContent += `"${m.id}","${m.ownerName}","${m.ownerMobile}","${m.ownerType}","${m.name}","${m.type}","${m.district}",${m.hourlyRate},${m.perAcreRate || ''},${m.utilizationPercent},${m.pricingIndexPercent},"${m.rcDocument?.verified ? 'YES' : 'NO'}","${m.insuranceDocument?.verified ? 'YES' : 'NO'}","${m.operatorLicense?.verified ? 'YES' : 'NO'}","${m.status}"\n`;
       });
-    } else if (activeTab === 'slots') {
+    } else if (activeTab === 'slots' || activeTab === 'matrix') {
       csvContent += 'Slot ID,Machine,Owner Type,Date,Window,Price (INR),Recommended Task,Booked By,Waitlist Count,Anomaly,Status\n';
       slots.forEach((s) => {
         csvContent += `"${s.id}","${s.equipmentName}","${s.ownerType}","${s.date}","${s.slotName}",${s.priceRupees},"${s.recommendedTask}","${s.bookedByName || ''}",${(s.waitlist || []).length},"${s.anomaly || ''}","${s.anomaly ? 'double_booked' : s.status}"\n`;
       });
-    } else {
+    } else if (activeTab === 'bookings') {
       csvContent += 'Booking ID,Farmer,Mobile,Machine,Date,Slot,Price (INR),Deposit (INR),Refund (INR),Mode,Damage Report,Status\n';
       bookings.forEach((b) => {
         csvContent += `"${b.id}","${b.farmerName}","${b.farmerMobile}","${b.equipmentName}","${b.date}","${b.slotName}",${b.priceRupees},${b.securityDeposit || 0},${b.refundAmount ?? ''},"${b.ownerType}","${b.damageReport?.reported ? b.damageReport.depositAction : ''}","${b.status}"\n`;
+      });
+    } else if (activeTab === 'benchmarks') {
+      csvContent += 'Band ID,District,Machinery Class,Category,District Cap (INR/hr),FPO Pool Avg,Private Pool Avg,Max Variance %,Status\n';
+      benchmarks.forEach((bm) => {
+        csvContent += `"${bm.id}","${bm.district}","${bm.machineryClass}","${bm.category}",${bm.benchmarkCapHourly},${bm.fpoPoolAvgHourly},${bm.privatePoolAvgHourly},${bm.maxVariancePercent},"${bm.status}"\n`;
+      });
+    } else if (activeTab === 'audit_trail') {
+      csvContent += 'Log ID,Timestamp,Admin UID,Action,Target Subject,Previous State,New State,Reason,IP Address\n';
+      auditLogs.forEach((l) => {
+        csvContent += `"${l.id}","${l.timestamp}","${l.adminUid}","${l.action}","${l.targetUserName || ''}","${l.previousState || ''}","${l.newState || ''}","${l.reason || ''}","${l.ipAddress || ''}"\n`;
       });
     }
 
@@ -282,8 +426,10 @@ export function EquipmentModule() {
   const handleExportJson = () => {
     const dataToExport =
       activeTab === 'machines' ? machines :
-      activeTab === 'slots' ? slots :
-      bookings;
+      activeTab === 'slots' || activeTab === 'matrix' ? slots :
+      activeTab === 'bookings' ? bookings :
+      activeTab === 'benchmarks' ? benchmarks :
+      auditLogs;
 
     const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -344,6 +490,8 @@ export function EquipmentModule() {
         onRefresh={fetchData}
         onExportCsv={handleExportCsv}
         onExportJson={handleExportJson}
+        onRegisterMachine={() => setRegisterMachineModalOpen(true)}
+        onResetSeed={handleResetSeed}
         loading={loading}
       />
 
@@ -356,6 +504,16 @@ export function EquipmentModule() {
           onInspectMachine={(m) => openDrawer(m, 'machine')}
           onVerifyPapers={(m) => setVerifyMachineTarget(m)}
           onToggleSuspend={(m) => setSuspendMachineTarget(m)}
+          loading={loading}
+        />
+      )}
+
+      {activeTab === 'matrix' && (
+        <YantraSlotMatrixView
+          machines={machines}
+          slots={slots}
+          onInspectSlot={(s) => openDrawer(s, 'slot')}
+          onResolveAnomaly={(s) => setResolvingAnomalySlot(s)}
           loading={loading}
         />
       )}
@@ -378,6 +536,23 @@ export function EquipmentModule() {
           onInspectBooking={(b) => openDrawer(b, 'booking')}
           onForceCancel={(b) => setCancelBookingTarget(b)}
           onResolveDamage={(b) => setDamageBookingTarget(b)}
+          loading={loading}
+        />
+      )}
+
+      {activeTab === 'benchmarks' && (
+        <PricingBenchmarksTable
+          benchmarks={benchmarks}
+          onEditBenchmark={(bm) => setEditingBenchmark(bm)}
+          loading={loading}
+        />
+      )}
+
+      {activeTab === 'audit_trail' && (
+        <EquipmentAuditTrailTable
+          auditLogs={auditLogs}
+          pagination={pagination}
+          onPageChange={(p) => setPage(p)}
           loading={loading}
         />
       )}
@@ -420,7 +595,34 @@ export function EquipmentModule() {
         loading={actionLoading}
       />
 
-      {/* 9. Machine Suspend / Reinstate Modal */}
+      {/* 9. Machine Registration & Onboarding Modal */}
+      <MachineRegistrationModal
+        isOpen={registerMachineModalOpen}
+        onClose={() => setRegisterMachineModalOpen(false)}
+        onConfirm={handleConfirmRegisterMachine}
+        loading={actionLoading}
+      />
+
+      {/* 10. District Benchmark Revision Modal */}
+      <PricingBenchmarkModal
+        isOpen={Boolean(editingBenchmark)}
+        onClose={() => setEditingBenchmark(null)}
+        benchmark={editingBenchmark}
+        onConfirm={handleConfirmEditBenchmark}
+        loading={actionLoading}
+      />
+
+      {/* 11. Slot Double-Booking Anomaly Resolver Modal */}
+      <ResolveAnomalyModal
+        isOpen={Boolean(resolvingAnomalySlot)}
+        onClose={() => setResolvingAnomalySlot(null)}
+        slot={resolvingAnomalySlot}
+        bookings={bookings}
+        onConfirm={handleConfirmResolveAnomaly}
+        loading={actionLoading}
+      />
+
+      {/* 12. Machine Suspend / Reinstate Modal */}
       <SuspendMachinePrompt
         isOpen={Boolean(suspendMachineTarget)}
         machine={suspendMachineTarget}

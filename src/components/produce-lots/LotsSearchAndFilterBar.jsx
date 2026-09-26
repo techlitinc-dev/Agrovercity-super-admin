@@ -8,6 +8,7 @@ import {
   FileText,
   Truck,
   Wallet,
+  ShieldCheck,
   X,
   PlusCircle
 } from 'lucide-react';
@@ -39,8 +40,8 @@ export function LotsSearchAndFilterBar({
     <div className="bg-white/90 backdrop-blur-xl border border-emerald-100/90 rounded-2xl p-4 space-y-3.5 shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
       {/* Top Row: Navigation Tabs & Export Buttons */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-emerald-100/80">
-        {/* 4 Core Tabs */}
-        <div className="flex items-center bg-emerald-50/70 border border-emerald-200/80 rounded-xl p-1 text-xs">
+        {/* 5 SOP-05 Core Tabs */}
+        <div className="flex items-center bg-emerald-50/70 border border-emerald-200/80 rounded-xl p-1 text-xs flex-wrap gap-1">
           <button
             onClick={() => {
               setActiveTab('lots');
@@ -100,6 +101,21 @@ export function LotsSearchAndFilterBar({
             <Wallet className="w-3.5 h-3.5" />
             <span>Buyer Ledgers & Udhaar</span>
           </button>
+
+          <button
+            onClick={() => {
+              setActiveTab('audit_trail');
+              setStatusFilter('all');
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
+              activeTab === 'audit_trail'
+                ? 'bg-emerald-700 text-white shadow-xs'
+                : 'text-slate-600 hover:text-emerald-900 hover:bg-emerald-100/50'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Audit Trail</span>
+          </button>
         </div>
 
         {/* Operational Actions */}
@@ -135,7 +151,8 @@ export function LotsSearchAndFilterBar({
       </div>
 
       {/* Bottom Row: Search & Filter Inputs */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+      {activeTab !== 'audit_trail' && (
+        <div className="flex flex-col md:flex-row items-center justify-between gap-3">
         {/* Full-text Search Bar */}
         <div className="relative flex-1 w-full">
           <Search className="w-4 h-4 text-emerald-700/60 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -236,18 +253,19 @@ export function LotsSearchAndFilterBar({
             </select>
           </div>
 
-          {/* Reset Filters */}
-          {hasActiveFilters && (
-            <button
-              onClick={handleClear}
-              className="px-2.5 py-1.5 text-xs text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors flex items-center gap-1 font-bold shadow-xs"
-            >
-              <X className="w-3.5 h-3.5" />
-              <span>Reset</span>
-            </button>
-          )}
+            {/* Reset Filters */}
+            {hasActiveFilters && (
+              <button
+                onClick={handleClear}
+                className="px-2.5 py-1.5 text-xs text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors flex items-center gap-1 font-bold shadow-xs"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Reset</span>
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

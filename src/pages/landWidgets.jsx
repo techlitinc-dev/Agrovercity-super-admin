@@ -111,7 +111,7 @@ export function TabSwitch({ tab, setTab }) {
 
 const maskPhone = (p) => `${String(p || '').slice(0, 3)} ••••• ${String(p || '').slice(-4)}`
 
-export function LeasesTable({ leases, sort, onSort, onView }) {
+export function LeasesTable({ leases, sort, onSort, onView, onInspectAgreement, onTerminate }) {
   const columns = [
     ['id', 'ID'],
     ['entity', 'Landlord × Tenant'],
@@ -158,7 +158,15 @@ export function LeasesTable({ leases, sort, onSort, onView }) {
               <td className="px-4 py-3.5"><LandStatusBadge status={l.status} />{l.flagged && <span className="ml-1.5 text-xs text-rose-600 font-bold">⚑</span>}</td>
               <td className="px-4 py-3.5 font-mono text-[11px] text-slate-500 font-medium">{l.createdAt.slice(0, 10)}</td>
               <td className="px-4 py-3.5">
-                <button className="rounded-lg border border-emerald-200/80 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-950 transition-colors shadow-2xs" onClick={() => onView(l)}>View</button>
+                <div className="flex items-center gap-1.5 justify-end">
+                  <button className="rounded-lg border border-emerald-200/80 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-950 transition-colors shadow-2xs" onClick={() => onView(l)}>View</button>
+                  {onInspectAgreement && (
+                    <button className="rounded-lg border border-emerald-300 bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-colors shadow-2xs" onClick={() => onInspectAgreement(l)}>Contract</button>
+                  )}
+                  {onTerminate && ['active', 'expiring', 'disputed'].includes(l.status) && (
+                    <button className="rounded-lg border border-purple-200 bg-purple-50 px-2 py-1 text-xs font-bold text-purple-800 hover:bg-purple-100 transition-colors shadow-2xs" onClick={() => onTerminate(l)}>Arbitrate</button>
+                  )}
+                </div>
               </td>
             </tr>
           ))}
@@ -171,7 +179,7 @@ export function LeasesTable({ leases, sort, onSort, onView }) {
   )
 }
 
-export function ListingsTable({ listings, sort, onSort, onView }) {
+export function ListingsTable({ listings, sort, onSort, onView, onAudit712 }) {
   const columns = [
     ['id', 'ID'],
     ['entity', 'Landlord'],
@@ -216,7 +224,12 @@ export function ListingsTable({ listings, sort, onSort, onView }) {
               <td className="px-4 py-3.5"><LandStatusBadge status={x.status} />{x.flagged && <span className="ml-1.5 text-xs text-rose-600 font-bold">⚑</span>}</td>
               <td className="px-4 py-3.5 font-mono text-[11px] text-slate-500 font-medium">{x.createdAt.slice(0, 10)}</td>
               <td className="px-4 py-3.5">
-                <button className="rounded-lg border border-emerald-200/80 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-950 transition-colors shadow-2xs" onClick={() => onView(x)}>View</button>
+                <div className="flex items-center gap-1.5 justify-end">
+                  <button className="rounded-lg border border-emerald-200/80 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-950 transition-colors shadow-2xs" onClick={() => onView(x)}>View</button>
+                  {onAudit712 && (
+                    <button className="rounded-lg border border-emerald-300 bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-colors shadow-2xs" onClick={() => onAudit712(x)}>7/12 Audit</button>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

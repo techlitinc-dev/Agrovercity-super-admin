@@ -13,7 +13,30 @@ function getStoredUsers() {
     return INITIAL_USERS;
   }
   try {
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    let updated = false;
+    const enriched = parsed.map((u) => {
+      const init = INITIAL_USERS.find((i) => i.id === u.id || i.uid === u.uid);
+      if (init) {
+        if ((!u.devices || u.devices.length === 0) && init.devices && init.devices.length > 0) {
+          u.devices = init.devices;
+          updated = true;
+        }
+        if ((!u.sessions || u.sessions.length === 0) && init.sessions && init.sessions.length > 0) {
+          u.sessions = init.sessions;
+          updated = true;
+        }
+        if ((!u.authTokens || u.authTokens.length === 0) && init.authTokens && init.authTokens.length > 0) {
+          u.authTokens = init.authTokens;
+          updated = true;
+        }
+      }
+      return u;
+    });
+    if (updated) {
+      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(enriched));
+    }
+    return enriched;
   } catch (e) {
     return INITIAL_USERS;
   }
@@ -339,6 +362,308 @@ export const adminAuthService = {
       return logs.filter((l) => l.targetUserId === targetUserId);
     }
     return logs;
+  },
+
+  // LIST ALL SESSIONS across all users (sessions collection)
+  async listAllSessions({ query = '', status = 'all', page = 1, limit = 10 } = {}) {
+    await new Promise((r) => setTimeout(r, 100));
+    const users = getStoredUsers();
+    let allSessions = [];
+
+    users.forEach((u) => {
+      if (u.sessions && Array.isArray(u.sessions)) {
+        u.sessions.forEach((s) => {
+          allSessions.push({
+            ...s,
+            userId: u.uid,
+            userName: u.name,
+            userMobile: u.mobile,
+            userEmail: u.email,
+            userPersona: u.persona || 'Farmer',
+            userStatus: u.status
+          });
+        });
+      }
+    });
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      allSessions = allSessions.filter((s) =>
+        (s.userName && s.userName.toLowerCase().includes(q)) ||
+        (s.userMobile && s.userMobile.includes(q)) ||
+        (s.ipAddress && s.ipAddress.includes(q)) ||
+        (s.deviceName && s.deviceName.toLowerCase().includes(q)) ||
+        (s.location && s.location.toLowerCase().includes(q)) ||
+        (s.id && s.id.toLowerCase().includes(q))
+      );
+    }
+
+    if (status !== 'all') {
+      const isActive = status === 'active';
+      allSessions = allSessions.filter((s) => s.active === isActive);
+    }
+
+    // Sort by startedAt desc
+    allSessions.sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt));
+
+    const total = allSessions.length;
+    const startIndex = (page - 1) * limit;
+    const paginated = allSessions.slice(startIndex, startIndex + limit);
+
+    return {
+      success: true,
+      data: {
+        sessions: paginated,
+        total,
+        activeCount: allSessions.filter((s) => s.active).length,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit) || 1
+        }
+      }
+    };
+  },
+
+  // LIST ALL DEVICES across all users (devices collection)
+  async listAllDevices({ query = '', platform = 'all', status = 'all', page = 1, limit = 10 } = {}) {
+    await new Promise((r) => setTimeout(r, 100));
+    const users = getStoredUsers();
+    let allDevices = [];
+
+    users.forEach((u) => {
+      if (u.devices && Array.isArray(u.devices)) {
+        u.devices.forEach((d) => {
+          allDevices.push({
+            ...d,
+            userId: u.uid,
+            userName: u.name,
+            userMobile: u.mobile,
+            userEmail: u.email,
+            userPersona: u.persona || 'Farmer'
+          });
+        });
+      }
+    });
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      allDevices = allDevices.filter((d) =>
+        (d.userName && d.userName.toLowerCase().includes(q)) ||
+        (d.deviceName && d.deviceName.toLowerCase().includes(q)) ||
+        (d.osVersion && d.osVersion.toLowerCase().includes(q)) ||
+        (d.id && d.id.toLowerCase().includes(q))
+      );
+    }
+
+    if (platform !== 'all') {
+      allDevices = allDevices.filter((d) => d.platform?.toLowerCase() === platform.toLowerCase());
+    }
+
+    if (status !== 'all') {
+      allDevices = allDevices.filter((d) => d.status?.toLowerCase() === status.toLowerCase());
+    }
+
+    // Sort by lastActive desc
+    allDevices.sort((a, b) => new Date(b.lastActive || b.registeredAt) - new Date(a.lastActive || a.registeredAt));
+
+    const total = allDevices.length;
+    const startIndex = (page - 1) * limit;
+    const paginated = allDevices.slice(startIndex, startIndex + limit);
+
+    return {
+      success: true,
+      data: {
+        devices: paginated,
+        total,
+        trustedCount: allDevices.filter((d) => d.status === 'trusted').length,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit) || 1
+        }
+      }
+    };
+  },
+
+  // Revoke device trust
+  async revokeDeviceTrust({ uid, deviceId, adminUid, reason }) {
+    await new Promise((r) => setTimeout(r, 120));
+    const users = getStoredUsers();
+    const index = users.findIndex((u) => u.uid === uid || u.id === uid);
+    if (index === -1) throw new Error('User record not found');
+
+    const user = users[index];
+    const dev = user.devices?.find((d) => d.id === deviceId);
+    if (!dev) throw new Error('Device not found');
+
+    dev.status = 'revoked';
+    dev.revokedAt = new Date().toISOString();
+
+    // Terminate sessions on this device
+    if (user.sessions) {
+      user.sessions = user.sessions.map((s) =>
+        s.deviceId === deviceId ? { ...s, active: false, endedAt: new Date().toISOString(), revocationReason: reason } : s
+      );
+    }
+
+    user.updatedAt = new Date().toISOString();
+    users[index] = user;
+    saveUsers(users);
+
+    const audit = recordAuditLog({
+      adminUid: adminUid || 'root@agrovercity',
+      action: 'REVOKE_DEVICE_TRUST',
+      targetUserId: user.uid,
+      targetUserName: user.name,
+      previousState: `Device ${dev.deviceName} trusted`,
+      newState: `Device ${dev.deviceName} revoked & sessions purged`,
+      reason: reason || 'Hardware trust revoked by Superadmin'
+    });
+
+    return {
+      success: true,
+      message: `Device ${dev.deviceName} revoked and associated sessions terminated.`,
+      auditRecord: audit,
+      user
+    };
+  },
+
+  // LIST ALL TOKENS across all users (auth_tokens collection)
+  async listAllTokens({ query = '', type = 'all', status = 'all', page = 1, limit = 10 } = {}) {
+    await new Promise((r) => setTimeout(r, 100));
+    const users = getStoredUsers();
+    let allTokens = [];
+
+    users.forEach((u) => {
+      if (u.authTokens && Array.isArray(u.authTokens)) {
+        u.authTokens.forEach((t) => {
+          allTokens.push({
+            ...t,
+            userId: u.uid,
+            userName: u.name,
+            userMobile: u.mobile,
+            userEmail: u.email
+          });
+        });
+      }
+    });
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      allTokens = allTokens.filter((t) =>
+        (t.userName && t.userName.toLowerCase().includes(q)) ||
+        (t.id && t.id.toLowerCase().includes(q)) ||
+        (t.tokenHash && t.tokenHash.toLowerCase().includes(q))
+      );
+    }
+
+    if (type !== 'all') {
+      allTokens = allTokens.filter((t) => t.tokenType?.toLowerCase() === type.toLowerCase());
+    }
+
+    if (status !== 'all') {
+      allTokens = allTokens.filter((t) => t.status?.toLowerCase() === status.toLowerCase());
+    }
+
+    allTokens.sort((a, b) => new Date(b.issuedAt) - new Date(a.issuedAt));
+
+    const total = allTokens.length;
+    const startIndex = (page - 1) * limit;
+    const paginated = allTokens.slice(startIndex, startIndex + limit);
+
+    return {
+      success: true,
+      data: {
+        tokens: paginated,
+        total,
+        activeCount: allTokens.filter((t) => t.status === 'active').length,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit) || 1
+        }
+      }
+    };
+  },
+
+  // Revoke single token
+  async revokeSingleToken({ uid, tokenId, adminUid, reason }) {
+    await new Promise((r) => setTimeout(r, 120));
+    const users = getStoredUsers();
+    const index = users.findIndex((u) => u.uid === uid || u.id === uid);
+    if (index === -1) throw new Error('User record not found');
+
+    const user = users[index];
+    const tok = user.authTokens?.find((t) => t.id === tokenId);
+    if (!tok) throw new Error('Token not found');
+
+    tok.status = 'revoked';
+    tok.revokedAt = new Date().toISOString();
+    tok.revocationReason = reason || 'Admin revoked JWT token';
+
+    user.updatedAt = new Date().toISOString();
+    users[index] = user;
+    saveUsers(users);
+
+    const audit = recordAuditLog({
+      adminUid: adminUid || 'root@agrovercity',
+      action: 'REVOKE_AUTH_TOKEN',
+      targetUserId: user.uid,
+      targetUserName: user.name,
+      previousState: `Token ${tok.id} active`,
+      newState: `Token ${tok.id} revoked`,
+      reason: reason || 'Individual token revoked by Superadmin'
+    });
+
+    return {
+      success: true,
+      message: `Token ${tok.id} (${tok.tokenType}) has been revoked.`,
+      auditRecord: audit,
+      user
+    };
+  },
+
+  // LIST ALL AUDIT LOGS with filters and pagination
+  async listAllAuditLogs({ query = '', action = 'all', page = 1, limit = 10 } = {}) {
+    await new Promise((r) => setTimeout(r, 80));
+    let logs = getStoredAuditLogs();
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      logs = logs.filter((l) =>
+        (l.targetUserName && l.targetUserName.toLowerCase().includes(q)) ||
+        (l.adminUid && l.adminUid.toLowerCase().includes(q)) ||
+        (l.action && l.action.toLowerCase().includes(q)) ||
+        (l.reason && l.reason.toLowerCase().includes(q)) ||
+        (l.id && l.id.toLowerCase().includes(q))
+      );
+    }
+
+    if (action !== 'all') {
+      logs = logs.filter((l) => l.action?.toLowerCase() === action.toLowerCase());
+    }
+
+    const total = logs.length;
+    const startIndex = (page - 1) * limit;
+    const paginated = logs.slice(startIndex, startIndex + limit);
+
+    return {
+      success: true,
+      data: {
+        logs: paginated,
+        total,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit) || 1
+        }
+      }
+    };
   },
 
   // Reset demo state back to defaults

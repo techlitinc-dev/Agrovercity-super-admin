@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Search,
-  Filter,
   RefreshCw,
   Download,
   ShoppingBag,
@@ -9,7 +8,9 @@ import {
   CreditCard,
   MessageSquare,
   PlusCircle,
-  X
+  X,
+  ShoppingCart,
+  ShieldCheck
 } from 'lucide-react';
 import { MARKETPLACE_CATEGORIES } from '../../services/mockData';
 
@@ -40,8 +41,8 @@ export function MarketplaceSearchAndFilterBar({
     <div className="bg-white/90 backdrop-blur-xl border border-emerald-100/90 rounded-2xl p-4 space-y-3.5 shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
       {/* Top Row: Navigation Tabs & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-emerald-100/80">
-        {/* 4 Tabs */}
-        <div className="flex items-center bg-emerald-50/70 border border-emerald-200/80 rounded-xl p-1 text-xs">
+        {/* 6 Tabs */}
+        <div className="flex flex-wrap items-center bg-emerald-50/70 border border-emerald-200/80 rounded-xl p-1 text-xs gap-0.5">
           <button
             onClick={() => {
               setActiveTab('products');
@@ -74,6 +75,21 @@ export function MarketplaceSearchAndFilterBar({
 
           <button
             onClick={() => {
+              setActiveTab('carts_addresses');
+              setStatusFilter('all');
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
+              activeTab === 'carts_addresses'
+                ? 'bg-emerald-700 text-white shadow-xs'
+                : 'text-slate-600 hover:text-emerald-900 hover:bg-emerald-100/50'
+            }`}
+          >
+            <ShoppingCart className="w-3.5 h-3.5" />
+            <span>Carts & Addresses</span>
+          </button>
+
+          <button
+            onClick={() => {
               setActiveTab('payments');
               setStatusFilter('all');
             }}
@@ -100,6 +116,21 @@ export function MarketplaceSearchAndFilterBar({
           >
             <MessageSquare className="w-3.5 h-3.5" />
             <span>Customer Reviews</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveTab('audit_trail');
+              setStatusFilter('all');
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
+              activeTab === 'audit_trail'
+                ? 'bg-emerald-700 text-white shadow-xs'
+                : 'text-slate-600 hover:text-emerald-900 hover:bg-emerald-100/50'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Decision Audit Trail</span>
           </button>
         </div>
 
@@ -159,9 +190,13 @@ export function MarketplaceSearchAndFilterBar({
                 ? 'Search product name, brand, SKU, category, distributor...'
                 : activeTab === 'orders'
                 ? 'Search order ID, farmer name, mobile, tracking #, Razorpay payment ID...'
+                : activeTab === 'carts_addresses'
+                ? 'Search farmer name, mobile, district, cart ID, address ID, village...'
                 : activeTab === 'payments'
                 ? 'Search payment ID, order ID, farmer name, Razorpay ID...'
-                : 'Search product review comment, reviewer name, SKU...'
+                : activeTab === 'reviews'
+                ? 'Search product review comment, reviewer name, SKU...'
+                : 'Search audit ID, admin UID, action, SKU, farmer, reason...'
             }
             className="w-full bg-emerald-50/30 border border-emerald-200 rounded-xl pl-9 pr-8 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
           />
@@ -196,7 +231,7 @@ export function MarketplaceSearchAndFilterBar({
           )}
 
           {/* Context-Sensitive Status Filter */}
-          <div className="relative min-w-[150px]">
+          <div className="relative min-w-[160px]">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -223,6 +258,14 @@ export function MarketplaceSearchAndFilterBar({
                 </>
               )}
 
+              {activeTab === 'carts_addresses' && (
+                <>
+                  <option value="all">All Cart Statuses</option>
+                  <option value="active">Active Farmer Carts</option>
+                  <option value="abandoned">Abandoned Carts</option>
+                </>
+              )}
+
               {activeTab === 'payments' && (
                 <>
                   <option value="all">All Payment States</option>
@@ -238,6 +281,18 @@ export function MarketplaceSearchAndFilterBar({
                   <option value="approved">Approved (Live)</option>
                   <option value="flagged">Flagged for Review</option>
                   <option value="rejected">Rejected / Hidden</option>
+                </>
+              )}
+
+              {activeTab === 'audit_trail' && (
+                <>
+                  <option value="all">All Audit Actions</option>
+                  <option value="AGMARK_QR_CERTIFICATE_ATTESTED">Agmark QR Attestations</option>
+                  <option value="RAZORPAY_PAYMENT_REFUND_PROCESSED">Razorpay Refunds</option>
+                  <option value="MARKETPLACE_ORDER_STATUS_UPDATED">Order State Transitions</option>
+                  <option value="MARKETPLACE_PRODUCT_UPDATED">Catalog SKU Updates</option>
+                  <option value="CUSTOMER_REVIEW_MODERATED">Review Moderations</option>
+                  <option value="CART_RECOVERY_REMINDER_SENT">Cart Recovery Pings</option>
                 </>
               )}
             </select>

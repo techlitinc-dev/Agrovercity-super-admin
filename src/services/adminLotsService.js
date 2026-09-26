@@ -316,7 +316,7 @@ export const adminLotsService = {
     };
   },
 
-  // 5. Mediate B2B Dispute between Farmer and Trader
+  // 5. Mediate B2B Dispute between Farmer and Trader (SOP-05 §3, §6.3)
   async mediateDispute({
     dealId,
     resolutionType,
@@ -324,6 +324,7 @@ export const adminLotsService = {
     releaseAmount,
     refundAmount,
     adminUid = 'root@agrovercity',
+    secondaryAdminUid = null,
     reason
   }) {
     if (!reason || reason.trim().length < 8) {
@@ -391,19 +392,21 @@ export const adminLotsService = {
       saveProcurements(procs);
     }
 
+    const dualSignoffNote = secondaryAdminUid ? ` [Dual Sign-off Verified: ${secondaryAdminUid} (SOP-05 §6.3)]` : '';
+
     const audit = recordAuditLog({
       adminUid,
       action: 'B2B_DEAL_DISPUTE_MEDIATED',
       targetUserId: deal.buyerId,
       targetUserName: `${deal.farmerName} vs ${deal.buyerFirm} (${deal.id})`,
-      previousState: `Deal ${deal.id} status: ${prevDealStatus} (Escrow: ${deal.escrowAmount})`,
-      newState: `Resolution: ${resolutionType} (Deal status: ${deal.status})`,
-      reason: reason.trim()
+      previousState: `Deal ${deal.id} status: ${prevDealStatus} (Escrow: ₹${deal.escrowAmount?.toLocaleString('en-IN')})`,
+      newState: `Resolution: ${resolutionType} (Deal: ${deal.status})${dualSignoffNote}`,
+      reason: `${reason.trim()}${dualSignoffNote}`
     });
 
     return {
       success: true,
-      message: `Dispute on Deal ${dealId} resolved via ${resolutionType}.`,
+      message: `Dispute on Deal ${dealId} resolved via ${resolutionType}.${dualSignoffNote}`,
       deal,
       lot,
       auditRecord: audit
@@ -681,7 +684,55 @@ export const adminLotsService = {
     };
   },
 
-  // 12. Reset to default seed
+  // 12. List B2B Produce Lots & Trading Audit Logs (SOP-05 §6.2)
+  async listLotsAuditLogs({ query = '', action = 'all', page = 1, limit = 10 } = {}) {
+    await new Promise((r) => setTimeout(r, 70));
+    let allLogs = getStoredAuditLogs();
+
+    // Filter to Lots, Deals, Weighbridge, and Buyer Ledgers related actions
+    let lotsLogs = allLogs.filter((log) => {
+      const act = (log.action || '').toUpperCase();
+      return (
+        act.includes('LOT_') ||
+        act.includes('DEAL_') ||
+        act.includes('WEIGHBRIDGE_') ||
+        act.includes('BUYER_') ||
+        act.includes('PROCUREMENT_') ||
+        act.includes('B2B_')
+      );
+    });
+
+    if (query && query.trim()) {
+      const q = query.trim().toLowerCase();
+      lotsLogs = lotsLogs.filter((log) =>
+        (log.id && log.id.toLowerCase().includes(q)) ||
+        (log.adminUid && log.adminUid.toLowerCase().includes(q)) ||
+        (log.action && log.action.toLowerCase().includes(q)) ||
+        (log.targetUserName && log.targetUserName.toLowerCase().includes(q)) ||
+        (log.reason && log.reason.toLowerCase().includes(q))
+      );
+    }
+
+    if (action && action !== 'all') {
+      lotsLogs = lotsLogs.filter((log) => log.action === action);
+    }
+
+    const total = lotsLogs.length;
+    const startIndex = (page - 1) * limit;
+    const paginated = lotsLogs.slice(startIndex, startIndex + limit);
+
+    return {
+      logs: paginated,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit) || 1
+      }
+    };
+  },
+
+  // 13. Reset to default seed
   async resetToDefaultSeed() {
     localStorage.setItem(LOTS_STORAGE_KEY, JSON.stringify(INITIAL_MARKET_LOTS));
     localStorage.setItem(DEALS_STORAGE_KEY, JSON.stringify(INITIAL_DEALS));
@@ -690,3 +741,4 @@ export const adminLotsService = {
     return { success: true };
   }
 };
+

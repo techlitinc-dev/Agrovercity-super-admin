@@ -13,7 +13,8 @@ import {
   Calendar,
   Layers,
   Sparkles,
-  Lock
+  Lock,
+  RotateCcw
 } from 'lucide-react'
 import {
   getInsuranceSummary,
@@ -26,7 +27,9 @@ import {
   advanceClaimStatus,
   executeSecondSignoff,
   updateInsuranceRate,
-  auditInsuranceCompliance
+  auditInsuranceCompliance,
+  listInsuranceAuditLogs,
+  resetInsuranceSeedData
 } from '../api/insuranceApi'
 import {
   fmtINR,
@@ -41,6 +44,8 @@ import {
   Pagination
 } from './insuranceWidgets'
 import InsuranceDetailDrawer from '../components/insurance/InsuranceDetailDrawer'
+import InsuranceAuditTrailTable from '../components/insurance/InsuranceAuditTrailTable'
+import ConfirmDialog from '../components/ConfirmDialog'
 import {
   AssignSurveyorModal,
   ReviewSurveyorAssessmentModal,
@@ -72,11 +77,12 @@ function daysAgoIso(days) {
 export default function InsurancePage() {
   const { addToast } = useNotification() || { addToast: () => {} }
 
-  const [tab, setTab] = useState('claims') // 'claims' | 'surveyors' | 'policies' | 'rates' | 'dbt'
+  const [tab, setTab] = useState('claims') // 'claims' | 'surveyors' | 'policies' | 'rates' | 'dbt' | 'audit_trail'
   const [claims, setClaims] = useState([])
   const [policies, setPolicies] = useState([])
   const [surveyors, setSurveyors] = useState([])
   const [rates, setRates] = useState([])
+  const [auditLogs, setAuditLogs] = useState([])
   const [summary, setSummary] = useState(null)
 
   const [total, setTotal] = useState(0)
@@ -103,6 +109,18 @@ export default function InsurancePage() {
   const [rejectModal, setRejectModal] = useState({ open: false, claim: null })
   const [editRateModal, setEditRateModal] = useState({ open: false, rate: null })
   const [complianceModal, setComplianceModal] = useState({ open: false, result: null })
+
+  // Generic Confirmation Dialog
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    title: '',
+    message: '',
+    confirmLabel: 'Confirm',
+    requireReason: false,
+    danger: false,
+    dualSignOff: false,
+    action: null
+  })
 
   // Load KPI Summary
   const loadSummary = useCallback(async () => {
@@ -153,6 +171,15 @@ export default function InsurancePage() {
       } else if (tab === 'rates') {
         const res = await listInsuranceRates()
         setRates(res.data || [])
+        setTotal(res.total || 0)
+      } else if (tab === 'audit_trail') {
+        const res = await listInsuranceAuditLogs({
+          page,
+          pageSize: PAGE_SIZE,
+          q,
+          action: status
+        })
+        setAuditLogs(res.data || [])
         setTotal(res.total || 0)
       }
     } catch (err) {
@@ -357,6 +384,40 @@ export default function InsurancePage() {
     }
   }
 
+  const handleResetSeed = () => {
+    setConfirmDialog({
+      open: true,
+      title: 'Reset PMFBY Crop Insurance Seed Data',
+      message: 'Restore all default mock claims, policies, seasonal premium rates, surveyor panel records, and statutory audit logs back to initial defaults?',
+      confirmLabel: 'Reset All Data',
+      requireReason: false,
+      danger: true,
+      dualSignOff: false,
+      action: async () => {
+        setBusy(true)
+        try {
+          await resetInsuranceSeedData()
+          addToast({
+            title: 'Seed Data Reset',
+            message: 'PMFBY crop insurance database has been reset to default seeds.',
+            type: 'success'
+          })
+          setConfirmDialog({ open: false })
+          loadSummary()
+          loadData()
+        } catch (err) {
+          addToast({
+            title: 'Reset Failed',
+            message: err?.message || 'Failed to reset seed data',
+            type: 'error'
+          })
+        } finally {
+          setBusy(false)
+        }
+      }
+    })
+  }
+
   const handleExportCsv = () => {
     let rows = []
     let filename = `insurance-${tab}-${new Date().toISOString().slice(0, 10)}.csv`
@@ -369,6 +430,9 @@ export default function InsurancePage() {
       rows = surveyors
     } else if (tab === 'rates') {
       rows = rates
+    } else if (tab === 'audit_trail') {
+      rows = auditLogs
+      filename = `pmfby-statutory-audit-trail-${new Date().toISOString().slice(0, 10)}.csv`
     }
 
     const csvStr = toCsv(rows)
@@ -409,6 +473,15 @@ export default function InsurancePage() {
             >
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>Audit Compliance</span>
+            </button>
+
+            <button
+              onClick={handleResetSeed}
+              title="Reset Module 15 Seed Data"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 font-bold text-xs shadow-2xs transition-colors"
+            >
+              <RotateCcw className="w-4 h-4 text-slate-500" />
+              <span>Reset Seed</span>
             </button>
           </div>
         </div>
@@ -489,27 +562,30 @@ export default function InsurancePage() {
           surveyors: surveyors.length || 4,
           policies: summary?.totalActivePolicies || 3820,
           rates: rates.length || 7,
-          dbt: (summary?.dbtApprovedQueued || 0) + (summary?.pendingDualSignOff || 0)
+          dbt: (summary?.dbtApprovedQueued || 0) + (summary?.pendingDualSignOff || 0),
+          audit_trail: auditLogs.length || 5
         }}
       />
 
       {/* 3. SEARCH & FILTERS BAR */}
-      <FiltersBar
-        tab={tab}
-        q={q}
-        setQ={setQ}
-        status={status}
-        setStatus={setStatus}
-        secondaryFilter={secondaryFilter}
-        setSecondaryFilter={setSecondaryFilter}
-        dateRange={dateRange}
-        setDateRange={setDateRange}
-        lateOnly={lateOnly}
-        setLateOnly={setLateOnly}
-        onExportCsv={handleExportCsv}
-        onOpenAuditCompliance={handleRunComplianceAudit}
-        onAddRate={() => setEditRateModal({ open: true, rate: null })}
-      />
+      {tab !== 'audit_trail' && (
+        <FiltersBar
+          tab={tab}
+          q={q}
+          setQ={setQ}
+          status={status}
+          setStatus={setStatus}
+          secondaryFilter={secondaryFilter}
+          setSecondaryFilter={setSecondaryFilter}
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+          lateOnly={lateOnly}
+          setLateOnly={setLateOnly}
+          onExportCsv={handleExportCsv}
+          onOpenAuditCompliance={handleRunComplianceAudit}
+          onAddRate={() => setEditRateModal({ open: true, rate: null })}
+        />
+      )}
 
       {/* 4. PRIMARY DATA GRID CONTENT */}
       <div className="px-6">
@@ -592,8 +668,16 @@ export default function InsurancePage() {
                 />
               )}
 
+              {tab === 'audit_trail' && (
+                <InsuranceAuditTrailTable
+                  auditLogs={auditLogs}
+                  loading={loading}
+                  onRefresh={loadData}
+                />
+              )}
+
               {/* Pagination footer */}
-              {['claims', 'policies', 'dbt'].includes(tab) && (
+              {['claims', 'policies', 'dbt', 'audit_trail'].includes(tab) && (
                 <Pagination
                   page={page}
                   pageSize={PAGE_SIZE}
@@ -665,6 +749,22 @@ export default function InsurancePage() {
         open={complianceModal.open}
         result={complianceModal.result}
         onClose={() => setComplianceModal({ open: false, result: null })}
+      />
+
+      {/* 7. CONFIRM DIALOG */}
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        confirmLabel={confirmDialog.confirmLabel}
+        requireReason={confirmDialog.requireReason}
+        danger={confirmDialog.danger}
+        dualSignOff={confirmDialog.dualSignOff}
+        busy={busy}
+        onConfirm={() => {
+          if (confirmDialog.action) confirmDialog.action()
+        }}
+        onCancel={() => setConfirmDialog({ open: false })}
       />
     </div>
   )

@@ -8,19 +8,25 @@ import { TransportMetricBar } from './TransportMetricBar';
 import { TransportSearchAndFilterBar } from './TransportSearchAndFilterBar';
 import { FleetVehiclesTable } from './FleetVehiclesTable';
 import { TransportBookingsTable } from './TransportBookingsTable';
+import { LiveDispatchRadarView } from './LiveDispatchRadarView';
 import { SettlementsTable } from './SettlementsTable';
+import { FareBandsTable } from './FareBandsTable';
+import { TransportAuditTrailTable } from './TransportAuditTrailTable';
 import { TransportDetailDrawer } from './TransportDetailDrawer';
+
 import { VerifyVehicleModal } from './VerifyVehicleModal';
 import { SuspendVehicleModal } from './SuspendVehicleModal';
 import { ManualStatusModal } from './ManualStatusModal';
 import { ArbitrateDisputeModal } from './ArbitrateDisputeModal';
 import { ReleasePayoutModal } from './ReleasePayoutModal';
+import { VehicleRegistrationModal } from './VehicleRegistrationModal';
+import { FareBandModal } from './FareBandModal';
 
 export function TransportModule() {
   const { currentAdmin } = useAuthAdmin();
   const { addToast } = useNotification();
 
-  // Active view tab: 'fleet' | 'bookings' | 'settlements'
+  // Active view tab: 'fleet' | 'bookings' | 'live_dispatch' | 'settlements' | 'fare_bands' | 'audit_trail'
   const [activeTab, setActiveTab] = useState('fleet');
 
   // Filter states
@@ -33,7 +39,10 @@ export function TransportModule() {
   const [kpis, setKpis] = useState({});
   const [vehicles, setVehicles] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [activeTrips, setActiveTrips] = useState([]);
   const [settlements, setSettlements] = useState([]);
+  const [fareBands, setFareBands] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
   const [loading, setLoading] = useState(false);
 
@@ -45,6 +54,8 @@ export function TransportModule() {
   const [arbitrateBooking, setArbitrateBooking] = useState(null);
   const [payoutSettlement, setPayoutSettlement] = useState(null);
   const [suspendVehicleTarget, setSuspendVehicleTarget] = useState(null);
+  const [isRegisteringVehicle, setIsRegisteringVehicle] = useState(false);
+  const [editingFareBand, setEditingFareBand] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
 
   // Fetch KPI Summary
@@ -83,6 +94,24 @@ export function TransportModule() {
           setBookings(res.data.bookings);
           setPagination(res.data.pagination);
         }
+      } else if (activeTab === 'live_dispatch') {
+        const res = await adminTransportService.listLiveDispatchTrips();
+        if (res.success) {
+          let list = res.data.activeTrips;
+          if (statusFilter && statusFilter !== 'all') {
+            list = list.filter((t) => t.status === statusFilter);
+          }
+          if (searchQuery && searchQuery.trim()) {
+            const q = searchQuery.toLowerCase().trim();
+            list = list.filter((t) =>
+              t.id.toLowerCase().includes(q) ||
+              t.vehicleRegistration.toLowerCase().includes(q) ||
+              t.transporterName.toLowerCase().includes(q)
+            );
+          }
+          setActiveTrips(list);
+          setPagination({ page: 1, limit: 20, total: list.length, totalPages: 1 });
+        }
       } else if (activeTab === 'settlements') {
         const res = await adminTransportService.listSettlements({
           query: searchQuery,
@@ -92,6 +121,26 @@ export function TransportModule() {
         });
         if (res.success) {
           setSettlements(res.data.settlements);
+          setPagination(res.data.pagination);
+        }
+      } else if (activeTab === 'fare_bands') {
+        const res = await adminTransportService.listFareBands({
+          query: searchQuery,
+          vehicleClass: statusFilter
+        });
+        if (res.success) {
+          setFareBands(res.data.fareBands);
+          setPagination({ page: 1, limit: 20, total: res.data.fareBands.length, totalPages: 1 });
+        }
+      } else if (activeTab === 'audit_trail') {
+        const res = await adminTransportService.listTransportAuditLogs({
+          query: searchQuery,
+          action: statusFilter,
+          page,
+          limit
+        });
+        if (res.success) {
+          setAuditLogs(res.data.auditLogs);
           setPagination(res.data.pagination);
         }
       }
@@ -148,6 +197,55 @@ export function TransportModule() {
     } catch (err) {
       addToast({
         title: 'Verification Failed',
+        message: err.message,
+        type: 'error'
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Handle Register Vehicle
+  const handleRegisterVehicle = async (data) => {
+    setActionLoading(true);
+    try {
+      const res = await adminTransportService.createVehicle(data, currentAdmin?.email);
+      addToast({
+        title: 'Vehicle Registered',
+        message: res.message,
+        type: 'success'
+      });
+      setIsRegisteringVehicle(false);
+      fetchData();
+    } catch (err) {
+      addToast({
+        title: 'Registration Failed',
+        message: err.message,
+        type: 'error'
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Handle Edit Fare Band
+  const handleSaveFareBand = async (data) => {
+    setActionLoading(true);
+    try {
+      const res = await adminTransportService.updateFareBand({
+        ...data,
+        adminUid: currentAdmin?.email
+      });
+      addToast({
+        title: 'Tariff Band Updated',
+        message: res.message,
+        type: 'success'
+      });
+      setEditingFareBand(null);
+      fetchData();
+    } catch (err) {
+      addToast({
+        title: 'Tariff Revision Failed',
         message: err.message,
         type: 'error'
       });
@@ -286,10 +384,25 @@ export function TransportModule() {
       bookings.forEach((b) => {
         csvContent += `"${b.id}","${b.customerName}","${b.customerPersona}","${b.pickupPoint.village}","${b.dropPoint.mandi}",${b.distanceKm},"${b.vehicleId || 'UNASSIGNED'}","${b.transporterName || 'UNASSIGNED'}",${b.fareAmount},"${b.paymentStatus}","${b.status}"\n`;
       });
-    } else {
+    } else if (activeTab === 'live_dispatch') {
+      csvContent += 'Trip ID,Vehicle,Transporter,Pickup,Drop,Cargo,Speed (km/h),ETA (min),Live GPS,Status\n';
+      activeTrips.forEach((t) => {
+        csvContent += `"${t.id}","${t.vehicleRegistration}","${t.transporterName}","${t.pickupPoint?.village}","${t.dropPoint?.mandi}","${t.cargo?.quantity} ${t.cargo?.commodity}",${t.speedKmph},${t.estimatedMinutesRemaining},"${t.liveGpsCoordinates}","${t.status}"\n`;
+      });
+    } else if (activeTab === 'settlements') {
       csvContent += 'Settlement ID,Transporter,Booking ID,Trips,Gross Fare,Platform Fee %,Net Payout,Payout Mode,POD Audit Status,Sign-offs,Status\n';
       settlements.forEach((s) => {
         csvContent += `"${s.id}","${s.transporterName}","${s.bookingId}",${s.tripsCount},${s.grossFare},${s.platformFeePercent},${s.payoutAmount},"${s.payoutMode}","${s.podAuditStatus}",${(s.signOffs || []).length},"${s.status}"\n`;
+      });
+    } else if (activeTab === 'fare_bands') {
+      csvContent += 'Band ID,Corridor,District,Vehicle Class,Base Fare,Per-Km Rate,Min Distance,Waiting (INR/hr),Night Surcharge %\n';
+      fareBands.forEach((f) => {
+        csvContent += `"${f.id}","${f.corridor}","${f.district}","${f.vehicleClass}",${f.baseFare},${f.perKmRate},${f.minDistanceKm},${f.waitingChargePerHour},${f.nightSurchargePercent}\n`;
+      });
+    } else {
+      csvContent += 'Audit ID,Admin UID,Action,Target ID,Target Name,Previous State,New State,Reason,IP Address,Timestamp\n';
+      auditLogs.forEach((l) => {
+        csvContent += `"${l.id}","${l.adminUid}","${l.action}","${l.targetUserId}","${l.targetUserName}","${l.previousState}","${l.newState}","${l.reason}","${l.ipAddress || '14.139.122.9'}","${l.timestamp}"\n`;
       });
     }
 
@@ -313,7 +426,10 @@ export function TransportModule() {
     const dataToExport =
       activeTab === 'fleet' ? vehicles :
       activeTab === 'bookings' ? bookings :
-      settlements;
+      activeTab === 'live_dispatch' ? activeTrips :
+      activeTab === 'settlements' ? settlements :
+      activeTab === 'fare_bands' ? fareBands :
+      auditLogs;
 
     const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -346,14 +462,14 @@ export function TransportModule() {
             </span>
           </div>
           <p className="text-xs text-slate-600 mt-1 font-medium">
-            On-demand rural logistics oversight: fleet paper verification, live dispatch monitoring, dispute arbitration, fare band management & proof-of-delivery payout audits.
+            On-demand rural logistics oversight: fleet paper verification, live dispatch radar, dynamic per-km fare bands, dispute arbitration & proof-of-delivery payout audits.
           </p>
         </div>
 
         {/* Status Indicator */}
         <div className="text-[11px] font-mono text-emerald-800 bg-white/90 border border-emerald-200 px-3.5 py-1.5 rounded-xl flex items-center gap-2 self-start sm:self-auto shadow-2xs font-bold">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Dispatch Engine Active</span>
+          <span>Dispatch & Telemetry Engine Active</span>
         </div>
       </div>
 
@@ -368,6 +484,7 @@ export function TransportModule() {
         setSearchQuery={setSearchQuery}
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
+        onRegisterVehicle={() => setIsRegisteringVehicle(true)}
         onRefresh={fetchData}
         onExportCsv={handleExportCsv}
         onExportJson={handleExportJson}
@@ -399,6 +516,15 @@ export function TransportModule() {
         />
       )}
 
+      {activeTab === 'live_dispatch' && (
+        <LiveDispatchRadarView
+          activeTrips={activeTrips}
+          onOverrideStatus={(trip) => setManualStatusBooking(trip)}
+          onArbitrate={(trip) => setArbitrateBooking(trip)}
+          loading={loading}
+        />
+      )}
+
       {activeTab === 'settlements' && (
         <SettlementsTable
           settlements={settlements}
@@ -406,6 +532,23 @@ export function TransportModule() {
           onPageChange={(p) => setPage(p)}
           onInspectSettlement={(s) => openDrawer(s, 'settlement')}
           onAuditPayout={(s) => setPayoutSettlement(s)}
+          loading={loading}
+        />
+      )}
+
+      {activeTab === 'fare_bands' && (
+        <FareBandsTable
+          fareBands={fareBands}
+          onEditFareBand={(band) => setEditingFareBand(band)}
+          loading={loading}
+        />
+      )}
+
+      {activeTab === 'audit_trail' && (
+        <TransportAuditTrailTable
+          auditLogs={auditLogs}
+          pagination={pagination}
+          onPageChange={(p) => setPage(p)}
           loading={loading}
         />
       )}
@@ -464,6 +607,23 @@ export function TransportModule() {
         onClose={() => setSuspendVehicleTarget(null)}
         vehicle={suspendVehicleTarget}
         onConfirm={handleConfirmSuspendVehicle}
+        loading={actionLoading}
+      />
+
+      {/* 11. Vehicle Registration Modal */}
+      <VehicleRegistrationModal
+        isOpen={isRegisteringVehicle}
+        onClose={() => setIsRegisteringVehicle(false)}
+        onSave={handleRegisterVehicle}
+        loading={actionLoading}
+      />
+
+      {/* 12. Fare Band Pricing Revision Modal */}
+      <FareBandModal
+        isOpen={Boolean(editingFareBand)}
+        onClose={() => setEditingFareBand(null)}
+        fareBand={editingFareBand}
+        onSave={handleSaveFareBand}
         loading={actionLoading}
       />
     </div>

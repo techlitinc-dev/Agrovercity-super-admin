@@ -91,6 +91,9 @@ export function TabSwitch({ tab, setTab }) {
   const tabs = [
     ['transcripts', 'Chat Transcripts'],
     ['handoffs', 'Expert Handoff Queue'],
+    ['experts', 'Agronomist Roster'],
+    ['analytics', 'Topic & CSAT Insights'],
+    ['audit_trail', 'Audit Trail'],
   ]
   return (
     <div className="inline-flex rounded-xl border border-emerald-200/80 bg-white/90 p-1 shadow-2xs backdrop-blur-md">
