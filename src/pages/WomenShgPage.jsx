@@ -46,7 +46,8 @@ import {
 } from '../components/women-shg/WomenShgModals'
 import { useNotification } from '../context/NotificationContext'
 import { useAuthAdmin } from '../context/AuthAdminContext'
-import { ShieldAlert, Smartphone } from 'lucide-react'
+import { ShieldAlert, Smartphone, HeartHandshake, Sparkles, FileSpreadsheet, RotateCcw } from 'lucide-react'
+import PageContextBar from '../components/layout/PageContextBar'
 
 const PAGE_SIZE = 20
 
@@ -538,15 +539,64 @@ export default function WomenShgPage() {
 
   return (
     <div className="space-y-6">
-      {/* Financial Auditor Compliance Banner */}
-      {isFinancialAuditor && (
-        <div className="p-3.5 bg-amber-50 border border-amber-200/80 rounded-2xl flex items-center gap-3 text-xs text-amber-900 shadow-xs">
-          <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0" />
-          <div>
-            <span className="font-bold">Statutory Compliance Mode Active:</span> You are accessing the Women in Agriculture & Self Help Groups module under <strong>Financial Auditor</strong> policy controls. SHG verifications, suspension, product curation, and subsidy disbursements are strictly read-only.
-          </div>
-        </div>
-      )}
+      {/* Top Banner / Page Context Bar */}
+      <div className="px-6 pt-6">
+        <PageContextBar
+          title="Women in Agriculture & Self Help Groups"
+          sop="SOP-28"
+          category="Empowerment & Inclusion"
+          icon={HeartHandshake}
+          iconColor="rose"
+          description="SHG governance verification, doorstep micro-deposit collection, rural home enterprise marketplace curation, and 3% interest subvention."
+          currentAdmin={currentAdmin}
+          isAuditor={isFinancialAuditor}
+          isSupport={isSupport}
+          auditorNotice={
+            isFinancialAuditor
+              ? 'Statutory Compliance Mode: SHG verifications, suspension, product curation, and subsidy disbursements are strictly read-only.'
+              : null
+          }
+          stats={[
+            { label: 'Active SHGs', value: summary?.totalActiveShgs ?? 0 },
+            { label: 'Storefront Products', value: summary?.activeStorefrontProducts ?? 0 },
+            { label: 'Districts', value: summary?.womenModeStats?.districtsCovered || 8 }
+          ]}
+          actions={
+            <>
+              <button
+                onClick={() => setIsWomenModePreview(!isWomenModePreview)}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold shadow-xs transition active:scale-95 ${
+                  isWomenModePreview
+                    ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                    : 'bg-white hover:bg-rose-50 text-rose-700 border border-rose-200'
+                }`}
+              >
+                <Smartphone className="w-4 h-4" />
+                <span>{isWomenModePreview ? 'Exit Mobile UI' : 'Simulate Mobile UI'}</span>
+              </button>
+
+              <button
+                onClick={handleExportCsv}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
+              >
+                <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                <span>Export Ledger CSV</span>
+              </button>
+
+              {canMutate && (
+                <button
+                  onClick={() => setResetModalOpen(true)}
+                  title="Reset SOP-28 Seed Data"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs font-bold shadow-2xs transition"
+                >
+                  <RotateCcw className="w-4 h-4 text-slate-500" />
+                  <span>Reset Seed</span>
+                </button>
+              )}
+            </>
+          }
+        />
+      </div>
 
       {/* Top Metric Bar */}
       <WomenMetricBar summary={summary} loading={loading && !summary} />

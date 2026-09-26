@@ -55,6 +55,7 @@ import {
   IssueDroughtAlertModal,
   ApprovePmksySubsidyModal
 } from '../components/water/WaterModals'
+import PageContextBar from '../components/layout/PageContextBar'
 import { useNotification } from '../context/NotificationContext'
 
 const PAGE_SIZE = 20
@@ -439,74 +440,70 @@ export default function WaterPage() {
 
   return (
     <div className="space-y-6">
-      {/* Top Banner / Breadcrumbs */}
+      {/* Top Banner / Breadcrumbs Context Bar */}
       <div className="px-6 pt-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="p-2 rounded-xl bg-teal-50 border border-teal-100 text-teal-600">
-                <Droplets className="w-5 h-5" />
-              </span>
-              <div>
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                  <span>Water Intelligence &amp; Irrigation Management</span>
-                  <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200 font-bold">
-                    SOP-17
-                  </span>
-                </h1>
-                <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                  Optimal irrigation duration schedules, CGWB groundwater monitoring, canal rotation timetables, and PMKSY 55% micro-irrigation subsidy.
-                </p>
-              </div>
-            </div>
-          </div>
+        <PageContextBar
+          title="Water Intelligence & Irrigation Management"
+          sop="SOP-17"
+          category="Agronomy & Resources"
+          icon={Droplets}
+          iconColor="cyan"
+          description="Optimal irrigation duration schedules, CGWB groundwater monitoring, canal rotation timetables, and PMKSY 55% micro-irrigation subsidy."
+          currentAdmin={currentAdmin}
+          isAuditor={isAuditor}
+          isSupport={isSupport}
+          stats={[
+            { label: 'Schedules', value: schedules.length },
+            { label: 'CGWB Stations', value: cgwbStations.length },
+            { label: 'Audit Events', value: auditLogs.length }
+          ]}
+          actions={
+            <>
+              <button
+                onClick={() => setIssueDroughtOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition active:scale-95"
+              >
+                <BellRing className="w-4 h-4" />
+                <span>Broadcast Drought Alert</span>
+              </button>
 
-          {/* Quick Header Actions */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              onClick={() => setIssueDroughtOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition active:scale-95"
-            >
-              <BellRing className="w-4 h-4" />
-              <span>Broadcast Drought Alert</span>
-            </button>
+              <button
+                onClick={() => setSyncCgwbOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
+              >
+                <RefreshCw className="w-4 h-4 text-teal-600" />
+                <span>Sync CGWB Readings</span>
+              </button>
 
-            <button
-              onClick={() => setSyncCgwbOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
-            >
-              <RefreshCw className="w-4 h-4 text-teal-600" />
-              <span>Sync CGWB Readings</span>
-            </button>
+              <button
+                onClick={() => setConfigureSubsidyOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
+              >
+                <SlidersHorizontal className="w-4 h-4 text-emerald-600" />
+                <span>PMKSY Rules</span>
+              </button>
 
-            <button
-              onClick={() => setConfigureSubsidyOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
-            >
-              <SlidersHorizontal className="w-4 h-4 text-emerald-600" />
-              <span>PMKSY Rules</span>
-            </button>
+              <button
+                onClick={handleRunEfficiencyAudit}
+                disabled={busy}
+                title="Run Cluster Water Efficiency & DPDP Masking Audit"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
+              >
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>Efficiency Audit</span>
+              </button>
 
-            <button
-              onClick={handleRunEfficiencyAudit}
-              disabled={busy}
-              title="Run Cluster Water Efficiency & DPDP Masking Audit"
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
-            >
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Efficiency Audit</span>
-            </button>
-
-            <button
-              onClick={handleResetSeed}
-              title="Reset Module 17 Seed Data"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs font-bold shadow-2xs transition"
-            >
-              <RotateCcw className="w-4 h-4 text-slate-500" />
-              <span>Reset Seed</span>
-            </button>
-          </div>
-        </div>
+              <button
+                onClick={handleResetSeed}
+                title="Reset Module 17 Seed Data"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs font-bold shadow-2xs transition"
+              >
+                <RotateCcw className="w-4 h-4 text-slate-500" />
+                <span>Reset Seed</span>
+              </button>
+            </>
+          }
+        />
       </div>
 
       {/* KPI Metrics Summary Grid */}

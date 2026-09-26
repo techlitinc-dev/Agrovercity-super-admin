@@ -55,6 +55,7 @@ import {
   EditRateModal,
   DpdpComplianceModal
 } from '../components/insurance/InsuranceModals'
+import PageContextBar from '../components/layout/PageContextBar'
 import { useNotification } from '../context/NotificationContext'
 
 const PAGE_SIZE = 20
@@ -453,40 +454,48 @@ export default function InsurancePage() {
 
   return (
     <div className="space-y-6">
-      {/* 1. TOP METRIC BAR (SOP-15 §4.1) */}
-      <div className="px-6 pt-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-          <div>
-            <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2.5">
-              <Shield className="w-6 h-6 text-emerald-600" />
-              <span>Crop Insurance (PMFBY) & Calamity Claims Desk</span>
-            </h1>
-            <p className="text-xs text-slate-500 mt-0.5 font-medium">
-              SOP-15 · PMFBY/RWBCIS Passbook · 72h Calamity Intimation · Geotagged Survey · Dual Sign-Off (&gt; ₹50k) · DBT Gateway
-            </p>
-          </div>
+      {/* 1. TOP CONTEXT BAR (SOP-15 §4.1) */}
+      <div className="px-6 pt-6">
+        <PageContextBar
+          title="Crop Insurance (PMFBY) & Calamity Claims Desk"
+          sop="SOP-15"
+          category="Risk Management"
+          icon={Shield}
+          iconColor="emerald"
+          description="PMFBY/RWBCIS Passbook · 72h Calamity Intimation · Geotagged Survey · Dual Sign-Off (> ₹50k) · DBT Gateway"
+          currentAdmin={currentAdmin}
+          isAuditor={isAuditor}
+          isSupport={isSupport}
+          stats={[
+            { label: 'Total Claims', value: summary?.totalClaims || claims.length },
+            { label: 'Surveyors', value: surveyors.length },
+            { label: 'Policies', value: policies.length }
+          ]}
+          actions={
+            <>
+              <button
+                onClick={handleRunComplianceAudit}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-xs shadow-2xs transition-colors"
+              >
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>Audit Compliance</span>
+              </button>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={handleRunComplianceAudit}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-xs shadow-2xs transition-colors"
-            >
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Audit Compliance</span>
-            </button>
+              <button
+                onClick={handleResetSeed}
+                title="Reset Module 15 Seed Data"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 font-bold text-xs shadow-2xs transition-colors"
+              >
+                <RotateCcw className="w-4 h-4 text-slate-500" />
+                <span>Reset Seed</span>
+              </button>
+            </>
+          }
+        />
+      </div>
 
-            <button
-              onClick={handleResetSeed}
-              title="Reset Module 15 Seed Data"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 font-bold text-xs shadow-2xs transition-colors"
-            >
-              <RotateCcw className="w-4 h-4 text-slate-500" />
-              <span>Reset Seed</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Metric KPI Cards Grid */}
+      {/* Metric KPI Cards Grid */}
+      <div className="px-6">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           <MetricCard
             title="Total Claims"

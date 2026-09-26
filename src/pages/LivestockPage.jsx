@@ -65,6 +65,7 @@ import {
   Pagination
 } from './livestockWidgets'
 import LivestockDetailDrawer from '../components/livestock/LivestockDetailDrawer'
+import { PageContextBar } from '../components/layout/PageContextBar'
 import {
   VerifyVetModal,
   AuditGaushalaModal,
@@ -628,54 +629,20 @@ export default function LivestockPage() {
 
   return (
     <div className="space-y-6">
-      {/* Top Banner / Breadcrumb Details */}
+      {/* Page Title / Context Bar */}
       <div className="px-6 pt-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2.5">
-              <span className="p-2.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 shadow-xs">
-                <Stethoscope className="w-5 h-5" />
-              </span>
-              <div>
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                  <span>Livestock, Dairy &amp; Veterinary Services</span>
-                  <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 font-semibold">
-                    SOP-19
-                  </span>
-                </h1>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Veterinary network, bovine welfare audits, plant nursery accreditation, A2 lab testing, and bulk manure settlements.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* RBAC Role Indicator Badge */}
-          <div className="flex items-center gap-2">
-            <span
-              className={`px-3 py-1 rounded-xl text-xs font-mono font-semibold border flex items-center gap-1.5 ${
-                isAuditor
-                  ? 'bg-amber-50 text-amber-800 border-amber-300'
-                  : isSupport
-                  ? 'bg-blue-50 text-blue-800 border-blue-300'
-                  : 'bg-emerald-50 text-emerald-800 border-emerald-300'
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Admin: {currentAdmin?.name || 'Super Admin'} ({currentAdmin?.badge || 'Super Admin'})</span>
-            </span>
-          </div>
-        </div>
-
-        {/* Auditor Read-only Notice */}
-        {isAuditor && (
-          <div className="mt-3 p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-800 flex items-center gap-2 text-xs">
-            <AlertTriangle className="w-4 h-4 shrink-0 text-amber-700" />
-            <span>
-              <strong>Financial Auditor Mode Active (SOP-19 §6.1):</strong> You have read-only access to transaction ledgers, bank records, and payout reports. State modification capabilities are disabled.
-            </span>
-          </div>
-        )}
+        <PageContextBar
+          title="Livestock, Dairy & Veterinary Services"
+          sop="SOP-19"
+          category="Animal Husbandry & Dairy"
+          description="Veterinary network, bovine welfare audits, plant nursery accreditation, A2 lab testing, and bulk manure settlements."
+          icon={Stethoscope}
+          iconColor="emerald"
+          isAuditor={isAuditor}
+          isSupport={isSupport}
+          currentAdmin={currentAdmin}
+          auditorNotice="You have read-only access to transaction ledgers, bank records, and payout reports. State modification capabilities are disabled under SOP-19 §6.1."
+        />
       </div>
 
       {/* Top Metric Bar */}

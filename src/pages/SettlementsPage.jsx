@@ -44,7 +44,8 @@ import {
 } from '../components/settlements/SettlementsModals'
 import { useNotification } from '../context/NotificationContext'
 import { useAuthAdmin } from '../context/AuthAdminContext'
-import { ShieldAlert } from 'lucide-react'
+import { ShieldAlert, Banknote, Play, RotateCcw, FileSpreadsheet } from 'lucide-react'
+import PageContextBar from '../components/layout/PageContextBar'
 
 const PAGE_SIZE = 20
 
@@ -493,15 +494,61 @@ export default function SettlementsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Financial Auditor Compliance Banner */}
-      {isFinancialAuditor && (
-        <div className="p-3.5 bg-amber-50 border border-amber-200/80 rounded-2xl flex items-center gap-3 text-xs text-amber-900 shadow-xs">
-          <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0" />
-          <div>
-            <span className="font-bold">Statutory Compliance Mode Active:</span> You are accessing the Financial Settlements & Automated Jobs module under <strong>Financial Auditor</strong> policy controls. Payout disbursements, holds, releases, and job triggers are strictly read-only.
-          </div>
-        </div>
-      )}
+      {/* Top Banner / Page Context Bar */}
+      <div className="px-6 pt-6">
+        <PageContextBar
+          title="Financial Settlements & Automated Jobs"
+          sop="SOP-25"
+          category="Finance & Escrow"
+          icon={Banknote}
+          iconColor="emerald"
+          description="Automated seller/transporter payout calculation runs, escrow balance verification, and legal hold dispute management."
+          currentAdmin={currentAdmin}
+          isAuditor={isFinancialAuditor}
+          isSupport={isSupport}
+          auditorNotice={
+            isFinancialAuditor
+              ? 'Statutory Compliance Mode: Payout disbursements, legal holds, releases, and batch jobs are in read-only audit mode.'
+              : null
+          }
+          stats={[
+            { label: 'Pending Batches', value: summary?.pendingApprovalBatchesCount ?? 0 },
+            { label: 'Cron Jobs', value: summary?.cronJobsCount ?? 0 }
+          ]}
+          actions={
+            <>
+              {canMutate && (
+                <button
+                  onClick={() => setBatchRunModal({ open: true })}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition active:scale-95"
+                >
+                  <Play className="w-4 h-4 fill-white" />
+                  <span>Trigger Batch Run</span>
+                </button>
+              )}
+
+              <button
+                onClick={handleExportCsv}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
+              >
+                <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                <span>Export Ledger CSV</span>
+              </button>
+
+              {canMutate && (
+                <button
+                  onClick={() => setResetModalOpen(true)}
+                  title="Reset SOP-25 Seed Data"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs font-bold shadow-2xs transition"
+                >
+                  <RotateCcw className="w-4 h-4 text-slate-500" />
+                  <span>Reset Seed</span>
+                </button>
+              )}
+            </>
+          }
+        />
+      </div>
 
       {/* Top Metric Bar */}
       <SettlementsMetricBar summary={summary} loading={loading && !summary} />

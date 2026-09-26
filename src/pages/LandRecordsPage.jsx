@@ -57,6 +57,7 @@ import {
   GovernmentExportModal,
   DpdpLandComplianceModal
 } from '../components/land-records/LandRecordsModals'
+import PageContextBar from '../components/layout/PageContextBar'
 import { useNotification } from '../context/NotificationContext'
 
 const PAGE_SIZE = 20
@@ -430,73 +431,69 @@ export default function LandRecordsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Top Banner / Breadcrumb Details */}
+      {/* Top Banner / Breadcrumb Context Bar */}
       <div className="px-6 pt-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="p-2 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600">
-                <Layers className="w-5 h-5" />
-              </span>
-              <div>
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                  <span>Land Records Registry (7/12 &amp; 8A Utara)</span>
-                  <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold">
-                    SOP-16
-                  </span>
-                </h1>
-                <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                  Direct state revenue portal integration (Mahabhulekh, MP Bhulekh, AnyRoR, Bhoomi) for 7/12, 8A Khate, Gat fuzzy matching, and Redis L2 caching.
-                </p>
-              </div>
-            </div>
-          </div>
+        <PageContextBar
+          title="Land Records Registry (7/12 & 8A Utara)"
+          sop="SOP-16"
+          category="Governance & Compliance"
+          icon={Layers}
+          iconColor="emerald"
+          description="Direct state revenue portal integration (Mahabhulekh, MP Bhulekh, AnyRoR, Bhoomi) for 7/12, 8A Khate, Gat fuzzy matching, and Redis L2 caching."
+          currentAdmin={currentAdmin}
+          isAuditor={isAuditor}
+          isSupport={isSupport}
+          stats={[
+            { label: 'Parcels', value: records.length },
+            { label: 'Imports', value: imports.length },
+            { label: 'Audit Logs', value: auditLogs.length }
+          ]}
+          actions={
+            <>
+              <button
+                onClick={() => setManualProvisionOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition active:scale-95"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Manual Provision</span>
+              </button>
 
-          {/* Quick Action Buttons */}
-          <div className="flex items-center gap-2.5">
-            <button
-              onClick={() => setManualProvisionOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition active:scale-95"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Manual Provision</span>
-            </button>
+              <button
+                onClick={() => setSeedCacheOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
+              >
+                <Database className="w-4 h-4 text-sky-600" />
+                <span>Seed Cache</span>
+              </button>
 
-            <button
-              onClick={() => setSeedCacheOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
-            >
-              <Database className="w-4 h-4 text-sky-600" />
-              <span>Seed Cache</span>
-            </button>
+              <button
+                onClick={handleRunDpdpAudit}
+                title="Audit DPDP Act Masking Compliance"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
+              >
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>DPDP Audit</span>
+              </button>
 
-            <button
-              onClick={handleRunDpdpAudit}
-              title="Audit DPDP Act Masking Compliance"
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
-            >
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>DPDP Audit</span>
-            </button>
+              <button
+                onClick={() => setExportComplianceOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
+              >
+                <Download className="w-4 h-4 text-emerald-600" />
+                <span>Govt Dossier</span>
+              </button>
 
-            <button
-              onClick={() => setExportComplianceOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition"
-            >
-              <Download className="w-4 h-4 text-emerald-600" />
-              <span>Govt Dossier</span>
-            </button>
-
-            <button
-              onClick={handleResetSeed}
-              title="Reset Module 16 Seed Data"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs font-bold shadow-2xs transition"
-            >
-              <RotateCcw className="w-4 h-4 text-slate-500" />
-              <span>Reset Seed</span>
-            </button>
-          </div>
-        </div>
+              <button
+                onClick={handleResetSeed}
+                title="Reset Module 16 Seed Data"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs font-bold shadow-2xs transition"
+              >
+                <RotateCcw className="w-4 h-4 text-slate-500" />
+                <span>Reset Seed</span>
+              </button>
+            </>
+          }
+        />
       </div>
 
       {/* KPI Summary Metrics Grid */}
