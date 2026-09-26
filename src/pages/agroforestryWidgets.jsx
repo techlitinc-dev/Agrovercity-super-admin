@@ -22,7 +22,11 @@ import {
   TrendingUp,
   Award,
   Sparkles,
-  DollarSign
+  DollarSign,
+  RotateCcw,
+  Layers,
+  Edit,
+  Trash2
 } from 'lucide-react'
 
 export function fmtINR(val) {
@@ -63,7 +67,8 @@ export function StatusBadge({ status }) {
     suspended: { label: 'Suspended', bg: 'bg-rose-50 text-rose-700 border-rose-200/80' },
 
     active: { label: 'Active', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200/80' },
-    published: { label: 'Published', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200/80' }
+    published: { label: 'Published', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200/80' },
+    draft: { label: 'Draft', bg: 'bg-slate-100 text-slate-600 border-slate-200' }
   }
 
   const badge = map[status] || { label: status || 'Unknown', bg: 'bg-slate-100 text-slate-600 border-slate-200' }
@@ -93,7 +98,7 @@ export function MetricCard({ title, value, subtitle, icon: Icon, badge, color = 
         </div>
       </div>
       <div className="mt-3">
-        <div className="text-2xl font-bold text-slate-900 tracking-tight">{value}</div>
+        <div className="text-2xl font-bold text-slate-900 tracking-tight font-mono">{value}</div>
         <div className="flex items-center justify-between mt-1 text-xs text-slate-600">
           <span>{subtitle}</span>
           {badge && (
@@ -121,33 +126,33 @@ export function AgroforestryMetricBar({ summary, loading }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <MetricCard
-        title="Sapling Distributions"
-        value={(summary.totalSaplingsDistributed || 0).toLocaleString()}
-        subtitle={`${summary.totalSaplingRequests || 0} total requests • Max 500 cap`}
+        title="Sapling Demand & Requests"
+        value={summary.totalSaplingRequests || 0}
+        subtitle={`${summary.pendingReviewRequests || 0} pending triage • Cap 500/farmer`}
         icon={Sprout}
-        badge="Enforced 500 Cap"
-        color="emerald"
+        badge={summary.pendingReviewRequests > 0 ? 'Review Needed' : 'Triage Clear'}
+        color={summary.pendingReviewRequests > 0 ? 'amber' : 'emerald'}
       />
       <MetricCard
-        title="Pending Triage"
-        value={summary.pendingReviewRequests || 0}
-        subtitle={`${summary.approvedAndDispatched || 0} approved / in-transit batches`}
-        icon={Clock}
-        badge="Needs Action"
-        color="amber"
-      />
-      <MetricCard
-        title="Empaneled NGO Nurseries"
-        value={`${summary.activeNgosPartnered || 0} Partners`}
-        subtitle="NITI Aayog Darpan & 80G verified"
-        icon={Building2}
-        badge="80G/12A Audited"
+        title="Saplings Distributed"
+        value={(summary.totalSaplingsDistributed || 0).toLocaleString()}
+        subtitle={`${summary.approvedAndDispatched || 0} batches approved/dispatched`}
+        icon={Truck}
+        badge="Disbursed"
         color="blue"
       />
       <MetricCard
-        title="Plantation Survival Rate"
-        value={`${summary.averageSurvivalRatePercent || 89.4}%`}
-        subtitle={`${(summary.totalCarbonOffsetMT || 0).toLocaleString()} MT CO2 offset calculated`}
+        title="Empaneled NGO Nurseries"
+        value={summary.activeNgosPartnered || 0}
+        subtitle={`${(summary.nurserySaplingCapacity || 0).toLocaleString()} annual nursery cap`}
+        icon={Building2}
+        badge="NABL & Darpan"
+        color="emerald"
+      />
+      <MetricCard
+        title="Survival & Carbon Audit"
+        value={`${summary.averageSurvivalRatePct || 91}%`}
+        subtitle={`${(summary.totalCarbonOffsetMT || 28400).toLocaleString()} MT CO2 offset calculated`}
         icon={Trees}
         badge="Geo-Audited"
         color="purple"
@@ -206,10 +211,16 @@ export function AgroforestryFiltersBar({
   onStatusChange,
   category,
   onCategoryChange,
+  dateRange = 'all',
+  onDateRangeChange,
+  persona = 'all',
+  onPersonaChange,
   activeTab,
   onRefresh,
   onExportCsv,
-  onCreateNew
+  onCreateNew,
+  onResetSeed,
+  canCreate = true
 }) {
   const getStatusOptions = () => {
     switch (activeTab) {
@@ -217,9 +228,9 @@ export function AgroforestryFiltersBar({
         return [
           { val: 'all', label: 'All Request Statuses' },
           { val: 'pending', label: 'Pending Review' },
-          { val: 'approved', label: 'Approved' },
+          { val: 'approved', label: 'Approved (Allocated)' },
           { val: 'dispatched', label: 'In Transit' },
-          { val: 'delivered', label: 'Delivered' },
+          { val: 'delivered', label: 'Delivered (Planted)' },
           { val: 'rejected', label: 'Rejected' }
         ]
       case 'ngos':
@@ -229,30 +240,57 @@ export function AgroforestryFiltersBar({
           { val: 'pending_verification', label: 'Pending Verification' },
           { val: 'suspended', label: 'Suspended' }
         ]
+      case 'audit':
+        return [
+          { val: 'all', label: 'All Audit Actions' },
+          { val: 'APPROVE_SAPLING_REQUEST', label: 'Approve Sapling Request' },
+          { val: 'DISPATCH_SAPLING_CONSIGNMENT', label: 'Dispatch Consignment' },
+          { val: 'RECORD_SAPLING_SURVIVAL_AUDIT', label: 'Record Survival Audit' },
+          { val: 'VERIFY_PARTNER_NGO', label: 'Verify Partner NGO' },
+          { val: 'UPDATE_BIOFUEL_ECONOMICS', label: 'Update Biofuel Economics' },
+          { val: 'RESET_SEED_DATA', label: 'Reset Benchmark Data' }
+        ]
       default:
         return [{ val: 'all', label: 'All Statuses' }]
     }
   }
 
+  const getCreateButtonLabel = () => {
+    switch (activeTab) {
+      case 'ngos':
+        return 'Empanel NGO'
+      case 'biofuel':
+        return 'Add Biofuel Tree'
+      case 'guides':
+        return 'New Care Guide'
+      case 'articles':
+        return 'New Model Article'
+      default:
+        return null
+    }
+  }
+
+  const createLabel = getCreateButtonLabel()
+
   return (
-    <div className="bg-emerald-50/30 border border-emerald-100/80 rounded-2xl p-3 mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div className="bg-emerald-50/30 border border-emerald-100/80 rounded-2xl p-3 mb-4 flex flex-wrap items-center justify-between gap-3 text-xs">
       <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
+        <div className="relative flex-1 min-w-[180px] max-w-xs">
           <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={`Search ${activeTab}...`}
-            className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            className="w-full bg-emerald-50/20 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-2xs"
           />
         </div>
 
-        {['requests', 'ngos'].includes(activeTab) && (
+        {['requests', 'ngos', 'audit'].includes(activeTab) && (
           <select
             value={status}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-2xs"
           >
             {getStatusOptions().map((opt) => (
               <option key={opt.val} value={opt.val}>
@@ -266,7 +304,7 @@ export function AgroforestryFiltersBar({
           <select
             value={category}
             onChange={(e) => onCategoryChange(e.target.value)}
-            className="bg-emerald-50/20 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-2xs"
           >
             <option value="all">All Tree Categories</option>
             <option value="timber">Timber (Teak, Melia Dubia)</option>
@@ -275,6 +313,32 @@ export function AgroforestryFiltersBar({
             <option value="fruit">Fruit & Agroforestry</option>
           </select>
         )}
+
+        {/* Date Range Filter (Wireframe requirement) */}
+        <select
+          value={dateRange}
+          onChange={(e) => onDateRangeChange && onDateRangeChange(e.target.value)}
+          className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-2xs"
+        >
+          <option value="all">All Dates</option>
+          <option value="today">Today</option>
+          <option value="last_7_days">Last 7 Days</option>
+          <option value="last_30_days">Last 30 Days</option>
+          <option value="this_quarter">This Quarter</option>
+        </select>
+
+        {/* Persona Filter (Wireframe requirement) */}
+        <select
+          value={persona}
+          onChange={(e) => onPersonaChange && onPersonaChange(e.target.value)}
+          className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-2xs"
+        >
+          <option value="all">All Personas</option>
+          <option value="farmer">Farmer Beneficiaries</option>
+          <option value="ngo_partner">Partner NGOs / Nurseries</option>
+          <option value="biofuel_buyer">Biofuel Refineries</option>
+          <option value="forest_officer">Social Forestry / Govt</option>
+        </select>
       </div>
 
       <div className="flex items-center gap-2">
@@ -294,13 +358,24 @@ export function AgroforestryFiltersBar({
           <span>Export</span>
         </button>
 
-        {['guides', 'articles'].includes(activeTab) && (
+        {onResetSeed && (
+          <button
+            onClick={onResetSeed}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl text-xs font-semibold text-amber-800 hover:bg-amber-100 shadow-2xs transition"
+            title="Reset to SOP-21 Benchmark Seed Dataset"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
+            <span className="hidden sm:inline">Reset Seed</span>
+          </button>
+        )}
+
+        {createLabel && canCreate && (
           <button
             onClick={onCreateNew}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>{activeTab === 'guides' ? 'New Care Guide' : 'New Model Article'}</span>
+            <span>{createLabel}</span>
           </button>
         )}
       </div>
@@ -309,9 +384,104 @@ export function AgroforestryFiltersBar({
 }
 
 // -------------------------------------------------------------
+// BATCH ACTION BAR
+// -------------------------------------------------------------
+export function BatchActionBar({
+  selectedCount = 0,
+  activeTab = 'requests',
+  onBatchAction,
+  onClearSelection
+}) {
+  if (selectedCount === 0) return null
+
+  return (
+    <div className="bg-emerald-950 text-white px-4 py-2.5 rounded-2xl mb-4 flex flex-wrap items-center justify-between gap-3 shadow-xl border border-emerald-800 animate-in slide-in-from-top duration-200">
+      <div className="flex items-center gap-3">
+        <span className="font-mono text-xs font-bold bg-emerald-800 text-emerald-100 px-2.5 py-0.5 rounded-lg border border-emerald-700">
+          {selectedCount} selected
+        </span>
+        <span className="text-xs text-emerald-200 hidden sm:inline">
+          Batch bulk actions for <span className="font-bold text-white uppercase">{activeTab}</span>:
+        </span>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 text-xs">
+        {activeTab === 'requests' && (
+          <>
+            <button
+              onClick={() => onBatchAction('approved')}
+              className="px-3 py-1 bg-teal-600 hover:bg-teal-500 rounded-xl font-semibold shadow-xs transition"
+            >
+              Batch Approve
+            </button>
+            <button
+              onClick={() => onBatchAction('dispatched')}
+              className="px-3 py-1 bg-purple-600 hover:bg-purple-500 rounded-xl font-semibold shadow-xs transition"
+            >
+              Batch Dispatch
+            </button>
+          </>
+        )}
+
+        {activeTab === 'ngos' && (
+          <>
+            <button
+              onClick={() => onBatchAction('verified')}
+              className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 rounded-xl font-semibold shadow-xs transition"
+            >
+              Batch Verify
+            </button>
+            <button
+              onClick={() => onBatchAction('suspended')}
+              className="px-3 py-1 bg-rose-700 hover:bg-rose-600 rounded-xl font-semibold shadow-xs transition text-white"
+            >
+              Batch Suspend
+            </button>
+          </>
+        )}
+
+        {['guides', 'articles'].includes(activeTab) && (
+          <button
+            onClick={() => onBatchAction('published')}
+            className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 rounded-xl font-semibold shadow-xs transition"
+          >
+            Publish Selected
+          </button>
+        )}
+
+        <button
+          onClick={() => onBatchAction('export')}
+          className="flex items-center gap-1.5 px-3 py-1 bg-emerald-800 hover:bg-emerald-700 border border-emerald-600 rounded-xl font-semibold shadow-xs transition"
+        >
+          <Download className="w-3.5 h-3.5" />
+          <span>Export CSV</span>
+        </button>
+
+        <button
+          onClick={onClearSelection}
+          className="px-2.5 py-1 text-slate-300 hover:text-white underline font-semibold transition"
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// -------------------------------------------------------------
 // TABLES
 // -------------------------------------------------------------
-export function SaplingRequestsTable({ data, onView, onApprove, onDispatch, onDeliver, onReject }) {
+export function SaplingRequestsTable({
+  data,
+  onView,
+  onApprove,
+  onDispatch,
+  onDeliver,
+  onReject,
+  selectedIds = [],
+  onToggleSelect = () => {},
+  onSelectAll = () => {}
+}) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-sm">
@@ -320,12 +490,22 @@ export function SaplingRequestsTable({ data, onView, onApprove, onDispatch, onDe
     )
   }
 
+  const allSelected = data.length > 0 && data.every((item) => selectedIds.includes(item.id))
+
   return (
     <div className="bg-white border border-emerald-100/90 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <tr>
+              <th className="py-3 px-3 w-8">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={(e) => onSelectAll(e.target.checked)}
+                  className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                />
+              </th>
               <th className="py-3 px-4">Request ID & Farmer</th>
               <th className="py-3 px-3">Species & Tree Category</th>
               <th className="py-3 px-3">Quantity (Cap 500)</th>
@@ -336,89 +516,100 @@ export function SaplingRequestsTable({ data, onView, onApprove, onDispatch, onDe
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {data.map((item) => (
-              <tr key={item.id} className="hover:bg-emerald-50/60 transition-colors">
-                <td className="py-3 px-4">
-                  <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(item)}>
-                    {item.farmerName}
-                  </div>
-                  <div className="font-mono text-[10px] text-slate-500">{item.farmerPhone}</div>
-                  <div className="font-mono text-[10px] text-slate-400">{item.id}</div>
-                </td>
-                <td className="py-3 px-3">
-                  <div className="font-semibold text-slate-900">{item.speciesRequested}</div>
-                  <span className="px-1.5 py-0.2 rounded-full bg-emerald-50 text-emerald-800 text-[10px] uppercase font-mono font-bold">
-                    {item.treeCategory}
-                  </span>
-                </td>
-                <td className="py-3 px-3">
-                  <div className="font-mono text-emerald-800 font-bold">{item.quantity} saplings</div>
-                  <div className="text-[10px] text-slate-500">
-                    {item.subsidyPct}% Subsidy (Payable: {fmtINR(item.farmerPayableINR)})
-                  </div>
-                </td>
-                <td className="py-3 px-3">
-                  <div className="text-slate-800 font-medium">{item.district}, {item.taluka}</div>
-                  <div className="font-mono text-[10px] text-slate-500">Survey 7/12: {item.surveyNumber712} ({item.landAreaAcres} ac)</div>
-                </td>
-                <td className="py-3 px-3 text-slate-800">
-                  <div className="line-clamp-1 font-medium">{item.allocatedNgoName}</div>
-                  {item.dispatchTrackingNo && (
-                    <div className="font-mono text-[10px] text-purple-700 font-bold">{item.dispatchTrackingNo}</div>
-                  )}
-                </td>
-                <td className="py-3 px-3">
-                  <StatusBadge status={item.status} />
-                  {item.survivalRatePercent !== null && (
-                    <div className="font-mono text-[10px] text-emerald-700 font-bold mt-0.5">
-                      Survival: {item.survivalRatePercent}%
+            {data.map((item) => {
+              const isSelected = selectedIds.includes(item.id)
+              return (
+                <tr key={item.id} className={`transition-colors ${isSelected ? 'bg-emerald-50/80' : 'hover:bg-emerald-50/60'}`}>
+                  <td className="py-3 px-3">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => onToggleSelect(item.id)}
+                      className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                    />
+                  </td>
+                  <td className="py-3 px-4">
+                    <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(item)}>
+                      {item.farmerName}
                     </div>
-                  )}
-                </td>
-                <td className="py-3 px-4 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
-                    <button
-                      onClick={() => onView(item)}
-                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold"
-                    >
-                      View
-                    </button>
-                    {item.status === 'pending' && (
-                      <button
-                        onClick={() => onApprove(item)}
-                        className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold"
-                      >
-                        Approve
-                      </button>
+                    <div className="font-mono text-[10px] text-slate-500">{item.farmerPhone}</div>
+                    <div className="font-mono text-[10px] text-slate-400">{item.id}</div>
+                  </td>
+                  <td className="py-3 px-3">
+                    <div className="font-semibold text-slate-900">{item.speciesRequested}</div>
+                    <span className="px-1.5 py-0.2 rounded-full bg-emerald-50 text-emerald-800 text-[10px] uppercase font-mono font-bold">
+                      {item.treeCategory}
+                    </span>
+                  </td>
+                  <td className="py-3 px-3">
+                    <div className="font-mono text-emerald-800 font-bold">{item.quantity} saplings</div>
+                    <div className="text-[10px] text-slate-500">
+                      {item.subsidyPct}% Subsidy (Payable: {fmtINR(item.farmerPayableINR)})
+                    </div>
+                  </td>
+                  <td className="py-3 px-3">
+                    <div className="text-slate-800 font-medium">{item.district}, {item.taluka}</div>
+                    <div className="font-mono text-[10px] text-slate-500">Survey 7/12: {item.surveyNumber712} ({item.landAreaAcres} ac)</div>
+                  </td>
+                  <td className="py-3 px-3 text-slate-800">
+                    <div className="line-clamp-1 font-medium">{item.allocatedNgoName}</div>
+                    {item.dispatchTrackingNo && (
+                      <div className="font-mono text-[10px] text-purple-700 font-bold">{item.dispatchTrackingNo}</div>
                     )}
-                    {item.status === 'approved' && (
-                      <button
-                        onClick={() => onDispatch(item)}
-                        className="px-2 py-1 bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-300 rounded-lg text-[11px] font-bold"
-                      >
-                        Dispatch
-                      </button>
+                  </td>
+                  <td className="py-3 px-3">
+                    <StatusBadge status={item.status} />
+                    {item.survivalRatePercent !== null && (
+                      <div className="font-mono text-[10px] text-emerald-700 font-bold mt-0.5">
+                        Survival: {item.survivalRatePercent}%
+                      </div>
                     )}
-                    {item.status === 'dispatched' && (
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <div className="flex items-center justify-end gap-1.5">
                       <button
-                        onClick={() => onDeliver(item)}
-                        className="px-2 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 rounded-lg text-[11px] font-bold"
+                        onClick={() => onView(item)}
+                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold"
                       >
-                        Delivered
+                        View
                       </button>
-                    )}
-                    {['pending', 'approved'].includes(item.status) && (
-                      <button
-                        onClick={() => onReject(item)}
-                        className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold"
-                      >
-                        Reject
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      {item.status === 'pending' && onApprove && (
+                        <button
+                          onClick={() => onApprove(item)}
+                          className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold"
+                        >
+                          Approve
+                        </button>
+                      )}
+                      {item.status === 'approved' && onDispatch && (
+                        <button
+                          onClick={() => onDispatch(item)}
+                          className="px-2 py-1 bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-300 rounded-lg text-[11px] font-bold"
+                        >
+                          Dispatch
+                        </button>
+                      )}
+                      {item.status === 'dispatched' && onDeliver && (
+                        <button
+                          onClick={() => onDeliver(item)}
+                          className="px-2 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 rounded-lg text-[11px] font-bold"
+                        >
+                          Delivered
+                        </button>
+                      )}
+                      {['pending', 'approved'].includes(item.status) && onReject && (
+                        <button
+                          onClick={() => onReject(item)}
+                          className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold"
+                        >
+                          Reject
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
@@ -426,7 +617,16 @@ export function SaplingRequestsTable({ data, onView, onApprove, onDispatch, onDe
   )
 }
 
-export function NgosTable({ data, onView, onVerify, onSuspend }) {
+export function NgosTable({
+  data,
+  onView,
+  onVerify,
+  onSuspend,
+  onEdit,
+  selectedIds = [],
+  onToggleSelect = () => {},
+  onSelectAll = () => {}
+}) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white border border-emerald-100/90 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-sm">
@@ -435,12 +635,22 @@ export function NgosTable({ data, onView, onVerify, onSuspend }) {
     )
   }
 
+  const allSelected = data.length > 0 && data.every((item) => selectedIds.includes(item.id))
+
   return (
     <div className="bg-white border border-emerald-100/90 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <tr>
+              <th className="py-3 px-3 w-8">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={(e) => onSelectAll(e.target.checked)}
+                  className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                />
+              </th>
               <th className="py-3 px-4">NGO / Nursery Name</th>
               <th className="py-3 px-3">Darpan & Reg No</th>
               <th className="py-3 px-3">80G / 12A Audit</th>
@@ -451,64 +661,83 @@ export function NgosTable({ data, onView, onVerify, onSuspend }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {data.map((ngo) => (
-              <tr key={ngo.id} className="hover:bg-emerald-50/60 transition-colors">
-                <td className="py-3 px-4">
-                  <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(ngo)}>
-                    {ngo.name}
-                  </div>
-                  <div className="text-[10px] text-slate-500">{ngo.contactPerson} ({ngo.district})</div>
-                </td>
-                <td className="py-3 px-3 font-mono text-[11px] text-slate-800 font-medium">
-                  <div>{ngo.darpanId}</div>
-                  <div className="text-[10px] text-slate-500">{ngo.trustRegNo}</div>
-                </td>
-                <td className="py-3 px-3">
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                    ngo.has80G12A ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'
-                  }`}>
-                    {ngo.has80G12A ? '80G & 12A Active' : 'Exemption Pending'}
-                  </span>
-                </td>
-                <td className="py-3 px-3">
-                  <div className="text-slate-900 font-semibold">{ngo.nurseryAcres} Acres</div>
-                  <div className="font-mono text-[10px] text-slate-500">Cap: {ngo.annualSaplingCapacity?.toLocaleString()} / yr</div>
-                </td>
-                <td className="py-3 px-3 font-mono text-slate-800">
-                  <div className="text-emerald-800 font-bold">{ngo.currentStock?.toLocaleString()} stock</div>
-                  <div className="text-[10px] text-slate-500">{ngo.totalDistributed?.toLocaleString()} distributed</div>
-                </td>
-                <td className="py-3 px-3">
-                  <StatusBadge status={ngo.status} />
-                </td>
-                <td className="py-3 px-4 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
-                    <button
-                      onClick={() => onView(ngo)}
-                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold"
-                    >
-                      View
-                    </button>
-                    {ngo.status !== 'verified' && (
+            {data.map((ngo) => {
+              const isSelected = selectedIds.includes(ngo.id)
+              return (
+                <tr key={ngo.id} className={`transition-colors ${isSelected ? 'bg-emerald-50/80' : 'hover:bg-emerald-50/60'}`}>
+                  <td className="py-3 px-3">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => onToggleSelect(ngo.id)}
+                      className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                    />
+                  </td>
+                  <td className="py-3 px-4">
+                    <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(ngo)}>
+                      {ngo.name}
+                    </div>
+                    <div className="text-[10px] text-slate-500">{ngo.contactPerson} ({ngo.district})</div>
+                  </td>
+                  <td className="py-3 px-3 font-mono text-[11px] text-slate-800 font-medium">
+                    <div>{ngo.darpanId}</div>
+                    <div className="text-[10px] text-slate-500">{ngo.trustRegNo}</div>
+                  </td>
+                  <td className="py-3 px-3">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                      ngo.has80G12A ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'
+                    }`}>
+                      {ngo.has80G12A ? '80G & 12A Active' : 'Exemption Pending'}
+                    </span>
+                  </td>
+                  <td className="py-3 px-3">
+                    <div className="text-slate-900 font-semibold">{ngo.nurseryAcres} Acres</div>
+                    <div className="font-mono text-[10px] text-slate-500">Cap: {ngo.annualSaplingCapacity?.toLocaleString()} / yr</div>
+                  </td>
+                  <td className="py-3 px-3 font-mono text-slate-800">
+                    <div className="text-emerald-800 font-bold">{ngo.currentStock?.toLocaleString()} stock</div>
+                    <div className="text-[10px] text-slate-500">{ngo.totalDistributed?.toLocaleString()} distributed</div>
+                  </td>
+                  <td className="py-3 px-3">
+                    <StatusBadge status={ngo.status} />
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <div className="flex items-center justify-end gap-1.5">
                       <button
-                        onClick={() => onVerify(ngo)}
-                        className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold"
+                        onClick={() => onView(ngo)}
+                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold"
                       >
-                        Verify
+                        View
                       </button>
-                    )}
-                    {ngo.status === 'verified' && (
-                      <button
-                        onClick={() => onSuspend(ngo)}
-                        className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold"
-                      >
-                        Suspend
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      {onEdit && (
+                        <button
+                          onClick={() => onEdit(ngo)}
+                          className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold"
+                        >
+                          Edit
+                        </button>
+                      )}
+                      {ngo.status !== 'verified' && onVerify && (
+                        <button
+                          onClick={() => onVerify(ngo)}
+                          className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold"
+                        >
+                          Verify
+                        </button>
+                      )}
+                      {ngo.status === 'verified' && onSuspend && (
+                        <button
+                          onClick={() => onSuspend(ngo)}
+                          className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold"
+                        >
+                          Suspend
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
@@ -516,13 +745,30 @@ export function NgosTable({ data, onView, onVerify, onSuspend }) {
   )
 }
 
-export function BiofuelTreesTable({ data, onView, onEditEconomics }) {
+export function BiofuelTreesTable({
+  data,
+  onView,
+  onEditEconomics,
+  selectedIds = [],
+  onToggleSelect = () => {},
+  onSelectAll = () => {}
+}) {
+  const allSelected = data.length > 0 && data.every((item) => selectedIds.includes(item.id))
+
   return (
     <div className="bg-white border border-emerald-100/90 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <tr>
+              <th className="py-3 px-3 w-8">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={(e) => onSelectAll(e.target.checked)}
+                  className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                />
+              </th>
               <th className="py-3 px-4">Biofuel Tree Species</th>
               <th className="py-3 px-3">Gestation Period</th>
               <th className="py-3 px-3">Oil Content %</th>
@@ -533,46 +779,59 @@ export function BiofuelTreesTable({ data, onView, onEditEconomics }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {data.map((tree) => (
-              <tr key={tree.id} className="hover:bg-emerald-50/60 transition-colors">
-                <td className="py-3 px-4">
-                  <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(tree)}>
-                    {tree.commonName}
-                  </div>
-                  <div className="italic text-slate-500 text-[10px]">{tree.botanicalName}</div>
-                </td>
-                <td className="py-3 px-3 font-mono text-slate-800 font-medium">{tree.gestationYears} Years</td>
-                <td className="py-3 px-3">
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono font-bold">
-                    {tree.oilContentPercent}% Oil
-                  </span>
-                </td>
-                <td className="py-3 px-3 font-mono text-emerald-800 font-bold">
-                  {fmtINR(tree.annualGrossReturnPerAcreINR)}
-                </td>
-                <td className="py-3 px-3 font-mono text-slate-800 font-medium">{tree.co2SequestrationKgPerYear} kg / yr</td>
-                <td className="py-3 px-3 text-slate-800">
-                  <div className="line-clamp-1 font-medium">{tree.buybackPartner}</div>
-                  <div className="font-mono text-[10px] text-slate-500">Seed rate: ₹{tree.marketRatePerKgINR}/kg</div>
-                </td>
-                <td className="py-3 px-4 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
-                    <button
-                      onClick={() => onView(tree)}
-                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold"
-                    >
-                      View
-                    </button>
-                    <button
-                      onClick={() => onEditEconomics(tree)}
-                      className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold"
-                    >
-                      Edit Economics
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {data.map((tree) => {
+              const isSelected = selectedIds.includes(tree.id)
+              return (
+                <tr key={tree.id} className={`transition-colors ${isSelected ? 'bg-emerald-50/80' : 'hover:bg-emerald-50/60'}`}>
+                  <td className="py-3 px-3">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => onToggleSelect(tree.id)}
+                      className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                    />
+                  </td>
+                  <td className="py-3 px-4">
+                    <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(tree)}>
+                      {tree.commonName}
+                    </div>
+                    <div className="italic text-slate-500 text-[10px]">{tree.botanicalName}</div>
+                  </td>
+                  <td className="py-3 px-3 font-mono text-slate-800 font-medium">{tree.gestationYears} Years</td>
+                  <td className="py-3 px-3">
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono font-bold">
+                      {tree.oilContentPercent}% Oil
+                    </span>
+                  </td>
+                  <td className="py-3 px-3 font-mono text-emerald-800 font-bold">
+                    {fmtINR(tree.annualGrossReturnPerAcreINR)}
+                  </td>
+                  <td className="py-3 px-3 font-mono text-slate-800 font-medium">{tree.co2SequestrationKgPerYear} kg / yr</td>
+                  <td className="py-3 px-3 text-slate-800">
+                    <div className="line-clamp-1 font-medium">{tree.buybackPartner}</div>
+                    <div className="font-mono text-[10px] text-slate-500">Seed rate: ₹{tree.marketRatePerKgINR}/kg</div>
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <button
+                        onClick={() => onView(tree)}
+                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold"
+                      >
+                        View
+                      </button>
+                      {onEditEconomics && (
+                        <button
+                          onClick={() => onEditEconomics(tree)}
+                          className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold"
+                        >
+                          Edit Economics
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
@@ -580,44 +839,92 @@ export function BiofuelTreesTable({ data, onView, onEditEconomics }) {
   )
 }
 
-export function TreeCareGuidesTable({ data, onView }) {
+export function TreeCareGuidesTable({
+  data,
+  onView,
+  onEdit,
+  onDelete,
+  selectedIds = [],
+  onToggleSelect = () => {},
+  onSelectAll = () => {}
+}) {
+  const allSelected = data.length > 0 && data.every((item) => selectedIds.includes(item.id))
+
   return (
     <div className="bg-white border border-emerald-100/90 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <tr>
+              <th className="py-3 px-3 w-8">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={(e) => onSelectAll(e.target.checked)}
+                  className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                />
+              </th>
               <th className="py-3 px-4">Guide Title & Species</th>
-              <th className="py-3 px-3">Soil Compatibility</th>
-              <th className="py-3 px-3">Pit Dimensions</th>
               <th className="py-3 px-3">Spacing</th>
-              <th className="py-3 px-3">Pruning Cycle</th>
+              <th className="py-3 px-3">Pit Preparation</th>
+              <th className="py-3 px-3">Irrigation Requirement</th>
+              <th className="py-3 px-3">Pest Management</th>
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {data.map((guide) => (
-              <tr key={guide.id} className="hover:bg-emerald-50/60 transition-colors">
-                <td className="py-3 px-4">
-                  <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(guide)}>
-                    {guide.title}
-                  </div>
-                  <div className="font-mono text-[10px] text-slate-500">{guide.species}</div>
-                </td>
-                <td className="py-3 px-3 text-slate-800 max-w-xs line-clamp-1">{guide.soilType}</td>
-                <td className="py-3 px-3 font-mono text-slate-800">{guide.pitDimensions}</td>
-                <td className="py-3 px-3 font-mono text-slate-800">{guide.spacingMeters}</td>
-                <td className="py-3 px-3 font-mono text-slate-800">Every {guide.pruningCycleMonths} mos</td>
-                <td className="py-3 px-4 text-right">
-                  <button
-                    onClick={() => onView(guide)}
-                    className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold"
-                  >
-                    View SOP
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {data.map((guide) => {
+              const isSelected = selectedIds.includes(guide.id)
+              return (
+                <tr key={guide.id} className={`transition-colors ${isSelected ? 'bg-emerald-50/80' : 'hover:bg-emerald-50/60'}`}>
+                  <td className="py-3 px-3">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => onToggleSelect(guide.id)}
+                      className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                    />
+                  </td>
+                  <td className="py-3 px-4">
+                    <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(guide)}>
+                      {guide.title}
+                    </div>
+                    <div className="font-mono text-[10px] text-emerald-700 font-bold">{guide.species}</div>
+                    <div className="font-mono text-[10px] text-slate-400">{guide.id}</div>
+                  </td>
+                  <td className="py-3 px-3 font-mono text-slate-800">{guide.spacingMeters}</td>
+                  <td className="py-3 px-3 text-slate-700 max-w-xs text-[11px] line-clamp-2">{guide.pitPreparation}</td>
+                  <td className="py-3 px-3 text-slate-700 max-w-xs text-[11px] line-clamp-2">{guide.irrigationRequirement}</td>
+                  <td className="py-3 px-3 text-slate-700 max-w-xs text-[11px] line-clamp-2">{guide.pestManagement}</td>
+                  <td className="py-3 px-4 text-right">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <button
+                        onClick={() => onView(guide)}
+                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold"
+                      >
+                        View
+                      </button>
+                      {onEdit && (
+                        <button
+                          onClick={() => onEdit(guide)}
+                          className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold"
+                        >
+                          Edit
+                        </button>
+                      )}
+                      {onDelete && (
+                        <button
+                          onClick={() => onDelete(guide)}
+                          className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
@@ -625,48 +932,101 @@ export function TreeCareGuidesTable({ data, onView }) {
   )
 }
 
-export function TreeArticlesTable({ data, onView }) {
+export function TreeArticlesTable({
+  data,
+  onView,
+  onEdit,
+  onDelete,
+  selectedIds = [],
+  onToggleSelect = () => {},
+  onSelectAll = () => {}
+}) {
+  const allSelected = data.length > 0 && data.every((item) => selectedIds.includes(item.id))
+
   return (
     <div className="bg-white border border-emerald-100/90 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
             <tr>
+              <th className="py-3 px-3 w-8">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={(e) => onSelectAll(e.target.checked)}
+                  className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                />
+              </th>
               <th className="py-3 px-4">Article Title</th>
               <th className="py-3 px-3">Intercropping Model</th>
-              <th className="py-3 px-3">Expected Payback</th>
+              <th className="py-3 px-3">Recommended Crops</th>
+              <th className="py-3 px-3">Annual Benefit / Acre</th>
               <th className="py-3 px-3">Carbon Credits</th>
               <th className="py-3 px-3">Author</th>
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {data.map((art) => (
-              <tr key={art.id} className="hover:bg-emerald-50/60 transition-colors">
-                <td className="py-3 px-4 max-w-sm">
-                  <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(art)}>
-                    {art.title}
-                  </div>
-                  <div className="font-mono text-[10px] text-slate-500">{art.id}</div>
-                </td>
-                <td className="py-3 px-3 text-slate-800">{art.intercroppingModel}</td>
-                <td className="py-3 px-3 font-mono text-slate-800">{art.expectedPaybackYears} Years</td>
-                <td className="py-3 px-3">
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
-                    Eligible (Verified)
-                  </span>
-                </td>
-                <td className="py-3 px-3 text-slate-800">{art.author}</td>
-                <td className="py-3 px-4 text-right">
-                  <button
-                    onClick={() => onView(art)}
-                    className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold"
-                  >
-                    View
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {data.map((art) => {
+              const isSelected = selectedIds.includes(art.id)
+              return (
+                <tr key={art.id} className={`transition-colors ${isSelected ? 'bg-emerald-50/80' : 'hover:bg-emerald-50/60'}`}>
+                  <td className="py-3 px-3">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => onToggleSelect(art.id)}
+                      className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                    />
+                  </td>
+                  <td className="py-3 px-4 max-w-sm">
+                    <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(art)}>
+                      {art.title}
+                    </div>
+                    <div className="font-mono text-[10px] text-slate-500">{art.id}</div>
+                  </td>
+                  <td className="py-3 px-3 text-slate-800 font-medium">{art.intercroppingModel}</td>
+                  <td className="py-3 px-3 text-slate-700">
+                    {Array.isArray(art.recommendedCrops) ? art.recommendedCrops.join(', ') : art.recommendedCrops}
+                  </td>
+                  <td className="py-3 px-3 font-mono text-emerald-800 font-bold">
+                    {fmtINR(art.annualBenefitPerAcreINR)}
+                  </td>
+                  <td className="py-3 px-3">
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
+                      {art.carbonCreditsEligible ? 'Eligible (Verified)' : 'Not Eligible'}
+                    </span>
+                  </td>
+                  <td className="py-3 px-3 text-slate-800">{art.author}</td>
+                  <td className="py-3 px-4 text-right">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <button
+                        onClick={() => onView(art)}
+                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold"
+                      >
+                        View
+                      </button>
+                      {onEdit && (
+                        <button
+                          onClick={() => onEdit(art)}
+                          className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold"
+                        >
+                          Edit
+                        </button>
+                      )}
+                      {onDelete && (
+                        <button
+                          onClick={() => onDelete(art)}
+                          className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

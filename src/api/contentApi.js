@@ -1,967 +1,575 @@
 import { request } from './client'
-import {
-  mockAgriNews,
-  mockAgriChannels,
-  mockWorkshops,
-  mockWorkshopRosters,
-  mockExpertTalks,
-  mockVideoGuides,
-  mockBlogArticles,
-  mockContentAuditLogs,
-  mockContentSummary
-} from './contentMockData'
+import { adminContentService } from '../services/adminContentService'
 
-let mockMode = false
+let apiDisabled = false
 
-function paginate(list, page = 1, pageSize = 20) {
-  const start = (page - 1) * pageSize
-  return {
-    data: list.slice(start, start + pageSize),
-    page,
-    pageSize,
-    total: list.length
-  }
+function toQueryString(params = {}) {
+  const q = new URLSearchParams()
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && v !== '') {
+      q.append(k, String(v))
+    }
+  })
+  const str = q.toString()
+  return str ? `?${str}` : ''
 }
 
-// In-memory state for mutations
-let newsState = JSON.parse(JSON.stringify(mockAgriNews))
-let channelsState = JSON.parse(JSON.stringify(mockAgriChannels))
-let workshopsState = JSON.parse(JSON.stringify(mockWorkshops))
-let rostersState = JSON.parse(JSON.stringify(mockWorkshopRosters))
-let talksState = JSON.parse(JSON.stringify(mockExpertTalks))
-let videosState = JSON.parse(JSON.stringify(mockVideoGuides))
-let blogsState = JSON.parse(JSON.stringify(mockBlogArticles))
-let auditLogsState = JSON.parse(JSON.stringify(mockContentAuditLogs))
-
-function recordAudit({ actionType, entityId, entityName, collection, previousState, newState, reason, adminName = 'Super Admin' }) {
-  const logEntry = {
-    id: `aud_cnt_${Date.now()}`,
-    adminUid: 'usr_admin_root',
-    adminName,
-    timestamp: new Date().toISOString(),
-    ipAddress: '10.0.4.15',
-    actionType,
-    entityId,
-    entityName,
-    collection,
-    previousState,
-    newState,
-    reason: reason || 'Superadmin routine administrative action'
-  }
-  auditLogsState.unshift(logEntry)
-  return logEntry
-}
-
+// -------------------------------------------------------------
+// 1. CONTENT SUMMARY
+// -------------------------------------------------------------
 export async function getContentSummary() {
-  if (!mockMode) {
-    try {
-      return await request('GET', '/admin/content/summary')
-    } catch {
-      mockMode = true
-    }
+  if (apiDisabled) {
+    return adminContentService.getContentSummary()
   }
-
-  const liveChans = channelsState.filter((c) => c.status === 'live')
-  const totalViewers = liveChans.reduce((sum, c) => sum + (c.activeViewers || 0), 0)
-  const totalRevenue = workshopsState.reduce((sum, w) => sum + (w.enrolledCount * w.feeINR), 0)
-  const totalSeats = workshopsState.reduce((sum, w) => sum + w.enrolledCount, 0)
-  const pendingQuestions = talksState.reduce((sum, t) => sum + (t.farmerQuestions?.filter(q => q.status === 'pending_triage')?.length || 0), 0)
-  const flaggedChat = channelsState.reduce((sum, c) => sum + (c.chatMessages?.filter(m => m.moderationStatus === 'flagged')?.length || 0), 0)
-
-  return {
-    ...mockContentSummary,
-    totalActiveContent: newsState.length + channelsState.length + workshopsState.length + talksState.length + videosState.length + blogsState.length,
-    totalNewsArticles: newsState.length,
-    liveChannelsCount: liveChans.length,
-    totalLiveViewers: totalViewers || mockContentSummary.totalLiveViewers,
-    activeWorkshops: workshopsState.filter((w) => w.status === 'upcoming' || w.status === 'ongoing').length,
-    enrolledFarmersCount: totalSeats,
-    workshopRevenueINR: totalRevenue,
-    expertTalksScheduled: talksState.filter((t) => t.status === 'scheduled').length,
-    farmerQuestionsPendingTriage: pendingQuestions,
-    flaggedChatMessages: flaggedChat,
-    videoGuidesPublished: videosState.filter((v) => v.status === 'published').length,
-    blogArticlesPublished: blogsState.filter((b) => b.status === 'published').length
+  try {
+    const res = await request('GET', '/v1/admin/content/summary')
+    return res?.data || (await adminContentService.getContentSummary())
+  } catch {
+    apiDisabled = true
+    return adminContentService.getContentSummary()
   }
 }
 
 // -------------------------------------------------------------
-// 1. AGRI NEWS (agri_news)
+// 2. AGRI NEWS (agri_news)
 // -------------------------------------------------------------
-export async function listAgriNews({ q = '', status = 'all', language = 'all', category = 'all', page = 1, pageSize = 20 } = {}) {
-  if (!mockMode) {
-    try {
-      const qParams = new URLSearchParams({ q, status, language, category, page, pageSize })
-      return await request('GET', `/admin/content/agri_news?${qParams.toString()}`)
-    } catch {
-      mockMode = true
-    }
+export async function listAgriNews(params = {}) {
+  if (apiDisabled) {
+    return adminContentService.listAgriNews(params)
   }
-
-  const needle = q.trim().toLowerCase()
-  const filtered = newsState.filter((item) => {
-    if (status !== 'all' && item.status !== status) return false
-    if (language !== 'all' && item.language !== language) return false
-    if (category !== 'all' && item.category !== category) return false
-    if (!needle) return true
-    return [item.id, item.title, item.headline, item.author, item.source, ...(item.tags || [])]
-      .some((val) => String(val || '').toLowerCase().includes(needle))
-  })
-
-  return paginate(filtered, page, pageSize)
+  try {
+    const qs = toQueryString(params)
+    const res = await request('GET', `/v1/admin/content/agri_news${qs}`)
+    return res?.data || (await adminContentService.listAgriNews(params))
+  } catch {
+    apiDisabled = true
+    return adminContentService.listAgriNews(params)
+  }
 }
 
-export async function createAgriNews(payload) {
-  if (!mockMode) {
-    try {
-      return await request('POST', '/admin/content/agri_news', payload)
-    } catch {
-      mockMode = true
-    }
+export async function getAgriNewsById(id) {
+  if (apiDisabled) {
+    return adminContentService.getAgriNewsById(id)
   }
-
-  const newItem = {
-    id: `news_${Date.now()}`,
-    ...payload,
-    readCount: 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    userId: 'usr_admin_root'
+  try {
+    const res = await request('GET', `/v1/admin/content/agri_news/${id}`)
+    return res?.data || (await adminContentService.getAgriNewsById(id))
+  } catch {
+    apiDisabled = true
+    return adminContentService.getAgriNewsById(id)
   }
-  newsState.unshift(newItem)
-  recordAudit({
-    actionType: 'CREATE_NEWS_ARTICLE',
-    entityId: newItem.id,
-    entityName: newItem.title,
-    collection: 'agri_news',
-    previousState: 'none',
-    newState: newItem.status,
-    reason: `Created news article with ${newItem.breaking ? 'breaking' : 'standard'} priority and vernacular audio.`
-  })
-  return newItem
 }
 
-export async function updateAgriNews(id, payload) {
-  if (!mockMode) {
-    try {
-      return await request('PUT', `/admin/content/agri_news/${id}`, payload)
-    } catch {
-      mockMode = true
-    }
+export async function createAgriNews(payload, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.createAgriNews(payload, adminUid, adminName)
   }
-
-  const idx = newsState.findIndex((item) => item.id === id)
-  if (idx === -1) throw new Error('News item not found')
-  const prev = { ...newsState[idx] }
-  newsState[idx] = {
-    ...newsState[idx],
-    ...payload,
-    updatedAt: new Date().toISOString()
+  try {
+    const res = await request('POST', '/v1/admin/content/agri_news', payload)
+    return res?.data || (await adminContentService.createAgriNews(payload, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.createAgriNews(payload, adminUid, adminName)
   }
-
-  recordAudit({
-    actionType: 'UPDATE_NEWS_ARTICLE',
-    entityId: id,
-    entityName: newsState[idx].title,
-    collection: 'agri_news',
-    previousState: prev.status,
-    newState: newsState[idx].status,
-    reason: payload.reason || 'Admin updated article content/status'
-  })
-
-  return newsState[idx]
 }
 
-export async function deleteAgriNews(id, reason = 'Administrative deletion') {
-  if (!mockMode) {
-    try {
-      return await request('DELETE', `/admin/content/agri_news/${id}`, { reason })
-    } catch {
-      mockMode = true
-    }
+export async function updateAgriNews(id, patch, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.updateAgriNews(id, patch, adminUid, adminName)
   }
+  try {
+    const res = await request('PUT', `/v1/admin/content/agri_news/${id}`, patch)
+    return res?.data || (await adminContentService.updateAgriNews(id, patch, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.updateAgriNews(id, patch, adminUid, adminName)
+  }
+}
 
-  const idx = newsState.findIndex((item) => item.id === id)
-  if (idx === -1) throw new Error('News item not found')
-  const removed = newsState.splice(idx, 1)[0]
+export async function deleteAgriNews(id, reason, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.deleteAgriNews(id, reason, adminUid, adminName)
+  }
+  try {
+    const res = await request('DELETE', `/v1/admin/content/agri_news/${id}`, { reason })
+    return res?.data || (await adminContentService.deleteAgriNews(id, reason, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.deleteAgriNews(id, reason, adminUid, adminName)
+  }
+}
 
-  recordAudit({
-    actionType: 'DELETE_NEWS_ARTICLE',
-    entityId: id,
-    entityName: removed.title,
-    collection: 'agri_news',
-    previousState: removed.status,
-    newState: 'deleted',
-    reason
-  })
-
-  return { success: true, id }
+export async function batchUpdateNewsStatus(ids, newStatus, reason, adminUid, adminName) {
+  return adminContentService.batchUpdateNewsStatus(ids, newStatus, reason, adminUid, adminName)
 }
 
 // -------------------------------------------------------------
-// 2. AGRI CHANNELS (agri_channels) & LIVE CHAT MODERATION
+// 3. AGRI CHANNELS (agri_channels)
 // -------------------------------------------------------------
-export async function listAgriChannels({ q = '', status = 'all', page = 1, pageSize = 20 } = {}) {
-  if (!mockMode) {
-    try {
-      const qParams = new URLSearchParams({ q, status, page, pageSize })
-      return await request('GET', `/admin/content/agri_channels?${qParams.toString()}`)
-    } catch {
-      mockMode = true
-    }
+export async function listAgriChannels(params = {}) {
+  if (apiDisabled) {
+    return adminContentService.listAgriChannels(params)
   }
-
-  const needle = q.trim().toLowerCase()
-  const filtered = channelsState.filter((item) => {
-    if (status !== 'all' && item.status !== status) return false
-    if (!needle) return true
-    return [item.id, item.channelName, item.callsign, item.category]
-      .some((val) => String(val || '').toLowerCase().includes(needle))
-  })
-
-  return paginate(filtered, page, pageSize)
+  try {
+    const qs = toQueryString(params)
+    const res = await request('GET', `/v1/admin/content/agri_channels${qs}`)
+    return res?.data || (await adminContentService.listAgriChannels(params))
+  } catch {
+    apiDisabled = true
+    return adminContentService.listAgriChannels(params)
+  }
 }
 
-export async function createAgriChannel(payload) {
-  if (!mockMode) {
-    try {
-      return await request('POST', '/admin/content/agri_channels', payload)
-    } catch {
-      mockMode = true
-    }
+export async function getAgriChannelById(id) {
+  if (apiDisabled) {
+    return adminContentService.getAgriChannelById(id)
   }
-
-  const randomKey = 'live_stream_' + Math.random().toString(36).substring(2, 12) + Math.random().toString(36).substring(2, 8)
-  const newChan = {
-    id: `chan_${Date.now()}`,
-    ...payload,
-    streamKey: randomKey,
-    activeViewers: 0,
-    peakViewersToday: 0,
-    chatMessages: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    userId: 'usr_admin_root'
+  try {
+    const res = await request('GET', `/v1/admin/content/agri_channels/${id}`)
+    return res?.data || (await adminContentService.getAgriChannelById(id))
+  } catch {
+    apiDisabled = true
+    return adminContentService.getAgriChannelById(id)
   }
-  channelsState.unshift(newChan)
-  recordAudit({
-    actionType: 'CREATE_LIVE_CHANNEL',
-    entityId: newChan.id,
-    entityName: newChan.channelName,
-    collection: 'agri_channels',
-    previousState: 'none',
-    newState: newChan.status,
-    reason: `Configured new broadcast channel ${newChan.callsign} with RTMP ingest.`
-  })
-  return newChan
 }
 
-export async function updateAgriChannel(id, payload) {
-  if (!mockMode) {
-    try {
-      return await request('PUT', `/admin/content/agri_channels/${id}`, payload)
-    } catch {
-      mockMode = true
-    }
+export async function createAgriChannel(payload, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.createAgriChannel(payload, adminUid, adminName)
   }
-
-  const idx = channelsState.findIndex((c) => c.id === id)
-  if (idx === -1) throw new Error('Channel not found')
-  const prev = { ...channelsState[idx] }
-  channelsState[idx] = {
-    ...channelsState[idx],
-    ...payload,
-    updatedAt: new Date().toISOString()
+  try {
+    const res = await request('POST', '/v1/admin/content/agri_channels', payload)
+    return res?.data || (await adminContentService.createAgriChannel(payload, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.createAgriChannel(payload, adminUid, adminName)
   }
-
-  recordAudit({
-    actionType: 'UPDATE_CHANNEL_STATUS',
-    entityId: id,
-    entityName: channelsState[idx].channelName,
-    collection: 'agri_channels',
-    previousState: prev.status,
-    newState: channelsState[idx].status,
-    reason: payload.reason || 'Admin modified channel configuration/status'
-  })
-
-  return channelsState[idx]
 }
 
-export async function regenerateStreamKey(channelId, reason) {
-  if (!mockMode) {
-    try {
-      return await request('POST', `/admin/content/agri_channels/${channelId}/regenerate-key`, { reason })
-    } catch {
-      mockMode = true
-    }
+export async function updateAgriChannel(id, patch, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.updateAgriChannel(id, patch, adminUid, adminName)
   }
+  try {
+    const res = await request('PUT', `/v1/admin/content/agri_channels/${id}`, patch)
+    return res?.data || (await adminContentService.updateAgriChannel(id, patch, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.updateAgriChannel(id, patch, adminUid, adminName)
+  }
+}
 
-  const idx = channelsState.findIndex((c) => c.id === channelId)
-  if (idx === -1) throw new Error('Channel not found')
-  const newKey = 'live_sec_' + Math.random().toString(36).substring(2, 12) + Math.random().toString(36).substring(2, 8)
-  channelsState[idx].streamKey = newKey
-  channelsState[idx].updatedAt = new Date().toISOString()
-
-  recordAudit({
-    actionType: 'REGENERATE_STREAM_KEY',
-    entityId: channelId,
-    entityName: channelsState[idx].channelName,
-    collection: 'agri_channels',
-    previousState: 'old_key_revoked',
-    newState: 'new_key_issued',
-    reason: reason || 'Administrative stream key rotation'
-  })
-
-  return { success: true, streamKey: newKey }
+export async function regenerateStreamKey(id, reason, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.regenerateStreamKey(id, reason, adminUid, adminName)
+  }
+  try {
+    const res = await request('POST', `/v1/admin/content/agri_channels/${id}/regenerate-key`, { reason })
+    return res?.data || (await adminContentService.regenerateStreamKey(id, reason, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.regenerateStreamKey(id, reason, adminUid, adminName)
+  }
 }
 
 export async function listChannelChatMessages(channelId) {
-  if (!mockMode) {
-    try {
-      return await request('GET', `/admin/content/agri_channels/${channelId}/chat`)
-    } catch {
-      mockMode = true
-    }
+  if (apiDisabled) {
+    return adminContentService.listChannelChatMessages(channelId)
   }
-
-  const chan = channelsState.find((c) => c.id === channelId)
-  if (!chan) throw new Error('Channel not found')
-  return chan.chatMessages || []
+  try {
+    const res = await request('GET', `/v1/admin/content/agri_channels/${channelId}/chat`)
+    return res?.data || (await adminContentService.listChannelChatMessages(channelId))
+  } catch {
+    apiDisabled = true
+    return adminContentService.listChannelChatMessages(channelId)
+  }
 }
 
-export async function deleteChatMessage(channelId, messageId, reason) {
-  if (!mockMode) {
-    try {
-      return await request('DELETE', `/admin/content/agri_channels/${channelId}/chat/${messageId}`, { reason })
-    } catch {
-      mockMode = true
-    }
+export async function deleteChatMessage(channelId, messageId, reason, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.deleteChatMessage(channelId, messageId, reason, adminUid, adminName)
   }
-
-  const chan = channelsState.find((c) => c.id === channelId)
-  if (!chan) throw new Error('Channel not found')
-  const msgIdx = (chan.chatMessages || []).findIndex((m) => m.id === messageId)
-  if (msgIdx !== -1) {
-    chan.chatMessages[msgIdx].moderationStatus = 'deleted'
+  try {
+    const res = await request('DELETE', `/v1/admin/content/agri_channels/${channelId}/chat/${messageId}`, { reason })
+    return res?.data || (await adminContentService.deleteChatMessage(channelId, messageId, reason, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.deleteChatMessage(channelId, messageId, reason, adminUid, adminName)
   }
-
-  recordAudit({
-    actionType: 'DELETE_CHAT_MESSAGE',
-    entityId: channelId,
-    entityName: `Message ${messageId} in ${chan.channelName}`,
-    collection: 'agri_channels',
-    previousState: 'approved',
-    newState: 'deleted',
-    reason: reason || 'Deleted inappropriate chat message'
-  })
-
-  return { success: true }
 }
 
-export async function banChatUser(channelId, userId, reason, banDuration = 'permanent') {
-  if (!mockMode) {
-    try {
-      return await request('POST', `/admin/content/agri_channels/${channelId}/chat/ban-user`, { userId, reason, banDuration })
-    } catch {
-      mockMode = true
-    }
+export async function banChatUser(channelId, userId, payload, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.banChatUser(channelId, userId, payload, adminUid, adminName)
   }
-
-  const chan = channelsState.find((c) => c.id === channelId)
-  if (!chan) throw new Error('Channel not found')
-  
-  // Mark all user's messages as deleted
-  if (chan.chatMessages) {
-    chan.chatMessages.forEach((m) => {
-      if (m.userId === userId) {
-        m.moderationStatus = 'deleted'
-      }
-    })
+  try {
+    const res = await request('POST', `/v1/admin/content/agri_channels/${channelId}/ban-user`, { userId, ...payload })
+    return res?.data || (await adminContentService.banChatUser(channelId, userId, payload, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.banChatUser(channelId, userId, payload, adminUid, adminName)
   }
+}
 
-  recordAudit({
-    actionType: 'BAN_CHAT_USER',
-    entityId: channelId,
-    entityName: `Banned ${userId} in ${chan.channelName}`,
-    collection: 'agri_channels',
-    previousState: 'active_chatter',
-    newState: `banned_${banDuration}`,
-    reason: `User banned (${banDuration}): ${reason}`
-  })
-
-  return { success: true, bannedUserId: userId, banDuration }
+export async function batchUpdateChannelStatus(ids, newStatus, reason, adminUid, adminName) {
+  return adminContentService.batchUpdateChannelStatus(ids, newStatus, reason, adminUid, adminName)
 }
 
 // -------------------------------------------------------------
-// 3. WORKSHOPS (workshops) & ROSTERS
+// 4. WORKSHOPS (workshops)
 // -------------------------------------------------------------
-export async function listWorkshops({ q = '', status = 'all', page = 1, pageSize = 20 } = {}) {
-  if (!mockMode) {
-    try {
-      const qParams = new URLSearchParams({ q, status, page, pageSize })
-      return await request('GET', `/admin/content/workshops?${qParams.toString()}`)
-    } catch {
-      mockMode = true
-    }
+export async function listWorkshops(params = {}) {
+  if (apiDisabled) {
+    return adminContentService.listWorkshops(params)
   }
-
-  const needle = q.trim().toLowerCase()
-  const filtered = workshopsState.filter((item) => {
-    if (status !== 'all' && item.status !== status) return false
-    if (!needle) return true
-    return [item.id, item.title, item.instructorName, item.icarAccreditationNo]
-      .some((val) => String(val || '').toLowerCase().includes(needle))
-  })
-
-  return paginate(filtered, page, pageSize)
+  try {
+    const qs = toQueryString(params)
+    const res = await request('GET', `/v1/admin/content/workshops${qs}`)
+    return res?.data || (await adminContentService.listWorkshops(params))
+  } catch {
+    apiDisabled = true
+    return adminContentService.listWorkshops(params)
+  }
 }
 
-export async function createWorkshop(payload) {
-  if (!mockMode) {
-    try {
-      return await request('POST', '/admin/content/workshops', payload)
-    } catch {
-      mockMode = true
-    }
+export async function getWorkshopById(id) {
+  if (apiDisabled) {
+    return adminContentService.getWorkshopById(id)
   }
-
-  const newWs = {
-    id: `ws_${Date.now()}`,
-    ...payload,
-    enrolledCount: 0,
-    status: 'upcoming',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    userId: 'usr_admin_root'
+  try {
+    const res = await request('GET', `/v1/admin/content/workshops/${id}`)
+    return res?.data || (await adminContentService.getWorkshopById(id))
+  } catch {
+    apiDisabled = true
+    return adminContentService.getWorkshopById(id)
   }
-  workshopsState.unshift(newWs)
-  rostersState[newWs.id] = []
-
-  recordAudit({
-    actionType: 'CREATE_WORKSHOP',
-    entityId: newWs.id,
-    entityName: newWs.title,
-    collection: 'workshops',
-    previousState: 'none',
-    newState: 'upcoming',
-    reason: `Created ICAR workshop (${newWs.icarAccreditationNo}) with ${newWs.seatsCapacity} seats limit @ ₹${newWs.feeINR}.`
-  })
-
-  return newWs
 }
 
-export async function updateWorkshop(id, payload) {
-  if (!mockMode) {
-    try {
-      return await request('PUT', `/admin/content/workshops/${id}`, payload)
-    } catch {
-      mockMode = true
-    }
+export async function createWorkshop(payload, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.createWorkshop(payload, adminUid, adminName)
   }
-
-  const idx = workshopsState.findIndex((w) => w.id === id)
-  if (idx === -1) throw new Error('Workshop not found')
-  const prev = { ...workshopsState[idx] }
-  workshopsState[idx] = {
-    ...workshopsState[idx],
-    ...payload,
-    updatedAt: new Date().toISOString()
+  try {
+    const res = await request('POST', '/v1/admin/content/workshops', payload)
+    return res?.data || (await adminContentService.createWorkshop(payload, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.createWorkshop(payload, adminUid, adminName)
   }
-
-  recordAudit({
-    actionType: 'UPDATE_WORKSHOP',
-    entityId: id,
-    entityName: workshopsState[idx].title,
-    collection: 'workshops',
-    previousState: prev.status,
-    newState: workshopsState[idx].status,
-    reason: payload.reason || 'Admin updated workshop details/schedule'
-  })
-
-  return workshopsState[idx]
 }
 
-export async function cancelWorkshop(id, reason, dualSignOffAdmin = null) {
-  if (!mockMode) {
-    try {
-      return await request('POST', `/admin/content/workshops/${id}/cancel`, { reason, dualSignOffAdmin })
-    } catch {
-      mockMode = true
-    }
+export async function updateWorkshop(id, patch, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.updateWorkshop(id, patch, adminUid, adminName)
   }
-
-  const idx = workshopsState.findIndex((w) => w.id === id)
-  if (idx === -1) throw new Error('Workshop not found')
-  const prev = workshopsState[idx].status
-  workshopsState[idx].status = 'cancelled'
-  workshopsState[idx].updatedAt = new Date().toISOString()
-
-  // Mark all captured roster payments as refunded
-  if (rostersState[id]) {
-    rostersState[id].forEach((r) => {
-      if (r.paymentStatus === 'captured') {
-        r.paymentStatus = 'refunded'
-      }
-    })
+  try {
+    const res = await request('PUT', `/v1/admin/content/workshops/${id}`, patch)
+    return res?.data || (await adminContentService.updateWorkshop(id, patch, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.updateWorkshop(id, patch, adminUid, adminName)
   }
+}
 
-  recordAudit({
-    actionType: 'CANCEL_WORKSHOP',
-    entityId: id,
-    entityName: workshopsState[idx].title,
-    collection: 'workshops',
-    previousState: prev,
-    newState: 'cancelled',
-    reason: `${reason} ${dualSignOffAdmin ? `(Dual Sign-Off by ${dualSignOffAdmin})` : ''}`
-  })
-
-  return workshopsState[idx]
+export async function cancelWorkshop(id, payload, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.cancelWorkshop(id, payload, adminUid, adminName)
+  }
+  try {
+    const res = await request('POST', `/v1/admin/content/workshops/${id}/cancel`, payload)
+    return res?.data || (await adminContentService.cancelWorkshop(id, payload, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.cancelWorkshop(id, payload, adminUid, adminName)
+  }
 }
 
 export async function getWorkshopRoster(workshopId) {
-  if (!mockMode) {
-    try {
-      return await request('GET', `/admin/workshops/${workshopId}/roster`)
-    } catch {
-      mockMode = true
-    }
+  if (apiDisabled) {
+    return adminContentService.getWorkshopRoster(workshopId)
   }
-
-  return rostersState[workshopId] || []
+  try {
+    const res = await request('GET', `/v1/admin/content/workshops/${workshopId}/roster`)
+    return res?.data || (await adminContentService.getWorkshopRoster(workshopId))
+  } catch {
+    apiDisabled = true
+    return adminContentService.getWorkshopRoster(workshopId)
+  }
 }
 
-export async function issueWorkshopCertificate(workshopId, farmerId) {
-  if (!mockMode) {
-    try {
-      return await request('POST', `/admin/workshops/${workshopId}/roster/${farmerId}/issue-certificate`)
-    } catch {
-      mockMode = true
-    }
+export async function issueWorkshopCertificate(workshopId, enrollmentId, reason, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.issueWorkshopCertificate(workshopId, enrollmentId, reason, adminUid, adminName)
   }
-
-  const rosterList = rostersState[workshopId] || []
-  const item = rosterList.find((r) => r.farmerId === farmerId)
-  if (!item) throw new Error('Farmer enrollment not found in roster')
-
-  item.certificateIssued = true
-  item.attended = true
-  item.certificateId = `CERT-ICAR-2026-${Math.floor(1000 + Math.random() * 9000)}`
-
-  recordAudit({
-    actionType: 'ISSUE_ICAR_CERTIFICATE',
-    entityId: workshopId,
-    entityName: `Certificate for ${item.farmerName}`,
-    collection: 'workshops',
-    previousState: 'completed_pending_cert',
-    newState: 'certificate_issued',
-    reason: `Verified course attendance and generated ICAR credentials ${item.certificateId}`
-  })
-
-  return item
+  try {
+    const res = await request('POST', `/v1/admin/content/workshops/${workshopId}/roster/${enrollmentId}/certificate`, { reason })
+    return res?.data || (await adminContentService.issueWorkshopCertificate(workshopId, enrollmentId, reason, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.issueWorkshopCertificate(workshopId, enrollmentId, reason, adminUid, adminName)
+  }
 }
 
-export async function refundWorkshopEnrollment(workshopId, farmerId, reason, dualSignOffAdmin = null) {
-  if (!mockMode) {
-    try {
-      return await request('POST', `/admin/workshops/${workshopId}/roster/${farmerId}/refund`, { reason, dualSignOffAdmin })
-    } catch {
-      mockMode = true
-    }
+export async function refundWorkshopEnrollment(workshopId, enrollmentId, payload, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.refundWorkshopEnrollment(workshopId, enrollmentId, payload, adminUid, adminName)
   }
-
-  const rosterList = rostersState[workshopId] || []
-  const item = rosterList.find((r) => r.farmerId === farmerId)
-  if (!item) throw new Error('Enrollment not found')
-
-  item.paymentStatus = 'refunded'
-  const ws = workshopsState.find((w) => w.id === workshopId)
-  if (ws && ws.enrolledCount > 0) {
-    ws.enrolledCount -= 1
+  try {
+    const res = await request('POST', `/v1/admin/content/workshops/${workshopId}/roster/${enrollmentId}/refund`, payload)
+    return res?.data || (await adminContentService.refundWorkshopEnrollment(workshopId, enrollmentId, payload, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.refundWorkshopEnrollment(workshopId, enrollmentId, payload, adminUid, adminName)
   }
+}
 
-  recordAudit({
-    actionType: 'REFUND_WORKSHOP_FEE',
-    entityId: workshopId,
-    entityName: `Refund ₹${item.amountPaidINR} for ${item.farmerName}`,
-    collection: 'workshops',
-    previousState: 'captured',
-    newState: 'refunded',
-    reason: `${reason} ${dualSignOffAdmin ? `[Dual Sign-Off: ${dualSignOffAdmin}]` : ''}`
-  })
-
-  return item
+export async function batchUpdateWorkshopStatus(ids, newStatus, reason, adminUid, adminName) {
+  return adminContentService.batchUpdateWorkshopStatus(ids, newStatus, reason, adminUid, adminName)
 }
 
 // -------------------------------------------------------------
-// 4. EXPERT TALKS (expert_talks) & QUESTIONS TRIAGE
+// 5. EXPERT TALKS (expert_talks)
 // -------------------------------------------------------------
-export async function listExpertTalks({ q = '', status = 'all', page = 1, pageSize = 20 } = {}) {
-  if (!mockMode) {
-    try {
-      const qParams = new URLSearchParams({ q, status, page, pageSize })
-      return await request('GET', `/admin/content/expert_talks?${qParams.toString()}`)
-    } catch {
-      mockMode = true
-    }
+export async function listExpertTalks(params = {}) {
+  if (apiDisabled) {
+    return adminContentService.listExpertTalks(params)
   }
-
-  const needle = q.trim().toLowerCase()
-  const filtered = talksState.filter((item) => {
-    if (status !== 'all' && item.status !== status) return false
-    if (!needle) return true
-    return [item.id, item.title, item.scientistName, item.kvkOrInstitute, item.specialization]
-      .some((val) => String(val || '').toLowerCase().includes(needle))
-  })
-
-  return paginate(filtered, page, pageSize)
+  try {
+    const qs = toQueryString(params)
+    const res = await request('GET', `/v1/admin/content/expert_talks${qs}`)
+    return res?.data || (await adminContentService.listExpertTalks(params))
+  } catch {
+    apiDisabled = true
+    return adminContentService.listExpertTalks(params)
+  }
 }
 
-export async function createExpertTalk(payload) {
-  if (!mockMode) {
-    try {
-      return await request('POST', '/admin/content/expert_talks', payload)
-    } catch {
-      mockMode = true
-    }
+export async function getExpertTalkById(id) {
+  if (apiDisabled) {
+    return adminContentService.getExpertTalkById(id)
   }
-
-  const newTalk = {
-    id: `talk_${Date.now()}`,
-    ...payload,
-    status: 'scheduled',
-    questionsCount: 0,
-    farmerQuestions: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    userId: 'usr_admin_root'
+  try {
+    const res = await request('GET', `/v1/admin/content/expert_talks/${id}`)
+    return res?.data || (await adminContentService.getExpertTalkById(id))
+  } catch {
+    apiDisabled = true
+    return adminContentService.getExpertTalkById(id)
   }
-  talksState.unshift(newTalk)
-
-  recordAudit({
-    actionType: 'SCHEDULE_EXPERT_TALK',
-    entityId: newTalk.id,
-    entityName: newTalk.title,
-    collection: 'expert_talks',
-    previousState: 'none',
-    newState: 'scheduled',
-    reason: `Scheduled talk with ${newTalk.scientistName} (${newTalk.kvkOrInstitute}).`
-  })
-
-  return newTalk
 }
 
-export async function updateExpertTalk(id, payload) {
-  if (!mockMode) {
-    try {
-      return await request('PUT', `/admin/content/expert_talks/${id}`, payload)
-    } catch {
-      mockMode = true
-    }
+export async function createExpertTalk(payload, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.createExpertTalk(payload, adminUid, adminName)
   }
-
-  const idx = talksState.findIndex((t) => t.id === id)
-  if (idx === -1) throw new Error('Expert talk not found')
-  const prev = { ...talksState[idx] }
-  talksState[idx] = {
-    ...talksState[idx],
-    ...payload,
-    updatedAt: new Date().toISOString()
+  try {
+    const res = await request('POST', '/v1/admin/content/expert_talks', payload)
+    return res?.data || (await adminContentService.createExpertTalk(payload, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.createExpertTalk(payload, adminUid, adminName)
   }
-
-  recordAudit({
-    actionType: 'UPDATE_EXPERT_TALK',
-    entityId: id,
-    entityName: talksState[idx].title,
-    collection: 'expert_talks',
-    previousState: prev.status,
-    newState: talksState[idx].status,
-    reason: payload.reason || 'Admin updated talk details/recording URL'
-  })
-
-  return talksState[idx]
 }
 
-export async function triageFarmerQuestion(talkId, questionId, status, priority = 'normal', reason = '') {
-  if (!mockMode) {
-    try {
-      return await request('POST', `/admin/content/expert_talks/${talkId}/questions/${questionId}/triage`, { status, priority, reason })
-    } catch {
-      mockMode = true
-    }
+export async function updateExpertTalk(id, patch, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.updateExpertTalk(id, patch, adminUid, adminName)
   }
+  try {
+    const res = await request('PUT', `/v1/admin/content/expert_talks/${id}`, patch)
+    return res?.data || (await adminContentService.updateExpertTalk(id, patch, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.updateExpertTalk(id, patch, adminUid, adminName)
+  }
+}
 
-  const talk = talksState.find((t) => t.id === talkId)
-  if (!talk) throw new Error('Talk not found')
-  const qItem = (talk.farmerQuestions || []).find((q) => q.id === questionId)
-  if (!qItem) throw new Error('Question not found in queue')
+export async function triageFarmerQuestion(talkId, questionId, payload, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.triageFarmerQuestion(talkId, questionId, payload, adminUid, adminName)
+  }
+  try {
+    const res = await request('POST', `/v1/admin/content/expert_talks/${talkId}/questions/${questionId}/triage`, payload)
+    return res?.data || (await adminContentService.triageFarmerQuestion(talkId, questionId, payload, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.triageFarmerQuestion(talkId, questionId, payload, adminUid, adminName)
+  }
+}
 
-  const prev = qItem.status
-  qItem.status = status
-  if (priority) qItem.priority = priority
-
-  recordAudit({
-    actionType: 'TRIAGE_FARMER_QUESTION',
-    entityId: talkId,
-    entityName: `Question by ${qItem.farmerName} in ${talk.title}`,
-    collection: 'expert_talks',
-    previousState: prev,
-    newState: status,
-    reason: reason || `Triage decision: marked as ${status} with ${priority} priority.`
-  })
-
-  return qItem
+export async function batchUpdateTalkStatus(ids, newStatus, reason, adminUid, adminName) {
+  return adminContentService.batchUpdateTalkStatus(ids, newStatus, reason, adminUid, adminName)
 }
 
 // -------------------------------------------------------------
-// 5. VIDEO GUIDES (video_guides)
+// 6. VIDEO GUIDES (video_guides)
 // -------------------------------------------------------------
-export async function listVideoGuides({ q = '', status = 'all', category = 'all', page = 1, pageSize = 20 } = {}) {
-  if (!mockMode) {
-    try {
-      const qParams = new URLSearchParams({ q, status, category, page, pageSize })
-      return await request('GET', `/admin/content/video_guides?${qParams.toString()}`)
-    } catch {
-      mockMode = true
-    }
+export async function listVideoGuides(params = {}) {
+  if (apiDisabled) {
+    return adminContentService.listVideoGuides(params)
   }
-
-  const needle = q.trim().toLowerCase()
-  const filtered = videosState.filter((item) => {
-    if (status !== 'all' && item.status !== status) return false
-    if (category !== 'all' && item.category !== category) return false
-    if (!needle) return true
-    return [item.id, item.title, item.category, ...(item.tags || [])]
-      .some((val) => String(val || '').toLowerCase().includes(needle))
-  })
-
-  return paginate(filtered, page, pageSize)
+  try {
+    const qs = toQueryString(params)
+    const res = await request('GET', `/v1/admin/content/video_guides${qs}`)
+    return res?.data || (await adminContentService.listVideoGuides(params))
+  } catch {
+    apiDisabled = true
+    return adminContentService.listVideoGuides(params)
+  }
 }
 
-export async function createVideoGuide(payload) {
-  if (!mockMode) {
-    try {
-      return await request('POST', '/admin/content/video_guides', payload)
-    } catch {
-      mockMode = true
-    }
+export async function getVideoGuideById(id) {
+  if (apiDisabled) {
+    return adminContentService.getVideoGuideById(id)
   }
-
-  const newVid = {
-    id: `vid_${Date.now()}`,
-    ...payload,
-    viewCount: 0,
-    likeCount: 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    userId: 'usr_admin_root'
+  try {
+    const res = await request('GET', `/v1/admin/content/video_guides/${id}`)
+    return res?.data || (await adminContentService.getVideoGuideById(id))
+  } catch {
+    apiDisabled = true
+    return adminContentService.getVideoGuideById(id)
   }
-  videosState.unshift(newVid)
-
-  recordAudit({
-    actionType: 'CREATE_VIDEO_GUIDE',
-    entityId: newVid.id,
-    entityName: newVid.title,
-    collection: 'video_guides',
-    previousState: 'none',
-    newState: newVid.status,
-    reason: 'Published agronomy video guide with multilingual subtitles and tags.'
-  })
-
-  return newVid
 }
 
-export async function updateVideoGuide(id, payload) {
-  if (!mockMode) {
-    try {
-      return await request('PUT', `/admin/content/video_guides/${id}`, payload)
-    } catch {
-      mockMode = true
-    }
+export async function createVideoGuide(payload, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.createVideoGuide(payload, adminUid, adminName)
   }
-
-  const idx = videosState.findIndex((v) => v.id === id)
-  if (idx === -1) throw new Error('Video guide not found')
-  const prev = { ...videosState[idx] }
-  videosState[idx] = {
-    ...videosState[idx],
-    ...payload,
-    updatedAt: new Date().toISOString()
+  try {
+    const res = await request('POST', '/v1/admin/content/video_guides', payload)
+    return res?.data || (await adminContentService.createVideoGuide(payload, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.createVideoGuide(payload, adminUid, adminName)
   }
-
-  recordAudit({
-    actionType: 'UPDATE_VIDEO_GUIDE',
-    entityId: id,
-    entityName: videosState[idx].title,
-    collection: 'video_guides',
-    previousState: prev.status,
-    newState: videosState[idx].status,
-    reason: payload.reason || 'Updated video guide attributes'
-  })
-
-  return videosState[idx]
 }
 
-export async function deleteVideoGuide(id, reason = 'Administrative removal') {
-  if (!mockMode) {
-    try {
-      return await request('DELETE', `/admin/content/video_guides/${id}`, { reason })
-    } catch {
-      mockMode = true
-    }
+export async function updateVideoGuide(id, patch, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.updateVideoGuide(id, patch, adminUid, adminName)
   }
+  try {
+    const res = await request('PUT', `/v1/admin/content/video_guides/${id}`, patch)
+    return res?.data || (await adminContentService.updateVideoGuide(id, patch, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.updateVideoGuide(id, patch, adminUid, adminName)
+  }
+}
 
-  const idx = videosState.findIndex((v) => v.id === id)
-  if (idx === -1) throw new Error('Video not found')
-  const removed = videosState.splice(idx, 1)[0]
+export async function deleteVideoGuide(id, reason, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.deleteVideoGuide(id, reason, adminUid, adminName)
+  }
+  try {
+    const res = await request('DELETE', `/v1/admin/content/video_guides/${id}`, { reason })
+    return res?.data || (await adminContentService.deleteVideoGuide(id, reason, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.deleteVideoGuide(id, reason, adminUid, adminName)
+  }
+}
 
-  recordAudit({
-    actionType: 'DELETE_VIDEO_GUIDE',
-    entityId: id,
-    entityName: removed.title,
-    collection: 'video_guides',
-    previousState: removed.status,
-    newState: 'deleted',
-    reason
-  })
-
-  return { success: true, id }
+export async function batchUpdateVideoStatus(ids, newStatus, reason, adminUid, adminName) {
+  return adminContentService.batchUpdateVideoStatus(ids, newStatus, reason, adminUid, adminName)
 }
 
 // -------------------------------------------------------------
-// 6. BLOG ARTICLES (blog_articles)
+// 7. KNOWLEDGE BLOGS (blog_articles)
 // -------------------------------------------------------------
-export async function listBlogArticles({ q = '', status = 'all', category = 'all', page = 1, pageSize = 20 } = {}) {
-  if (!mockMode) {
-    try {
-      const qParams = new URLSearchParams({ q, status, category, page, pageSize })
-      return await request('GET', `/admin/content/blog_articles?${qParams.toString()}`)
-    } catch {
-      mockMode = true
-    }
+export async function listBlogArticles(params = {}) {
+  if (apiDisabled) {
+    return adminContentService.listBlogArticles(params)
   }
-
-  const needle = q.trim().toLowerCase()
-  const filtered = blogsState.filter((item) => {
-    if (status !== 'all' && item.status !== status) return false
-    if (category !== 'all' && item.category !== category) return false
-    if (!needle) return true
-    return [item.id, item.title, item.authorName, item.category, ...(item.tags || [])]
-      .some((val) => String(val || '').toLowerCase().includes(needle))
-  })
-
-  return paginate(filtered, page, pageSize)
+  try {
+    const qs = toQueryString(params)
+    const res = await request('GET', `/v1/admin/content/blog_articles${qs}`)
+    return res?.data || (await adminContentService.listBlogArticles(params))
+  } catch {
+    apiDisabled = true
+    return adminContentService.listBlogArticles(params)
+  }
 }
 
-export async function createBlogArticle(payload) {
-  if (!mockMode) {
-    try {
-      return await request('POST', '/admin/content/blog_articles', payload)
-    } catch {
-      mockMode = true
-    }
+export async function getBlogArticleById(id) {
+  if (apiDisabled) {
+    return adminContentService.getBlogArticleById(id)
   }
-
-  const newBlog = {
-    id: `blog_${Date.now()}`,
-    ...payload,
-    viewCount: 0,
-    publishedAt: payload.status === 'published' ? new Date().toISOString() : null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    userId: 'usr_admin_root'
+  try {
+    const res = await request('GET', `/v1/admin/content/blog_articles/${id}`)
+    return res?.data || (await adminContentService.getBlogArticleById(id))
+  } catch {
+    apiDisabled = true
+    return adminContentService.getBlogArticleById(id)
   }
-  blogsState.unshift(newBlog)
-
-  recordAudit({
-    actionType: 'CREATE_BLOG_ARTICLE',
-    entityId: newBlog.id,
-    entityName: newBlog.title,
-    collection: 'blog_articles',
-    previousState: 'none',
-    newState: newBlog.status,
-    reason: `Published agronomic article by ${newBlog.authorName} (${newBlog.category}).`
-  })
-
-  return newBlog
 }
 
-export async function updateBlogArticle(id, payload) {
-  if (!mockMode) {
-    try {
-      return await request('PUT', `/admin/content/blog_articles/${id}`, payload)
-    } catch {
-      mockMode = true
-    }
+export async function createBlogArticle(payload, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.createBlogArticle(payload, adminUid, adminName)
   }
-
-  const idx = blogsState.findIndex((b) => b.id === id)
-  if (idx === -1) throw new Error('Blog article not found')
-  const prev = { ...blogsState[idx] }
-  blogsState[idx] = {
-    ...blogsState[idx],
-    ...payload,
-    updatedAt: new Date().toISOString()
+  try {
+    const res = await request('POST', '/v1/admin/content/blog_articles', payload)
+    return res?.data || (await adminContentService.createBlogArticle(payload, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.createBlogArticle(payload, adminUid, adminName)
   }
-
-  recordAudit({
-    actionType: 'UPDATE_BLOG_ARTICLE',
-    entityId: id,
-    entityName: blogsState[idx].title,
-    collection: 'blog_articles',
-    previousState: prev.status,
-    newState: blogsState[idx].status,
-    reason: payload.reason || 'Admin updated blog article'
-  })
-
-  return blogsState[idx]
 }
 
-export async function deleteBlogArticle(id, reason = 'Administrative removal') {
-  if (!mockMode) {
-    try {
-      return await request('DELETE', `/admin/content/blog_articles/${id}`, { reason })
-    } catch {
-      mockMode = true
-    }
+export async function updateBlogArticle(id, patch, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.updateBlogArticle(id, patch, adminUid, adminName)
   }
+  try {
+    const res = await request('PUT', `/v1/admin/content/blog_articles/${id}`, patch)
+    return res?.data || (await adminContentService.updateBlogArticle(id, patch, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.updateBlogArticle(id, patch, adminUid, adminName)
+  }
+}
 
-  const idx = blogsState.findIndex((b) => b.id === id)
-  if (idx === -1) throw new Error('Blog not found')
-  const removed = blogsState.splice(idx, 1)[0]
+export async function deleteBlogArticle(id, reason, adminUid, adminName) {
+  if (apiDisabled) {
+    return adminContentService.deleteBlogArticle(id, reason, adminUid, adminName)
+  }
+  try {
+    const res = await request('DELETE', `/v1/admin/content/blog_articles/${id}`, { reason })
+    return res?.data || (await adminContentService.deleteBlogArticle(id, reason, adminUid, adminName))
+  } catch {
+    apiDisabled = true
+    return adminContentService.deleteBlogArticle(id, reason, adminUid, adminName)
+  }
+}
 
-  recordAudit({
-    actionType: 'DELETE_BLOG_ARTICLE',
-    entityId: id,
-    entityName: removed.title,
-    collection: 'blog_articles',
-    previousState: removed.status,
-    newState: 'deleted',
-    reason
-  })
-
-  return { success: true, id }
+export async function batchUpdateBlogStatus(ids, newStatus, reason, adminUid, adminName) {
+  return adminContentService.batchUpdateBlogStatus(ids, newStatus, reason, adminUid, adminName)
 }
 
 // -------------------------------------------------------------
-// 7. AUDIT LOGS (audit_logs for Module 20)
+// 8. AUDIT LOGS (audit_logs)
 // -------------------------------------------------------------
-export async function getContentAuditLogs({ q = '', actionType = 'all', page = 1, pageSize = 20 } = {}) {
-  if (!mockMode) {
-    try {
-      const qParams = new URLSearchParams({ q, actionType, page, pageSize })
-      return await request('GET', `/admin/content/audit_logs?${qParams.toString()}`)
-    } catch {
-      mockMode = true
-    }
+export async function getContentAuditLogs(params = {}) {
+  if (apiDisabled) {
+    return adminContentService.getContentAuditLogs(params)
   }
+  try {
+    const qs = toQueryString(params)
+    const res = await request('GET', `/v1/admin/content/audit_logs${qs}`)
+    return res?.data || (await adminContentService.getContentAuditLogs(params))
+  } catch {
+    apiDisabled = true
+    return adminContentService.getContentAuditLogs(params)
+  }
+}
 
-  const needle = q.trim().toLowerCase()
-  const filtered = auditLogsState.filter((log) => {
-    if (actionType !== 'all' && log.actionType !== actionType) return false
-    if (!needle) return true
-    return [log.id, log.adminName, log.entityId, log.entityName, log.actionType, log.reason]
-      .some((val) => String(val || '').toLowerCase().includes(needle))
-  })
+export async function getEntityAuditLogs(entityId) {
+  return adminContentService.getEntityAuditLogs(entityId)
+}
 
-  return paginate(filtered, page, pageSize)
+// -------------------------------------------------------------
+// 9. BENCHMARK SEED RESET
+// -------------------------------------------------------------
+export async function resetContentSeedData(reason, adminUid, adminName) {
+  return adminContentService.resetToDefaultSeed(reason, adminUid, adminName)
 }

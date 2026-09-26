@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   X,
   Copy,
@@ -13,10 +13,13 @@ import {
   Calendar,
   Clock,
   ShieldCheck,
+  ShieldAlert,
+  History,
   TrendingUp,
   Award
 } from 'lucide-react'
 import { StatusBadge, fmtINR, formatDate } from '../../pages/agroforestryWidgets'
+import { getEntityAuditLogs } from '../../api/agroforestryApi'
 
 export default function AgroforestryDetailDrawer({
   entity,
@@ -28,10 +31,23 @@ export default function AgroforestryDetailDrawer({
   onDeliver,
   onReject,
   onVerifyNgo,
-  onEditEconomics
+  onEditEconomics,
+  canMutate = true,
+  role = 'SUPER_ADMIN'
 }) {
   const [activeTab, setActiveTab] = useState('overview')
   const [copied, setCopied] = useState(false)
+  const [entityLogs, setEntityLogs] = useState([])
+
+  useEffect(() => {
+    if (entity?.id) {
+      getEntityAuditLogs(entity.id)
+        .then((logs) => setEntityLogs(logs || []))
+        .catch(() => setEntityLogs([]))
+    } else {
+      setEntityLogs([])
+    }
+  }, [entity?.id])
 
   if (!isOpen || !entity) return null
 
@@ -109,6 +125,17 @@ export default function AgroforestryDetailDrawer({
             }`}
           >
             Document JSON
+          </button>
+          <button
+            onClick={() => setActiveTab('audit')}
+            className={`py-2.5 border-b-2 font-medium transition-colors flex items-center gap-1.5 ${
+              activeTab === 'audit'
+                ? 'border-emerald-600 text-emerald-800 font-bold'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <History className="w-3.5 h-3.5" />
+            <span>Audit History ({entityLogs.length})</span>
           </button>
         </div>
 
@@ -284,61 +311,114 @@ export default function AgroforestryDetailDrawer({
               </pre>
             </div>
           )}
+
+          {activeTab === 'audit' && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Entity Audit Trail ({entityLogs.length} Events)
+                </span>
+                <span className="text-[10px] font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  Immutable Log
+                </span>
+              </div>
+              {entityLogs.length === 0 ? (
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center text-slate-500 text-xs">
+                  No audit events recorded for this entity yet.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {entityLogs.map((log) => (
+                    <div key={log.id} className="p-3 bg-white border border-emerald-100/90 rounded-xl space-y-1.5 shadow-2xs">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                          {log.actionType}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          {formatDate(log.timestamp)}
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-800 font-medium">
+                        {log.reason || 'No description provided.'}
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-100">
+                        <span>Admin: <strong className="text-slate-700">{log.adminName}</strong> ({log.adminUid})</span>
+                        {log.newState && (
+                          <span className="font-mono text-emerald-700">State: {log.previousState || 'init'} → {log.newState}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-emerald-100/80 bg-emerald-50/40 flex items-center justify-end gap-2">
-          {type === 'requests' && entity.status === 'pending' && (
-            <>
-              <button
-                onClick={() => onApprove && onApprove(entity)}
-                className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all"
-              >
-                Approve Request
-              </button>
-              <button
-                onClick={() => onReject && onReject(entity)}
-                className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all"
-              >
-                Reject
-              </button>
-            </>
-          )}
+        <div className="p-4 border-t border-emerald-100/80 bg-emerald-50/40 flex items-center justify-between gap-2">
+          {!canMutate || role === 'FINANCIAL_AUDITOR' ? (
+            <div className="flex items-center gap-2 text-xs text-amber-800 bg-amber-50 border border-amber-200/80 rounded-xl px-3 py-2 w-full">
+              <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
+              <span className="text-[11px]">
+                <strong>Auditor Mode:</strong> Read-only access enabled under statutory governance policies. Mutation and approval actions are restricted.
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center justify-end gap-2 w-full">
+              {type === 'requests' && entity.status === 'pending' && (
+                <>
+                  <button
+                    onClick={() => onApprove && onApprove(entity)}
+                    className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all"
+                  >
+                    Approve Request
+                  </button>
+                  <button
+                    onClick={() => onReject && onReject(entity)}
+                    className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all"
+                  >
+                    Reject
+                  </button>
+                </>
+              )}
 
-          {type === 'requests' && entity.status === 'approved' && (
-            <button
-              onClick={() => onDispatch && onDispatch(entity)}
-              className="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all"
-            >
-              Dispatch Saplings
-            </button>
-          )}
+              {type === 'requests' && entity.status === 'approved' && (
+                <button
+                  onClick={() => onDispatch && onDispatch(entity)}
+                  className="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all"
+                >
+                  Dispatch Saplings
+                </button>
+              )}
 
-          {type === 'requests' && entity.status === 'dispatched' && (
-            <button
-              onClick={() => onDeliver && onDeliver(entity)}
-              className="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all"
-            >
-              Mark Delivered & Survival
-            </button>
-          )}
+              {type === 'requests' && entity.status === 'dispatched' && (
+                <button
+                  onClick={() => onDeliver && onDeliver(entity)}
+                  className="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all"
+                >
+                  Mark Delivered & Survival
+                </button>
+              )}
 
-          {type === 'ngos' && (
-            <button
-              onClick={() => onVerifyNgo && onVerifyNgo(entity)}
-              className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all"
-            >
-              Update NGO Verification
-            </button>
-          )}
+              {type === 'ngos' && (
+                <button
+                  onClick={() => onVerifyNgo && onVerifyNgo(entity)}
+                  className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all"
+                >
+                  Update NGO Verification
+                </button>
+              )}
 
-          {type === 'biofuel' && (
-            <button
-              onClick={() => onEditEconomics && onEditEconomics(entity)}
-              className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all"
-            >
-              Edit Economics
-            </button>
+              {type === 'biofuel' && (
+                <button
+                  onClick={() => onEditEconomics && onEditEconomics(entity)}
+                  className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all"
+                >
+                  Edit Economics
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>

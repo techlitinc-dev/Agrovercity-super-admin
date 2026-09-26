@@ -30,7 +30,10 @@ import {
   Copy,
   Check,
   Flame,
-  BadgeAlert
+  BadgeAlert,
+  RotateCcw,
+  Calendar,
+  Filter
 } from 'lucide-react'
 
 export function fmtINR(val) {
@@ -155,36 +158,36 @@ export function ContentMetricBar({ summary, loading }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <MetricCard
-        title="Knowledge CMS Repository"
+        title="Knowledge Repository"
         value={summary.totalActiveContent || 0}
-        subtitle={`${summary.totalNewsArticles || 0} news • ${summary.videoGuidesPublished || 0} videos • ${summary.blogArticlesPublished || 0} blogs`}
+        subtitle={`${summary.totalNewsArticles || 0} News • ${summary.videoGuidesPublished || 0} Videos`}
         icon={Newspaper}
-        badge="Vernacular Active"
+        badge="SOP-20 Hub"
         color="emerald"
       />
       <MetricCard
-        title="Live TV Broadcasts"
-        value={`${summary.liveChannelsCount || 0} Channels`}
+        title="Live Broadcast Channels"
+        value={summary.liveChannelsCount || 0}
         subtitle={`${(summary.totalLiveViewers || 0).toLocaleString()} Concurrent Viewers`}
         icon={Tv}
-        badge="RTMP / HLS Active"
-        color="rose"
+        badge={summary.liveChannelsCount > 0 ? 'ON-AIR' : 'OFFLINE'}
+        color={summary.liveChannelsCount > 0 ? 'rose' : 'blue'}
       />
       <MetricCard
         title="ICAR Paid Workshops"
-        value={fmtINR(summary.workshopRevenueINR || 0)}
-        subtitle={`${summary.enrolledFarmersCount || 0} enrolled farmers across ${summary.activeWorkshops || 0} batches`}
+        value={summary.activeWorkshops || 0}
+        subtitle={`${summary.enrolledFarmersCount || 0} Enrolled • ${fmtINR(summary.workshopRevenueINR)}`}
         icon={GraduationCap}
-        badge="ICAR Accredited"
-        color="blue"
+        badge="Accredited"
+        color="purple"
       />
       <MetricCard
-        title="Triage & Moderation Queue"
+        title="Review & Moderation"
         value={summary.farmerQuestionsPendingTriage || 0}
-        subtitle={`${summary.flaggedChatMessages || 0} flagged chat msgs • ${summary.expertTalksScheduled || 0} live talks`}
-        icon={AlertTriangle}
-        badge="Action Required"
-        color="amber"
+        subtitle={`${summary.flaggedChatMessages || 0} Flagged Live Chat Msgs`}
+        icon={Microscope}
+        badge={summary.farmerQuestionsPendingTriage > 0 ? 'Needs Triage' : 'Queue Clear'}
+        color={summary.farmerQuestionsPendingTriage > 0 ? 'amber' : 'emerald'}
       />
     </div>
   )
@@ -192,10 +195,10 @@ export function ContentMetricBar({ summary, loading }) {
 
 export function ContentTabSwitch({ activeTab, onSelectTab, counts = {} }) {
   const tabs = [
-    { id: 'news', label: 'Agri News Feed', icon: Newspaper, count: counts.news, collection: 'agri_news' },
+    { id: 'news', label: 'Agri News CMS', icon: Newspaper, count: counts.news, collection: 'agri_news' },
     { id: 'channels', label: 'Live TV Channels', icon: Tv, count: counts.channels, collection: 'agri_channels' },
-    { id: 'workshops', label: 'ICAR Workshops', icon: GraduationCap, count: counts.workshops, collection: 'workshops' },
-    { id: 'talks', label: 'Ask-the-Scientist', icon: Microscope, count: counts.talks, collection: 'expert_talks' },
+    { id: 'workshops', label: 'Paid Workshops', icon: GraduationCap, count: counts.workshops, collection: 'workshops' },
+    { id: 'talks', label: 'Ask The Scientist', icon: Microscope, count: counts.talks, collection: 'expert_talks' },
     { id: 'videos', label: 'Video Guides', icon: Video, count: counts.videos, collection: 'video_guides' },
     { id: 'blogs', label: 'Knowledge Blogs', icon: FileText, count: counts.blogs, collection: 'blog_articles' },
     { id: 'audit', label: 'Audit Trails', icon: ShieldCheck, count: counts.audit, collection: 'audit_logs' }
@@ -243,10 +246,15 @@ export function ContentFiltersBar({
   onCategoryChange,
   language,
   onLanguageChange,
+  dateRange = 'all',
+  onDateRangeChange,
+  persona = 'all',
+  onPersonaChange,
   activeTab,
   onRefresh,
   onExportCsv,
   onCreateNew,
+  onResetSeed,
   canCreate = true
 }) {
   const getStatusOptions = () => {
@@ -294,7 +302,9 @@ export function ContentFiltersBar({
           { val: 'REGENERATE_STREAM_KEY', label: 'Regenerate Stream Key' },
           { val: 'PUBLISH_BREAKING_NEWS', label: 'Publish Breaking News' },
           { val: 'ISSUE_ICAR_CERTIFICATES', label: 'Issue ICAR Certificates' },
-          { val: 'TRIAGE_FARMER_QUESTION', label: 'Triage Farmer Question' }
+          { val: 'TRIAGE_FARMER_QUESTION', label: 'Triage Farmer Question' },
+          { val: 'CANCEL_WORKSHOP_MASS_REFUND', label: 'Workshop Cancellation' },
+          { val: 'RESET_SEED_DATA', label: 'Reset Benchmark Data' }
         ]
       case 'news':
       default:
@@ -329,7 +339,7 @@ export function ContentFiltersBar({
     <div className="bg-emerald-50/40 border-b border-emerald-100/90 p-4 mb-4 flex flex-wrap items-center justify-between gap-3 text-xs">
       {/* Left search & filters */}
       <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
+        <div className="relative flex-1 min-w-[180px] max-w-xs">
           <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -369,6 +379,32 @@ export function ContentFiltersBar({
           </select>
         )}
 
+        {/* Date Range Filter (Wireframe requirement) */}
+        <select
+          value={dateRange}
+          onChange={(e) => onDateRangeChange && onDateRangeChange(e.target.value)}
+          className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
+        >
+          <option value="all">All Dates</option>
+          <option value="today">Today</option>
+          <option value="last_7_days">Last 7 Days</option>
+          <option value="last_30_days">Last 30 Days</option>
+          <option value="this_quarter">This Quarter</option>
+        </select>
+
+        {/* Persona Filter (Wireframe requirement) */}
+        <select
+          value={persona}
+          onChange={(e) => onPersonaChange && onPersonaChange(e.target.value)}
+          className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
+        >
+          <option value="all">All Personas</option>
+          <option value="farmer">Farmer Audience</option>
+          <option value="scientist">Scientist / KVK</option>
+          <option value="vyapari">Vyapari / Mandi</option>
+          <option value="admin_editor">Editorial Desk</option>
+        </select>
+
         {/* Language Filter (for news/channels) */}
         {['news', 'channels'].includes(activeTab) && (
           <select
@@ -403,6 +439,17 @@ export function ContentFiltersBar({
           <span>Export</span>
         </button>
 
+        {onResetSeed && (
+          <button
+            onClick={onResetSeed}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl text-xs font-semibold text-amber-800 hover:bg-amber-100 shadow-xs transition"
+            title="Reset to SOP-20 Default Benchmark Dataset"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
+            <span className="hidden sm:inline">Reset Seed</span>
+          </button>
+        )}
+
         {activeTab !== 'audit' && canCreate && (
           <button
             onClick={onCreateNew}
@@ -425,10 +472,103 @@ export function ContentFiltersBar({
 }
 
 // -------------------------------------------------------------
+// BATCH ACTION BAR COMPONENT
+// -------------------------------------------------------------
+export function BatchActionBar({
+  selectedCount = 0,
+  activeTab = 'news',
+  onBatchAction,
+  onClearSelection
+}) {
+  if (selectedCount === 0) return null
+
+  return (
+    <div className="bg-emerald-950 text-white px-4 py-2.5 rounded-2xl mb-4 flex flex-wrap items-center justify-between gap-3 shadow-xl border border-emerald-800 animate-in slide-in-from-top duration-200">
+      <div className="flex items-center gap-3">
+        <span className="font-mono text-xs font-bold bg-emerald-800 text-emerald-100 px-2.5 py-0.5 rounded-lg border border-emerald-700">
+          {selectedCount} selected
+        </span>
+        <span className="text-xs text-emerald-200 hidden sm:inline">
+          Batch bulk actions for <span className="font-bold text-white uppercase">{activeTab}</span>:
+        </span>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 text-xs">
+        {['news', 'videos', 'blogs'].includes(activeTab) && (
+          <>
+            <button
+              onClick={() => onBatchAction('published')}
+              className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 rounded-xl font-semibold shadow-xs transition"
+            >
+              Publish Selected
+            </button>
+            <button
+              onClick={() => onBatchAction(activeTab === 'news' ? 'archived' : activeTab === 'videos' ? 'unlisted' : 'draft')}
+              className="px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl font-semibold shadow-xs transition text-slate-200"
+            >
+              Archive / Unlist
+            </button>
+          </>
+        )}
+
+        {activeTab === 'channels' && (
+          <>
+            <button
+              onClick={() => onBatchAction('maintenance')}
+              className="px-3 py-1 bg-amber-600 hover:bg-amber-500 rounded-xl font-semibold shadow-xs transition"
+            >
+              Set Maintenance
+            </button>
+            <button
+              onClick={() => onBatchAction('offline')}
+              className="px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl font-semibold shadow-xs transition text-slate-200"
+            >
+              Set Offline
+            </button>
+          </>
+        )}
+
+        {['workshops', 'talks'].includes(activeTab) && (
+          <button
+            onClick={() => onBatchAction('completed')}
+            className="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold shadow-xs transition"
+          >
+            Mark Concluded
+          </button>
+        )}
+
+        <button
+          onClick={() => onBatchAction('export')}
+          className="flex items-center gap-1.5 px-3 py-1 bg-emerald-800 hover:bg-emerald-700 border border-emerald-600 rounded-xl font-semibold shadow-xs transition"
+        >
+          <Download className="w-3.5 h-3.5" />
+          <span>Export CSV</span>
+        </button>
+
+        <button
+          onClick={onClearSelection}
+          className="px-2.5 py-1 text-slate-300 hover:text-white underline font-semibold transition"
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// -------------------------------------------------------------
 // TABLES FOR EACH ENTITY
 // -------------------------------------------------------------
 
-export function AgriNewsTable({ data, onView, onEdit, onDelete }) {
+export function AgriNewsTable({
+  data,
+  onView,
+  onEdit,
+  onDelete,
+  selectedIds = [],
+  onToggleSelect = () => {},
+  onSelectAll = () => {}
+}) {
   if (!data || data.length === 0) {
     return (
       <div className="p-8 text-center text-slate-400 text-xs">
@@ -437,11 +577,21 @@ export function AgriNewsTable({ data, onView, onEdit, onDelete }) {
     )
   }
 
+  const allSelected = data.length > 0 && data.every((item) => selectedIds.includes(item.id))
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-xs border-collapse">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
+            <th className="py-3 px-3 w-8">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={(e) => onSelectAll(e.target.checked)}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              />
+            </th>
             <th className="py-3 px-4">Article ID &amp; Title</th>
             <th className="py-3 px-3">Category</th>
             <th className="py-3 px-3">Vernacular Narration</th>
@@ -452,84 +602,108 @@ export function AgriNewsTable({ data, onView, onEdit, onDelete }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100/80 font-mono">
-          {data.map((item) => (
-            <tr key={item.id} className="hover:bg-emerald-50/60 transition-colors">
-              <td className="py-3.5 px-4 max-w-sm font-sans">
-                <div className="flex items-start gap-2">
-                  {item.breaking && (
-                    <span className="shrink-0 flex items-center gap-0.5 px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                      <Flame className="w-3 h-3 text-rose-600" />
-                      Breaking
-                    </span>
-                  )}
-                  <div>
-                    <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(item)}>
-                      {item.title}
+          {data.map((item) => {
+            const isSelected = selectedIds.includes(item.id)
+            return (
+              <tr key={item.id} className={`transition-colors ${isSelected ? 'bg-emerald-50/80' : 'hover:bg-emerald-50/60'}`}>
+                <td className="py-3.5 px-3">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleSelect(item.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                </td>
+                <td className="py-3.5 px-4 max-w-sm font-sans">
+                  <div className="flex items-start gap-2">
+                    {item.breaking && (
+                      <span className="shrink-0 flex items-center gap-0.5 px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                        <Flame className="w-3 h-3 text-rose-600" />
+                        Breaking
+                      </span>
+                    )}
+                    <div>
+                      <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(item)}>
+                        {item.title}
+                      </div>
+                      <div className="text-[11px] text-slate-600 mt-0.5 line-clamp-1">{item.headline}</div>
+                      <div className="font-mono text-[10px] text-slate-400 mt-0.5">{item.id}</div>
                     </div>
-                    <div className="text-[11px] text-slate-600 mt-0.5 line-clamp-1">{item.headline}</div>
-                    <div className="font-mono text-[10px] text-slate-400 mt-0.5">{item.id}</div>
                   </div>
-                </div>
-              </td>
-              <td className="py-3.5 px-3 font-sans">
-                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
-                  {item.category}
-                </span>
-              </td>
-              <td className="py-3.5 px-3 font-sans">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">
-                    {item.language === 'mr' ? 'Marathi' : item.language === 'hi' ? 'Hindi' : 'English'}
+                </td>
+                <td className="py-3.5 px-3 font-sans">
+                  <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
+                    {item.category}
                   </span>
-                  {item.vernacularAudioUrl && (
-                    <span className="flex items-center gap-1 text-[11px] text-slate-600" title={`Narration: ${fmtDuration(item.audioDurationSeconds)}`}>
-                      <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>{fmtDuration(item.audioDurationSeconds)}</span>
+                </td>
+                <td className="py-3.5 px-3 font-sans">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">
+                      {item.language === 'mr' ? 'Marathi' : item.language === 'hi' ? 'Hindi' : 'English'}
                     </span>
-                  )}
-                </div>
-              </td>
-              <td className="py-3.5 px-3 text-center">
-                <StatusBadge status={item.status} />
-              </td>
-              <td className="py-3.5 px-3 font-sans">
-                <div className="text-slate-900 font-medium">{item.author}</div>
-                <div className="text-[10px] text-slate-400">{item.source}</div>
-              </td>
-              <td className="py-3.5 px-3 text-right font-mono text-slate-800 font-bold">
-                {item.readCount?.toLocaleString()}
-              </td>
-              <td className="py-3.5 px-4 text-right font-sans">
-                <div className="flex items-center justify-end gap-1.5">
-                  <button
-                    onClick={() => onView(item)}
-                    className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold shadow-xs transition"
-                  >
-                    View
-                  </button>
-                  <button
-                    onClick={() => onEdit(item)}
-                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition active:scale-95"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => onDelete(item)}
-                    className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-semibold transition"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
+                    {item.vernacularAudioUrl && (
+                      <span className="flex items-center gap-1 text-[11px] text-slate-600" title={`Narration: ${fmtDuration(item.audioDurationSeconds)}`}>
+                        <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{fmtDuration(item.audioDurationSeconds)}</span>
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td className="py-3.5 px-3 text-center">
+                  <StatusBadge status={item.status} />
+                </td>
+                <td className="py-3.5 px-3 font-sans">
+                  <div className="text-slate-900 font-medium">{item.author}</div>
+                  <div className="text-[10px] text-slate-400">{item.source}</div>
+                </td>
+                <td className="py-3.5 px-3 text-right font-mono text-slate-800 font-bold">
+                  {item.readCount?.toLocaleString()}
+                </td>
+                <td className="py-3.5 px-4 text-right font-sans">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <button
+                      onClick={() => onView(item)}
+                      className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold shadow-xs transition"
+                    >
+                      View
+                    </button>
+                    {onEdit && (
+                      <button
+                        onClick={() => onEdit(item)}
+                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition active:scale-95"
+                      >
+                        Edit
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        onClick={() => onDelete(item)}
+                        className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-semibold transition"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
   )
 }
 
-export function AgriChannelsTable({ data, onView, onManageKeys, onModerateChat, onToggleStatus }) {
+export function AgriChannelsTable({
+  data,
+  onView,
+  onManageKeys,
+  onModerateChat,
+  onToggleStatus,
+  selectedIds = [],
+  onToggleSelect = () => {},
+  onSelectAll = () => {}
+}) {
   if (!data || data.length === 0) {
     return (
       <div className="p-8 text-center text-slate-400 text-xs">
@@ -538,11 +712,21 @@ export function AgriChannelsTable({ data, onView, onManageKeys, onModerateChat, 
     )
   }
 
+  const allSelected = data.length > 0 && data.every((item) => selectedIds.includes(item.id))
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-xs border-collapse">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
+            <th className="py-3 px-3 w-8">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={(e) => onSelectAll(e.target.checked)}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              />
+            </th>
             <th className="py-3 px-4">Channel &amp; Callsign</th>
             <th className="py-3 px-3">Category</th>
             <th className="py-3 px-3 text-center">Broadcast Status</th>
@@ -553,88 +737,112 @@ export function AgriChannelsTable({ data, onView, onManageKeys, onModerateChat, 
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100/80 font-mono">
-          {data.map((chan) => (
-            <tr key={chan.id} className="hover:bg-emerald-50/60 transition-colors">
-              <td className="py-3.5 px-4 font-sans">
-                <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(chan)}>
-                  {chan.channelName}
-                </div>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="font-mono text-[10px] text-slate-500">{chan.callsign}</span>
-                  <span className="text-slate-300">•</span>
-                  <span className="text-[10px] text-emerald-700 uppercase font-semibold">{chan.language}</span>
-                </div>
-              </td>
-              <td className="py-3.5 px-3 font-sans">
-                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
-                  {chan.category}
-                </span>
-              </td>
-              <td className="py-3.5 px-3 text-center">
-                <StatusBadge status={chan.status} />
-              </td>
-              <td className="py-3.5 px-3">
-                <div className="font-mono text-slate-900">
-                  {chan.status === 'live' ? (
-                    <span className="text-rose-700 font-bold">{chan.activeViewers?.toLocaleString()} viewers</span>
-                  ) : (
-                    <span className="text-slate-500">Peak {chan.peakViewersToday?.toLocaleString()}</span>
-                  )}
-                </div>
-                <div className="text-[10px] font-mono text-slate-500">
-                  {chan.resolution} @ {chan.bitrateKbps} kbps
-                </div>
-              </td>
-              <td className="py-3.5 px-3 font-mono text-[11px]">
-                <div className="flex items-center gap-1.5 text-slate-600">
-                  <Key className="w-3 h-3 text-amber-600" />
-                  <span>{chan.streamKey ? `${chan.streamKey.slice(0, 10)}••••••••` : 'None'}</span>
-                </div>
-              </td>
-              <td className="py-3.5 px-3 text-center font-sans">
-                <div className="flex items-center justify-center gap-1.5">
-                  {chan.chatEnabled ? (
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold">
-                      Active ({chan.chatModerationLevel})
-                    </span>
-                  ) : (
-                    <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[10px]">
-                      Disabled
-                    </span>
-                  )}
-                </div>
-              </td>
-              <td className="py-3.5 px-4 text-right font-sans">
-                <div className="flex items-center justify-end gap-1.5">
-                  <button
-                    onClick={() => onView(chan)}
-                    className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold shadow-xs transition"
-                  >
-                    View
-                  </button>
-                  <button
-                    onClick={() => onManageKeys(chan)}
-                    className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-semibold transition"
-                  >
-                    Stream Key
-                  </button>
-                  <button
-                    onClick={() => onModerateChat(chan)}
-                    className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 rounded-lg text-[11px] font-semibold transition"
-                  >
-                    Chat ({chan.chatMessages?.length || 0})
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
+          {data.map((chan) => {
+            const isSelected = selectedIds.includes(chan.id)
+            return (
+              <tr key={chan.id} className={`transition-colors ${isSelected ? 'bg-emerald-50/80' : 'hover:bg-emerald-50/60'}`}>
+                <td className="py-3.5 px-3">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleSelect(chan.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                </td>
+                <td className="py-3.5 px-4 font-sans">
+                  <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(chan)}>
+                    {chan.channelName}
+                  </div>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="font-mono text-[10px] text-slate-500">{chan.callsign}</span>
+                    <span className="text-slate-300">•</span>
+                    <span className="text-[10px] text-emerald-700 uppercase font-semibold">{chan.language}</span>
+                  </div>
+                </td>
+                <td className="py-3.5 px-3 font-sans">
+                  <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
+                    {chan.category}
+                  </span>
+                </td>
+                <td className="py-3.5 px-3 text-center">
+                  <StatusBadge status={chan.status} />
+                </td>
+                <td className="py-3.5 px-3">
+                  <div className="font-mono text-slate-900">
+                    {chan.status === 'live' ? (
+                      <span className="text-rose-700 font-bold">{chan.activeViewers?.toLocaleString()} viewers</span>
+                    ) : (
+                      <span className="text-slate-500">Peak {chan.peakViewersToday?.toLocaleString()}</span>
+                    )}
+                  </div>
+                  <div className="text-[10px] font-mono text-slate-500">
+                    {chan.resolution} @ {chan.bitrateKbps} kbps
+                  </div>
+                </td>
+                <td className="py-3.5 px-3 font-mono text-[11px]">
+                  <div className="flex items-center gap-1.5 text-slate-600">
+                    <Key className="w-3 h-3 text-amber-600" />
+                    <span>{chan.streamKey ? `${chan.streamKey.slice(0, 10)}••••••••` : 'None'}</span>
+                  </div>
+                </td>
+                <td className="py-3.5 px-3 text-center font-sans">
+                  <div className="flex items-center justify-center gap-1.5">
+                    {chan.chatEnabled ? (
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold">
+                        Active ({chan.chatModerationLevel})
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[10px]">
+                        Disabled
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td className="py-3.5 px-4 text-right font-sans">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <button
+                      onClick={() => onView(chan)}
+                      className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold shadow-xs transition"
+                    >
+                      View
+                    </button>
+                    {onManageKeys && (
+                      <button
+                        onClick={() => onManageKeys(chan)}
+                        className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-semibold transition"
+                      >
+                        Stream Key
+                      </button>
+                    )}
+                    {onModerateChat && (
+                      <button
+                        onClick={() => onModerateChat(chan)}
+                        className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 rounded-lg text-[11px] font-semibold transition"
+                      >
+                        Chat ({chan.chatMessages?.length || 0})
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
   )
 }
 
-export function WorkshopsTable({ data, onView, onRoster, onEdit, onCancel }) {
+export function WorkshopsTable({
+  data,
+  onView,
+  onRoster,
+  onEdit,
+  onCancel,
+  selectedIds = [],
+  onToggleSelect = () => {},
+  onSelectAll = () => {}
+}) {
   if (!data || data.length === 0) {
     return (
       <div className="p-8 text-center text-slate-400 text-xs">
@@ -643,11 +851,21 @@ export function WorkshopsTable({ data, onView, onRoster, onEdit, onCancel }) {
     )
   }
 
+  const allSelected = data.length > 0 && data.every((item) => selectedIds.includes(item.id))
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-xs border-collapse">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
+            <th className="py-3 px-3 w-8">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={(e) => onSelectAll(e.target.checked)}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              />
+            </th>
             <th className="py-3 px-4">Workshop &amp; Accreditation</th>
             <th className="py-3 px-3">Lead Instructor</th>
             <th className="py-3 px-3">Fee &amp; Gross</th>
@@ -661,9 +879,18 @@ export function WorkshopsTable({ data, onView, onRoster, onEdit, onCancel }) {
           {data.map((ws) => {
             const fillPct = Math.min(100, Math.round((ws.enrolledCount / (ws.seatsCapacity || 1)) * 100))
             const grossRevenue = (ws.enrolledCount || 0) * (ws.feeINR || 0)
+            const isSelected = selectedIds.includes(ws.id)
 
             return (
-              <tr key={ws.id} className="hover:bg-emerald-50/60 transition-colors">
+              <tr key={ws.id} className={`transition-colors ${isSelected ? 'bg-emerald-50/80' : 'hover:bg-emerald-50/60'}`}>
+                <td className="py-3.5 px-3">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleSelect(ws.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                </td>
                 <td className="py-3.5 px-4 max-w-xs font-sans">
                   <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(ws)}>
                     {ws.title}
@@ -713,19 +940,23 @@ export function WorkshopsTable({ data, onView, onRoster, onEdit, onCancel }) {
                     >
                       View
                     </button>
-                    <button
-                      onClick={() => onRoster(ws)}
-                      className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 rounded-lg text-[11px] font-semibold transition"
-                    >
-                      Roster ({ws.enrolledCount})
-                    </button>
-                    <button
-                      onClick={() => onEdit(ws)}
-                      className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition active:scale-95"
-                    >
-                      Edit
-                    </button>
-                    {ws.status !== 'cancelled' && (
+                    {onRoster && (
+                      <button
+                        onClick={() => onRoster(ws)}
+                        className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 rounded-lg text-[11px] font-semibold transition"
+                      >
+                        Roster ({ws.enrolledCount})
+                      </button>
+                    )}
+                    {onEdit && (
+                      <button
+                        onClick={() => onEdit(ws)}
+                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition active:scale-95"
+                      >
+                        Edit
+                      </button>
+                    )}
+                    {onCancel && ws.status !== 'cancelled' && (
                       <button
                         onClick={() => onCancel(ws)}
                         className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-semibold transition"
@@ -744,7 +975,15 @@ export function WorkshopsTable({ data, onView, onRoster, onEdit, onCancel }) {
   )
 }
 
-export function ExpertTalksTable({ data, onView, onTriage, onEdit }) {
+export function ExpertTalksTable({
+  data,
+  onView,
+  onTriage,
+  onEdit,
+  selectedIds = [],
+  onToggleSelect = () => {},
+  onSelectAll = () => {}
+}) {
   if (!data || data.length === 0) {
     return (
       <div className="p-8 text-center text-slate-400 text-xs">
@@ -753,11 +992,21 @@ export function ExpertTalksTable({ data, onView, onTriage, onEdit }) {
     )
   }
 
+  const allSelected = data.length > 0 && data.every((item) => selectedIds.includes(item.id))
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-xs border-collapse">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
+            <th className="py-3 px-3 w-8">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={(e) => onSelectAll(e.target.checked)}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              />
+            </th>
             <th className="py-3 px-4">Expert Talk Topic</th>
             <th className="py-3 px-3">Lead Scientist &amp; Institute</th>
             <th className="py-3 px-3">Specialization</th>
@@ -770,9 +1019,18 @@ export function ExpertTalksTable({ data, onView, onTriage, onEdit }) {
         <tbody className="divide-y divide-slate-100/80 font-mono">
           {data.map((talk) => {
             const pendingCount = (talk.farmerQuestions || []).filter((q) => q.status === 'pending_triage').length
+            const isSelected = selectedIds.includes(talk.id)
 
             return (
-              <tr key={talk.id} className="hover:bg-emerald-50/60 transition-colors">
+              <tr key={talk.id} className={`transition-colors ${isSelected ? 'bg-emerald-50/80' : 'hover:bg-emerald-50/60'}`}>
+                <td className="py-3.5 px-3">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleSelect(talk.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                </td>
                 <td className="py-3.5 px-4 max-w-xs font-sans">
                   <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(talk)}>
                     {talk.title}
@@ -813,18 +1071,22 @@ export function ExpertTalksTable({ data, onView, onTriage, onEdit }) {
                     >
                       View
                     </button>
-                    <button
-                      onClick={() => onTriage(talk)}
-                      className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-semibold transition"
-                    >
-                      Triage ({talk.farmerQuestions?.length || 0})
-                    </button>
-                    <button
-                      onClick={() => onEdit(talk)}
-                      className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition active:scale-95"
-                    >
-                      Edit
-                    </button>
+                    {onTriage && (
+                      <button
+                        onClick={() => onTriage(talk)}
+                        className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-semibold transition"
+                      >
+                        Triage ({talk.farmerQuestions?.length || 0})
+                      </button>
+                    )}
+                    {onEdit && (
+                      <button
+                        onClick={() => onEdit(talk)}
+                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition active:scale-95"
+                      >
+                        Edit
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -836,7 +1098,15 @@ export function ExpertTalksTable({ data, onView, onTriage, onEdit }) {
   )
 }
 
-export function VideoGuidesTable({ data, onView, onEdit, onDelete }) {
+export function VideoGuidesTable({
+  data,
+  onView,
+  onEdit,
+  onDelete,
+  selectedIds = [],
+  onToggleSelect = () => {},
+  onSelectAll = () => {}
+}) {
   if (!data || data.length === 0) {
     return (
       <div className="p-8 text-center text-slate-400 text-xs">
@@ -845,11 +1115,21 @@ export function VideoGuidesTable({ data, onView, onEdit, onDelete }) {
     )
   }
 
+  const allSelected = data.length > 0 && data.every((item) => selectedIds.includes(item.id))
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-xs border-collapse">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
+            <th className="py-3 px-3 w-8">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={(e) => onSelectAll(e.target.checked)}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              />
+            </th>
             <th className="py-3 px-4">Video Title &amp; ID</th>
             <th className="py-3 px-3">Category</th>
             <th className="py-3 px-3">Duration</th>
@@ -860,76 +1140,99 @@ export function VideoGuidesTable({ data, onView, onEdit, onDelete }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100/80 font-mono">
-          {data.map((vid) => (
-            <tr key={vid.id} className="hover:bg-emerald-50/60 transition-colors">
-              <td className="py-3.5 px-4 max-w-sm font-sans">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 text-emerald-700">
-                    <Play className="w-4 h-4 fill-current ml-0.5" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(vid)}>
-                      {vid.title}
+          {data.map((vid) => {
+            const isSelected = selectedIds.includes(vid.id)
+            return (
+              <tr key={vid.id} className={`transition-colors ${isSelected ? 'bg-emerald-50/80' : 'hover:bg-emerald-50/60'}`}>
+                <td className="py-3.5 px-3">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleSelect(vid.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                </td>
+                <td className="py-3.5 px-4 max-w-sm font-sans">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 text-emerald-700">
+                      <Play className="w-4 h-4 fill-current ml-0.5" />
                     </div>
-                    <div className="font-mono text-[10px] text-slate-400">{vid.id}</div>
+                    <div>
+                      <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(vid)}>
+                        {vid.title}
+                      </div>
+                      <div className="font-mono text-[10px] text-slate-400">{vid.id}</div>
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td className="py-3.5 px-3 font-sans">
-                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
-                  {vid.category}
-                </span>
-              </td>
-              <td className="py-3.5 px-3 font-mono text-slate-800 font-semibold">
-                {fmtDuration(vid.durationSeconds)}
-              </td>
-              <td className="py-3.5 px-3 font-sans">
-                <div className="flex items-center gap-1">
-                  {Object.keys(vid.translations || {}).map((lang) => (
-                    <span key={lang} className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono uppercase font-semibold">
-                      {lang}
-                    </span>
-                  ))}
-                </div>
-              </td>
-              <td className="py-3.5 px-3 text-right font-mono text-slate-800">
-                <div className="font-bold">{vid.viewCount?.toLocaleString()} views</div>
-                <div className="text-[10px] text-slate-500">{vid.likeCount?.toLocaleString()} likes</div>
-              </td>
-              <td className="py-3.5 px-3 text-center">
-                <StatusBadge status={vid.status} />
-              </td>
-              <td className="py-3.5 px-4 text-right font-sans">
-                <div className="flex items-center justify-end gap-1.5">
-                  <button
-                    onClick={() => onView(vid)}
-                    className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold shadow-xs transition"
-                  >
-                    View
-                  </button>
-                  <button
-                    onClick={() => onEdit(vid)}
-                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition active:scale-95"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => onDelete(vid)}
-                    className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-semibold transition"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td className="py-3.5 px-3 font-sans">
+                  <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
+                    {vid.category}
+                  </span>
+                </td>
+                <td className="py-3.5 px-3 font-mono text-slate-800 font-semibold">
+                  {fmtDuration(vid.durationSeconds)}
+                </td>
+                <td className="py-3.5 px-3 font-sans">
+                  <div className="flex items-center gap-1">
+                    {Object.keys(vid.translations || {}).map((lang) => (
+                      <span key={lang} className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono uppercase font-semibold">
+                        {lang}
+                      </span>
+                    ))}
+                  </div>
+                </td>
+                <td className="py-3.5 px-3 text-right font-mono text-slate-800">
+                  <div className="font-bold">{vid.viewCount?.toLocaleString()} views</div>
+                  <div className="text-[10px] text-slate-500">{vid.likeCount?.toLocaleString()} likes</div>
+                </td>
+                <td className="py-3.5 px-3 text-center">
+                  <StatusBadge status={vid.status} />
+                </td>
+                <td className="py-3.5 px-4 text-right font-sans">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <button
+                      onClick={() => onView(vid)}
+                      className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold shadow-xs transition"
+                    >
+                      View
+                    </button>
+                    {onEdit && (
+                      <button
+                        onClick={() => onEdit(vid)}
+                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition active:scale-95"
+                      >
+                        Edit
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        onClick={() => onDelete(vid)}
+                        className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-semibold transition"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
   )
 }
 
-export function BlogArticlesTable({ data, onView, onEdit, onDelete }) {
+export function BlogArticlesTable({
+  data,
+  onView,
+  onEdit,
+  onDelete,
+  selectedIds = [],
+  onToggleSelect = () => {},
+  onSelectAll = () => {}
+}) {
   if (!data || data.length === 0) {
     return (
       <div className="p-8 text-center text-slate-400 text-xs">
@@ -938,11 +1241,21 @@ export function BlogArticlesTable({ data, onView, onEdit, onDelete }) {
     )
   }
 
+  const allSelected = data.length > 0 && data.every((item) => selectedIds.includes(item.id))
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-xs border-collapse">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
+            <th className="py-3 px-3 w-8">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={(e) => onSelectAll(e.target.checked)}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              />
+            </th>
             <th className="py-3 px-4">Article Title &amp; Slug</th>
             <th className="py-3 px-3">Category</th>
             <th className="py-3 px-3">Author &amp; Role</th>
@@ -953,56 +1266,71 @@ export function BlogArticlesTable({ data, onView, onEdit, onDelete }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100/80 font-mono">
-          {data.map((blog) => (
-            <tr key={blog.id} className="hover:bg-emerald-50/60 transition-colors">
-              <td className="py-3.5 px-4 max-w-sm font-sans">
-                <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(blog)}>
-                  {blog.title}
-                </div>
-                <div className="font-mono text-[10px] text-slate-400 mt-0.5">{blog.slug}</div>
-              </td>
-              <td className="py-3.5 px-3 font-sans">
-                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
-                  {blog.category}
-                </span>
-              </td>
-              <td className="py-3.5 px-3 font-sans">
-                <div className="text-slate-900 font-medium">{blog.authorName}</div>
-                <div className="text-[10px] text-slate-500">{blog.authorRole}</div>
-              </td>
-              <td className="py-3.5 px-3 font-mono text-slate-800">
-                {blog.readTimeMinutes} min read
-              </td>
-              <td className="py-3.5 px-3 text-right font-mono text-slate-800 font-bold">
-                {blog.viewCount?.toLocaleString()}
-              </td>
-              <td className="py-3.5 px-3 text-center">
-                <StatusBadge status={blog.status} />
-              </td>
-              <td className="py-3.5 px-4 text-right font-sans">
-                <div className="flex items-center justify-end gap-1.5">
-                  <button
-                    onClick={() => onView(blog)}
-                    className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold shadow-xs transition"
-                  >
-                    View
-                  </button>
-                  <button
-                    onClick={() => onEdit(blog)}
-                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition active:scale-95"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => onDelete(blog)}
-                    className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-semibold transition"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
+          {data.map((blog) => {
+            const isSelected = selectedIds.includes(blog.id)
+            return (
+              <tr key={blog.id} className={`transition-colors ${isSelected ? 'bg-emerald-50/80' : 'hover:bg-emerald-50/60'}`}>
+                <td className="py-3.5 px-3">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleSelect(blog.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                </td>
+                <td className="py-3.5 px-4 max-w-sm font-sans">
+                  <div className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => onView(blog)}>
+                    {blog.title}
+                  </div>
+                  <div className="font-mono text-[10px] text-slate-400 mt-0.5">{blog.slug}</div>
+                </td>
+                <td className="py-3.5 px-3 font-sans">
+                  <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
+                    {blog.category}
+                  </span>
+                </td>
+                <td className="py-3.5 px-3 font-sans">
+                  <div className="text-slate-900 font-medium">{blog.authorName}</div>
+                  <div className="text-[10px] text-slate-500">{blog.authorRole}</div>
+                </td>
+                <td className="py-3.5 px-3 font-mono text-slate-800">
+                  {blog.readTimeMinutes} min read
+                </td>
+                <td className="py-3.5 px-3 text-right font-mono text-slate-800 font-bold">
+                  {blog.viewCount?.toLocaleString()}
+                </td>
+                <td className="py-3.5 px-3 text-center">
+                  <StatusBadge status={blog.status} />
+                </td>
+                <td className="py-3.5 px-4 text-right font-sans">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <button
+                      onClick={() => onView(blog)}
+                      className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[11px] font-semibold shadow-xs transition"
+                    >
+                      View
+                    </button>
+                    {onEdit && (
+                      <button
+                        onClick={() => onEdit(blog)}
+                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition active:scale-95"
+                      >
+                        Edit
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        onClick={() => onDelete(blog)}
+                        className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-semibold transition"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>

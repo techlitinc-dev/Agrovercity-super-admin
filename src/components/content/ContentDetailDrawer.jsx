@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   X,
   Copy,
@@ -28,6 +28,7 @@ import {
   Globe
 } from 'lucide-react'
 import { StatusBadge, fmtINR, fmtDuration, formatDate } from '../../pages/contentWidgets'
+import { getEntityAuditLogs } from '../../api/contentApi'
 
 export default function ContentDetailDrawer({
   entity,
@@ -39,12 +40,21 @@ export default function ContentDetailDrawer({
   onManageKeys,
   onModerateChat,
   onRoster,
-  onTriage
+  onTriage,
+  canMutate = true,
+  role = 'SUPER_ADMIN'
 }) {
   const [activeTab, setActiveTab] = useState('overview')
   const [copied, setCopied] = useState(false)
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
   const [showStreamKey, setShowStreamKey] = useState(false)
+  const [entityLogs, setEntityLogs] = useState([])
+
+  useEffect(() => {
+    if (entity?.id) {
+      getEntityAuditLogs(entity.id).then((logs) => setEntityLogs(logs || []))
+    }
+  }, [entity])
 
   if (!isOpen || !entity) return null
 
@@ -142,6 +152,16 @@ export default function ContentDetailDrawer({
             }`}
           >
             Document JSON
+          </button>
+          <button
+            onClick={() => setActiveTab('audit')}
+            className={`py-2.5 border-b-2 font-medium transition-colors ${
+              activeTab === 'audit'
+                ? 'border-emerald-600 text-emerald-800 font-bold'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            Audit History ({entityLogs.length})
           </button>
         </div>
 
@@ -575,66 +595,111 @@ export default function ContentDetailDrawer({
               </pre>
             </div>
           )}
+
+          {activeTab === 'audit' && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Audit History for {entity.id}
+                </span>
+                <span className="text-[11px] font-mono text-emerald-700 font-bold">
+                  {entityLogs.length} events logged
+                </span>
+              </div>
+              {entityLogs.length === 0 ? (
+                <div className="p-8 bg-slate-50 rounded-xl text-center text-xs text-slate-400 border border-slate-100">
+                  No specific state transitions recorded for this document yet.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {entityLogs.map((log) => (
+                    <div key={log.id} className="p-3 bg-white border border-slate-200 rounded-xl space-y-1.5 shadow-xs text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-emerald-700 font-bold text-[11px]">{log.actionType}</span>
+                        <span className="text-[10px] text-slate-400 font-mono">{formatDate(log.timestamp)}</span>
+                      </div>
+                      <div className="text-slate-700 text-[11px] leading-relaxed">{log.reason}</div>
+                      <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100 font-mono">
+                        <span>Admin: {log.adminName}</span>
+                        <span>IP: {log.ipAddress}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer Quick Action Bar */}
-        <div className="p-4 border-t border-emerald-100/80 bg-emerald-50/40 flex items-center justify-between">
-          <div className="text-xs text-slate-500">
-            DPDP Aadhaar Masking: <span className="text-emerald-700 font-mono font-bold">Enforced</span>
-          </div>
-          <div className="flex items-center gap-2">
-            {type === 'channels' && (
-              <>
+        <div className="p-4 border-t border-emerald-100/80 bg-emerald-50/40">
+          {!canMutate && (
+            <div className="mb-2 p-2 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-[11px] flex items-center gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+              <span>Read-Only Compliance View ({role === 'FINANCIAL_AUDITOR' ? 'Financial Auditor' : 'Restricted Role'}). Administrative mutation buttons disabled.</span>
+            </div>
+          )}
+          <div className="flex items-center justify-between">
+            <div className="text-xs text-slate-500">
+              DPDP Aadhaar Masking: <span className="text-emerald-700 font-mono font-bold">Enforced</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {type === 'channels' && (
+                <>
+                  <button
+                    disabled={!canMutate}
+                    onClick={() => onManageKeys && onManageKeys(entity)}
+                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold shadow-xs transition-colors"
+                  >
+                    Manage Keys
+                  </button>
+                  <button
+                    disabled={!canMutate}
+                    onClick={() => onModerateChat && onModerateChat(entity)}
+                    className="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold shadow-xs transition-colors"
+                  >
+                    Moderate Chat
+                  </button>
+                </>
+              )}
+
+              {type === 'workshops' && (
                 <button
-                  onClick={() => onManageKeys && onManageKeys(entity)}
-                  className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors"
-                >
-                  Manage Keys
-                </button>
-                <button
-                  onClick={() => onModerateChat && onModerateChat(entity)}
+                  onClick={() => onRoster && onRoster(entity)}
                   className="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors"
                 >
-                  Moderate Chat
+                  View Roster ({entity.enrolledCount})
                 </button>
-              </>
-            )}
+              )}
 
-            {type === 'workshops' && (
-              <button
-                onClick={() => onRoster && onRoster(entity)}
-                className="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors"
-              >
-                View Roster ({entity.enrolledCount})
-              </button>
-            )}
+              {type === 'talks' && (
+                <button
+                  disabled={!canMutate}
+                  onClick={() => onTriage && onTriage(entity)}
+                  className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold shadow-xs transition-colors"
+                >
+                  Triage Questions
+                </button>
+              )}
 
-            {type === 'talks' && (
-              <button
-                onClick={() => onTriage && onTriage(entity)}
-                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors"
-              >
-                Triage Questions
-              </button>
-            )}
+              {onEdit && canMutate && (
+                <button
+                  onClick={() => onEdit(entity)}
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors"
+                >
+                  Edit Item
+                </button>
+              )}
 
-            {onEdit && (
-              <button
-                onClick={() => onEdit(entity)}
-                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors"
-              >
-                Edit Item
-              </button>
-            )}
-
-            {onDelete && (
-              <button
-                onClick={() => onDelete(entity)}
-                className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors"
-              >
-                Delete
-              </button>
-            )}
+              {onDelete && canMutate && (
+                <button
+                  onClick={() => onDelete(entity)}
+                  className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors"
+                >
+                  Delete
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
