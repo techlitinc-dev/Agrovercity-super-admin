@@ -8,6 +8,7 @@ import { adminMandiService } from '../../services/adminMandiService';
 import { adminLotsService } from '../../services/adminLotsService';
 
 import { getModuleById, getGroupById } from '../../lib/navigationConfig';
+import { RbacRoleDropdown } from './RbacRoleDropdown';
 
 export function Header({ activeModuleId = '26', onDataRefreshed }) {
   const { currentAdmin, currentRoleKey, switchRole, actingStaff, staffList, exitActAs } = useAuthAdmin();
@@ -111,52 +112,8 @@ export function Header({ activeModuleId = '26', onDataRefreshed }) {
             <span>Reset Demo DB</span>
           </button>
 
-          {/* RBAC Role Selector */}
-          <div className="flex items-center gap-2 bg-white/90 border border-slate-200/90 p-1 rounded-xl shadow-xs backdrop-blur-sm">
-            <span className="text-xs text-slate-500 px-2 flex items-center gap-1 font-mono">
-              <KeyRound className="w-3 h-3 text-emerald-600" />
-              RBAC:
-            </span>
-            <select
-              value={currentRoleKey}
-              onChange={(e) => {
-                const selectedKey = e.target.value;
-                switchRole(selectedKey);
-                if (selectedKey.startsWith('STAFF_')) {
-                  const staff = staffList.find((s) => s.id === selectedKey.replace('STAFF_', ''));
-                  if (staff) {
-                    addToast({
-                      title: 'Admin Session Activated',
-                      message: `Now acting as ${staff.name} (${staff.delegatedModules?.length || 0} Modules Active)`,
-                      type: 'info'
-                    });
-                    return;
-                  }
-                }
-                addToast({
-                  title: 'Admin Context Switched',
-                  message: `Now acting as ${ADMIN_ROLES[selectedKey]?.name || selectedKey}`,
-                  type: 'info'
-                });
-              }}
-              className="bg-slate-50/80 text-xs font-semibold text-slate-800 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 cursor-pointer transition-colors max-w-[240px] truncate"
-            >
-              <optgroup label="Core System Roles">
-                <option value="SUPER_ADMIN">👑 Super Admin (Full Access)</option>
-                <option value="SUPPORT_OPERATOR">Support Operator (Tier-2)</option>
-                <option value="FINANCIAL_AUDITOR">Financial Auditor (Read-Only)</option>
-              </optgroup>
-              {staffList.length > 0 && (
-                <optgroup label="Staff & Delegated Admins">
-                  {staffList.map((s) => (
-                    <option key={s.id} value={`STAFF_${s.id}`}>
-                      {s.role === 'Superadmin' ? '👑' : s.role === 'Admin' ? '🛡️' : '✍️'} {s.name} ({s.role} · {s.delegatedModules?.length || 0} Modules)
-                    </option>
-                  ))}
-                </optgroup>
-              )}
-            </select>
-          </div>
+          {/* RBAC Role Selector Dropdown (Styled as per ss1.png) */}
+          <RbacRoleDropdown />
 
           {/* User Status Pill */}
           <div className="flex items-center gap-2.5 bg-emerald-50/80 border border-emerald-200/80 px-3 py-1.5 rounded-xl backdrop-blur-sm shadow-xs">
