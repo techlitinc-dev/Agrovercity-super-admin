@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   X,
   Copy,
@@ -20,19 +20,34 @@ import {
   Landmark,
   Coins,
   Sparkles,
-  ExternalLink
+  ExternalLink,
+  History
 } from 'lucide-react'
 import { StatusBadge, fmtINR } from '../../pages/livestockWidgets'
+import { getLivestockAuditLogs } from '../../api/livestockApi'
 
 export default function LivestockDetailDrawer({
   entity,
   type = 'vet', // 'vet', 'gaushala', 'nursery', 'dairy', 'booking', 'manure'
   isOpen,
   onClose,
-  onAction
+  onAction,
+  canEdit = true
 }) {
   const [activeTab, setActiveTab] = useState('overview')
   const [copied, setCopied] = useState(false)
+  const [entityAuditLogs, setEntityAuditLogs] = useState([])
+
+  useEffect(() => {
+    if (entity?.id) {
+      getLivestockAuditLogs().then((logs) => {
+        const filtered = logs.filter(
+          (l) => l.entityId === entity.id || (entity.orderNumber && l.entityName?.includes(entity.orderNumber))
+        )
+        setEntityAuditLogs(filtered)
+      })
+    }
+  }, [entity])
 
   if (!isOpen || !entity) return null
 
@@ -94,10 +109,10 @@ export default function LivestockDetailDrawer({
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-emerald-100/80 px-4 bg-slate-50/50 space-x-4 text-xs font-semibold">
+        <div className="flex border-b border-emerald-100/80 px-4 bg-slate-50/50 space-x-3 text-xs font-semibold overflow-x-auto scrollbar-thin">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`py-2.5 border-b-2 transition-all -mb-px ${
+            className={`py-2.5 border-b-2 whitespace-nowrap transition-all -mb-px ${
               activeTab === 'overview'
                 ? 'border-emerald-600 text-emerald-800'
                 : 'border-transparent text-slate-600 hover:text-slate-900'
@@ -107,7 +122,7 @@ export default function LivestockDetailDrawer({
           </button>
           <button
             onClick={() => setActiveTab('compliance')}
-            className={`py-2.5 border-b-2 transition-all -mb-px ${
+            className={`py-2.5 border-b-2 whitespace-nowrap transition-all -mb-px ${
               activeTab === 'compliance'
                 ? 'border-emerald-600 text-emerald-800'
                 : 'border-transparent text-slate-600 hover:text-slate-900'
@@ -117,7 +132,7 @@ export default function LivestockDetailDrawer({
           </button>
           <button
             onClick={() => setActiveTab('capacity')}
-            className={`py-2.5 border-b-2 transition-all -mb-px ${
+            className={`py-2.5 border-b-2 whitespace-nowrap transition-all -mb-px ${
               activeTab === 'capacity'
                 ? 'border-emerald-600 text-emerald-800'
                 : 'border-transparent text-slate-600 hover:text-slate-900'
@@ -127,7 +142,7 @@ export default function LivestockDetailDrawer({
           </button>
           <button
             onClick={() => setActiveTab('financials')}
-            className={`py-2.5 border-b-2 transition-all -mb-px ${
+            className={`py-2.5 border-b-2 whitespace-nowrap transition-all -mb-px ${
               activeTab === 'financials'
                 ? 'border-emerald-600 text-emerald-800'
                 : 'border-transparent text-slate-600 hover:text-slate-900'
@@ -136,8 +151,18 @@ export default function LivestockDetailDrawer({
             Financials &amp; Escrow
           </button>
           <button
+            onClick={() => setActiveTab('history')}
+            className={`py-2.5 border-b-2 whitespace-nowrap transition-all -mb-px ${
+              activeTab === 'history'
+                ? 'border-emerald-600 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Audit Log ({entityAuditLogs.length})
+          </button>
+          <button
             onClick={() => setActiveTab('raw')}
-            className={`py-2.5 border-b-2 transition-all -mb-px ${
+            className={`py-2.5 border-b-2 whitespace-nowrap transition-all -mb-px ${
               activeTab === 'raw'
                 ? 'border-emerald-600 text-emerald-800'
                 : 'border-transparent text-slate-600 hover:text-slate-900'
@@ -215,7 +240,7 @@ export default function LivestockDetailDrawer({
                 </div>
               )}
 
-              {/* Doctor Notes / Admin Mediation Reason */}
+              {/* Special Regulatory Notes / Recalls */}
               {(entity.doctorNotes || entity.adminMediationReason || entity.flaggedReason || entity.recallReason) && (
                 <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-xl">
                   <div className="flex items-center gap-1.5 text-amber-800 font-semibold mb-1">
@@ -435,6 +460,40 @@ export default function LivestockDetailDrawer({
             </div>
           )}
 
+          {activeTab === 'history' && (
+            <div className="space-y-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-emerald-800">
+                Entity Audit Trail Log
+              </h3>
+              {entityAuditLogs.length === 0 ? (
+                <div className="p-8 text-center text-slate-400 bg-slate-50 rounded-xl border border-slate-200">
+                  <History className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                  <p>No historical state modifications recorded for this entity yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {entityAuditLogs.map((log) => (
+                    <div key={log.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-900">{log.actionType}</span>
+                        <span className="text-[10px] text-slate-500 font-mono">
+                          {new Date(log.timestamp).toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-600 flex items-center gap-1 font-mono">
+                        <span>{log.previousState}</span>
+                        <span>&rarr;</span>
+                        <span className="text-emerald-700 font-bold">{log.newState}</span>
+                      </div>
+                      <div className="text-xs text-slate-700 mt-1">{log.reason}</div>
+                      <div className="text-[10px] text-slate-400 font-mono">Admin: {log.adminUid} ({log.ipAddress})</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {activeTab === 'raw' && (
             <div className="relative">
               <button
@@ -461,7 +520,7 @@ export default function LivestockDetailDrawer({
             >
               Close
             </button>
-            {type === 'vet' && entity.status === 'pending_verification' && (
+            {canEdit && type === 'vet' && entity.status === 'pending_verification' && (
               <button
                 onClick={() => onAction('verify', entity)}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition shadow-xs active:scale-95"
@@ -469,7 +528,7 @@ export default function LivestockDetailDrawer({
                 Verify Credentials
               </button>
             )}
-            {type === 'gaushala' && (
+            {canEdit && type === 'gaushala' && (
               <button
                 onClick={() => onAction('audit', entity)}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition shadow-xs active:scale-95"
@@ -477,7 +536,7 @@ export default function LivestockDetailDrawer({
                 Audit &amp; Certify
               </button>
             )}
-            {type === 'nursery' && entity.status === 'pending_inspection' && (
+            {canEdit && type === 'nursery' && entity.status === 'pending_inspection' && (
               <button
                 onClick={() => onAction('approve', entity)}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition shadow-xs active:scale-95"
@@ -485,7 +544,7 @@ export default function LivestockDetailDrawer({
                 Approve Nursery
               </button>
             )}
-            {type === 'dairy' && entity.status === 'active' && (
+            {canEdit && type === 'dairy' && entity.status === 'active' && (
               <button
                 onClick={() => onAction('recall', entity)}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white transition shadow-xs active:scale-95"
@@ -493,7 +552,7 @@ export default function LivestockDetailDrawer({
                 Enforce Recall
               </button>
             )}
-            {type === 'booking' && (
+            {canEdit && type === 'booking' && (
               <button
                 onClick={() => onAction('mediate', entity)}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white transition shadow-xs active:scale-95"
@@ -501,7 +560,7 @@ export default function LivestockDetailDrawer({
                 Mediate Booking
               </button>
             )}
-            {type === 'manure' && entity.dualSignOffRequired && !entity.dualSignOffCompleted && (
+            {canEdit && type === 'manure' && entity.dualSignOffRequired && !entity.dualSignOffCompleted && (
               <button
                 onClick={() => onAction('signoff', entity)}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white transition shadow-xs active:scale-95"

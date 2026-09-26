@@ -15,35 +15,52 @@ import {
   ShieldCheck,
   Zap,
   Coins,
-  Sparkles
+  Sparkles,
+  Info,
+  CheckCircle2,
+  RotateCcw
 } from 'lucide-react'
 import {
   getLivestockSummary,
   listVets,
+  createVet,
   verifyVet,
+  batchUpdateVets,
   listGaushalas,
+  createGaushala,
   auditGaushala,
+  batchUpdateGaushalas,
   listNurseries,
+  createNursery,
   approveNursery,
+  batchUpdateNurseries,
   listDairyProducts,
+  createDairyProduct,
   updateDairyProductStatus,
+  batchUpdateDairyProducts,
   listVetBookings,
+  createVetBooking,
   mediateVetBooking,
   listManureOrders,
+  createManureOrder,
   signOffManureOrder,
-  getLivestockAuditLogs
+  auditOrders,
+  getLivestockAuditLogs,
+  resetLivestockSeedData
 } from '../api/livestockApi'
 import {
   fmtINR,
   MetricCard,
   TabSwitch,
   FiltersBar,
+  BatchActionBar,
   VetsTable,
   GaushalasTable,
   NurseriesTable,
   DairyProductsTable,
   VetBookingsTable,
   ManureOrdersTable,
+  OrdersAuditTable,
   AuditLogTable,
   Pagination
 } from './livestockWidgets'
@@ -54,9 +71,18 @@ import {
   ApproveNurseryModal,
   DairyProductRecallModal,
   MediateVetBookingModal,
-  DualSignOffManureModal
+  DualSignOffManureModal,
+  RegisterVetModal,
+  RegisterGaushalaModal,
+  RegisterNurseryModal,
+  RegisterDairyProductModal,
+  CreateVetBookingModal,
+  CreateManureOrderModal,
+  ResetSeedModal,
+  BatchActionModal
 } from '../components/livestock/LivestockModals'
 import { useNotification } from '../context/NotificationContext'
+import { useAuthAdmin } from '../context/AuthAdminContext'
 
 const PAGE_SIZE = 20
 
@@ -82,6 +108,14 @@ function downloadBlob(content, filename, type = 'text/csv;charset=utf-8;') {
 }
 
 export default function LivestockPage() {
+  const { currentAdmin, actingStaff } = useAuthAdmin()
+  const { showNotification } = useNotification()
+
+  // RBAC Permission Check (SOP-19 §6.1)
+  const isAuditor = currentAdmin?.id === 'FINANCIAL_AUDITOR' || currentAdmin?.role === 'Financial Auditor'
+  const isSupport = currentAdmin?.id === 'SUPPORT_OPERATOR' || currentAdmin?.role === 'Support Operator'
+  const canEdit = !isAuditor
+
   const [activeTab, setActiveTab] = useState('vets')
   const [summary, setSummary] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -91,18 +125,24 @@ export default function LivestockPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [extraFilter, setExtraFilter] = useState('all')
+  const [dateRangeFilter, setDateRangeFilter] = useState('all')
+  const [personaFilter, setPersonaFilter] = useState('all')
   const [page, setPage] = useState(1)
+
+  // Multi-row Selection
+  const [selectedIds, setSelectedIds] = useState([])
 
   // Table Data
   const [tableData, setTableData] = useState({ data: [], total: 0 })
   const [allVetsList, setAllVetsList] = useState([])
+  const [allGaushalasList, setAllGaushalasList] = useState([])
 
   // Drawer
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [drawerEntity, setDrawerEntity] = useState(null)
   const [drawerType, setDrawerType] = useState('vet')
 
-  // Modals
+  // Action Modals
   const [verifyVetModalOpen, setVerifyVetModalOpen] = useState(false)
   const [selectedVet, setSelectedVet] = useState(null)
 
@@ -121,15 +161,25 @@ export default function LivestockPage() {
   const [dualSignOffModalOpen, setDualSignOffModalOpen] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
 
-  const { showNotification } = useNotification()
+  // Registration Modals
+  const [registerVetModalOpen, setRegisterVetModalOpen] = useState(false)
+  const [registerGaushalaModalOpen, setRegisterGaushalaModalOpen] = useState(false)
+  const [registerNurseryModalOpen, setRegisterNurseryModalOpen] = useState(false)
+  const [registerDairyModalOpen, setRegisterDairyModalOpen] = useState(false)
+  const [createBookingModalOpen, setCreateBookingModalOpen] = useState(false)
+  const [createManureModalOpen, setCreateManureModalOpen] = useState(false)
+  const [resetSeedModalOpen, setResetSeedModalOpen] = useState(false)
+  const [batchActionModalOpen, setBatchActionModalOpen] = useState(false)
 
-  // Reset pagination & filters on tab change
+  // Reset pagination & selection on tab change
   const handleTabChange = (tabId) => {
     setActiveTab(tabId)
     setPage(1)
     setSearch('')
     setStatusFilter('all')
     setExtraFilter('all')
+    setDateRangeFilter('all')
+    setSelectedIds([])
   }
 
   // Load summary metrics
@@ -142,13 +192,17 @@ export default function LivestockPage() {
     }
   }, [])
 
-  // Load active vets cache for mediation re-assignment
-  const loadAllVets = useCallback(async () => {
+  // Load active vets and gaushalas for dropdowns
+  const loadLookups = useCallback(async () => {
     try {
-      const res = await listVets({ pageSize: 100 })
-      setAllVetsList(res.data || [])
+      const [vetsRes, gshRes] = await Promise.all([
+        listVets({ pageSize: 100 }),
+        listGaushalas({ pageSize: 100 })
+      ])
+      setAllVetsList(vetsRes.data || [])
+      setAllGaushalasList(gshRes.data || [])
     } catch (err) {
-      console.error('Failed to fetch vets list:', err)
+      console.error('Failed to fetch lookup lists:', err)
     }
   }, [])
 
@@ -163,7 +217,8 @@ export default function LivestockPage() {
           pageSize: PAGE_SIZE,
           q: search,
           status: statusFilter,
-          district: extraFilter
+          district: extraFilter,
+          dateRange: dateRangeFilter
         })
       } else if (activeTab === 'gaushalas') {
         res = await listGaushalas({
@@ -171,7 +226,8 @@ export default function LivestockPage() {
           pageSize: PAGE_SIZE,
           q: search,
           status: statusFilter,
-          district: extraFilter
+          district: extraFilter,
+          dateRange: dateRangeFilter
         })
       } else if (activeTab === 'nurseries') {
         res = await listNurseries({
@@ -179,7 +235,8 @@ export default function LivestockPage() {
           pageSize: PAGE_SIZE,
           q: search,
           status: statusFilter,
-          district: extraFilter
+          district: extraFilter,
+          dateRange: dateRangeFilter
         })
       } else if (activeTab === 'dairy') {
         res = await listDairyProducts({
@@ -187,7 +244,8 @@ export default function LivestockPage() {
           pageSize: PAGE_SIZE,
           q: search,
           status: statusFilter,
-          category: extraFilter
+          category: extraFilter,
+          dateRange: dateRangeFilter
         })
       } else if (activeTab === 'bookings') {
         res = await listVetBookings({
@@ -195,7 +253,8 @@ export default function LivestockPage() {
           pageSize: PAGE_SIZE,
           q: search,
           status: statusFilter,
-          district: extraFilter
+          district: extraFilter,
+          dateRange: dateRangeFilter
         })
       } else if (activeTab === 'manure') {
         res = await listManureOrders({
@@ -203,11 +262,25 @@ export default function LivestockPage() {
           pageSize: PAGE_SIZE,
           q: search,
           status: statusFilter,
-          dualSignOff: extraFilter
+          dualSignOff: extraFilter,
+          dateRange: dateRangeFilter
+        })
+      } else if (activeTab === 'orders_audit') {
+        res = await auditOrders({
+          page,
+          pageSize: PAGE_SIZE,
+          q: search,
+          status: statusFilter,
+          type: extraFilter,
+          dateRange: dateRangeFilter
         })
       } else if (activeTab === 'audit') {
-        const list = await getLivestockAuditLogs()
-        res = { data: list, total: list.length }
+        res = await getLivestockAuditLogs({
+          page,
+          pageSize: PAGE_SIZE,
+          q: search,
+          dateRange: dateRangeFilter
+        })
       }
       setTableData(res)
     } catch (err) {
@@ -216,16 +289,37 @@ export default function LivestockPage() {
     } finally {
       setLoading(false)
     }
-  }, [activeTab, page, search, statusFilter, extraFilter, showNotification])
+  }, [activeTab, page, search, statusFilter, extraFilter, dateRangeFilter, showNotification])
 
   useEffect(() => {
     loadSummary()
-    loadAllVets()
-  }, [loadSummary, loadAllVets])
+    loadLookups()
+  }, [loadSummary, loadLookups])
 
   useEffect(() => {
     loadData()
   }, [loadData])
+
+  // Multi-row Selection Handlers
+  const handleToggleSelect = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    )
+  }
+
+  const handleSelectAll = () => {
+    const visibleIds = (tableData.data || []).map((r) => r.id)
+    const allSelected = visibleIds.every((id) => selectedIds.includes(id))
+    if (allSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !visibleIds.includes(id)))
+    } else {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...visibleIds])))
+    }
+  }
+
+  const handleClearSelection = () => {
+    setSelectedIds([])
+  }
 
   // Drawer Opener
   const handleOpenDrawer = (entity, type) => {
@@ -237,6 +331,10 @@ export default function LivestockPage() {
   // Drawer Action Forwarder
   const handleDrawerAction = (action, entity) => {
     setDrawerOpen(false)
+    if (!canEdit) {
+      showNotification('error', 'Permission Denied', 'Financial Auditor role has read-only access.')
+      return
+    }
     if (action === 'verify') {
       setSelectedVet(entity)
       setVerifyVetModalOpen(true)
@@ -255,6 +353,117 @@ export default function LivestockPage() {
     } else if (action === 'signoff') {
       setSelectedOrder(entity)
       setDualSignOffModalOpen(true)
+    }
+  }
+
+  // Contextual Add New
+  const handleAddNew = () => {
+    if (!canEdit) {
+      showNotification('error', 'Permission Denied', 'Financial Auditor role has read-only access.')
+      return
+    }
+    if (activeTab === 'vets') setRegisterVetModalOpen(true)
+    else if (activeTab === 'gaushalas') setRegisterGaushalaModalOpen(true)
+    else if (activeTab === 'nurseries') setRegisterNurseryModalOpen(true)
+    else if (activeTab === 'dairy') setRegisterDairyModalOpen(true)
+    else if (activeTab === 'bookings') setCreateBookingModalOpen(true)
+    else if (activeTab === 'manure') setCreateManureModalOpen(true)
+  }
+
+  // Registration Handlers
+  const handleRegisterVet = async (payload) => {
+    setActionLoading(true)
+    try {
+      await createVet(payload, currentAdmin?.email || 'root@agrovercity')
+      showNotification('success', 'Veterinarian Onboarded', `${payload.name} registered successfully.`)
+      setRegisterVetModalOpen(false)
+      loadData()
+      loadSummary()
+      loadLookups()
+    } catch (err) {
+      showNotification('error', 'Registration Failed', err.message)
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleRegisterGaushala = async (payload) => {
+    setActionLoading(true)
+    try {
+      await createGaushala(payload, currentAdmin?.email || 'root@agrovercity')
+      showNotification('success', 'Gaushala Registered', `${payload.name} added to directory.`)
+      setRegisterGaushalaModalOpen(false)
+      loadData()
+      loadSummary()
+      loadLookups()
+    } catch (err) {
+      showNotification('error', 'Registration Failed', err.message)
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleRegisterNursery = async (payload) => {
+    setActionLoading(true)
+    try {
+      await createNursery(payload, currentAdmin?.email || 'root@agrovercity')
+      showNotification('success', 'Plant Nursery Empaneled', `${payload.name} added to catalog.`)
+      setRegisterNurseryModalOpen(false)
+      loadData()
+      loadSummary()
+    } catch (err) {
+      showNotification('error', 'Empanelment Failed', err.message)
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleRegisterDairy = async (payload) => {
+    setActionLoading(true)
+    try {
+      await createDairyProduct(payload, currentAdmin?.email || 'root@agrovercity')
+      showNotification('success', 'Dairy SKU Added', `${payload.name} batch #${payload.batchNo} created.`)
+      setRegisterDairyModalOpen(false)
+      loadData()
+      loadSummary()
+    } catch (err) {
+      showNotification('error', 'SKU Creation Failed', err.message)
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleCreateBooking = async (payload) => {
+    setActionLoading(true)
+    try {
+      await createVetBooking(payload, currentAdmin?.email || 'root@agrovercity')
+      showNotification('success', 'Emergency Vet Dispatched', `Triage callout recorded for ${payload.farmerName}.`)
+      setCreateBookingModalOpen(false)
+      loadData()
+      loadSummary()
+    } catch (err) {
+      showNotification('error', 'Dispatch Failed', err.message)
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleCreateManure = async (payload) => {
+    setActionLoading(true)
+    try {
+      await createManureOrder(payload, currentAdmin?.email || 'root@agrovercity')
+      showNotification(
+        payload.totalAmountINR > 50000 ? 'warning' : 'success',
+        payload.totalAmountINR > 50000 ? 'Order Created (Dual Sign-off Required)' : 'Order Created',
+        `Bulk order of ${payload.quantityMT} MT placed for ${payload.buyerName}.`
+      )
+      setCreateManureModalOpen(false)
+      loadData()
+      loadSummary()
+    } catch (err) {
+      showNotification('error', 'Order Creation Failed', err.message)
+    } finally {
+      setActionLoading(false)
     }
   }
 
@@ -358,16 +567,63 @@ export default function LivestockPage() {
     }
   }
 
+  // Batch Action Confirm
+  const handleBatchActionConfirm = async (action, reason) => {
+    setActionLoading(true)
+    try {
+      const adminUid = currentAdmin?.email || 'root@agrovercity'
+      if (activeTab === 'vets') {
+        await batchUpdateVets({ ids: selectedIds, action, reason, adminUid })
+      } else if (activeTab === 'gaushalas') {
+        await batchUpdateGaushalas({ ids: selectedIds, action, reason, adminUid })
+      } else if (activeTab === 'nurseries') {
+        await batchUpdateNurseries({ ids: selectedIds, action, reason, adminUid })
+      } else if (activeTab === 'dairy') {
+        await batchUpdateDairyProducts({ ids: selectedIds, action, reason, adminUid })
+      }
+      showNotification('success', 'Batch Update Applied', `Updated ${selectedIds.length} records.`)
+      setBatchActionModalOpen(false)
+      setSelectedIds([])
+      loadData()
+      loadSummary()
+    } catch (err) {
+      showNotification('error', 'Batch Update Failed', err.message)
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  // Reset Seed Confirm
+  const handleResetSeedConfirm = async (reason) => {
+    setActionLoading(true)
+    try {
+      await resetLivestockSeedData(reason, currentAdmin?.email || 'root@agrovercity')
+      showNotification('success', 'Benchmark Seed Restored', 'All Module 19 target collections reset to default state.')
+      setResetSeedModalOpen(false)
+      loadData()
+      loadSummary()
+      loadLookups()
+    } catch (err) {
+      showNotification('error', 'Reset Failed', err.message)
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
   // Export CSV Handler
   const handleExportCsv = () => {
-    const csvContent = toCsv(tableData.data)
+    const dataToExport = selectedIds.length > 0
+      ? tableData.data.filter((r) => selectedIds.includes(r.id))
+      : tableData.data
+
+    const csvContent = toCsv(dataToExport)
     if (!csvContent) {
       showNotification('warning', 'Export Empty', 'No rows available for export.')
       return
     }
     const timestamp = new Date().toISOString().slice(0, 10)
     downloadBlob(csvContent, `agrovercity_livestock_${activeTab}_${timestamp}.csv`)
-    showNotification('success', 'Export Complete', `Exported ${tableData.data.length} records to CSV.`)
+    showNotification('success', 'Export Complete', `Exported ${dataToExport.length} records to CSV.`)
   }
 
   return (
@@ -382,7 +638,7 @@ export default function LivestockPage() {
               </span>
               <div>
                 <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                  <span>Livestock &amp; Dairy Management</span>
+                  <span>Livestock, Dairy &amp; Veterinary Services</span>
                   <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 font-semibold">
                     SOP-19
                   </span>
@@ -393,7 +649,33 @@ export default function LivestockPage() {
               </div>
             </div>
           </div>
+
+          {/* RBAC Role Indicator Badge */}
+          <div className="flex items-center gap-2">
+            <span
+              className={`px-3 py-1 rounded-xl text-xs font-mono font-semibold border flex items-center gap-1.5 ${
+                isAuditor
+                  ? 'bg-amber-50 text-amber-800 border-amber-300'
+                  : isSupport
+                  ? 'bg-blue-50 text-blue-800 border-blue-300'
+                  : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Admin: {currentAdmin?.name || 'Super Admin'} ({currentAdmin?.badge || 'Super Admin'})</span>
+            </span>
+          </div>
         </div>
+
+        {/* Auditor Read-only Notice */}
+        {isAuditor && (
+          <div className="mt-3 p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-800 flex items-center gap-2 text-xs">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-amber-700" />
+            <span>
+              <strong>Financial Auditor Mode Active (SOP-19 §6.1):</strong> You have read-only access to transaction ledgers, bank records, and payout reports. State modification capabilities are disabled.
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Top Metric Bar */}
@@ -445,7 +727,8 @@ export default function LivestockPage() {
             emergencyCount: summary?.todayEmergencyDispatches || 2,
             manure: 8,
             pendingDualSignOffs: summary?.pendingDualSignOffs || 2,
-            audit: 5
+            ordersAudit: 16,
+            audit: 6
           }}
         />
 
@@ -458,9 +741,24 @@ export default function LivestockPage() {
           onStatusChange={setStatusFilter}
           extraFilter={extraFilter}
           onExtraFilterChange={setExtraFilter}
+          dateRangeFilter={dateRangeFilter}
+          onDateRangeChange={setDateRangeFilter}
+          personaFilter={personaFilter}
+          onPersonaChange={setPersonaFilter}
           onRefresh={loadData}
           onExport={handleExportCsv}
+          onAddNew={handleAddNew}
+          onResetSeed={() => setResetSeedModalOpen(true)}
           loading={loading}
+          canEdit={canEdit}
+        />
+
+        {/* Multi-row Batch Action Bar */}
+        <BatchActionBar
+          selectedCount={selectedIds.length}
+          targetType={activeTab}
+          onBatchAction={() => setBatchActionModalOpen(true)}
+          onClearSelection={handleClearSelection}
         />
 
         {/* Primary Data Grid */}
@@ -468,6 +766,10 @@ export default function LivestockPage() {
           {activeTab === 'vets' && (
             <VetsTable
               rows={tableData.data}
+              selectedIds={selectedIds}
+              onToggleSelect={handleToggleSelect}
+              onSelectAll={handleSelectAll}
+              canEdit={canEdit}
               onView={(vet) => handleOpenDrawer(vet, 'vet')}
               onVerify={(vet) => {
                 setSelectedVet(vet)
@@ -485,6 +787,10 @@ export default function LivestockPage() {
           {activeTab === 'gaushalas' && (
             <GaushalasTable
               rows={tableData.data}
+              selectedIds={selectedIds}
+              onToggleSelect={handleToggleSelect}
+              onSelectAll={handleSelectAll}
+              canEdit={canEdit}
               onView={(gsh) => handleOpenDrawer(gsh, 'gaushala')}
               onAudit={(gsh) => {
                 setSelectedGaushala(gsh)
@@ -496,6 +802,10 @@ export default function LivestockPage() {
           {activeTab === 'nurseries' && (
             <NurseriesTable
               rows={tableData.data}
+              selectedIds={selectedIds}
+              onToggleSelect={handleToggleSelect}
+              onSelectAll={handleSelectAll}
+              canEdit={canEdit}
               onView={(nursery) => handleOpenDrawer(nursery, 'nursery')}
               onApprove={(nursery) => {
                 setSelectedNursery(nursery)
@@ -507,6 +817,10 @@ export default function LivestockPage() {
           {activeTab === 'dairy' && (
             <DairyProductsTable
               rows={tableData.data}
+              selectedIds={selectedIds}
+              onToggleSelect={handleToggleSelect}
+              onSelectAll={handleSelectAll}
+              canEdit={canEdit}
               onView={(product) => handleOpenDrawer(product, 'dairy')}
               onClearLab={(product) => {
                 setSelectedProduct(product)
@@ -522,6 +836,7 @@ export default function LivestockPage() {
           {activeTab === 'bookings' && (
             <VetBookingsTable
               rows={tableData.data}
+              canEdit={canEdit}
               onView={(booking) => handleOpenDrawer(booking, 'booking')}
               onMediate={(booking) => {
                 setSelectedBooking(booking)
@@ -533,10 +848,24 @@ export default function LivestockPage() {
           {activeTab === 'manure' && (
             <ManureOrdersTable
               rows={tableData.data}
+              canEdit={canEdit}
               onView={(order) => handleOpenDrawer(order, 'manure')}
               onSignOff={(order) => {
                 setSelectedOrder(order)
                 setDualSignOffModalOpen(true)
+              }}
+            />
+          )}
+
+          {activeTab === 'orders_audit' && (
+            <OrdersAuditTable
+              rows={tableData.data}
+              onView={(entity) => {
+                if (entity.brandOrGaushala) {
+                  handleOpenDrawer(entity, 'dairy')
+                } else {
+                  handleOpenDrawer(entity, 'manure')
+                }
               }}
             />
           )}
@@ -558,6 +887,7 @@ export default function LivestockPage() {
         isOpen={drawerOpen}
         entity={drawerEntity}
         type={drawerType}
+        canEdit={canEdit}
         onClose={() => setDrawerOpen(false)}
         onAction={handleDrawerAction}
       />
@@ -569,6 +899,7 @@ export default function LivestockPage() {
         vet={selectedVet}
         onSubmit={handleVerifyVet}
         loading={actionLoading}
+        currentAdmin={currentAdmin}
       />
 
       <AuditGaushalaModal
@@ -577,6 +908,7 @@ export default function LivestockPage() {
         gaushala={selectedGaushala}
         onSubmit={handleAuditGaushala}
         loading={actionLoading}
+        currentAdmin={currentAdmin}
       />
 
       <ApproveNurseryModal
@@ -585,6 +917,7 @@ export default function LivestockPage() {
         nursery={selectedNursery}
         onSubmit={handleApproveNursery}
         loading={actionLoading}
+        currentAdmin={currentAdmin}
       />
 
       <DairyProductRecallModal
@@ -593,6 +926,7 @@ export default function LivestockPage() {
         product={selectedProduct}
         onSubmit={handleDairyStatusUpdate}
         loading={actionLoading}
+        currentAdmin={currentAdmin}
       />
 
       <MediateVetBookingModal
@@ -602,6 +936,7 @@ export default function LivestockPage() {
         onSubmit={handleMediateBooking}
         loading={actionLoading}
         activeVets={allVetsList}
+        currentAdmin={currentAdmin}
       />
 
       <DualSignOffManureModal
@@ -609,6 +944,76 @@ export default function LivestockPage() {
         onClose={() => setDualSignOffModalOpen(false)}
         order={selectedOrder}
         onSubmit={handleDualSignOff}
+        loading={actionLoading}
+        currentAdmin={currentAdmin}
+      />
+
+      {/* Registration Modals */}
+      <RegisterVetModal
+        isOpen={registerVetModalOpen}
+        onClose={() => setRegisterVetModalOpen(false)}
+        onSubmit={handleRegisterVet}
+        loading={actionLoading}
+        currentAdmin={currentAdmin}
+      />
+
+      <RegisterGaushalaModal
+        isOpen={registerGaushalaModalOpen}
+        onClose={() => setRegisterGaushalaModalOpen(false)}
+        onSubmit={handleRegisterGaushala}
+        loading={actionLoading}
+        currentAdmin={currentAdmin}
+      />
+
+      <RegisterNurseryModal
+        isOpen={registerNurseryModalOpen}
+        onClose={() => setRegisterNurseryModalOpen(false)}
+        onSubmit={handleRegisterNursery}
+        loading={actionLoading}
+        currentAdmin={currentAdmin}
+      />
+
+      <RegisterDairyProductModal
+        isOpen={registerDairyModalOpen}
+        onClose={() => setRegisterDairyModalOpen(false)}
+        onSubmit={handleRegisterDairy}
+        loading={actionLoading}
+        currentAdmin={currentAdmin}
+      />
+
+      <CreateVetBookingModal
+        isOpen={createBookingModalOpen}
+        onClose={() => setCreateBookingModalOpen(false)}
+        onSubmit={handleCreateBooking}
+        loading={actionLoading}
+        activeVets={allVetsList}
+        currentAdmin={currentAdmin}
+      />
+
+      <CreateManureOrderModal
+        isOpen={createManureModalOpen}
+        onClose={() => setCreateManureModalOpen(false)}
+        onSubmit={handleCreateManure}
+        loading={actionLoading}
+        gaushalas={allGaushalasList}
+        currentAdmin={currentAdmin}
+      />
+
+      {/* Batch Action Modal */}
+      <BatchActionModal
+        isOpen={batchActionModalOpen}
+        onClose={() => setBatchActionModalOpen(false)}
+        selectedCount={selectedIds.length}
+        targetType={activeTab}
+        onConfirm={handleBatchActionConfirm}
+        loading={actionLoading}
+      />
+
+      {/* Reset Seed Modal */}
+      <ResetSeedModal
+        isOpen={resetSeedModalOpen}
+        onClose={() => setResetSeedModalOpen(false)}
+        onConfirm={handleResetSeedConfirm}
         loading={actionLoading}
       />
     </div>

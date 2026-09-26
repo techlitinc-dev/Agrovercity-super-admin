@@ -24,7 +24,12 @@ import {
   ChevronRight,
   UserCheck,
   FileText,
-  BadgeAlert
+  BadgeAlert,
+  Plus,
+  RotateCcw,
+  SlidersHorizontal,
+  CheckSquare,
+  Square
 } from 'lucide-react'
 
 export function fmtINR(val) {
@@ -71,7 +76,7 @@ export function StatusBadge({ status, type = 'default' }) {
     in_transit: { label: 'In Transit', bg: 'bg-blue-50 text-blue-700 border-blue-200' },
     loading_at_gaushala: { label: 'Loading at Yard', bg: 'bg-amber-50 text-amber-700 border-amber-200' },
     delivered: { label: 'Delivered (OTP Verified)', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-    pending_dual_signoff: { label: 'Pending Dual Sign-off', bg: 'bg-purple-50 text-purple-700 border-purple-200' },
+    pending_dual_signoff: { label: 'Pending Dual Sign-off', bg: 'bg-purple-50 text-purple-700 border-purple-200 animate-pulse' },
     order_placed: { label: 'Order Placed', bg: 'bg-slate-100 text-slate-600 border-slate-200' },
 
     // Fallbacks
@@ -129,6 +134,7 @@ export function TabSwitch({ activeTab, onTabChange, counts = {} }) {
     { id: 'dairy', label: 'Direct A2 Dairy', icon: Milk, count: counts.dairy },
     { id: 'bookings', label: 'Emergency & Bookings', icon: Calendar, count: counts.bookings, alert: counts.emergencyCount > 0 },
     { id: 'manure', label: 'Bulk Manure Orders', icon: Truck, count: counts.manure, alert: counts.pendingDualSignOffs > 0 },
+    { id: 'orders_audit', label: 'Orders Audit (SOP-19 §5)', icon: ShieldCheck, count: counts.ordersAudit || 16 },
     { id: 'audit', label: 'Audit Trail', icon: FileText, count: counts.audit }
   ]
 
@@ -177,15 +183,43 @@ export function FiltersBar({
   onStatusChange,
   extraFilter,
   onExtraFilterChange,
+  dateRangeFilter,
+  onDateRangeChange,
+  personaFilter,
+  onPersonaChange,
   onRefresh,
   onExport,
-  loading
+  onAddNew,
+  onResetSeed,
+  loading,
+  canEdit = true
 }) {
+  const getAddButtonText = () => {
+    switch (activeTab) {
+      case 'vets':
+        return '+ Onboard Vet'
+      case 'gaushalas':
+        return '+ Register Gaushala'
+      case 'nurseries':
+        return '+ Empanel Nursery'
+      case 'dairy':
+        return '+ Add Dairy SKU'
+      case 'bookings':
+        return '+ Emergency Intake'
+      case 'manure':
+        return '+ Place Manure Order'
+      default:
+        return null
+    }
+  }
+
+  const addText = getAddButtonText()
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-emerald-50/40 border-b border-emerald-100/90 text-xs">
-      <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
+      <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[320px]">
         {/* Search */}
-        <div className="relative flex-1 min-w-[200px] max-w-md">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
           <input
             type="text"
@@ -247,6 +281,28 @@ export function FiltersBar({
               <option value="pending_dual_signoff">Pending Dual Sign-off</option>
             </>
           )}
+          {activeTab === 'orders_audit' && (
+            <>
+              <option value="NABL CLEARED">NABL Cleared (Dairy)</option>
+              <option value="RECALLED BATCH">Recalled (Dairy)</option>
+              <option value="IN TRANSIT">In Transit (Manure)</option>
+              <option value="DELIVERED">Delivered (Manure)</option>
+              <option value="PENDING DUAL SIGNOFF">Pending Dual Signoff</option>
+            </>
+          )}
+        </select>
+
+        {/* Date Range Filter (SOP-19 §4.2 Wireframe) */}
+        <select
+          value={dateRangeFilter}
+          onChange={(e) => onDateRangeChange(e.target.value)}
+          className="px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
+        >
+          <option value="all">Date: All Time</option>
+          <option value="today">Date: Today</option>
+          <option value="last_7_days">Date: Last 7 Days</option>
+          <option value="last_30_days">Date: Last 30 Days</option>
+          <option value="this_quarter">Date: This Quarter</option>
         </select>
 
         {/* District or Category Filter */}
@@ -265,7 +321,6 @@ export function FiltersBar({
             <option value="Aurangabad">Aurangabad</option>
             <option value="Satara">Satara</option>
             <option value="Ratnagiri">Ratnagiri</option>
-            <option value="Junagadh">Junagadh (Gujarat)</option>
           </select>
         )}
 
@@ -281,7 +336,6 @@ export function FiltersBar({
             <option value="Paneer">Paneer</option>
             <option value="Cultured Dairy">Cultured Dairy / Chaas</option>
             <option value="Butter">Butter</option>
-            <option value="Specialty Dairy">Specialty Dairy</option>
           </select>
         )}
 
@@ -297,39 +351,112 @@ export function FiltersBar({
             <option value="completed">Dual Sign-off Completed</option>
           </select>
         )}
+
+        {activeTab === 'orders_audit' && (
+          <select
+            value={extraFilter}
+            onChange={(e) => onExtraFilterChange(e.target.value)}
+            className="px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs"
+          >
+            <option value="all">All Order Types</option>
+            <option value="dairy">Direct A2 Dairy Only</option>
+            <option value="manure">Bulk Manure Only</option>
+          </select>
+        )}
       </div>
 
       <div className="flex items-center gap-2">
+        {addText && canEdit && (
+          <button
+            onClick={onAddNew}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs transition active:scale-95"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>{addText}</span>
+          </button>
+        )}
+
         <button
           onClick={onRefresh}
           disabled={loading}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-xs transition disabled:opacity-50"
+          title="Refresh dataset from Firestore / Local Storage"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           <span>Refresh</span>
         </button>
+
         <button
           onClick={onExport}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 shadow-xs transition"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 shadow-xs transition"
+          title="Export active table rows to CSV"
         >
           <Download className="w-3.5 h-3.5" />
           <span>Export CSV</span>
+        </button>
+
+        {canEdit && (
+          <button
+            onClick={onResetSeed}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-500 bg-white hover:bg-rose-50 hover:text-rose-700 border border-slate-200 shadow-xs transition"
+            title="Reset Module 19 to Default SOP-19 Seed Data"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Batch Actions Bar for Multi-row selection
+export function BatchActionBar({ selectedCount, onBatchAction, onClearSelection, targetType }) {
+  if (selectedCount === 0) return null
+
+  return (
+    <div className="flex items-center justify-between px-6 py-2.5 bg-emerald-800 text-white text-xs border-b border-emerald-900 animate-in slide-in-from-top duration-200">
+      <div className="flex items-center gap-2">
+        <CheckSquare className="w-4 h-4 text-emerald-300" />
+        <span className="font-semibold">{selectedCount} items selected</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={onBatchAction}
+          className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition shadow-xs"
+        >
+          Batch Status Update
+        </button>
+        <button
+          onClick={onClearSelection}
+          className="px-3 py-1 rounded-lg bg-emerald-900/60 hover:bg-emerald-900 text-emerald-200 transition"
+        >
+          Clear Selection
         </button>
       </div>
     </div>
   )
 }
 
-export function VetsTable({ rows, onView, onVerify, onSuspend }) {
+export function VetsTable({ rows, onView, onVerify, onSuspend, selectedIds = [], onToggleSelect, onSelectAll, canEdit = true }) {
   if (!rows || rows.length === 0) {
     return <EmptyPlaceholder message="No veterinary doctors match the current filters." />
   }
+
+  const allSelected = rows.length > 0 && rows.every((r) => selectedIds.includes(r.id))
 
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-xs border-collapse">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
+            <th className="py-3 px-3 w-8 text-center">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={onSelectAll}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-0 cursor-pointer"
+              />
+            </th>
             <th className="py-3 px-4">Doctor &amp; Degree</th>
             <th className="py-3 px-4">State Council Reg</th>
             <th className="py-3 px-4">Clinic &amp; District</th>
@@ -340,95 +467,116 @@ export function VetsTable({ rows, onView, onVerify, onSuspend }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100/80 font-mono">
-          {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
-              <td className="py-3.5 px-4 font-sans">
-                <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                  <Stethoscope className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>{row.name}</span>
-                </div>
-                <div className="text-[11px] text-slate-600 mt-0.5 line-clamp-1">{row.degree}</div>
-                <div className="text-[11px] text-slate-500 font-mono mt-0.5">{row.mobile}</div>
-              </td>
-              <td className="py-3.5 px-4">
-                <div className="font-bold text-slate-900">{row.councilRegNo}</div>
-                <div className="text-[11px] text-slate-500">Exp: {row.regExpiryDate}</div>
-                <div className="text-[10px] text-emerald-700 font-semibold">{row.councilState}</div>
-              </td>
-              <td className="py-3.5 px-4 font-sans">
-                <div className="font-medium text-slate-900">{row.clinicName}</div>
-                <div className="text-[11px] text-slate-500 flex items-center gap-1">
-                  <MapPin className="w-3 h-3 text-slate-400" />
-                  {row.taluka}, {row.district}
-                </div>
-              </td>
-              <td className="py-3.5 px-4">
-                <div className="flex items-center gap-1">
-                  {row.emergencyCallout24x7 ? (
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                      24x7 On-Call
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600 font-medium">
-                      Day OPD Only
-                    </span>
-                  )}
-                </div>
-                <div className="text-[11px] text-slate-700 mt-1">
-                  OPD: {fmtINR(row.consultationFee)} | Night: {fmtINR(row.emergencyNightFee)}
-                </div>
-              </td>
-              <td className="py-3.5 px-4">
-                <div className="font-bold text-amber-600">★ {row.averageRating}</div>
-                <div className="text-[11px] text-slate-500">{row.totalCasesAttended} cases</div>
-              </td>
-              <td className="py-3.5 px-4 text-center">
-                <StatusBadge status={row.status} />
-              </td>
-              <td className="py-3.5 px-4 text-right font-sans">
-                <div className="flex items-center justify-end gap-1.5">
-                  <button
-                    onClick={() => onView(row)}
-                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition"
-                  >
-                    View
-                  </button>
-                  {row.status === 'pending_verification' && (
+          {rows.map((row) => {
+            const isSelected = selectedIds.includes(row.id)
+            return (
+              <tr key={row.id} className={`hover:bg-emerald-50/60 transition-colors ${isSelected ? 'bg-emerald-50/40' : ''}`}>
+                <td className="py-3.5 px-3 text-center">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleSelect(row.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-0 cursor-pointer"
+                  />
+                </td>
+                <td className="py-3.5 px-4 font-sans">
+                  <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <Stethoscope className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>{row.name}</span>
+                  </div>
+                  <div className="text-[11px] text-slate-600 mt-0.5 line-clamp-1">{row.degree}</div>
+                  <div className="text-[11px] text-slate-500 font-mono mt-0.5">{row.mobile}</div>
+                </td>
+                <td className="py-3.5 px-4">
+                  <div className="font-bold text-slate-900">{row.councilRegNo}</div>
+                  <div className="text-[11px] text-slate-500">Exp: {row.regExpiryDate}</div>
+                  <div className="text-[10px] text-emerald-700 font-semibold">{row.councilState}</div>
+                </td>
+                <td className="py-3.5 px-4 font-sans">
+                  <div className="font-medium text-slate-900">{row.clinicName}</div>
+                  <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                    <MapPin className="w-3 h-3 text-slate-400" />
+                    {row.taluka}, {row.district}
+                  </div>
+                </td>
+                <td className="py-3.5 px-4">
+                  <div className="flex items-center gap-1">
+                    {row.emergencyCallout24x7 ? (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                        24x7 On-Call
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600 font-medium">
+                        Day OPD Only
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-slate-700 mt-1">
+                    OPD: {fmtINR(row.consultationFee)} | Night: {fmtINR(row.emergencyNightFee)}
+                  </div>
+                </td>
+                <td className="py-3.5 px-4">
+                  <div className="font-bold text-amber-600">★ {row.averageRating}</div>
+                  <div className="text-[11px] text-slate-500">{row.totalCasesAttended} cases</div>
+                </td>
+                <td className="py-3.5 px-4 text-center">
+                  <StatusBadge status={row.status} />
+                </td>
+                <td className="py-3.5 px-4 text-right font-sans">
+                  <div className="flex items-center justify-end gap-1.5">
                     <button
-                      onClick={() => onVerify(row)}
-                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition active:scale-95"
+                      onClick={() => onView(row)}
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition"
                     >
-                      Verify
+                      View
                     </button>
-                  )}
-                  {row.status === 'verified_active' && (
-                    <button
-                      onClick={() => onSuspend(row)}
-                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition"
-                    >
-                      Suspend
-                    </button>
-                  )}
-                </div>
-              </td>
-            </tr>
-          ))}
+                    {canEdit && row.status === 'pending_verification' && (
+                      <button
+                        onClick={() => onVerify(row)}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition active:scale-95"
+                      >
+                        Verify
+                      </button>
+                    )}
+                    {canEdit && row.status === 'verified_active' && (
+                      <button
+                        onClick={() => onSuspend(row)}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition"
+                      >
+                        Suspend
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
   )
 }
 
-export function GaushalasTable({ rows, onView, onAudit }) {
+export function GaushalasTable({ rows, onView, onAudit, selectedIds = [], onToggleSelect, onSelectAll, canEdit = true }) {
   if (!rows || rows.length === 0) {
     return <EmptyPlaceholder message="No Gaushalas match the current filters." />
   }
+
+  const allSelected = rows.length > 0 && rows.every((r) => selectedIds.includes(r.id))
 
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-xs border-collapse">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
+            <th className="py-3 px-3 w-8 text-center">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={onSelectAll}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-0 cursor-pointer"
+              />
+            </th>
             <th className="py-3 px-4">Gaushala &amp; Trust</th>
             <th className="py-3 px-4">Registration &amp; 80G</th>
             <th className="py-3 px-4">Cattle Census &amp; Breeds</th>
@@ -440,12 +588,21 @@ export function GaushalasTable({ rows, onView, onAudit }) {
         </thead>
         <tbody className="divide-y divide-slate-100/80 font-mono">
           {rows.map((row) => {
+            const isSelected = selectedIds.includes(row.id)
             const breeds = Object.entries(row.indigenousBreeds || {})
               .map(([b, c]) => `${b.toUpperCase()}: ${c}`)
               .join(', ')
 
             return (
-              <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
+              <tr key={row.id} className={`hover:bg-emerald-50/60 transition-colors ${isSelected ? 'bg-emerald-50/40' : ''}`}>
+                <td className="py-3.5 px-3 text-center">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleSelect(row.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-0 cursor-pointer"
+                  />
+                </td>
                 <td className="py-3.5 px-4 font-sans">
                   <div className="font-bold text-slate-900 flex items-center gap-1.5">
                     <HeartPulse className="w-3.5 h-3.5 text-rose-600 shrink-0" />
@@ -505,12 +662,14 @@ export function GaushalasTable({ rows, onView, onAudit }) {
                     >
                       View
                     </button>
-                    <button
-                      onClick={() => onAudit(row)}
-                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition active:scale-95"
-                    >
-                      Audit
-                    </button>
+                    {canEdit && (
+                      <button
+                        onClick={() => onAudit(row)}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition active:scale-95"
+                      >
+                        Audit
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -522,16 +681,26 @@ export function GaushalasTable({ rows, onView, onAudit }) {
   )
 }
 
-export function NurseriesTable({ rows, onView, onApprove }) {
+export function NurseriesTable({ rows, onView, onApprove, selectedIds = [], onToggleSelect, onSelectAll, canEdit = true }) {
   if (!rows || rows.length === 0) {
     return <EmptyPlaceholder message="No certified nurseries match the current filters." />
   }
+
+  const allSelected = rows.length > 0 && rows.every((r) => selectedIds.includes(r.id))
 
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-xs border-collapse">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
+            <th className="py-3 px-3 w-8 text-center">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={onSelectAll}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-0 cursor-pointer"
+              />
+            </th>
             <th className="py-3 px-4">Nursery &amp; Proprietor</th>
             <th className="py-3 px-4">NHB Reg &amp; Accreditation</th>
             <th className="py-3 px-4">Stock &amp; Capacity</th>
@@ -542,83 +711,104 @@ export function NurseriesTable({ rows, onView, onApprove }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100/80 font-mono">
-          {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
-              <td className="py-3.5 px-4 font-sans">
-                <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                  <Trees className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>{row.name}</span>
-                </div>
-                <div className="text-[11px] text-slate-500 mt-0.5">Prop: {row.ownerName} • {row.phone}</div>
-                <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
-                  <MapPin className="w-3 h-3 text-slate-400" />
-                  {row.district}, {row.state} ({row.nurseryAreaAcres} Acres, {row.polyhousesCount} Polyhouses)
-                </div>
-              </td>
-              <td className="py-3.5 px-4">
-                <div className="font-bold text-slate-900">{row.nhbRegistrationNo}</div>
-                <div className="text-[11px] text-emerald-700 font-sans font-semibold mt-0.5">{row.nhbRating}</div>
-                <div className="text-[10px] text-slate-500">Grade: {row.inspectionGrade} ({row.inspectionScore}/100)</div>
-              </td>
-              <td className="py-3.5 px-4">
-                <div className="font-bold text-slate-900">{(row.totalStockAvailable || 0).toLocaleString()} plants</div>
-                <div className="text-[11px] text-slate-500">Annual: {(row.annualSaplingCapacity || 0).toLocaleString()}</div>
-              </td>
-              <td className="py-3.5 px-4 font-sans">
-                <div className="text-[11px] text-slate-700 line-clamp-2 max-w-[240px]">
-                  {(row.specialization || []).join(', ')}
-                </div>
-              </td>
-              <td className="py-3.5 px-4 font-sans">
-                {row.subsidyEligible ? (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    Subsidy Eligible (MIDH)
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600">
-                    Non-Subsidized
-                  </span>
-                )}
-              </td>
-              <td className="py-3.5 px-4 text-center">
-                <StatusBadge status={row.status} />
-              </td>
-              <td className="py-3.5 px-4 text-right font-sans">
-                <div className="flex items-center justify-end gap-1.5">
-                  <button
-                    onClick={() => onView(row)}
-                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition"
-                  >
-                    View
-                  </button>
-                  {row.status === 'pending_inspection' && (
-                    <button
-                      onClick={() => onApprove(row)}
-                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition active:scale-95"
-                    >
-                      Approve
-                    </button>
+          {rows.map((row) => {
+            const isSelected = selectedIds.includes(row.id)
+            return (
+              <tr key={row.id} className={`hover:bg-emerald-50/60 transition-colors ${isSelected ? 'bg-emerald-50/40' : ''}`}>
+                <td className="py-3.5 px-3 text-center">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleSelect(row.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-0 cursor-pointer"
+                  />
+                </td>
+                <td className="py-3.5 px-4 font-sans">
+                  <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <Trees className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>{row.name}</span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-0.5">Prop: {row.ownerName} • {row.phone}</div>
+                  <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+                    <MapPin className="w-3 h-3 text-slate-400" />
+                    {row.district}, {row.state} ({row.nurseryAreaAcres} Acres, {row.polyhousesCount} Polyhouses)
+                  </div>
+                </td>
+                <td className="py-3.5 px-4">
+                  <div className="font-bold text-slate-900">{row.nhbRegistrationNo}</div>
+                  <div className="text-[11px] text-emerald-700 font-sans font-semibold mt-0.5">{row.nhbRating}</div>
+                  <div className="text-[10px] text-slate-500">Grade: {row.inspectionGrade} ({row.inspectionScore}/100)</div>
+                </td>
+                <td className="py-3.5 px-4">
+                  <div className="font-bold text-slate-900">{(row.totalStockAvailable || 0).toLocaleString()} plants</div>
+                  <div className="text-[11px] text-slate-500">Annual: {(row.annualSaplingCapacity || 0).toLocaleString()}</div>
+                </td>
+                <td className="py-3.5 px-4 font-sans">
+                  <div className="text-[11px] text-slate-700 line-clamp-2 max-w-[240px]">
+                    {(row.specialization || []).join(', ')}
+                  </div>
+                </td>
+                <td className="py-3.5 px-4 font-sans">
+                  {row.subsidyEligible ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      Subsidy Eligible (MIDH)
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600">
+                      Non-Subsidized
+                    </span>
                   )}
-                </div>
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td className="py-3.5 px-4 text-center">
+                  <StatusBadge status={row.status} />
+                </td>
+                <td className="py-3.5 px-4 text-right font-sans">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <button
+                      onClick={() => onView(row)}
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition"
+                    >
+                      View
+                    </button>
+                    {canEdit && row.status === 'pending_inspection' && (
+                      <button
+                        onClick={() => onApprove(row)}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition active:scale-95"
+                      >
+                        Approve
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
   )
 }
 
-export function DairyProductsTable({ rows, onView, onRecall, onClearLab }) {
+export function DairyProductsTable({ rows, onView, onRecall, onClearLab, selectedIds = [], onToggleSelect, onSelectAll, canEdit = true }) {
   if (!rows || rows.length === 0) {
     return <EmptyPlaceholder message="No dairy products match the current filters." />
   }
+
+  const allSelected = rows.length > 0 && rows.every((r) => selectedIds.includes(r.id))
 
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-xs border-collapse">
         <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
           <tr>
+            <th className="py-3 px-3 w-8 text-center">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={onSelectAll}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-0 cursor-pointer"
+              />
+            </th>
             <th className="py-3 px-4">Product &amp; Gaushala</th>
             <th className="py-3 px-4">Batch &amp; FSSAI</th>
             <th className="py-3 px-4">NABL Purity &amp; Lab</th>
@@ -629,87 +819,98 @@ export function DairyProductsTable({ rows, onView, onRecall, onClearLab }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100/80 font-mono">
-          {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
-              <td className="py-3.5 px-4 font-sans">
-                <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                  <Milk className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
-                  <span>{row.name}</span>
-                </div>
-                <div className="text-[11px] text-slate-500 mt-0.5">{row.brandOrGaushala}</div>
-                <div className="text-[10px] text-slate-400">Pack: {row.packSize}</div>
-              </td>
-              <td className="py-3.5 px-4">
-                <div className="font-bold text-slate-900">{row.batchNo}</div>
-                <div className="text-[11px] text-slate-500">FSSAI: {row.fssaiLicenseNo}</div>
-              </td>
-              <td className="py-3.5 px-4">
-                <div className="flex items-center gap-1">
-                  <span
-                    className={`font-bold ${
-                      row.a2BetaCaseinPurity >= 98
-                        ? 'text-emerald-700'
-                        : row.a2BetaCaseinPurity > 0
-                        ? 'text-rose-700'
-                        : 'text-amber-700'
-                    }`}
-                  >
-                    A2: {row.a2BetaCaseinPurity ? `${row.a2BetaCaseinPurity}%` : 'Pending'}
-                  </span>
-                  {row.antibioticResidueFree ? (
-                    <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-full font-semibold">AB-Free</span>
-                  ) : (
-                    <span className="text-[10px] text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.2 rounded-full font-semibold">Residue Flagged</span>
-                  )}
-                </div>
-                <div className="text-[10px] text-slate-400 mt-0.5">{row.labReportId}</div>
-              </td>
-              <td className="py-3.5 px-4 font-sans">
-                <div className="text-[11px] text-slate-800 font-semibold">Fat: {row.fatPercentage}% | SNF: {row.snfPercentage}%</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">{row.storageTemp}</div>
-              </td>
-              <td className="py-3.5 px-4">
-                <div className="font-bold text-slate-900">{fmtINR(row.priceINR)}</div>
-                <div className="text-[11px] text-slate-500">Stock: {row.stockAvailable} units</div>
-              </td>
-              <td className="py-3.5 px-4 text-center">
-                <StatusBadge status={row.status} />
-              </td>
-              <td className="py-3.5 px-4 text-right font-sans">
-                <div className="flex items-center justify-end gap-1.5">
-                  <button
-                    onClick={() => onView(row)}
-                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition"
-                  >
-                    View
-                  </button>
-                  {row.status === 'pending_lab_clearance' && (
-                    <button
-                      onClick={() => onClearLab(row)}
-                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition active:scale-95"
+          {rows.map((row) => {
+            const isSelected = selectedIds.includes(row.id)
+            return (
+              <tr key={row.id} className={`hover:bg-emerald-50/60 transition-colors ${isSelected ? 'bg-emerald-50/40' : ''}`}>
+                <td className="py-3.5 px-3 text-center">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleSelect(row.id)}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-0 cursor-pointer"
+                  />
+                </td>
+                <td className="py-3.5 px-4 font-sans">
+                  <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <Milk className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
+                    <span>{row.name}</span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-0.5">{row.brandOrGaushala}</div>
+                  <div className="text-[10px] text-slate-400">Pack: {row.packSize}</div>
+                </td>
+                <td className="py-3.5 px-4">
+                  <div className="font-bold text-slate-900">{row.batchNo}</div>
+                  <div className="text-[11px] text-slate-500">FSSAI: {row.fssaiLicenseNo}</div>
+                </td>
+                <td className="py-3.5 px-4">
+                  <div className="flex items-center gap-1">
+                    <span
+                      className={`font-bold ${
+                        row.a2BetaCaseinPurity >= 98
+                          ? 'text-emerald-700'
+                          : row.a2BetaCaseinPurity > 0
+                          ? 'text-rose-700'
+                          : 'text-amber-700'
+                      }`}
                     >
-                      Clear Lab
-                    </button>
-                  )}
-                  {row.status === 'active' && (
+                      A2: {row.a2BetaCaseinPurity ? `${row.a2BetaCaseinPurity}%` : 'Pending'}
+                    </span>
+                    {row.antibioticResidueFree ? (
+                      <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-full font-semibold">AB-Free</span>
+                    ) : (
+                      <span className="text-[10px] text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.2 rounded-full font-semibold">Residue Flagged</span>
+                    )}
+                  </div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">{row.labReportId}</div>
+                </td>
+                <td className="py-3.5 px-4 font-sans">
+                  <div className="text-[11px] text-slate-800 font-semibold">Fat: {row.fatPercentage}% | SNF: {row.snfPercentage}%</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">{row.storageTemp}</div>
+                </td>
+                <td className="py-3.5 px-4">
+                  <div className="font-bold text-slate-900">{fmtINR(row.priceINR)}</div>
+                  <div className="text-[11px] text-slate-500">Stock: {row.stockAvailable} units</div>
+                </td>
+                <td className="py-3.5 px-4 text-center">
+                  <StatusBadge status={row.status} />
+                </td>
+                <td className="py-3.5 px-4 text-right font-sans">
+                  <div className="flex items-center justify-end gap-1.5">
                     <button
-                      onClick={() => onRecall(row)}
-                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition"
+                      onClick={() => onView(row)}
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition"
                     >
-                      Recall
+                      View
                     </button>
-                  )}
-                </div>
-              </td>
-            </tr>
-          ))}
+                    {canEdit && row.status === 'pending_lab_clearance' && (
+                      <button
+                        onClick={() => onClearLab(row)}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition active:scale-95"
+                      >
+                        Clear Lab
+                      </button>
+                    )}
+                    {canEdit && row.status === 'active' && (
+                      <button
+                        onClick={() => onRecall(row)}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition"
+                      >
+                        Recall
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
   )
 }
 
-export function VetBookingsTable({ rows, onView, onMediate }) {
+export function VetBookingsTable({ rows, onView, onMediate, canEdit = true }) {
   if (!rows || rows.length === 0) {
     return <EmptyPlaceholder message="No appointments match the current filters." />
   }
@@ -743,7 +944,7 @@ export function VetBookingsTable({ rows, onView, onMediate }) {
               <td className="py-3.5 px-4 font-sans">
                 <div className="font-bold text-slate-900">{row.farmerName}</div>
                 <div className="text-[11px] text-slate-500 font-mono">
-                  {row.farmerPhone} • {row.maskedAadhaar}
+                  {row.farmerPhone} • <span className="text-emerald-700 font-semibold">{row.maskedAadhaar}</span>
                 </div>
                 <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
                   <MapPin className="w-3 h-3 text-slate-400" />
@@ -783,7 +984,7 @@ export function VetBookingsTable({ rows, onView, onMediate }) {
                   >
                     View
                   </button>
-                  {(row.bookingStatus === 'dispute_mediation' || row.bookingStatus === 'emergency_dispatched') && (
+                  {canEdit && (row.bookingStatus === 'dispute_mediation' || row.bookingStatus === 'emergency_dispatched') && (
                     <button
                       onClick={() => onMediate(row)}
                       className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 shadow-xs transition"
@@ -801,7 +1002,7 @@ export function VetBookingsTable({ rows, onView, onMediate }) {
   )
 }
 
-export function ManureOrdersTable({ rows, onView, onSignOff }) {
+export function ManureOrdersTable({ rows, onView, onSignOff, canEdit = true }) {
   if (!rows || rows.length === 0) {
     return <EmptyPlaceholder message="No manure orders match the current filters." />
   }
@@ -830,7 +1031,7 @@ export function ManureOrdersTable({ rows, onView, onSignOff }) {
               <td className="py-3.5 px-4 font-sans">
                 <div className="font-bold text-slate-900">{row.buyerName}</div>
                 <div className="text-[11px] text-slate-500 font-mono">
-                  {row.buyerPhone} • {row.maskedAadhaar}
+                  {row.buyerPhone} • <span className="text-emerald-700 font-semibold">{row.maskedAadhaar}</span>
                 </div>
                 <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
                   <MapPin className="w-3 h-3 text-slate-400" />
@@ -855,7 +1056,7 @@ export function ManureOrdersTable({ rows, onView, onSignOff }) {
                       </span>
                     ) : (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 animate-pulse">
-                        Sign-off Pending
+                        Sign-off Pending (&gt;₹50k)
                       </span>
                     )
                   ) : (
@@ -876,7 +1077,7 @@ export function ManureOrdersTable({ rows, onView, onSignOff }) {
                   >
                     View
                   </button>
-                  {row.dualSignOffRequired && !row.dualSignOffCompleted && (
+                  {canEdit && row.dualSignOffRequired && !row.dualSignOffCompleted && (
                     <button
                       onClick={() => onSignOff(row)}
                       className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-purple-600 text-white hover:bg-purple-700 shadow-xs transition active:scale-95"
@@ -885,6 +1086,90 @@ export function ManureOrdersTable({ rows, onView, onSignOff }) {
                     </button>
                   )}
                 </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+// Implements SOP-19 Section 5: GET /v1/admin/livestock/orders
+export function OrdersAuditTable({ rows, onView }) {
+  if (!rows || rows.length === 0) {
+    return <EmptyPlaceholder message="No livestock, dairy or manure orders match the audit filters." />
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-xs border-collapse">
+        <thead className="bg-gradient-to-r from-emerald-100/60 via-emerald-50/80 to-emerald-100/40 border-b border-emerald-200/80 text-emerald-950 uppercase tracking-wider font-bold text-[10px]">
+          <tr>
+            <th className="py-3 px-4">Order / Batch No</th>
+            <th className="py-3 px-4">Product Category</th>
+            <th className="py-3 px-4">Producer / Gaushala</th>
+            <th className="py-3 px-4">Quantity &amp; Value</th>
+            <th className="py-3 px-4">Verification &amp; Lab Cert</th>
+            <th className="py-3 px-4">Sign-off &amp; Escrow</th>
+            <th className="py-3 px-4 text-center">Audit Risk</th>
+            <th className="py-3 px-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100/80 font-mono">
+          {rows.map((row) => (
+            <tr key={row.id} className="hover:bg-emerald-50/60 transition-colors">
+              <td className="py-3.5 px-4">
+                <div className="font-bold text-slate-900">{row.orderOrBatchNumber}</div>
+                <div className="text-[11px] text-slate-500 font-sans">{new Date(row.timestamp).toLocaleDateString('en-IN')}</div>
+              </td>
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                  {row.itemType === 'dairy' ? (
+                    <Milk className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
+                  ) : (
+                    <Truck className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  )}
+                  <span>{row.title}</span>
+                </div>
+                <span className="text-[10px] uppercase font-bold text-slate-500">
+                  {row.itemType === 'dairy' ? 'A2 Dairy SKU' : 'Bulk Organic Manure'}
+                </span>
+              </td>
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-medium text-slate-900">{row.producerOrGaushala}</div>
+              </td>
+              <td className="py-3.5 px-4">
+                <div className="font-bold text-slate-900">{fmtINR(row.amountINR)}</div>
+                <div className="text-[11px] text-slate-600 font-sans">{row.quantityOrStock}</div>
+              </td>
+              <td className="py-3.5 px-4 font-sans">
+                <div className="font-semibold text-emerald-800">{row.complianceStatus}</div>
+                <div className="text-[10px] text-slate-500 font-mono mt-0.5">{row.labOrWeighbridgeSlip}</div>
+              </td>
+              <td className="py-3.5 px-4 font-sans">
+                <span className="text-[11px] text-slate-700 font-medium">{row.dualSignOffStatus}</span>
+              </td>
+              <td className="py-3.5 px-4 text-center font-sans">
+                <span
+                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                    row.auditRiskLevel === 'CRITICAL_RISK'
+                      ? 'bg-rose-100 text-rose-800 border-rose-300 animate-pulse'
+                      : row.auditRiskLevel === 'HIGH_RISK_HOLD'
+                      ? 'bg-amber-100 text-amber-800 border-amber-300'
+                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  }`}
+                >
+                  {row.auditRiskLevel.replace(/_/g, ' ')}
+                </span>
+              </td>
+              <td className="py-3.5 px-4 text-right font-sans">
+                <button
+                  onClick={() => onView(row.raw)}
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition"
+                >
+                  Audit Detail
+                </button>
               </td>
             </tr>
           ))}
